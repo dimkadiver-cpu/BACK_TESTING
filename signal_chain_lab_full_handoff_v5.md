@@ -2954,6 +2954,23 @@ Esempi minimi:
 Regola:
 - la configurazione avanzata può restare su file
 - la configurazione operativa più usata deve essere accessibile da interfaccia
+  
+La GUI del sistema deve essere limitata a funzioni di configurazione, selezione sorgenti, impostazione variabili e avvio delle pipeline operative.
+La GUI non deve includere funzionalità di reportistica, dashboard analitiche, visualizzazione avanzata dei risultati o audit dettagliato delle simulazioni.
+L’interfaccia deve agire come pannello di controllo per:
+acquisizione dati
+gestione parser
+costruzione dataset e chain
+configurazione simulazioni
+lancio di run singole, batch, confronti e optimizer
+avvio export tecnici
+La GUI può mostrare esclusivamente:
+stato del job
+esito sintetico
+warning essenziali
+percorso degli artifact generati
+log operativo minimo
+Tutti i risultati dettagliati della simulazione devono essere prodotti come artifact backend o file di output separati e non devono costituire parte integrante della GUI MVP.
 
 ### 29.9 Packaging, build e distribuzione
 
