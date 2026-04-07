@@ -313,20 +313,35 @@ Implicazioni:
 ### 4.14 Workflow di prodotto ufficiale
 Il workflow ufficiale del prodotto deve coprire l’intera pipeline di test dei segnali, non solo la simulazione finale.
 
-Fasi operative richieste:
-1. **Acquisizione dati**
-   - da canale Telegram
-   - da topic di canale Telegram
-   - da chat
-   - da dataset o DB già esistente
-2. **Applicazione parser**
-   - estrazione di segnali iniziali, update operativi e riferimenti utili alla chain
-3. **Costruzione o verifica della chain**
-   - build o verifica di chain complete, signal-only, single-trader o multi-trader
-4. **Simulazione**
-   - esecuzione parametrica con policy differenti sullo stesso dataset
-5. **Output**
-   - generazione di artifact strutturati e auditabili
+Il workflow è organizzato in **3 blocchi operativi sequenziali** con checkpoint umano esplicito dopo il blocco 2.
+
+#### Blocco 1 — Scarica dati
+- Sorgente selezionabile: canale Telegram, topic, chat, DB esistente, dataset esportato
+- Output: DB raw (`raw_messages`)
+- Il blocco è sempre disponibile
+
+#### Blocco 2 — Parsa i dati  ← checkpoint umano
+- Input: DB raw prodotto dal blocco 1 (o qualsiasi DB raw esistente)
+- Impostazioni: parser/profilo, trader mapping, date range
+- Esegue: replay parser → chain builder → generazione report
+- Output:
+  - DB arricchito (`parse_results`, catene ricostruite)
+  - CSV per tipo messaggio (new_signal / update / info_only / unclassified)
+  - **report sintetico**: N segnali totali, N NEW_SIGNAL completi, N simulabili, N orfani, top warnings
+- Il blocco si abilita quando esiste un DB raw valido
+- **L’utente rivede il report sintetico e decide se la qualità è sufficiente prima di procedere**
+- Se la qualità è insufficiente: l’utente modifica il profilo parser e riesegue il blocco 2 (loop iterativo)
+
+#### Blocco 3 — Backtest / Ottimizzazione
+- Input: DB parsato prodotto dal blocco 2
+- Impostazioni: policy, market data, date range, timeout
+- Esegue: simulation engine con policy selezionata
+- Output: results DB + trade report + artifact
+- Il blocco si abilita dopo conferma esplicita dell’utente dal report sintetico del blocco 2
+
+Nota:
+- i blocchi sono sequenziali ma i DB sono persistenti: si può rieseguire qualsiasi blocco senza perdere il lavoro precedente
+- il loop di sviluppo/debugging del parser (blocco 2 iterativo) è il caso d’uso normale, non un’eccezione
 
 ### 4.15 Requisiti di acquisizione dati
 Il sistema deve supportare come sorgenti di input almeno:
@@ -386,40 +401,61 @@ Per ogni dataset o chain, il sistema deve poter stabilire almeno:
 - warning principali
 
 ### 4.18 GUI ufficiale: pannello di configurazione e lancio
+
+**Framework scelto: NiceGUI** (Python, interfaccia browser su localhost)
+
 La GUI deve avere funzione esclusivamente operativa. Deve essere un **pannello di configurazione e lancio** e non una dashboard analitica.
 
-La GUI deve consentire solo:
-- selezione sorgenti o dataset
-- configurazione parser
-- configurazione chain builder
-- configurazione policy e variabili di simulazione
-- scelta della funzione o pipeline da lanciare
-- avvio di run singole, batch, confronti o export
-- salvataggio/caricamento preset di configurazione
+#### Struttura UI — 3 blocchi sequenziali
 
-La GUI può mostrare esclusivamente:
-- configurazione corrente
-- stato del job
-- esito sintetico
-- warning essenziali
-- log operativo minimo
-- percorso o riferimento agli artifact generati
+Ogni blocco corrisponde a un blocco operativo (§4.14) e contiene:
+- form impostazioni
+- pulsante di esecuzione
+- pannello log in tempo reale
+- esito sintetico / report al completamento
 
-La GUI MVP non deve includere come requisito centrale:
-- report di trade dettagliati
-- report scenario leggibili in UI
-- timeline completa eventi come vista primaria
+**Blocco 1 — Scarica dati**
+- Selezione sorgente: Telegram (canale/topic/chat) | DB esistente
+- Campi: chat-id, topic-id, date range, limit, session
+- Log: messaggi scaricati, duplicati, path DB output
+- Sempre abilitato
+
+**Blocco 2 — Parsa i dati**
+- Selezione DB sorgente (output blocco 1 o file esterno)
+- Selezione parser/profilo trader
+- Configurazione trader mapping
+- Date range, limit
+- Al completamento: mostra report sintetico con N segnali, N simulabili, top warnings
+- Pulsante "Procedi al Backtest →" sblocca blocco 3
+- Abilitato quando esiste un DB raw valido
+
+**Blocco 3 — Backtest**
+- Selezione DB parsato
+- Selezione policy (original_chain / signal_only / custom)
+- Configurazione market data dir, timeframe, timeout
+- Abilitato dopo conferma esplicita dall'utente (dal report blocco 2)
+
+#### Struttura file
+```
+src/signal_chain_lab/ui/
+├── app.py                   ← entry point NiceGUI (ui.run)
+├── blocks/
+│   ├── block_download.py    ← blocco 1
+│   ├── block_parse.py       ← blocco 2 + report sintetico
+│   └── block_backtest.py    ← blocco 3
+├── components/
+│   ├── log_panel.py         ← pannello log riusabile
+│   ├── quality_report.py    ← card report sintetico
+│   └── preset_manager.py    ← salva/carica configurazioni
+└── state.py                 ← stato condiviso tra blocchi
+```
+
+#### Cosa la GUI non deve includere nell'MVP
+- report di trade dettagliati inline
 - dashboard statistiche
 - confronto visuale avanzato tra policy
+- timeline completa eventi come vista primaria
 - report HTML embedded
-
-Moduli operativi minimi della GUI:
-- **Data Source / Import**
-- **Parser Management**
-- **Chain Builder**
-- **Simulation Setup**
-- **Execution**
-- **System / Deploy Settings**
 
 ---
 
@@ -733,137 +769,90 @@ Tutto il resto può essere introdotto progressivamente.
 
 ---
 
-## 8. Dipendenze consigliate
+## 8. Dipendenze — decisioni definitive
 
-Le dipendenze devono essere classificate in base al loro ruolo reale nel progetto, distinguendo tra bootstrap del simulatore, sviluppo, analytics e ottimizzazione.
+Le dipendenze sono classificate in base al ruolo reale nel progetto. Le scelte sono state finalizzate nella fase di pianificazione.
 
 ### 8.1 Runtime core (bootstrap iniziale)
 
-#### `pydantic`
-Uso:
-- data contracts
-- validazione eventi
-- validazione payload
-- modelli dominio e risultati
+#### `pydantic>=2.0`
+Data contracts, validazione eventi e payload, modelli dominio e risultati. Obbligatorio.
 
-#### `pydantic-settings`
-Uso:
-- gestione settings da env
-- configurazione centralizzata dell'app
+#### `pydantic-settings>=2.0`
+Gestione settings da env vars (`DATABASE_URL`, `LOG_LEVEL`, ecc.). Obbligatorio.
 
-#### `PyYAML`
-Uso:
-- lettura di `configs/app.yaml`
-- lettura delle policy YAML
+#### `PyYAML>=6.0`
+Lettura `configs/app.yaml` e file policy YAML. Obbligatorio.
 
-#### `numpy`
-Uso:
-- calcoli numerici
-- metriche base
-- supporto a logiche quantitative del simulatore
+#### `aiosqlite>=0.20.0`
+Accesso async al DB SQLite. Usato direttamente da `chain_builder.py` e dagli store. Obbligatorio nel bootstrap.
 
-#### `sqlalchemy`
-Uso:
-- integrazione con DB esistente
-- lettura / mapping dati
-- compatibilità futura SQLite / PostgreSQL
+#### `python-dotenv>=1.0.0`
+Caricamento `.env`. Obbligatorio.
 
-Nota:
-- `sqlalchemy` è core per l’integrazione dati
-- non è parte del simulation core in senso stretto
+### 8.2 Extra: GUI
 
-### 8.2 Runtime utili ma non obbligatorie nel bootstrap
+#### `nicegui>=2.0`  ← **framework GUI scelto**
+Interfaccia browser su localhost. Usato per il launcher a 3 blocchi (§4.18).
+Installazione: `pip install -e ".[gui]"`
 
-#### `matplotlib`
-Uso:
-- plot base della singola chain
-- export statici minimi per MVP
+### 8.3 Extra: acquisizione Telegram
 
-#### `orjson`
-Uso:
-- serializzazione JSON veloce per event log e artifact
+#### `telethon>=1.34.0`
+Necessario solo per il blocco 1 (scarico da Telegram). Non richiesto per chi usa solo DB esistenti.
+Installazione: `pip install -e ".[telegram]"`
 
-#### `typer`
-Uso:
-- CLI pulite per `run_single_chain`, `run_scenario`, `audit_existing_db`
+### 8.4 Extra: DB avanzato
 
-#### `rich`
-Uso:
-- output CLI leggibile
-- logging locale più chiaro
+#### `sqlalchemy>=2.0`
+Compatibilità futura SQLite → PostgreSQL. Non necessario nel bootstrap (il codice attuale usa `aiosqlite` direttamente). Da introdurre quando serve migrazione a Postgres.
+Installazione: `pip install -e ".[db]"`
 
-### 8.3 Dev / test essentials
+### 8.5 Extra: analytics e reporting
 
-#### `pytest`
-Uso:
-- unit tests
-- integration tests
-- regression tests
-- golden tests
+#### `pandas>=2.0`
+Aggregazioni scenario/portfolio, export tabellari, analisi risultati.
 
-#### `pytest-cov`
-Uso:
-- coverage
+#### `pyarrow>=15.0`
+Storage Parquet per market data e risultati.
 
-#### `ruff`
-Uso:
-- lint
-- check stile
-- qualità base repository
+#### `plotly>=5.0`
+Chart interattivi, equity curve, report HTML.
 
-#### `mypy`
-Uso:
-- controllo statico tipi
-- migliore robustezza del core
+#### `duckdb>=1.0`
+Query veloci su Parquet per analisi massiva offline.
 
-### 8.4 Analytics / reporting / optimization extras
+#### `polars>=1.0`
+Alternativa veloce a pandas su dataset grandi.
 
-#### `pandas`
-Uso:
-- aggregazioni scenario / portfolio
-- export tabellari
-- analisi risultati
+Installazione: `pip install -e ".[analytics]"`
 
-#### `pyarrow`
-Uso:
-- storage Parquet
-- dataset veloci per risultati e market data
+### 8.6 Extra: ottimizzazione
 
-#### `plotly`
-Uso:
-- chart interattivi
-- report HTML
-- plotting avanzato
+#### `optuna>=4.0`  ← **framework optimizer scelto**
+Hyperparameter optimizer. Sta sopra il motore come orchestratore esterno (§5.3).
+Non contamina il simulation core. Gestisce trial, pruning, studi replicabili.
+Installazione: `pip install -e ".[optimizer]"`
 
-#### `duckdb`
-Uso:
-- query veloci su Parquet
-- analisi massiva offline
+### 8.7 Dev / test
 
-#### `polars`
-Uso:
-- alternativa veloce a pandas su dataset grandi
+`pytest>=8.0`, `pytest-asyncio>=0.23`, `pytest-cov>=5.0`, `mypy>=1.0`, `ruff>=0.5`
 
-#### `optuna`
-Uso:
-- optimizer
-- ricerca spazio parametri
-- studi replicabili
+### 8.8 Decisioni esplicite su librerie NON usate
+
+| Libreria | Motivo esclusione |
+|---|---|
+| `vectorbt` | Progettato per strategie indicator-based vettorizzate — incompatibile con replay di event sequences |
+| `backtrader` | Progettato per strategie codificate, non per replay di catene di eventi dichiarati dal trader |
+| `backtesting.py` | Troppo semplice, nessun supporto state machine / policy / eventi dichiarati vs eseguiti |
+| `freqtrade` (come engine) | Richiederebbe codificare la strategia come classe freqtrade — contrario al design event-driven |
+| `numpy` | Non necessario nel core del simulatore. Disponibile transitivamente via pandas/pyarrow se serve |
+| `matplotlib` | Sostituito da plotly per output interattivi |
+| `typer` / `rich` | Non necessari — la GUI NiceGUI gestisce configurazione e lancio |
 
 ---
 
-## 9. Esempio dipendenze — `pyproject.toml`
-
-Il file `pyproject.toml` deve riflettere la distinzione tra:
-
-- runtime core del simulatore
-- extra per CLI
-- extra per plotting
-- extra per analytics
-- extra per optimizer
-- dipendenze di sviluppo e test
-
-Configurazione consigliata:
+## 9. `pyproject.toml` — configurazione definitiva
 
 ```toml
 [project]
@@ -876,19 +865,21 @@ dependencies = [
   "pydantic>=2.0",
   "pydantic-settings>=2.0",
   "PyYAML>=6.0",
-  "sqlalchemy>=2.0",
-  "numpy>=1.26",
+  "aiosqlite>=0.20.0",
+  "python-dotenv>=1.0.0",
 ]
 
 [project.optional-dependencies]
-cli = [
-  "typer>=0.12",
-  "rich>=13.0",
-  "orjson>=3.0",
+gui = [
+  "nicegui>=2.0",
 ]
 
-plot = [
-  "matplotlib>=3.8",
+telegram = [
+  "telethon>=1.34.0",
+]
+
+db = [
+  "sqlalchemy>=2.0",
 ]
 
 analytics = [
@@ -903,15 +894,24 @@ optimizer = [
   "optuna>=4.0",
 ]
 
+full = [
+  "nicegui>=2.0",
+  "telethon>=1.34.0",
+  "sqlalchemy>=2.0",
+  "pandas>=2.0",
+  "pyarrow>=15.0",
+]
+
 dev = [
   "pytest>=8.0",
+  "pytest-asyncio>=0.23",
   "pytest-cov>=5.0",
   "mypy>=1.0",
   "ruff>=0.5",
 ]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["tests", "src", "parser_test"]
 
 [tool.ruff]
 line-length = 100
@@ -919,6 +919,16 @@ line-length = 100
 [tool.mypy]
 python_version = "3.12"
 strict = false
+```
+
+Installazione tipica sviluppo locale:
+```bash
+pip install -e ".[full,dev]"
+```
+
+Installazione solo simulatore (senza GUI e Telegram):
+```bash
+pip install -e ".[analytics,optimizer,dev]"
 ```
 
 ---
