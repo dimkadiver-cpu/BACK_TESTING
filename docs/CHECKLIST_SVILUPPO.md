@@ -106,11 +106,11 @@
 
 ## SPRINT 6 — Intrabar / Realism milestone 1
 
-- [ ] **S6.1** `market/intrabar_resolver.py`: risolve ordine SL/TP su same-candle usando child timeframe
-- [ ] **S6.2** `market/providers/parquet_provider.py`: ParquetProvider con supporto child timeframe
-- [ ] **S6.3** Integrazione intrabar nel simulator: rileva collisioni, invoca resolver, fallback deterministico
-- [ ] **S6.4** `tests/unit/test_intrabar_resolver.py`: caso child disponibile, caso child assente (fallback + warning)
-- [ ] **S6.5** `tests/integration/test_intrabar_collision.py`: end-to-end con case ambiguo
+- [x] **S6.1** `market/intrabar_resolver.py`: risolve ordine SL/TP su same-candle usando child timeframe
+- [x] **S6.2** `market/providers/parquet_provider.py`: ParquetProvider con supporto child timeframe
+- [x] **S6.3** Integrazione intrabar nel simulator: rileva collisioni, invoca resolver, fallback deterministico
+- [x] **S6.4** `tests/unit/test_intrabar_resolver.py`: caso child disponibile, caso child assente (fallback + warning)
+- [x] **S6.5** `tests/integration/test_intrabar_collision.py`: end-to-end con case ambiguo
 
 **Acceptance:** collisioni same-candle risolte, fallback tracciati in warning, benchmark baseline non regrediscono.
 
