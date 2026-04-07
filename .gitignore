@@ -61,3 +61,7 @@ parser_test/db/NEW_DB/
 # Claude Code worktrees / local settings
 .claude/worktrees/
 .claude/settings.json
+
+# Simulation artifacts and market data (generated, not source)
+artifacts/
+data/market/
