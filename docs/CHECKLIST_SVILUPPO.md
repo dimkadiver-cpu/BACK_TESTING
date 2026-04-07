@@ -63,13 +63,13 @@
 
 ## SPRINT 3 — Policy baseline e run singolo
 
-- [ ] **S3.1** `policies/policy_loader.py`: carica da YAML, valida schema, applica default espliciti
-- [ ] **S3.2** `configs/policies/original_chain.yaml`: compilare con valori concreti
-- [ ] **S3.3** `configs/policies/signal_only.yaml`: compilare, tutti gli update disabilitati
-- [ ] **S3.4** `scripts/run_single_chain.py`: CLI completo (signal_id, policy, db_path, market_dir)
-- [ ] **S3.5** `tests/unit/test_policy_loader.py`: carica policy, campi mancanti, policy inesistente
-- [ ] **S3.6** `tests/unit/test_policy_baseline.py`: signal_only disabilita tutti gli update
-- [ ] **S3.7** `tests/integration/test_original_chain_vs_signal_only.py`: stessa chain, due policy, risultati distinguibili
+- [x] **S3.1** `policies/policy_loader.py`: carica da YAML, valida schema, applica default espliciti
+- [x] **S3.2** `configs/policies/original_chain.yaml`: compilare con valori concreti
+- [x] **S3.3** `configs/policies/signal_only.yaml`: compilare, tutti gli update disabilitati
+- [x] **S3.4** `scripts/run_single_chain.py`: CLI completo (signal_id, policy, db_path, market_dir)
+- [x] **S3.5** `tests/unit/test_policy_loader.py`: carica policy, campi mancanti, policy inesistente
+- [x] **S3.6** `tests/unit/test_policy_baseline.py`: signal_only disabilita tutti gli update
+- [x] **S3.7** `tests/integration/test_original_chain_vs_signal_only.py`: stessa chain, due policy, risultati distinguibili
 
 **Acceptance:** run_single_chain.py esegue su chain reale, policy baseline operativi, test verdi.
 

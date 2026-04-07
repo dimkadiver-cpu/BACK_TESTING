@@ -1,7 +1,3 @@
-# Policy: signal_only
-# Executes only the initial setup, ignoring all subsequent trader updates.
-# Compatible with both chain-complete datasets and signal-only native datasets.
-
 name: signal_only
 
 entry:
@@ -13,11 +9,11 @@ entry:
 tp:
   use_original_tp: true
   use_tp_count: null
-  tp_distribution: equal
+  tp_distribution: original
 
 sl:
   use_original_sl: true
-  break_even_mode: false
+  break_even_mode: none
   be_trigger: null
   move_sl_with_trader: false
 
@@ -27,7 +23,7 @@ updates:
   apply_close_full: false
   apply_cancel_pending: false
   apply_add_entry: false
-  partial_close_fallback_pct: 50.0
+  partial_close_fallback_pct: 0.5
 
 pending:
   pending_timeout_hours: 24
