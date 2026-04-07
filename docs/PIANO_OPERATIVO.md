@@ -17,6 +17,7 @@
 - ✅ Reporting (`src/signal_chain_lab/reports/`)
 - 🔶 Optimizer implementato, da chiudere validazione riproducibilità top trial (`src/signal_chain_lab/optimizer/`)
 - 🔶 UI NiceGUI in stato MVP parziale (`src/signal_chain_lab/ui/`): presenti app/state/components, manca refactor blocchi dedicati + validazione manuale
+- 🔶 Ingestion Telegram disponibile in modalità **storica/offline** via `parser_test/scripts/import_history.py`; listener live `src.telegram` non incluso nel workspace corrente
 
 ### Qualità e test
 - ✅ Presenza suite unit/integration/golden (`tests/`)
@@ -29,6 +30,7 @@
 1. **Chiudere Sprint 7 (S7.6)**: riprodurre top trial optimizer via scenario runner e documentare delta.
 2. **Chiudere Sprint 9 (UI)**: estrarre i 3 blocchi in moduli dedicati e completare validazione manuale end-to-end.
 3. **Stabilizzare pipeline CI locale**: esecuzione test su Python 3.12 con comando standard unico.
+4. **Allineare documentazione parser_test/ingestion**: mantenere coerente la distinzione tra import storico e listener live.
 
 ---
 

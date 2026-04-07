@@ -44,6 +44,13 @@ python scripts/run_scenario.py --help
 python parser_test/scripts/export_reports_csv.py --help
 ```
 
+
+## Acquisizione Telegram (stato attuale)
+
+- È disponibile l'import storico nel DB test con `parser_test/scripts/import_history.py`.
+- L'import richiede `telethon` + credenziali `TELEGRAM_API_ID` / `TELEGRAM_API_HASH`.
+- I moduli runtime live `src.telegram` non fanno parte di questo workspace: usare il flusso `parser_test` come ingestione offline/storica.
+
 ## Documentazione di riferimento
 
 - Architettura: `docs/architecture.md`
