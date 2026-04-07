@@ -1,6 +1,7 @@
 """Trade report: aggregated per-trade simulation results."""
 from __future__ import annotations
 
+import csv
 import json
 from pathlib import Path
 
@@ -46,4 +47,41 @@ def write_trade_result_parquet(result: TradeResult, output_path: str | Path) -> 
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(result.model_dump(mode="json"), ensure_ascii=False), encoding="utf-8")
+    return path
+
+
+def write_trade_results_csv(results: list[TradeResult], output_path: str | Path) -> Path:
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fieldnames = [
+        "signal_id",
+        "trader_id",
+        "symbol",
+        "side",
+        "status",
+        "input_mode",
+        "policy_name",
+        "close_reason",
+        "created_at",
+        "first_fill_at",
+        "closed_at",
+        "duration_seconds",
+        "entries_count",
+        "avg_entry_price",
+        "max_position_size",
+        "final_position_size",
+        "realized_pnl",
+        "unrealized_pnl",
+        "fees_paid",
+        "mae",
+        "mfe",
+        "warnings_count",
+        "ignored_events_count",
+    ]
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        for result in results:
+            row = result.model_dump(mode="json")
+            writer.writerow(row)
     return path
