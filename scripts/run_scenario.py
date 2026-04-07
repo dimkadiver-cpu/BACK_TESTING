@@ -51,20 +51,25 @@ def main() -> int:
         canonical = [chain for chain in canonical if chain.created_at <= args.date_to]
 
     _ = Path(args.market_dir)  # reserved for market providers integration
-    scenario_results, _ = run_scenarios(canonical, policies, market_provider=None)
+    scenario_results, per_policy_trades = run_scenarios(canonical, policies, market_provider=None)
     comparisons = compare_scenarios(scenario_results, baseline_policy=policies[0].name)
 
     output_dir = Path("artifacts") / "scenarios"
-    scenario_path, comparison_path = write_scenario_artifacts(
+    scenario_path, comparison_path, csv_path, html_path = write_scenario_artifacts(
         scenario_results=scenario_results,
         comparisons=comparisons,
         output_dir=output_dir,
+        per_policy_trades=per_policy_trades,
     )
 
     print(f"chains_selected={len(canonical)}")
     print(f"policies={','.join(policy_names)}")
     print(f"scenario_results={scenario_path}")
     print(f"scenario_comparison={comparison_path}")
+    if csv_path:
+        print(f"trade_results_csv={csv_path}")
+    if html_path:
+        print(f"scenario_html={html_path}")
     print("Summary:")
     for result in scenario_results:
         print(

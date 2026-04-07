@@ -2,7 +2,7 @@
 
 Laboratorio event-driven per replay/backtesting di chain di segnali trading, con adapter dal DB parser, policy configurabili, motore di simulazione, scenario runner, optimizer e reporting.
 
-## Stato attuale (verifica: 2026-04-07)
+## Stato attuale (verifica: 2026-04-07, Incremento C completato)
 
 Il repository contiene una pipeline backtesting completa lato core:
 
@@ -12,7 +12,7 @@ Il repository contiene una pipeline backtesting completa lato core:
 - market layer (`csv_provider`, `parquet_provider`, `intrabar_resolver`)
 - policy layer (`policy_loader` + policy YAML baseline/custom)
 - scenario runner + optimizer
-- reporting (`event_log_report`, `trade_report`, `html_report`, `chain_plot`)
+- reporting (`event_log_report`, `trade_report`, `html_report`, `chain_plot`) — run singola: 5 artifact (JSONL, JSON, CSV, PNG, HTML); scenario: 4 artifact (JSON×2, CSV, HTML)
 - GUI NiceGUI **MVP parziale** (`ui/app.py`, `ui/state.py`, `ui/components/*`; modularizzazione `ui/blocks/*` ancora aperta)
 - suite test (unit, integration, golden)
 

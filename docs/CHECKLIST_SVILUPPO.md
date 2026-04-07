@@ -1,6 +1,7 @@
 # Checklist Sviluppo — Signal Chain Backtesting Lab
-**Versione:** 1.0  
+**Versione:** 1.1  
 **Generata:** 2026-04-07  
+**Aggiornata:** 2026-04-07 (Incremento C — Hardening operativo)  
 **Istruzioni:** spunta con `[x]` ogni task completato. Aggiorna RISCHI e GAP se emergono nuove criticità.
 
 ---
@@ -155,6 +156,18 @@
 
 ---
 
+## INCREMENTO C — Hardening operativo ✅ COMPLETATO (2026-04-07)
+
+- [x] **IC.1** `run_single_chain.py`: aggiunta export CSV (`trade_result.csv`), PNG (`equity_curve.png`) e HTML (`equity_curve.html`) per ogni run singola
+- [x] **IC.2** `scenario/runner.py`: `write_scenario_artifacts` accetta `per_policy_trades` e produce `trade_results.csv` + `scenario_report.html` (standalone con equity curve e tabella trade)
+- [x] **IC.3** `run_scenario.py`: cattura `per_policy_trades` da `run_scenarios`, lo passa a `write_scenario_artifacts`, stampa i path di tutti e 4 gli artifact
+- [x] **IC.4** `engine/simulator.py`: `logging.warning()` emesso quando `resolution.used_fallback` con `signal_id`, `symbol`, `warning_code` e `reason`
+- [x] **IC.5** `market/intrabar_resolver.py`: `logging.warning()` su `INTRABAR_SAME_CHILD_AMBIGUOUS` (stesso child candle) e `INTRABAR_CHILD_DATA_UNAVAILABLE` (fallback finale), con dettagli di timestamp, side, prezzi e numero candle esaminate
+
+**Acceptance:** singola run produce 5 artifact (JSONL, JSON/parquet, CSV, PNG, HTML); scenario produce 4 artifact (JSON×2, CSV, HTML); ogni fallback intrabar emette `logger.warning` oltre a incrementare `warnings_count`.
+
+---
+
 ## SPRINT 10 — V2 Realism (fase futura)
 
 - [ ] **S10.1** Slippage model configurabile
@@ -229,6 +242,7 @@
 | Sprint 7 | ✅ FATTO | optimizer implementato; S7.6 chiuso: test riproducibilità top trial in `tests/integration/test_optimizer_reproducibility.py` (snapshot v1.0, delta=0.0) |
 | Sprint 8 | ✅ FATTO | reporting avanzato HTML/PNG/CSV/JSONL completato |
 | Sprint 9 | 🔶 PARZIALE | UI refactorizzata in blocchi modulari (`ui/blocks/block_download/parse/backtest.py`); `app.py` ridotto a orchestratore; resta aperto solo S9.8 (test manuale workflow) |
+| Incremento C | ✅ FATTO | export artifact uniformati (JSONL/CSV/HTML/PNG per run singola e scenario); logging warning rafforzato su tutti i fallback intrabar |
 | Sprint 10 | 🔲 FUTURO | realism V2 fuori MVP |
 | Sprint 11 | 🔲 FUTURO | realism V3 fuori MVP |
 

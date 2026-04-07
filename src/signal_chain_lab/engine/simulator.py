@@ -1,6 +1,8 @@
 """Main simulation orchestrator: drives signal chains through market data."""
 from __future__ import annotations
 
+import logging
+
 from src.signal_chain_lab.domain.enums import EventSource, EventType, TradeStatus
 from src.signal_chain_lab.domain.events import CanonicalChain, CanonicalEvent
 from src.signal_chain_lab.domain.results import EventLogEntry
@@ -9,6 +11,8 @@ from src.signal_chain_lab.engine.state_machine import apply_event
 from src.signal_chain_lab.market.data_models import Candle, MarketDataProvider
 from src.signal_chain_lab.market.intrabar_resolver import IntrabarResolution, IntrabarResolver
 from src.signal_chain_lab.policies.base import PolicyConfig
+
+_logger = logging.getLogger(__name__)
 
 
 def build_initial_state(chain: CanonicalChain, policy: PolicyConfig) -> TradeState:
@@ -59,6 +63,13 @@ def simulate_chain(
 
         if resolution.used_fallback:
             state.warnings_count += 1
+            _logger.warning(
+                "Intrabar fallback applied: signal_id=%s symbol=%s warning_code=%s reason=%s",
+                chain.signal_id,
+                chain.symbol,
+                resolution.warning_code,
+                resolution.reason,
+            )
 
         engine_event = _build_engine_close_event(chain=chain, resolution=resolution, sequence_seed=event.sequence)
         engine_log = apply_event(state, engine_event)
