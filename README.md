@@ -13,6 +13,7 @@ Il repository contiene una pipeline backtesting completa lato core:
 - policy layer (`policy_loader` + policy YAML baseline/custom)
 - scenario runner + optimizer
 - reporting (`event_log_report`, `trade_report`, `html_report`, `chain_plot`)
+- GUI NiceGUI **MVP parziale** (`ui/app.py`, `ui/state.py`, `ui/components/*`; modularizzazione `ui/blocks/*` ancora aperta)
 - suite test (unit, integration, golden)
 
 ### Limite ambiente noto

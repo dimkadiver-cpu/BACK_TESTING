@@ -142,16 +142,16 @@
 
 ## SPRINT 9 — GUI NiceGUI
 
-- [ ] **S9.1** `src/signal_chain_lab/ui/app.py`: entry point NiceGUI, layout 3 blocchi
-- [ ] **S9.2** `ui/blocks/block_download.py`: Blocco 1 form + log panel
-- [ ] **S9.3** `ui/blocks/block_parse.py`: Blocco 2 form + report sintetico + pulsante sblocco
-- [ ] **S9.4** `ui/blocks/block_backtest.py`: Blocco 3 form + esecuzione scenario
-- [ ] **S9.5** `ui/components/log_panel.py`: pannello log riusabile
-- [ ] **S9.6** `ui/components/quality_report.py`: card report sintetico
-- [ ] **S9.7** `ui/state.py`: stato condiviso tra blocchi
+- [x] **S9.1** `src/signal_chain_lab/ui/app.py`: entry point NiceGUI, layout 3 blocchi
+- [ ] **S9.2** `ui/blocks/block_download.py`: Blocco 1 form + log panel (non estratto in modulo dedicato; logica attualmente in `app.py`)
+- [ ] **S9.3** `ui/blocks/block_parse.py`: Blocco 2 form + report sintetico + pulsante sblocco (non estratto in modulo dedicato; logica attualmente in `app.py`)
+- [ ] **S9.4** `ui/blocks/block_backtest.py`: Blocco 3 form + esecuzione scenario (non estratto in modulo dedicato; logica attualmente in `app.py`)
+- [x] **S9.5** `ui/components/log_panel.py`: pannello log riusabile
+- [x] **S9.6** `ui/components/quality_report.py`: card report sintetico
+- [x] **S9.7** `ui/state.py`: stato condiviso tra blocchi
 - [ ] **S9.8** Test manuale workflow completo: download → parse → backtest
 
-**Acceptance:** workflow 3 blocchi funzionante, checkpoint umano operativo dopo Blocco 2.
+**Acceptance:** workflow 3 blocchi **presente in MVP** ma refactor dei blocchi in moduli separati e validazione manuale end-to-end ancora aperti.
 
 ---
 
@@ -228,7 +228,7 @@
 | Sprint 6 | ✅ FATTO | intrabar resolver + provider parquet + integrazione collisioni completati |
 | Sprint 7 | 🔶 PARZIALE | optimizer implementato; resta aperto **S7.6** (riproducibilità top trial) |
 | Sprint 8 | ✅ FATTO | reporting avanzato HTML/PNG/CSV/JSONL completato |
-| Sprint 9 | 🔲 TODO | UI NiceGUI pianificata ma non ancora implementata a blocchi |
+| Sprint 9 | 🔶 PARZIALE | UI MVP implementata (`app.py`, `state.py`, `components/*`); manca modularizzazione `ui/blocks/*` e test manuale S9.8 |
 | Sprint 10 | 🔲 FUTURO | realism V2 fuori MVP |
 | Sprint 11 | 🔲 FUTURO | realism V3 fuori MVP |
 
