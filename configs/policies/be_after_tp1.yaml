@@ -1,0 +1,38 @@
+name: be_after_tp1
+
+entry:
+  use_original_entries: true
+  entry_allocation: equal
+  max_entries_to_use: null
+  allow_add_entry_updates: true
+
+tp:
+  use_original_tp: true
+  use_tp_count: null
+  tp_distribution: original
+
+sl:
+  use_original_sl: true
+  break_even_mode: after_tp1
+  be_trigger: tp1
+  move_sl_with_trader: true
+
+updates:
+  apply_move_stop: true
+  apply_close_partial: true
+  apply_close_full: true
+  apply_cancel_pending: true
+  apply_add_entry: true
+  partial_close_fallback_pct: 0.5
+
+pending:
+  pending_timeout_hours: 24
+  chain_timeout_hours: 168
+  cancel_pending_on_timeout: true
+  cancel_unfilled_if_tp1_reached_before_fill: false
+  cancel_averaging_pending_after_tp1: false
+
+execution:
+  latency_ms: 0
+  slippage_model: none
+  fill_touch_guaranteed: true
