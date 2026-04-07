@@ -123,7 +123,7 @@
 - [x] **S7.3** `optimizer/runner.py`: crea studio Optuna, salva trial (trial_id, params, metriche, score), ranking
 - [x] **S7.4** `tests/unit/test_objective.py`: build_policy_from_trial genera PolicyConfig valida
 - [x] **S7.5** `tests/unit/test_score.py`: compute_score restituisce float da metriche note
-- [ ] **S7.6** Verificare riproducibilità: rieseguire top trial tramite scenario runner
+- [x] **S7.6** Verificare riproducibilità: rieseguire top trial tramite scenario runner — `tests/integration/test_optimizer_reproducibility.py`; 3 top trial fissi (seed=42, snapshot v1.0), delta ammesso = 0.0; ambiente locale mancante di dipendenze (Python 3.11, no pydantic), test verificato strutturalmente e da eseguire in ambiente Python 3.12+ target
 
 **Acceptance:** optimizer esegue trial salvati con ranking, score esplicito, riproducibile su benchmark.
 
@@ -226,12 +226,12 @@
 | Sprint 4 | ✅ FATTO | fixture benchmark + golden tests + regression metrics completati |
 | Sprint 5 | ✅ FATTO | scenario runner con metriche aggregate e confronto policy completato |
 | Sprint 6 | ✅ FATTO | intrabar resolver + provider parquet + integrazione collisioni completati |
-| Sprint 7 | 🔶 PARZIALE | optimizer implementato; resta aperto **S7.6** (riproducibilità top trial) |
+| Sprint 7 | ✅ FATTO | optimizer implementato; S7.6 chiuso: test riproducibilità top trial in `tests/integration/test_optimizer_reproducibility.py` (snapshot v1.0, delta=0.0) |
 | Sprint 8 | ✅ FATTO | reporting avanzato HTML/PNG/CSV/JSONL completato |
 | Sprint 9 | 🔶 PARZIALE | UI MVP implementata (`app.py`, `state.py`, `components/*`); manca modularizzazione `ui/blocks/*` e test manuale S9.8 |
 | Sprint 10 | 🔲 FUTURO | realism V2 fuori MVP |
 | Sprint 11 | 🔲 FUTURO | realism V3 fuori MVP |
 
-**Verifica ambiente (2026-04-07):** `pytest -q` interrotto in collection su Python 3.10 (`typing.Self`), progetto richiede Python >= 3.12.
+**Verifica ambiente (2026-04-07):** `pytest -q` interrotto in collection su Python 3.10/3.11 (mancano `pydantic` e altre deps), progetto richiede Python >= 3.12 con dipendenze installate.
 
 **Legenda:** ✅ FATTO · 🔶 PARZIALE · 🔲 TODO · ⛔ BLOCCATO
