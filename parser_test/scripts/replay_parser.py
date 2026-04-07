@@ -24,16 +24,26 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.core.config_loader import load_config
-from src.core.migrations import apply_migrations
-from src.parser.trader_profiles.base import ParserContext, TraderParseResult
-from src.parser.trader_profiles.common_utils import extract_hashtags, extract_telegram_links
-from src.parser.trader_profiles.registry import canonicalize_trader_code, get_profile_parser
-from src.storage.parse_results import ParseResultRecord, ParseResultStore
-from src.storage.raw_messages import RawMessageStore
-from src.telegram.effective_trader import EffectiveTraderContext, EffectiveTraderResolver
-from src.telegram.eligibility import MessageEligibilityEvaluator
-from src.telegram.trader_mapping import TelegramSourceTraderMapper
+from src.signal_chain_lab.core.config_loader import load_config
+from src.signal_chain_lab.core.migrations import apply_migrations
+from src.signal_chain_lab.parser.trader_profiles.base import ParserContext, TraderParseResult
+from src.signal_chain_lab.parser.trader_profiles.common_utils import extract_hashtags, extract_telegram_links
+from src.signal_chain_lab.parser.trader_profiles.registry import canonicalize_trader_code, get_profile_parser
+from src.signal_chain_lab.storage.parse_results import ParseResultRecord, ParseResultStore
+from src.signal_chain_lab.storage.raw_messages import RawMessageStore
+
+# NOTE: src.telegram was removed from this repo (live system modules).
+# These imports are kept for reference only and will raise ImportError at runtime.
+# To use replay_parser.py, provide a custom trader resolver or refactor accordingly.
+try:
+    from src.telegram.effective_trader import EffectiveTraderContext, EffectiveTraderResolver  # type: ignore[import]
+    from src.telegram.eligibility import MessageEligibilityEvaluator  # type: ignore[import]
+    from src.telegram.trader_mapping import TelegramSourceTraderMapper  # type: ignore[import]
+except ImportError:
+    EffectiveTraderContext = None  # type: ignore[assignment,misc]
+    EffectiveTraderResolver = None  # type: ignore[assignment,misc]
+    MessageEligibilityEvaluator = None  # type: ignore[assignment,misc]
+    TelegramSourceTraderMapper = None  # type: ignore[assignment,misc]
 from parser_test.scripts.db_paths import resolve_parser_test_db_path
 
 _SIGNAL_ID_RE = re.compile(r"\bSIGNAL\s*ID\s*:\s*#?\s*(?P<id>\d+)\b", re.IGNORECASE)
@@ -264,7 +274,7 @@ def main() -> None:
     config = load_config(str(PROJECT_ROOT))
     source_map_path = os.getenv(
         "PARSER_TEST_TELEGRAM_SOURCE_MAP_PATH",
-        str(PROJECT_ROOT / "config" / "telegram_source_map.json"),
+        str(PROJECT_ROOT / "configs" / "telegram_source_map.json"),
     )
     source_map_path = (
         str((PROJECT_ROOT / source_map_path).resolve())
@@ -595,7 +605,7 @@ def replay_database(
     config = load_config(str(PROJECT_ROOT))
     source_map_path = os.getenv(
         "PARSER_TEST_TELEGRAM_SOURCE_MAP_PATH",
-        str(PROJECT_ROOT / "config" / "telegram_source_map.json"),
+        str(PROJECT_ROOT / "configs" / "telegram_source_map.json"),
     )
     source_map_path = (
         str((PROJECT_ROOT / source_map_path).resolve())

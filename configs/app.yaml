@@ -1,0 +1,27 @@
+app:
+  env: dev
+  timezone: UTC
+
+db:
+  source_url: "sqlite:///./data/source.sqlite3"
+  results_url: "sqlite:///./data/results.sqlite3"
+
+market:
+  data_dir: "./data/market"
+  base_timeframe: "1h"
+  intrabar:
+    supported: true
+    enabled_by_default: false
+    default_child_timeframe: "1m"
+
+runtime_defaults:
+  inconsistency_mode: soft   # soft | strict
+  pending_timeout_hours: 24
+  chain_timeout_hours: 168
+
+artifacts:
+  output_dir: "./artifacts"
+  save_event_logs: true
+  save_trade_reports: true
+  save_plots_png: true
+  save_plots_html: false

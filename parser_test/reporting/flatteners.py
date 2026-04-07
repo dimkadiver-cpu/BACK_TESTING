@@ -5,7 +5,7 @@ import re
 from typing import Any
 
 from parser_test.reporting.report_schema import schema_for_scope
-from src.parser.action_builders.canonical_v2 import derive_legacy_actions
+from src.signal_chain_lab.parser.action_builders.canonical_v2 import derive_legacy_actions
 
 
 def build_report_row(
