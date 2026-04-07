@@ -118,11 +118,11 @@
 
 ## SPRINT 7 — Optimizer
 
-- [ ] **S7.1** `configs/optimizer.yaml`: benchmark dataset, search space bounds, n_trials, scoring weights
-- [ ] **S7.2** `optimizer/objective.py`: build_policy_from_trial, compute_score (esplicito e documentato)
-- [ ] **S7.3** `optimizer/runner.py`: crea studio Optuna, salva trial (trial_id, params, metriche, score), ranking
-- [ ] **S7.4** `tests/unit/test_objective.py`: build_policy_from_trial genera PolicyConfig valida
-- [ ] **S7.5** `tests/unit/test_score.py`: compute_score restituisce float da metriche note
+- [x] **S7.1** `configs/optimizer.yaml`: benchmark dataset, search space bounds, n_trials, scoring weights
+- [x] **S7.2** `optimizer/objective.py`: build_policy_from_trial, compute_score (esplicito e documentato)
+- [x] **S7.3** `optimizer/runner.py`: crea studio Optuna, salva trial (trial_id, params, metriche, score), ranking
+- [x] **S7.4** `tests/unit/test_objective.py`: build_policy_from_trial genera PolicyConfig valida
+- [x] **S7.5** `tests/unit/test_score.py`: compute_score restituisce float da metriche note
 - [ ] **S7.6** Verificare riproducibilità: rieseguire top trial tramite scenario runner
 
 **Acceptance:** optimizer esegue trial salvati con ranking, score esplicito, riproducibile su benchmark.
