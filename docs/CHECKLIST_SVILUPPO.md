@@ -42,20 +42,20 @@
 
 ## SPRINT 2 — Replay core minimo auditabile
 
-- [ ] **S2.1** `engine/fill_model.py`: fill market (latency-based) e fill limit (touch-based V1)
-- [ ] **S2.2** `engine/latency_model.py`: applica latency_ms a timestamp fill
-- [ ] **S2.3** `engine/timeout_manager.py`: pending_timeout, chain_timeout, produce eventi engine
-- [ ] **S2.4** `engine/state_machine.py`: handler tutti gli eventi canonici V1, modalità soft incoerenze
-- [ ] **S2.5** `market/data_models.py`: Candle, MarketMetadata, protocollo MarketDataProvider
-- [ ] **S2.6** `market/providers/csv_provider.py`: CSVProvider funzionante
-- [ ] **S2.7** `market/symbol_mapper.py`: SymbolMapper config-driven
-- [ ] **S2.8** `engine/simulator.py`: loop eventi market + trader, produce EventLogEntry list + TradeState finale
-- [ ] **S2.9** `reports/event_log_report.py`: serializza EventLogEntry → JSONL
-- [ ] **S2.10** `reports/trade_report.py`: deriva TradeResult → Parquet
-- [ ] **S2.11** `tests/unit/test_state_machine.py`: transizioni stato, MOVE_STOP prima fill (ignored), CLOSE_FULL senza posizione (ignored)
-- [ ] **S2.12** `tests/unit/test_fill_model.py`: fill market, fill limit touch
-- [ ] **S2.13** `tests/unit/test_timeout_manager.py`: pending timeout, chain timeout
-- [ ] **S2.14** `tests/integration/test_single_chain_replay.py`: end-to-end adapter → simulator → event_log → trade_result
+- [x] **S2.1** `engine/fill_model.py`: fill market (latency-based) e fill limit (touch-based V1)
+- [x] **S2.2** `engine/latency_model.py`: applica latency_ms a timestamp fill
+- [x] **S2.3** `engine/timeout_manager.py`: pending_timeout, chain_timeout, produce eventi engine
+- [x] **S2.4** `engine/state_machine.py`: handler tutti gli eventi canonici V1, modalità soft incoerenze
+- [x] **S2.5** `market/data_models.py`: Candle, MarketMetadata, protocollo MarketDataProvider
+- [x] **S2.6** `market/providers/csv_provider.py`: CSVProvider funzionante
+- [x] **S2.7** `market/symbol_mapper.py`: SymbolMapper config-driven
+- [x] **S2.8** `engine/simulator.py`: loop eventi market + trader, produce EventLogEntry list + TradeState finale
+- [x] **S2.9** `reports/event_log_report.py`: serializza EventLogEntry → JSONL
+- [x] **S2.10** `reports/trade_report.py`: deriva TradeResult → Parquet
+- [x] **S2.11** `tests/unit/test_state_machine.py`: transizioni stato, MOVE_STOP prima fill (ignored), CLOSE_FULL senza posizione (ignored)
+- [x] **S2.12** `tests/unit/test_fill_model.py`: fill market, fill limit touch
+- [x] **S2.13** `tests/unit/test_timeout_manager.py`: pending timeout, chain timeout
+- [x] **S2.14** `tests/integration/test_single_chain_replay.py`: end-to-end adapter → simulator → event_log → trade_result
 
 **Acceptance:** almeno una chain reale simulata end-to-end, event log prodotto e coerente, trade result coerente, warning e ignored events tracciati.
 
