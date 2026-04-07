@@ -1,5 +1,5 @@
 # Piano Operativo di Sviluppo — Signal Chain Backtesting Lab
-**Versione:** 1.3  
+**Versione:** 1.4  
 **Aggiornato:** 2026-04-07  
 **Riferimento PRD:** `PRD_consolidato_signal_chain_lab.md`
 
@@ -47,10 +47,10 @@
 - ~~Mantenere `ui/components/log_panel.py` e `quality_report.py` come componenti riusabili.~~ → Invariati, importati dai blocchi.
 - Eseguire test manuale guidato completo con checkpoint umano tra parse e backtest (chiusura S9.8) — **ancora aperto**.
 
-### Incremento C — Hardening operativo (priorità media)
-- Uniformare export artifact (`JSONL`, `CSV`, `HTML`, `PNG`) per singola run e scenario.
-- Rafforzare logging warning su fallback e collisioni intrabar.
-- Verificare allineamento docs (`README`, checklist, architecture) ad ogni merge.
+### Incremento C — Hardening operativo ✅ COMPLETATO (2026-04-07)
+- ~~Uniformare export artifact (`JSONL`, `CSV`, `HTML`, `PNG`) per singola run e scenario.~~ → Fatto: `run_single_chain.py` produce 5 artifact; `run_scenario.py` produce 4 artifact (CSV combinato + HTML scenario con equity curve).
+- ~~Rafforzare logging warning su fallback e collisioni intrabar.~~ → Fatto: `logging.warning()` emesso in `simulator.py` (con signal_id/symbol/warning_code) e in `intrabar_resolver.py` (con timestamp/side/prezzi) su ogni caso di fallback.
+- ~~Verificare allineamento docs (`README`, checklist, architecture) ad ogni merge.~~ → Fatto: `CHECKLIST_SVILUPPO.md` v1.1 aggiornata con sezione Incremento C; `PIANO_OPERATIVO.md` v1.4 aggiornato; `README.md` aggiornato.
 
 ---
 

@@ -10,7 +10,8 @@ from src.signal_chain_lab.domain.results import ScenarioComparison, ScenarioResu
 from src.signal_chain_lab.engine.simulator import simulate_chain
 from src.signal_chain_lab.market.data_models import MarketDataProvider
 from src.signal_chain_lab.policies.base import PolicyConfig
-from src.signal_chain_lab.reports.trade_report import build_trade_result
+from src.signal_chain_lab.reports.html_report import write_scenario_html_report
+from src.signal_chain_lab.reports.trade_report import build_trade_result, write_trade_results_csv
 
 
 def _compute_max_drawdown(pnl_series: list[float]) -> float:
@@ -122,7 +123,8 @@ def write_scenario_artifacts(
     scenario_results: list[ScenarioResult],
     comparisons: list[ScenarioComparison],
     output_dir: str | Path,
-) -> tuple[Path, Path]:
+    per_policy_trades: dict[str, list[TradeResult]] | None = None,
+) -> tuple[Path, Path, Path | None, Path | None]:
     directory = Path(output_dir)
     directory.mkdir(parents=True, exist_ok=True)
 
@@ -138,4 +140,17 @@ def write_scenario_artifacts(
         encoding="utf-8",
     )
 
-    return scenario_path, comparison_path
+    csv_path: Path | None = None
+    html_path: Path | None = None
+
+    if per_policy_trades is not None:
+        all_trades = [trade for trades in per_policy_trades.values() for trade in trades]
+        csv_path = write_trade_results_csv(all_trades, directory / "trade_results.csv")
+        html_path = write_scenario_html_report(
+            scenario_results=scenario_results,
+            comparisons=comparisons,
+            per_policy_trades=per_policy_trades,
+            output_path=directory / "scenario_report.html",
+        )
+
+    return scenario_path, comparison_path, csv_path, html_path

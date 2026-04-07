@@ -13,8 +13,13 @@ from src.signal_chain_lab.adapters.chain_builder import SignalChainBuilder
 from src.signal_chain_lab.adapters.validators import validate_chain_for_simulation
 from src.signal_chain_lab.engine.simulator import simulate_chain
 from src.signal_chain_lab.policies.policy_loader import PolicyLoader
+from src.signal_chain_lab.reports.chain_plot import write_chain_plot_html, write_chain_plot_png
 from src.signal_chain_lab.reports.event_log_report import write_event_log_jsonl
-from src.signal_chain_lab.reports.trade_report import build_trade_result, write_trade_result_parquet
+from src.signal_chain_lab.reports.trade_report import (
+    build_trade_result,
+    write_trade_result_parquet,
+    write_trade_results_csv,
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -48,10 +53,20 @@ def main() -> int:
     event_log_path = write_event_log_jsonl(event_log, out_dir / "event_log.jsonl")
     trade_result = build_trade_result(state, event_log)
     trade_result_path = write_trade_result_parquet(trade_result, out_dir / "trade_result.parquet")
+    csv_path = write_trade_results_csv([trade_result], out_dir / "trade_result.csv")
+    png_path = write_chain_plot_png(event_log, out_dir / "equity_curve.png")
+    html_path = write_chain_plot_html(
+        event_log,
+        out_dir / "equity_curve.html",
+        title=f"{canonical_chain.signal_id} — {policy.name}",
+    )
 
     print(f"policy={policy.name}")
     print(f"event_log={event_log_path}")
     print(f"trade_result={trade_result_path}")
+    print(f"trade_result_csv={csv_path}")
+    print(f"equity_png={png_path}")
+    print(f"equity_html={html_path}")
     return 0
 
 

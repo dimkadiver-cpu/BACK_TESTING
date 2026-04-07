@@ -1,11 +1,14 @@
 """Resolve ambiguous same-candle SL/TP collisions using child timeframe candles."""
 from __future__ import annotations
 
+import logging
 from datetime import datetime
 
 from pydantic import BaseModel, Field
 
 from src.signal_chain_lab.market.data_models import Candle
+
+_logger = logging.getLogger(__name__)
 
 
 class IntrabarResolution(BaseModel):
@@ -58,6 +61,14 @@ class IntrabarResolver:
                     examined_child_candles=len(ordered_children),
                 )
             if sl_hit and tp_hit:
+                _logger.warning(
+                    "INTRABAR_SAME_CHILD_AMBIGUOUS: SL and TP both hit in child candle %s "
+                    "(side=%s sl=%.8g tp=%.8g) — conservative fallback to sl_hit",
+                    child.timestamp.isoformat(),
+                    side,
+                    sl_price,
+                    tp_price,
+                )
                 return IntrabarResolution(
                     outcome="sl_hit",
                     reason="ambiguous_same_child_candle_conservative_fallback",
@@ -68,6 +79,13 @@ class IntrabarResolver:
                     examined_child_candles=len(ordered_children),
                 )
 
+        _logger.warning(
+            "INTRABAR_CHILD_DATA_UNAVAILABLE: no child candle resolved SL/TP collision "
+            "(examined=%d, parent=%s, side=%s) — conservative fallback to sl_hit",
+            len(ordered_children),
+            parent_candle.timestamp.isoformat(),
+            side,
+        )
         return IntrabarResolution(
             outcome="sl_hit",
             reason="fallback_child_unavailable_or_not_informative",
