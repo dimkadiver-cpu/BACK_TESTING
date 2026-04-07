@@ -20,10 +20,17 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.core.logger import setup_logging
-from src.core.migrations import apply_migrations
-from src.storage.raw_messages import RawMessageStore
-from src.telegram.ingestion import RawMessageIngestionService, TelegramIncomingMessage
+from src.signal_chain_lab.core.logger import setup_logging
+from src.signal_chain_lab.core.migrations import apply_migrations
+from src.signal_chain_lab.storage.raw_messages import RawMessageStore
+
+# NOTE: src.telegram was removed from this repo (live system modules).
+# This import is kept for reference only and will raise ImportError at runtime.
+try:
+    from src.telegram.ingestion import RawMessageIngestionService, TelegramIncomingMessage  # type: ignore[import]
+except ImportError:
+    RawMessageIngestionService = None  # type: ignore[assignment,misc]
+    TelegramIncomingMessage = None  # type: ignore[assignment,misc]
 from parser_test.scripts.db_paths import resolve_parser_test_db_path
 
 

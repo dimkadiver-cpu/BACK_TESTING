@@ -1,0 +1,29 @@
+version: 1
+disable_existing_loggers: false
+
+formatters:
+  standard:
+    format: "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+    datefmt: "%Y-%m-%dT%H:%M:%S"
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    formatter: standard
+    stream: ext://sys.stdout
+
+  file:
+    class: logging.handlers.RotatingFileHandler
+    formatter: standard
+    filename: logs/signal_chain_lab.log
+    maxBytes: 10485760   # 10 MB
+    backupCount: 3
+
+root:
+  level: INFO
+  handlers: [console, file]
+
+loggers:
+  src.signal_chain_lab:
+    level: DEBUG
+    propagate: true

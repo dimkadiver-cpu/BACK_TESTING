@@ -12,8 +12,8 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.core.config_loader import load_config
-from src.parser.trader_profiles.registry import canonicalize_trader_code
+from src.signal_chain_lab.core.config_loader import load_config
+from src.signal_chain_lab.parser.trader_profiles.registry import canonicalize_trader_code
 
 from parser_test.reporting.flatteners import build_report_row
 from parser_test.reporting.report_schema import schema_for_scope

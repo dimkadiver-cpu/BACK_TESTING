@@ -1,0 +1,41 @@
+# Policy: original_chain
+# Executes the chain as close as possible to the trader's declared sequence.
+
+name: original_chain
+
+entry:
+  use_original_entries: true
+  entry_allocation: equal        # equal | weighted | first_only
+  max_entries_to_use: null       # null = use all available
+  allow_add_entry_updates: true
+
+tp:
+  use_original_tp: true
+  use_tp_count: null             # null = use all available TP levels
+  tp_distribution: equal         # equal | weighted
+
+sl:
+  use_original_sl: true
+  break_even_mode: false
+  be_trigger: null
+  move_sl_with_trader: true
+
+updates:
+  apply_move_stop: true
+  apply_close_partial: true
+  apply_close_full: true
+  apply_cancel_pending: true
+  apply_add_entry: true
+  partial_close_fallback_pct: 50.0
+
+pending:
+  pending_timeout_hours: 24
+  chain_timeout_hours: 168
+  cancel_pending_on_timeout: true
+  cancel_unfilled_if_tp1_reached_before_fill: false
+  cancel_averaging_pending_after_tp1: false
+
+execution:
+  latency_ms: 0
+  slippage_model: none           # none | fixed | percentage
+  fill_touch_guaranteed: true

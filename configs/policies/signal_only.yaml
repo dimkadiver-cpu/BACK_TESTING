@@ -1,0 +1,42 @@
+# Policy: signal_only
+# Executes only the initial setup, ignoring all subsequent trader updates.
+# Compatible with both chain-complete datasets and signal-only native datasets.
+
+name: signal_only
+
+entry:
+  use_original_entries: true
+  entry_allocation: equal
+  max_entries_to_use: null
+  allow_add_entry_updates: false
+
+tp:
+  use_original_tp: true
+  use_tp_count: null
+  tp_distribution: equal
+
+sl:
+  use_original_sl: true
+  break_even_mode: false
+  be_trigger: null
+  move_sl_with_trader: false
+
+updates:
+  apply_move_stop: false
+  apply_close_partial: false
+  apply_close_full: false
+  apply_cancel_pending: false
+  apply_add_entry: false
+  partial_close_fallback_pct: 50.0
+
+pending:
+  pending_timeout_hours: 24
+  chain_timeout_hours: 168
+  cancel_pending_on_timeout: true
+  cancel_unfilled_if_tp1_reached_before_fill: false
+  cancel_averaging_pending_after_tp1: false
+
+execution:
+  latency_ms: 0
+  slippage_model: none
+  fill_touch_guaranteed: true
