@@ -104,9 +104,14 @@ def apply_event(state: TradeState, event: CanonicalEvent) -> EventLogEntry:
             state.open_size = 0.0
             state.pending_size = 0.0
             state.status = TradeStatus.CLOSED
-            if event.payload.get("reason") == "chain_timeout":
+            close_reason = event.payload.get("reason")
+            if close_reason == "chain_timeout":
                 state.close_reason = CloseReason.EXPIRED
                 state.status = TradeStatus.EXPIRED
+            elif close_reason == "tp_hit":
+                state.close_reason = CloseReason.TP
+            elif close_reason == "sl_hit":
+                state.close_reason = CloseReason.SL
             else:
                 state.close_reason = CloseReason.MANUAL
             state.closed_at = event.timestamp

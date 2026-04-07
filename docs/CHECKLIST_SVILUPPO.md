@@ -77,14 +77,14 @@
 
 ## SPRINT 4 — Hardening su chain reali
 
-- [ ] **S4.1** Selezionare almeno 10 chain benchmark dal DB (chain completa, signal-only, SL hit, TP hit, CANCELLED, EXPIRED, update incompatibili)
-- [ ] **S4.2** Esportare fixture chain benchmark in `tests/fixtures/`
-- [ ] **S4.3** Documentare esito atteso per ogni fixture (status, close_reason, pnl indicativo)
-- [ ] **S4.4** Creare golden: congelare event log essenziale + trade result per ogni chain benchmark
-- [ ] **S4.5** `tests/golden/test_golden_chains.py`: verifica output replay vs golden congelato
-- [ ] **S4.6** `tests/unit/test_regression_metrics.py`: metriche chiave, warning count, ignored events
-- [ ] **S4.7** Ispezionare manualmente warning prodotti su chain benchmark
-- [ ] **S4.8** Correggere eventuali falsi positivi/negativi nel motore
+- [x] **S4.1** Selezionare almeno 10 chain benchmark dal DB (chain completa, signal-only, SL hit, TP hit, CANCELLED, EXPIRED, update incompatibili)
+- [x] **S4.2** Esportare fixture chain benchmark in `tests/fixtures/`
+- [x] **S4.3** Documentare esito atteso per ogni fixture (status, close_reason, pnl indicativo)
+- [x] **S4.4** Creare golden: congelare event log essenziale + trade result per ogni chain benchmark
+- [x] **S4.5** `tests/golden/test_golden_chains.py`: verifica output replay vs golden congelato
+- [x] **S4.6** `tests/unit/test_regression_metrics.py`: metriche chiave, warning count, ignored events
+- [x] **S4.7** Ispezionare manualmente warning prodotti su chain benchmark
+- [x] **S4.8** Correggere eventuali falsi positivi/negativi nel motore
 
 **Acceptance:** golden tests stabili, nessuna discrepanza critica tra aspettative manuali e replay.
 
