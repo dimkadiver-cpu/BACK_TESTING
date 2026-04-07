@@ -92,13 +92,13 @@
 
 ## SPRINT 5 — Scenario runner
 
-- [ ] **S5.1** `domain/results.py`: aggiungere ScenarioResult (total_pnl, return_pct, max_drawdown, win_rate, profit_factor, expectancy, ecc.)
-- [ ] **S5.2** `scenario/runner.py` (nuovo modulo): esegue dataset × policy list, aggrega risultati
-- [ ] **S5.3** Metriche confronto scenari: delta_pnl, delta_drawdown, delta_win_rate, delta_expectancy
-- [ ] **S5.4** `scripts/run_scenario.py`: CLI completo (policy list, db_path, market_dir, date range)
-- [ ] **S5.5** `configs/policies/be_after_tp1.yaml`: policy custom break-even dopo TP1
-- [ ] **S5.6** `configs/policies/tp_50_30_20.yaml`: policy custom distribuzione TP
-- [ ] **S5.7** `tests/integration/test_scenario_runner.py`: dataset, due policy, risultati distinguibili e aggregati coerenti
+- [x] **S5.1** `domain/results.py`: aggiungere ScenarioResult (total_pnl, return_pct, max_drawdown, win_rate, profit_factor, expectancy, ecc.)
+- [x] **S5.2** `scenario/runner.py` (nuovo modulo): esegue dataset × policy list, aggrega risultati
+- [x] **S5.3** Metriche confronto scenari: delta_pnl, delta_drawdown, delta_win_rate, delta_expectancy
+- [x] **S5.4** `scripts/run_scenario.py`: CLI completo (policy list, db_path, market_dir, date range)
+- [x] **S5.5** `configs/policies/be_after_tp1.yaml`: policy custom break-even dopo TP1
+- [x] **S5.6** `configs/policies/tp_50_30_20.yaml`: policy custom distribuzione TP
+- [x] **S5.7** `tests/integration/test_scenario_runner.py`: dataset, due policy, risultati distinguibili e aggregati coerenti
 
 **Acceptance:** confronto original_chain vs signal_only su dataset reale, metriche aggregate corrette.
 

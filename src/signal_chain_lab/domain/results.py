@@ -54,3 +54,26 @@ class TradeResult(BaseModel):
     mfe: float | None = None
     warnings_count: int = 0
     ignored_events_count: int = 0
+
+
+class ScenarioResult(BaseModel):
+    policy_name: str
+    total_pnl: float = 0.0
+    return_pct: float = 0.0
+    max_drawdown: float = 0.0
+    win_rate: float = 0.0
+    profit_factor: float = 0.0
+    expectancy: float = 0.0
+    trades_count: int = 0
+    simulated_chains_count: int = 0
+    excluded_chains_count: int = 0
+    avg_warnings_per_trade: float = 0.0
+
+
+class ScenarioComparison(BaseModel):
+    base_policy_name: str
+    target_policy_name: str
+    delta_pnl: float = 0.0
+    delta_drawdown: float = 0.0
+    delta_win_rate: float = 0.0
+    delta_expectancy: float = 0.0
