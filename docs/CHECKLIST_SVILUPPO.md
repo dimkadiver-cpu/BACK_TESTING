@@ -131,10 +131,10 @@
 
 ## SPRINT 8 — Reporting avanzato
 
-- [ ] **S8.1** `reports/chain_plot.py`: equity curve + eventi annotati (PNG output)
-- [ ] **S8.2** `reports/html_report.py`: HTML standalone con tabella trade results + metriche scenario
-- [ ] **S8.3** Scenario comparison visual: equity curve multi-policy + delta metriche tabellare
-- [ ] **S8.4** Export avanzato: CSV trade results, JSONL event log per chain
+- [x] **S8.1** `reports/chain_plot.py`: equity curve + eventi annotati (PNG output)
+- [x] **S8.2** `reports/html_report.py`: HTML standalone con tabella trade results + metriche scenario
+- [x] **S8.3** Scenario comparison visual: equity curve multi-policy + delta metriche tabellare
+- [x] **S8.4** Export avanzato: CSV trade results, JSONL event log per chain
 
 **Acceptance:** report HTML generato da scenario result, plot chain operativo, artifacts visuali derivati coerenti con event log.
 
