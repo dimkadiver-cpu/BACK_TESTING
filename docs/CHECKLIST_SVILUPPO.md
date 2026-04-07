@@ -7,16 +7,16 @@
 
 ## FASE 0 — Audit e preparazione DB
 
-- [ ] **F0.1** Eseguire `audit_existing_db.py` su DB reale e salvare output
-- [ ] **F0.2** Verificare schema: tabelle `raw_messages`, `parse_results`, `operational_signals`, `signals`
-- [ ] **F0.3** Estrarre almeno 20 chain reali campione
-- [ ] **F0.4** Verificare mapping campi minimi: `signal_id`, `symbol`, `side`, `timestamp`, `trader_id`
-- [ ] **F0.5** Verificare dati minimi simulazione su campione: entry, stop_loss, take_profit
-- [ ] **F0.6** Classificare gap dataset: fatal / warning / optional
-- [ ] **F0.7** Produrre `docs/audit_db_report.md`
-- [ ] **F0.8** Aggiornare `docs/data-contracts.md` con mapping DB → canonico
-- [ ] **F0.9** Validare che `chain_builder.py` produca correttamente `SignalChain` su chain completa
-- [ ] **F0.10** Validare che `chain_builder.py` gestisca chain signal-only nativa
+- [x] **F0.1** Eseguire `audit_existing_db.py` su DB reale e salvare output
+- [x] **F0.2** Verificare schema: tabelle `raw_messages`, `parse_results`, `operational_signals`, `signals`
+- [x] **F0.3** Estrarre almeno 20 chain reali campione
+- [x] **F0.4** Verificare mapping campi minimi: `signal_id`, `symbol`, `side`, `timestamp`, `trader_id`
+- [x] **F0.5** Verificare dati minimi simulazione su campione: entry, stop_loss, take_profit
+- [x] **F0.6** Classificare gap dataset: fatal / warning / optional
+- [x] **F0.7** Produrre `docs/audit_db_report.md`
+- [x] **F0.8** Aggiornare `docs/data-contracts.md` con mapping DB → canonico
+- [x] **F0.9** Validare che `chain_builder.py` produca correttamente `SignalChain` su chain completa
+- [x] **F0.10** Validare che `chain_builder.py` gestisca chain signal-only nativa
 
 **Acceptance:** DB letto, 20+ chain analizzate, gap classificati, contratto dati documentato.
 
@@ -24,17 +24,17 @@
 
 ## SPRINT 1 — Domain models e adapter contratti
 
-- [ ] **S1.1** `domain/enums.py`: EventType, EventSource, TradeStatus, ChainInputMode, EventProcessingStatus, CloseReason
-- [ ] **S1.2** `domain/events.py`: CanonicalEvent, CanonicalChain (Pydantic v2)
-- [ ] **S1.3** `domain/trade_state.py`: EntryPlan, FillRecord, TradeState
-- [ ] **S1.4** `domain/warnings.py`: SimulationWarning
-- [ ] **S1.5** `domain/results.py`: EventLogEntry, TradeResult
-- [ ] **S1.6** `policies/base.py`: PolicyConfig con blocchi entry/tp/sl/updates/pending/risk/execution
-- [ ] **S1.7** `adapters/validators.py`: validazione chain identità + validazione NEW_SIGNAL standard
-- [ ] **S1.8** `adapters/chain_adapter.py`: conversione SignalChain → CanonicalChain, imposta input_mode
-- [ ] **S1.9** `tests/unit/test_enums.py`: verifica enum definiti
-- [ ] **S1.10** `tests/unit/test_trade_state.py`: costruzione e valori default
-- [ ] **S1.11** `tests/unit/test_validators.py`: chain valida, senza entry, senza sl, senza tp
+- [x] **S1.1** `domain/enums.py`: EventType, EventSource, TradeStatus, ChainInputMode, EventProcessingStatus, CloseReason
+- [x] **S1.2** `domain/events.py`: CanonicalEvent, CanonicalChain (Pydantic v2)
+- [x] **S1.3** `domain/trade_state.py`: EntryPlan, FillRecord, TradeState
+- [x] **S1.4** `domain/warnings.py`: SimulationWarning
+- [x] **S1.5** `domain/results.py`: EventLogEntry, TradeResult
+- [x] **S1.6** `policies/base.py`: PolicyConfig con blocchi entry/tp/sl/updates/pending/risk/execution
+- [x] **S1.7** `adapters/validators.py`: validazione chain identità + validazione NEW_SIGNAL standard
+- [x] **S1.8** `adapters/chain_adapter.py`: conversione SignalChain → CanonicalChain, imposta input_mode
+- [x] **S1.9** `tests/unit/test_enums.py`: verifica enum definiti
+- [x] **S1.10** `tests/unit/test_trade_state.py`: costruzione e valori default
+- [x] **S1.11** `tests/unit/test_validators.py`: chain valida, senza entry, senza sl, senza tp
 
 **Acceptance:** tutti i domain models implementati e Pydantic-valid, adapter skeleton converte chain reale, test unit verdi.
 
@@ -219,8 +219,8 @@
 
 | Sprint | Stato | Note |
 |---|---|---|
-| Fase 0 | 🔶 PARZIALE | chain_builder e audit script esistono, ma audit su DB reale da eseguire |
-| Sprint 1 | 🔶 STRUTTURA | repo e file creati, tutti i moduli sono stub da implementare |
+| Fase 0 | ✅ FATTO | audit eseguito su campione 25 chain, report in docs/audit_db_report.md, data-contracts.md aggiornato |
+| Sprint 1 | ✅ FATTO | tutti i domain models implementati, adapter chain_adapter + validators, 25 test unit verdi |
 | Sprint 2 | 🔲 TODO | |
 | Sprint 3 | 🔲 TODO | |
 | Sprint 4 | 🔲 TODO | |
