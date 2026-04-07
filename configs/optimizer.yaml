@@ -1,0 +1,24 @@
+benchmark_dataset_path: tests/fixtures/benchmark_chains.json
+n_trials: 25
+direction: maximize
+study_name: signal_chain_lab_benchmark_v1
+storage_url: null
+random_seed: 42
+artifacts_dir: artifacts/optimizer
+
+search_space:
+  entry_allocation_choices: [equal, front_loaded, back_loaded]
+  use_tp_count_choices: [1, 2, 3]
+  tp_distribution_choices: [original, tp_50_30_20, equal]
+  be_trigger_choices: [null, tp1]
+  pending_timeout_hours_min: 4
+  pending_timeout_hours_max: 48
+  pending_timeout_hours_step: 1
+
+scoring_weights:
+  return_pct_weight: 1.0
+  expectancy_weight: 1.0
+  win_rate_weight: 0.25
+  drawdown_penalty: 1.0
+  warning_rate_penalty: 0.25
+  excluded_rate_penalty: 0.50
