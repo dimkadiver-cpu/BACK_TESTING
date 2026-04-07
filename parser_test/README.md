@@ -54,8 +54,10 @@ python parser_test/scripts/replay_parser.py --chat-id -1001234567890 --db-per-ch
 
 ## Note
 
+> Stato attuale integrazione Telegram nel repo: i moduli runtime `src.telegram` non sono inclusi in questo workspace. `import_history.py` resta orientato a import storico su `raw_messages` per il flusso `parser_test` e va usato come utility di acquisizione dati, non come listener live completo.
+
 - Lo script applica le migration sul DB test, non sul DB live.
-- Non avvia listener Telegram e non dipende da Telethon runtime.
+- Non avvia listener Telegram live, ma **import_history.py dipende da Telethon** e da credenziali Telegram API.
 - `import_history.py` scrive solo su `raw_messages` (nessun tocco a `parse_results`).
 - Con `--download-media`, i media vengono salvati come `BLOB` in `raw_messages.media_blob`; molti editor SQLite li mostrano in modalita' `Image` se il contenuto e' una vera immagine.
 - Risoluzione chat target: `--chat-id` > `PARSER_TEST_CHAT_ID`; se assenti entrambi lo script termina con errore esplicito.

@@ -142,16 +142,16 @@
 
 ## SPRINT 9 — GUI NiceGUI
 
-- [ ] **S9.1** `src/signal_chain_lab/ui/app.py`: entry point NiceGUI, layout 3 blocchi
-- [ ] **S9.2** `ui/blocks/block_download.py`: Blocco 1 form + log panel
-- [ ] **S9.3** `ui/blocks/block_parse.py`: Blocco 2 form + report sintetico + pulsante sblocco
-- [ ] **S9.4** `ui/blocks/block_backtest.py`: Blocco 3 form + esecuzione scenario
-- [ ] **S9.5** `ui/components/log_panel.py`: pannello log riusabile
-- [ ] **S9.6** `ui/components/quality_report.py`: card report sintetico
-- [ ] **S9.7** `ui/state.py`: stato condiviso tra blocchi
+- [x] **S9.1** `src/signal_chain_lab/ui/app.py`: entry point NiceGUI, layout 3 blocchi
+- [ ] **S9.2** `ui/blocks/block_download.py`: Blocco 1 form + log panel (non estratto in modulo dedicato; logica attualmente in `app.py`)
+- [ ] **S9.3** `ui/blocks/block_parse.py`: Blocco 2 form + report sintetico + pulsante sblocco (non estratto in modulo dedicato; logica attualmente in `app.py`)
+- [ ] **S9.4** `ui/blocks/block_backtest.py`: Blocco 3 form + esecuzione scenario (non estratto in modulo dedicato; logica attualmente in `app.py`)
+- [x] **S9.5** `ui/components/log_panel.py`: pannello log riusabile
+- [x] **S9.6** `ui/components/quality_report.py`: card report sintetico
+- [x] **S9.7** `ui/state.py`: stato condiviso tra blocchi
 - [ ] **S9.8** Test manuale workflow completo: download → parse → backtest
 
-**Acceptance:** workflow 3 blocchi funzionante, checkpoint umano operativo dopo Blocco 2.
+**Acceptance:** workflow 3 blocchi **presente in MVP** ma refactor dei blocchi in moduli separati e validazione manuale end-to-end ancora aperti.
 
 ---
 
@@ -219,17 +219,19 @@
 
 | Sprint | Stato | Note |
 |---|---|---|
-| Fase 0 | ✅ FATTO | audit eseguito su campione 25 chain, report in docs/audit_db_report.md, data-contracts.md aggiornato |
-| Sprint 1 | ✅ FATTO | tutti i domain models implementati, adapter chain_adapter + validators, 25 test unit verdi |
-| Sprint 2 | 🔲 TODO | |
-| Sprint 3 | 🔲 TODO | |
-| Sprint 4 | 🔲 TODO | |
-| Sprint 5 | 🔲 TODO | |
-| Sprint 6 | 🔲 TODO | |
-| Sprint 7 | 🔲 TODO | |
-| Sprint 8 | 🔲 TODO | |
-| Sprint 9 | 🔲 TODO | |
-| Sprint 10 | 🔲 FUTURO | |
-| Sprint 11 | 🔲 FUTURO | |
+| Fase 0 | ✅ FATTO | audit eseguito su campione 25 chain, report in `docs/audit_db_report.md`, `data-contracts.md` aggiornato |
+| Sprint 1 | ✅ FATTO | domain models + adapter + validators implementati e coperti da test unit |
+| Sprint 2 | ✅ FATTO | engine simulazione, fill model, timeout manager, replay e report base completati |
+| Sprint 3 | ✅ FATTO | policy loader + baseline policies + `run_single_chain.py` completati |
+| Sprint 4 | ✅ FATTO | fixture benchmark + golden tests + regression metrics completati |
+| Sprint 5 | ✅ FATTO | scenario runner con metriche aggregate e confronto policy completato |
+| Sprint 6 | ✅ FATTO | intrabar resolver + provider parquet + integrazione collisioni completati |
+| Sprint 7 | 🔶 PARZIALE | optimizer implementato; resta aperto **S7.6** (riproducibilità top trial) |
+| Sprint 8 | ✅ FATTO | reporting avanzato HTML/PNG/CSV/JSONL completato |
+| Sprint 9 | 🔶 PARZIALE | UI MVP implementata (`app.py`, `state.py`, `components/*`); manca modularizzazione `ui/blocks/*` e test manuale S9.8 |
+| Sprint 10 | 🔲 FUTURO | realism V2 fuori MVP |
+| Sprint 11 | 🔲 FUTURO | realism V3 fuori MVP |
+
+**Verifica ambiente (2026-04-07):** `pytest -q` interrotto in collection su Python 3.10 (`typing.Self`), progetto richiede Python >= 3.12.
 
 **Legenda:** ✅ FATTO · 🔶 PARZIALE · 🔲 TODO · ⛔ BLOCCATO
