@@ -1,0 +1,133 @@
+[
+  {
+    "signal_id": "bench-001",
+    "trader_id": "trader_real_a",
+    "symbol": "BTCUSDT",
+    "side": "BUY",
+    "input_mode": "chain_complete",
+    "has_updates_in_dataset": true,
+    "created_at": "2026-01-01T00:00:00+00:00",
+    "events": [
+      {"timestamp": "2026-01-01T00:00:00+00:00", "event_type": "OPEN_SIGNAL", "source": "trader", "payload": {"entry_prices": [100.0], "sl_price": 92.0, "tp_levels": [108.0, 112.0]}, "sequence": 0},
+      {"timestamp": "2026-01-01T00:12:00+00:00", "event_type": "CLOSE_FULL", "source": "engine", "payload": {"reason": "tp_hit"}, "sequence": 1}
+    ]
+  },
+  {
+    "signal_id": "bench-002",
+    "trader_id": "trader_real_a",
+    "symbol": "ETHUSDT",
+    "side": "BUY",
+    "input_mode": "chain_complete",
+    "has_updates_in_dataset": true,
+    "created_at": "2026-01-02T00:00:00+00:00",
+    "events": [
+      {"timestamp": "2026-01-02T00:00:00+00:00", "event_type": "OPEN_SIGNAL", "source": "trader", "payload": {"entry_prices": [200.0], "sl_price": 188.0, "tp_levels": [215.0]}, "sequence": 0},
+      {"timestamp": "2026-01-02T00:09:00+00:00", "event_type": "CLOSE_FULL", "source": "engine", "payload": {"reason": "sl_hit"}, "sequence": 1}
+    ]
+  },
+  {
+    "signal_id": "bench-003",
+    "trader_id": "trader_real_b",
+    "symbol": "SOLUSDT",
+    "side": "BUY",
+    "input_mode": "signal_only_native",
+    "has_updates_in_dataset": false,
+    "created_at": "2026-01-03T00:00:00+00:00",
+    "events": [
+      {"timestamp": "2026-01-03T00:00:00+00:00", "event_type": "OPEN_SIGNAL", "source": "trader", "payload": {"entry_prices": [50.0], "sl_price": 45.0, "tp_levels": [55.0]}, "sequence": 0}
+    ]
+  },
+  {
+    "signal_id": "bench-004",
+    "trader_id": "trader_real_b",
+    "symbol": "XRPUSDT",
+    "side": "SELL",
+    "input_mode": "chain_complete",
+    "has_updates_in_dataset": true,
+    "created_at": "2026-01-04T00:00:00+00:00",
+    "events": [
+      {"timestamp": "2026-01-04T00:00:00+00:00", "event_type": "OPEN_SIGNAL", "source": "trader", "payload": {"entry_prices": [2.0], "sl_price": 2.2, "tp_levels": [1.8]}, "sequence": 0},
+      {"timestamp": "2026-01-04T00:05:00+00:00", "event_type": "MOVE_STOP", "source": "trader", "payload": {"new_sl_price": 2.1}, "sequence": 1}
+    ]
+  },
+  {
+    "signal_id": "bench-005",
+    "trader_id": "trader_real_c",
+    "symbol": "ADAUSDT",
+    "side": "BUY",
+    "input_mode": "chain_complete",
+    "has_updates_in_dataset": true,
+    "created_at": "2026-01-05T00:00:00+00:00",
+    "events": [
+      {"timestamp": "2026-01-05T00:00:00+00:00", "event_type": "OPEN_SIGNAL", "source": "trader", "payload": {"entry_prices": [1.0], "sl_price": 0.9, "tp_levels": [1.1]}, "sequence": 0},
+      {"timestamp": "2026-01-05T03:00:00+00:00", "event_type": "CANCEL_PENDING", "source": "engine", "payload": {"reason": "pending_timeout"}, "sequence": 1}
+    ]
+  },
+  {
+    "signal_id": "bench-006",
+    "trader_id": "trader_real_c",
+    "symbol": "LTCUSDT",
+    "side": "BUY",
+    "input_mode": "chain_complete",
+    "has_updates_in_dataset": true,
+    "created_at": "2026-01-06T00:00:00+00:00",
+    "events": [
+      {"timestamp": "2026-01-06T00:00:00+00:00", "event_type": "OPEN_SIGNAL", "source": "trader", "payload": {"entry_prices": [80.0], "sl_price": 74.0, "tp_levels": [88.0]}, "sequence": 0},
+      {"timestamp": "2026-01-06T08:00:00+00:00", "event_type": "CLOSE_FULL", "source": "engine", "payload": {"reason": "chain_timeout"}, "sequence": 1}
+    ]
+  },
+  {
+    "signal_id": "bench-007",
+    "trader_id": "trader_real_d",
+    "symbol": "BNBUSDT",
+    "side": "BUY",
+    "input_mode": "chain_complete",
+    "has_updates_in_dataset": true,
+    "created_at": "2026-01-07T00:00:00+00:00",
+    "events": [
+      {"timestamp": "2026-01-07T00:00:00+00:00", "event_type": "OPEN_SIGNAL", "source": "trader", "payload": {"entry_prices": [300.0], "sl_price": 285.0, "tp_levels": [330.0]}, "sequence": 0},
+      {"timestamp": "2026-01-07T00:30:00+00:00", "event_type": "CANCEL_PENDING", "source": "trader", "payload": {}, "sequence": 1}
+    ]
+  },
+  {
+    "signal_id": "bench-008",
+    "trader_id": "trader_real_d",
+    "symbol": "DOGEUSDT",
+    "side": "BUY",
+    "input_mode": "chain_complete",
+    "has_updates_in_dataset": true,
+    "created_at": "2026-01-08T00:00:00+00:00",
+    "events": [
+      {"timestamp": "2026-01-08T00:00:00+00:00", "event_type": "OPEN_SIGNAL", "source": "trader", "payload": {"entry_prices": [0.2], "sl_price": 0.18, "tp_levels": [0.23]}, "sequence": 0},
+      {"timestamp": "2026-01-08T00:10:00+00:00", "event_type": "ADD_ENTRY", "source": "trader", "payload": {"price": 0.195, "size_ratio": 0.5}, "sequence": 1},
+      {"timestamp": "2026-01-08T00:20:00+00:00", "event_type": "CANCEL_PENDING", "source": "trader", "payload": {}, "sequence": 2}
+    ]
+  },
+  {
+    "signal_id": "bench-009",
+    "trader_id": "trader_real_e",
+    "symbol": "AVAXUSDT",
+    "side": "BUY",
+    "input_mode": "chain_complete",
+    "has_updates_in_dataset": true,
+    "created_at": "2026-01-09T00:00:00+00:00",
+    "events": [
+      {"timestamp": "2026-01-09T00:00:00+00:00", "event_type": "OPEN_SIGNAL", "source": "trader", "payload": {"entry_prices": [40.0], "sl_price": 36.0, "tp_levels": [44.0]}, "sequence": 0},
+      {"timestamp": "2026-01-09T00:10:00+00:00", "event_type": "CANCEL_PENDING", "source": "trader", "payload": {}, "sequence": 1},
+      {"timestamp": "2026-01-09T00:12:00+00:00", "event_type": "CANCEL_PENDING", "source": "trader", "payload": {}, "sequence": 2}
+    ]
+  },
+  {
+    "signal_id": "bench-010",
+    "trader_id": "trader_real_e",
+    "symbol": "LINKUSDT",
+    "side": "SELL",
+    "input_mode": "chain_complete",
+    "has_updates_in_dataset": true,
+    "created_at": "2026-01-10T00:00:00+00:00",
+    "events": [
+      {"timestamp": "2026-01-10T00:00:00+00:00", "event_type": "OPEN_SIGNAL", "source": "trader", "payload": {"entry_prices": [20.0], "sl_price": 21.5, "tp_levels": [18.5]}, "sequence": 0},
+      {"timestamp": "2026-01-10T00:45:00+00:00", "event_type": "CLOSE_FULL", "source": "trader", "payload": {}, "sequence": 1}
+    ]
+  }
+]

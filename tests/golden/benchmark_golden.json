@@ -1,0 +1,259 @@
+{
+  "bench-001": {
+    "event_log_essential": [
+      {
+        "event_type": "OPEN_SIGNAL",
+        "requested_action": "OPEN_SIGNAL",
+        "executed_action": "OPEN_SIGNAL",
+        "processing_status": "applied",
+        "reason": null
+      },
+      {
+        "event_type": "CLOSE_FULL",
+        "requested_action": "CLOSE_FULL",
+        "executed_action": "CLOSE_FULL",
+        "processing_status": "applied",
+        "reason": null
+      }
+    ],
+    "trade_result_essential": {
+      "status": "CLOSED",
+      "close_reason": "tp",
+      "warnings_count": 0,
+      "ignored_events_count": 0,
+      "entries_count": 1
+    }
+  },
+  "bench-002": {
+    "event_log_essential": [
+      {
+        "event_type": "OPEN_SIGNAL",
+        "requested_action": "OPEN_SIGNAL",
+        "executed_action": "OPEN_SIGNAL",
+        "processing_status": "applied",
+        "reason": null
+      },
+      {
+        "event_type": "CLOSE_FULL",
+        "requested_action": "CLOSE_FULL",
+        "executed_action": "CLOSE_FULL",
+        "processing_status": "applied",
+        "reason": null
+      }
+    ],
+    "trade_result_essential": {
+      "status": "CLOSED",
+      "close_reason": "sl",
+      "warnings_count": 0,
+      "ignored_events_count": 0,
+      "entries_count": 1
+    }
+  },
+  "bench-003": {
+    "event_log_essential": [
+      {
+        "event_type": "OPEN_SIGNAL",
+        "requested_action": "OPEN_SIGNAL",
+        "executed_action": "OPEN_SIGNAL",
+        "processing_status": "applied",
+        "reason": null
+      }
+    ],
+    "trade_result_essential": {
+      "status": "PENDING",
+      "close_reason": null,
+      "warnings_count": 0,
+      "ignored_events_count": 0,
+      "entries_count": 1
+    }
+  },
+  "bench-004": {
+    "event_log_essential": [
+      {
+        "event_type": "OPEN_SIGNAL",
+        "requested_action": "OPEN_SIGNAL",
+        "executed_action": "OPEN_SIGNAL",
+        "processing_status": "applied",
+        "reason": null
+      },
+      {
+        "event_type": "MOVE_STOP",
+        "requested_action": "MOVE_STOP",
+        "executed_action": null,
+        "processing_status": "ignored",
+        "reason": "move_stop_without_open_position"
+      }
+    ],
+    "trade_result_essential": {
+      "status": "PENDING",
+      "close_reason": null,
+      "warnings_count": 1,
+      "ignored_events_count": 1,
+      "entries_count": 1
+    }
+  },
+  "bench-005": {
+    "event_log_essential": [
+      {
+        "event_type": "OPEN_SIGNAL",
+        "requested_action": "OPEN_SIGNAL",
+        "executed_action": "OPEN_SIGNAL",
+        "processing_status": "applied",
+        "reason": null
+      },
+      {
+        "event_type": "CANCEL_PENDING",
+        "requested_action": "CANCEL_PENDING",
+        "executed_action": "CANCEL_PENDING",
+        "processing_status": "applied",
+        "reason": null
+      }
+    ],
+    "trade_result_essential": {
+      "status": "EXPIRED",
+      "close_reason": "timeout",
+      "warnings_count": 0,
+      "ignored_events_count": 0,
+      "entries_count": 1
+    }
+  },
+  "bench-006": {
+    "event_log_essential": [
+      {
+        "event_type": "OPEN_SIGNAL",
+        "requested_action": "OPEN_SIGNAL",
+        "executed_action": "OPEN_SIGNAL",
+        "processing_status": "applied",
+        "reason": null
+      },
+      {
+        "event_type": "CLOSE_FULL",
+        "requested_action": "CLOSE_FULL",
+        "executed_action": "CLOSE_FULL",
+        "processing_status": "applied",
+        "reason": null
+      }
+    ],
+    "trade_result_essential": {
+      "status": "EXPIRED",
+      "close_reason": "expired",
+      "warnings_count": 0,
+      "ignored_events_count": 0,
+      "entries_count": 1
+    }
+  },
+  "bench-007": {
+    "event_log_essential": [
+      {
+        "event_type": "OPEN_SIGNAL",
+        "requested_action": "OPEN_SIGNAL",
+        "executed_action": "OPEN_SIGNAL",
+        "processing_status": "applied",
+        "reason": null
+      },
+      {
+        "event_type": "CANCEL_PENDING",
+        "requested_action": "CANCEL_PENDING",
+        "executed_action": "CANCEL_PENDING",
+        "processing_status": "applied",
+        "reason": null
+      }
+    ],
+    "trade_result_essential": {
+      "status": "CANCELLED",
+      "close_reason": "cancelled",
+      "warnings_count": 0,
+      "ignored_events_count": 0,
+      "entries_count": 1
+    }
+  },
+  "bench-008": {
+    "event_log_essential": [
+      {
+        "event_type": "OPEN_SIGNAL",
+        "requested_action": "OPEN_SIGNAL",
+        "executed_action": "OPEN_SIGNAL",
+        "processing_status": "applied",
+        "reason": null
+      },
+      {
+        "event_type": "ADD_ENTRY",
+        "requested_action": "ADD_ENTRY",
+        "executed_action": "ADD_ENTRY",
+        "processing_status": "applied",
+        "reason": null
+      },
+      {
+        "event_type": "CANCEL_PENDING",
+        "requested_action": "CANCEL_PENDING",
+        "executed_action": "CANCEL_PENDING",
+        "processing_status": "applied",
+        "reason": null
+      }
+    ],
+    "trade_result_essential": {
+      "status": "CANCELLED",
+      "close_reason": "cancelled",
+      "warnings_count": 0,
+      "ignored_events_count": 0,
+      "entries_count": 2
+    }
+  },
+  "bench-009": {
+    "event_log_essential": [
+      {
+        "event_type": "OPEN_SIGNAL",
+        "requested_action": "OPEN_SIGNAL",
+        "executed_action": "OPEN_SIGNAL",
+        "processing_status": "applied",
+        "reason": null
+      },
+      {
+        "event_type": "CANCEL_PENDING",
+        "requested_action": "CANCEL_PENDING",
+        "executed_action": "CANCEL_PENDING",
+        "processing_status": "applied",
+        "reason": null
+      },
+      {
+        "event_type": "CANCEL_PENDING",
+        "requested_action": "CANCEL_PENDING",
+        "executed_action": null,
+        "processing_status": "ignored",
+        "reason": "cancel_pending_without_pending"
+      }
+    ],
+    "trade_result_essential": {
+      "status": "CANCELLED",
+      "close_reason": "cancelled",
+      "warnings_count": 1,
+      "ignored_events_count": 1,
+      "entries_count": 1
+    }
+  },
+  "bench-010": {
+    "event_log_essential": [
+      {
+        "event_type": "OPEN_SIGNAL",
+        "requested_action": "OPEN_SIGNAL",
+        "executed_action": "OPEN_SIGNAL",
+        "processing_status": "applied",
+        "reason": null
+      },
+      {
+        "event_type": "CLOSE_FULL",
+        "requested_action": "CLOSE_FULL",
+        "executed_action": "CLOSE_FULL",
+        "processing_status": "applied",
+        "reason": null
+      }
+    ],
+    "trade_result_essential": {
+      "status": "CLOSED",
+      "close_reason": "manual",
+      "warnings_count": 0,
+      "ignored_events_count": 0,
+      "entries_count": 1
+    }
+  }
+}

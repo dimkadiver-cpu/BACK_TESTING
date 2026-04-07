@@ -1,0 +1,12 @@
+[
+  {"signal_id": "bench-001", "scenario": "tp_hit", "expected_status": "CLOSED", "expected_close_reason": "tp", "indicative_pnl": 0.08, "expected_warnings": 0, "expected_ignored": 0},
+  {"signal_id": "bench-002", "scenario": "sl_hit", "expected_status": "CLOSED", "expected_close_reason": "sl", "indicative_pnl": -0.06, "expected_warnings": 0, "expected_ignored": 0},
+  {"signal_id": "bench-003", "scenario": "signal_only_native", "expected_status": "PENDING", "expected_close_reason": null, "indicative_pnl": 0.0, "expected_warnings": 0, "expected_ignored": 0},
+  {"signal_id": "bench-004", "scenario": "incompatible_update_move_stop_before_fill", "expected_status": "PENDING", "expected_close_reason": null, "indicative_pnl": 0.0, "expected_warnings": 1, "expected_ignored": 1},
+  {"signal_id": "bench-005", "scenario": "expired_pending_timeout", "expected_status": "EXPIRED", "expected_close_reason": "timeout", "indicative_pnl": 0.0, "expected_warnings": 0, "expected_ignored": 0},
+  {"signal_id": "bench-006", "scenario": "expired_chain_timeout", "expected_status": "EXPIRED", "expected_close_reason": "expired", "indicative_pnl": 0.0, "expected_warnings": 0, "expected_ignored": 0},
+  {"signal_id": "bench-007", "scenario": "cancelled_by_trader", "expected_status": "CANCELLED", "expected_close_reason": "cancelled", "indicative_pnl": 0.0, "expected_warnings": 0, "expected_ignored": 0},
+  {"signal_id": "bench-008", "scenario": "multi_entry_then_cancelled", "expected_status": "CANCELLED", "expected_close_reason": "cancelled", "indicative_pnl": 0.0, "expected_warnings": 0, "expected_ignored": 0},
+  {"signal_id": "bench-009", "scenario": "double_cancel_second_ignored", "expected_status": "CANCELLED", "expected_close_reason": "cancelled", "indicative_pnl": 0.0, "expected_warnings": 1, "expected_ignored": 1},
+  {"signal_id": "bench-010", "scenario": "manual_close", "expected_status": "CLOSED", "expected_close_reason": "manual", "indicative_pnl": 0.0, "expected_warnings": 0, "expected_ignored": 0}
+]
