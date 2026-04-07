@@ -219,17 +219,19 @@
 
 | Sprint | Stato | Note |
 |---|---|---|
-| Fase 0 | ✅ FATTO | audit eseguito su campione 25 chain, report in docs/audit_db_report.md, data-contracts.md aggiornato |
-| Sprint 1 | ✅ FATTO | tutti i domain models implementati, adapter chain_adapter + validators, 25 test unit verdi |
-| Sprint 2 | 🔲 TODO | |
-| Sprint 3 | 🔲 TODO | |
-| Sprint 4 | 🔲 TODO | |
-| Sprint 5 | 🔲 TODO | |
-| Sprint 6 | 🔲 TODO | |
-| Sprint 7 | 🔲 TODO | |
-| Sprint 8 | 🔲 TODO | |
-| Sprint 9 | 🔲 TODO | |
-| Sprint 10 | 🔲 FUTURO | |
-| Sprint 11 | 🔲 FUTURO | |
+| Fase 0 | ✅ FATTO | audit eseguito su campione 25 chain, report in `docs/audit_db_report.md`, `data-contracts.md` aggiornato |
+| Sprint 1 | ✅ FATTO | domain models + adapter + validators implementati e coperti da test unit |
+| Sprint 2 | ✅ FATTO | engine simulazione, fill model, timeout manager, replay e report base completati |
+| Sprint 3 | ✅ FATTO | policy loader + baseline policies + `run_single_chain.py` completati |
+| Sprint 4 | ✅ FATTO | fixture benchmark + golden tests + regression metrics completati |
+| Sprint 5 | ✅ FATTO | scenario runner con metriche aggregate e confronto policy completato |
+| Sprint 6 | ✅ FATTO | intrabar resolver + provider parquet + integrazione collisioni completati |
+| Sprint 7 | 🔶 PARZIALE | optimizer implementato; resta aperto **S7.6** (riproducibilità top trial) |
+| Sprint 8 | ✅ FATTO | reporting avanzato HTML/PNG/CSV/JSONL completato |
+| Sprint 9 | 🔲 TODO | UI NiceGUI pianificata ma non ancora implementata a blocchi |
+| Sprint 10 | 🔲 FUTURO | realism V2 fuori MVP |
+| Sprint 11 | 🔲 FUTURO | realism V3 fuori MVP |
+
+**Verifica ambiente (2026-04-07):** `pytest -q` interrotto in collection su Python 3.10 (`typing.Self`), progetto richiede Python >= 3.12.
 
 **Legenda:** ✅ FATTO · 🔶 PARZIALE · 🔲 TODO · ⛔ BLOCCATO
