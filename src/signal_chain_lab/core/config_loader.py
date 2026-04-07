@@ -23,12 +23,23 @@ def load_json(path: str) -> Dict[str, Any]:
         return json.load(f)
 
 
+def _resolve_configs_dir(root_dir: str) -> Path:
+    root = Path(root_dir)
+    modern = root / "configs"
+    if modern.is_dir():
+        return modern
+    legacy = root / "config"
+    if legacy.is_dir():
+        return legacy
+    raise FileNotFoundError(f"No config directory found under {root}")
+
+
 def _resolve_traders_dir(root_dir: str) -> Path:
     root = Path(root_dir)
     legacy = root / "traders"
     if legacy.is_dir():
         return legacy
-    modern = root / "src" / "parser" / "trader_profiles"
+    modern = root / "src" / "signal_chain_lab" / "parser" / "trader_profiles"
     if modern.is_dir():
         return modern
     raise FileNotFoundError(f"No trader profiles directory found under {root}")
@@ -36,8 +47,13 @@ def _resolve_traders_dir(root_dir: str) -> Path:
 
 def load_config(root_dir: str = ".") -> Config:
     # TODO: implement robust validation per docs/CONFIG_SCHEMA.md
-    aliases = normalize_trader_aliases(load_json(os.path.join(root_dir, "config", "trader_aliases.json"))["aliases"])
-    portfolio = load_json(os.path.join(root_dir, "config", "portfolio_rules.json"))
+    configs_dir = _resolve_configs_dir(root_dir)
+    trader_aliases_path = configs_dir / "trader_aliases.json"
+    portfolio_rules_path = configs_dir / "portfolio_rules.json"
+
+    aliases_payload = load_json(str(trader_aliases_path)) if trader_aliases_path.is_file() else {"aliases": {}}
+    portfolio = load_json(str(portfolio_rules_path)) if portfolio_rules_path.is_file() else {}
+    aliases = normalize_trader_aliases(aliases_payload.get("aliases", {}))
     traders = {}
     traders_dir = _resolve_traders_dir(root_dir)
     for path in sorted(traders_dir.iterdir()):

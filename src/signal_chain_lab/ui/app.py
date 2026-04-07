@@ -13,13 +13,15 @@ from src.signal_chain_lab.ui.state import UiState
 APP_STATE = UiState()
 
 
-async def _run_streaming_command(command: list[str], log_panel) -> int:
+async def _run_streaming_command(command: list[str], log_panel, process_started=None) -> int:
     log_panel.push(f"$ {' '.join(command)}")
     process = await asyncio.create_subprocess_exec(
         *command,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.STDOUT,
     )
+    if process_started is not None:
+        process_started(process)
     assert process.stdout is not None
     while True:
         line = await process.stdout.readline()
@@ -32,27 +34,34 @@ async def _run_streaming_command(command: list[str], log_panel) -> int:
 @ui.page("/")
 def main_page() -> None:
     ui.label("Signal Chain Lab - Sprint 9 GUI").classes("text-h5")
-    ui.label("Workflow sequenziale: Download dati -> Parse dati -> Backtest").classes("text-body2 text-grey-7")
+    ui.label("Workflow guidato: Download dati -> Parse dati -> Backtest").classes("text-body2 text-grey-7")
 
-    # Holder condiviso: block_backtest vi inserisce il button handle;
-    # block_parse lo legge al momento del click per abilitare il backtest.
     backtest_button_holder: list = []
 
-    render_block_download(APP_STATE)
-    render_block_parse(
-        APP_STATE,
-        backtest_button_holder=backtest_button_holder,
-        run_streaming_command=_run_streaming_command,
-    )
-    render_block_backtest(
-        APP_STATE,
-        backtest_button_holder=backtest_button_holder,
-        run_streaming_command=_run_streaming_command,
-    )
+    with ui.tabs().classes("w-full") as tabs:
+        ui.tab("download", label="1. Download")
+        ui.tab("parse", label="2. Parse")
+        ui.tab("backtest", label="3. Backtest")
+
+    with ui.tab_panels(tabs, value="download").classes("w-full"):
+        with ui.tab_panel("download"):
+            render_block_download(APP_STATE, run_streaming_command=_run_streaming_command)
+        with ui.tab_panel("parse"):
+            render_block_parse(
+                APP_STATE,
+                backtest_button_holder=backtest_button_holder,
+                run_streaming_command=_run_streaming_command,
+            )
+        with ui.tab_panel("backtest"):
+            render_block_backtest(
+                APP_STATE,
+                backtest_button_holder=backtest_button_holder,
+                run_streaming_command=_run_streaming_command,
+            )
 
 
 def run() -> None:
-    ui.run(title="Signal Chain Lab GUI", reload=False)
+    ui.run(title="Signal Chain Lab GUI", reload=False, port=7777)
 
 
 if __name__ in {"__main__", "__mp_main__"}:

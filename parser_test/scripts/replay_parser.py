@@ -25,6 +25,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.signal_chain_lab.core.config_loader import load_config
+from src.signal_chain_lab.core.trader_tags import find_normalized_trader_tags, normalize_trader_aliases
 from src.signal_chain_lab.core.migrations import apply_migrations
 from src.signal_chain_lab.parser.trader_profiles.base import ParserContext, TraderParseResult
 from src.signal_chain_lab.parser.trader_profiles.common_utils import extract_hashtags, extract_telegram_links
@@ -40,10 +41,188 @@ try:
     from src.telegram.eligibility import MessageEligibilityEvaluator  # type: ignore[import]
     from src.telegram.trader_mapping import TelegramSourceTraderMapper  # type: ignore[import]
 except ImportError:
-    EffectiveTraderContext = None  # type: ignore[assignment,misc]
-    EffectiveTraderResolver = None  # type: ignore[assignment,misc]
-    MessageEligibilityEvaluator = None  # type: ignore[assignment,misc]
-    TelegramSourceTraderMapper = None  # type: ignore[assignment,misc]
+    @dataclass(slots=True)
+    class EffectiveTraderContext:
+        source_chat_id: str
+        source_chat_username: str | None
+        source_chat_title: str | None
+        raw_text: str | None
+        reply_to_message_id: int | None
+
+    @dataclass(slots=True)
+    class _ResolvedTrader:
+        trader_id: str | None
+        method: str
+
+    @dataclass(slots=True)
+    class _EligibilityResult:
+        status: str
+        reason: str
+        strong_link_method: str | None
+
+    class TelegramSourceTraderMapper:
+        def __init__(
+            self,
+            *,
+            chat_id_to_trader: dict[str, str],
+            chat_username_to_trader: dict[str, str],
+            chat_title_to_trader: dict[str, str],
+            multi_trader_chat_ids: set[str],
+            trader_aliases: dict[str, str],
+            known_trader_ids: set[str],
+        ) -> None:
+            self._chat_id_to_trader = chat_id_to_trader
+            self._chat_username_to_trader = {str(k).strip().lower(): v for k, v in chat_username_to_trader.items()}
+            self._chat_title_to_trader = {str(k).strip().lower(): v for k, v in chat_title_to_trader.items()}
+            self._multi_trader_chat_ids = {str(value).strip() for value in multi_trader_chat_ids}
+            self._trader_aliases = normalize_trader_aliases(trader_aliases)
+            self._known_trader_ids = known_trader_ids
+
+        @classmethod
+        def from_json_file(
+            cls,
+            *,
+            file_path: str,
+            trader_aliases: dict[str, str],
+            known_trader_ids: set[str],
+        ) -> "TelegramSourceTraderMapper":
+            payload = {}
+            candidate = Path(file_path)
+            if candidate.is_file():
+                with candidate.open("r", encoding="utf-8") as handle:
+                    payload = json.load(handle)
+            return cls(
+                chat_id_to_trader={str(k): str(v) for k, v in payload.get("chat_id_to_trader", {}).items()},
+                chat_username_to_trader={str(k): str(v) for k, v in payload.get("chat_username_to_trader", {}).items()},
+                chat_title_to_trader={str(k): str(v) for k, v in payload.get("chat_title_to_trader", {}).items()},
+                multi_trader_chat_ids={str(item) for item in payload.get("multi_trader_chat_ids", [])},
+                trader_aliases=trader_aliases,
+                known_trader_ids=known_trader_ids,
+            )
+
+        def resolve(self, *, chat_id: str, chat_username: str | None, chat_title: str | None) -> tuple[str | None, str]:
+            if chat_id in self._multi_trader_chat_ids:
+                return None, "multi_trader_chat"
+            if chat_id in self._chat_id_to_trader:
+                return self._normalize(self._chat_id_to_trader[chat_id]), "chat_id_map"
+            if chat_username:
+                key = chat_username.strip().lower()
+                if key in self._chat_username_to_trader:
+                    return self._normalize(self._chat_username_to_trader[key]), "chat_username_map"
+            if chat_title:
+                key = chat_title.strip().lower()
+                if key in self._chat_title_to_trader:
+                    return self._normalize(self._chat_title_to_trader[key]), "chat_title_map"
+            return None, "unmapped"
+
+        def _normalize(self, trader_id: str | None) -> str | None:
+            canonical = canonicalize_trader_code(trader_id)
+            if canonical in self._known_trader_ids:
+                return canonical
+            if trader_id in self._known_trader_ids:
+                return trader_id
+            if trader_id and trader_id in self._trader_aliases:
+                alias = self._trader_aliases[trader_id]
+                return alias if alias in self._known_trader_ids else canonical
+            return canonical
+
+    class EffectiveTraderResolver:
+        def __init__(
+            self,
+            *,
+            source_mapper: TelegramSourceTraderMapper,
+            raw_store: RawMessageStore,
+            trader_aliases: dict[str, str],
+            known_trader_ids: set[str],
+        ) -> None:
+            self._source_mapper = source_mapper
+            self._raw_store = raw_store
+            self._known_trader_ids = known_trader_ids
+            self._alias_to_trader: dict[str, str] = {}
+            for alias, trader_id in normalize_trader_aliases(trader_aliases).items():
+                if trader_id in known_trader_ids:
+                    self._alias_to_trader[alias] = trader_id
+            for trader_id in known_trader_ids:
+                suffix = trader_id.removeprefix("trader_")
+                if suffix:
+                    self._alias_to_trader.setdefault(f"trader#{suffix.lower()}", trader_id)
+
+        def resolve(self, context: EffectiveTraderContext) -> _ResolvedTrader:
+            text_result = self._from_text(context.raw_text)
+            if text_result.trader_id or text_result.method == "content_alias_ambiguous":
+                return text_result
+
+            if context.reply_to_message_id is not None:
+                chain_result = self._resolve_from_reply_chain(
+                    source_chat_id=context.source_chat_id,
+                    start_message_id=context.reply_to_message_id,
+                )
+                if chain_result.trader_id:
+                    return chain_result
+
+            trader_id, method = self._source_mapper.resolve(
+                chat_id=context.source_chat_id,
+                chat_username=context.source_chat_username,
+                chat_title=context.source_chat_title,
+            )
+            return _ResolvedTrader(trader_id=trader_id, method=method)
+
+        def _resolve_from_reply_chain(self, *, source_chat_id: str, start_message_id: int) -> _ResolvedTrader:
+            visited: set[int] = set()
+            current_id: int | None = start_message_id
+            depth = 0
+            while current_id is not None and depth < 10:
+                if current_id in visited:
+                    break
+                visited.add(current_id)
+                parent = self._raw_store.get_by_source_and_message_id(
+                    source_chat_id=source_chat_id,
+                    telegram_message_id=current_id,
+                )
+                if parent is None:
+                    break
+                if parent.source_trader_id:
+                    return _ResolvedTrader(trader_id=parent.source_trader_id, method="reply_chain")
+                text_result = self._from_text(parent.raw_text)
+                if text_result.trader_id:
+                    return _ResolvedTrader(trader_id=text_result.trader_id, method="reply_chain_alias")
+                current_id = parent.reply_to_message_id
+                depth += 1
+            return _ResolvedTrader(trader_id=None, method="unresolved")
+
+        def _from_text(self, raw_text: str | None) -> _ResolvedTrader:
+            if not raw_text:
+                return _ResolvedTrader(trader_id=None, method="content_alias_missing")
+
+            found: list[str] = []
+            for alias in find_normalized_trader_tags(raw_text):
+                trader_id = self._alias_to_trader.get(alias)
+                if trader_id:
+                    found.append(trader_id)
+
+            unique = sorted(set(found))
+            if len(unique) == 1:
+                return _ResolvedTrader(trader_id=unique[0], method="content_alias")
+            if len(unique) > 1:
+                return _ResolvedTrader(trader_id=None, method="content_alias_ambiguous")
+            return _ResolvedTrader(trader_id=None, method="content_alias_missing")
+
+    class MessageEligibilityEvaluator:
+        def __init__(self, *, raw_store: RawMessageStore) -> None:
+            self._raw_store = raw_store
+
+        def evaluate(self, *, source_chat_id: str, raw_text: str | None, reply_to_message_id: int | None) -> _EligibilityResult:
+            if reply_to_message_id is not None:
+                return _EligibilityResult(
+                    status="ACQUIRED_REPLY_CONTEXT",
+                    reason="reply_to_message_id_present",
+                    strong_link_method="reply_to_message_id",
+                )
+            return _EligibilityResult(
+                status="ACQUIRED_HISTORY",
+                reason="history_replay",
+                strong_link_method=None,
+            )
 from parser_test.scripts.db_paths import resolve_parser_test_db_path
 
 _SIGNAL_ID_RE = re.compile(r"\bSIGNAL\s*ID\s*:\s*#?\s*(?P<id>\d+)\b", re.IGNORECASE)
@@ -451,6 +630,15 @@ def select_rows(
     selected: list[SelectedRaw] = []
     normalized_trader_filter = canonicalize_trader_code(trader_filter) if trader_filter else None
     for row in raws:
+        if normalized_trader_filter:
+            selected.append(
+                SelectedRaw(
+                    row=row,
+                    resolved_trader_id=normalized_trader_filter,
+                    trader_resolution_method="cli_trader_override",
+                )
+            )
+            continue
         resolved = trader_resolver.resolve(
             EffectiveTraderContext(
                 source_chat_id=row.source_chat_id,

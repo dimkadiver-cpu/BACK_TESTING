@@ -17,20 +17,71 @@ except ImportError:  # pragma: no cover - optional dependency
     load_dotenv = None
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+PARSER_TEST_DIR = PROJECT_ROOT / "parser_test"
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.signal_chain_lab.core.logger import setup_logging
 from src.signal_chain_lab.core.migrations import apply_migrations
-from src.signal_chain_lab.storage.raw_messages import RawMessageStore
+from src.signal_chain_lab.storage.raw_messages import RawMessageRecord, RawMessageSaveResult, RawMessageStore
 
 # NOTE: src.telegram was removed from this repo (live system modules).
 # This import is kept for reference only and will raise ImportError at runtime.
 try:
     from src.telegram.ingestion import RawMessageIngestionService, TelegramIncomingMessage  # type: ignore[import]
 except ImportError:
-    RawMessageIngestionService = None  # type: ignore[assignment,misc]
-    TelegramIncomingMessage = None  # type: ignore[assignment,misc]
+    @dataclass(slots=True)
+    class TelegramIncomingMessage:
+        source_chat_id: str
+        source_chat_title: str | None
+        source_type: str | None
+        source_trader_id: str | None
+        telegram_message_id: int
+        reply_to_message_id: int | None
+        raw_text: str | None
+        message_ts: datetime
+        acquisition_status: str
+        has_media: bool = False
+        media_kind: str | None = None
+        media_mime_type: str | None = None
+        media_filename: str | None = None
+        media_blob: bytes | None = None
+
+    class RawMessageIngestionService:
+        """Minimal fallback used when live src.telegram modules are absent."""
+
+        def __init__(self, *, store: RawMessageStore, logger) -> None:
+            self._store = store
+            self._logger = logger
+
+        def ingest(self, incoming: TelegramIncomingMessage) -> RawMessageSaveResult:
+            record = RawMessageRecord(
+                source_chat_id=incoming.source_chat_id,
+                source_chat_title=incoming.source_chat_title,
+                source_type=incoming.source_type,
+                source_trader_id=incoming.source_trader_id,
+                telegram_message_id=incoming.telegram_message_id,
+                reply_to_message_id=incoming.reply_to_message_id,
+                raw_text=incoming.raw_text,
+                message_ts=_ensure_utc(incoming.message_ts).isoformat(),
+                acquired_at=datetime.now(timezone.utc).isoformat(),
+                acquisition_status=incoming.acquisition_status,
+                has_media=incoming.has_media,
+                media_kind=incoming.media_kind,
+                media_mime_type=incoming.media_mime_type,
+                media_filename=incoming.media_filename,
+                media_blob=incoming.media_blob,
+            )
+            result = self._store.save_with_id(record)
+            if self._logger is not None:
+                self._logger.info(
+                    "raw_message_ingest source_chat_id=%s telegram_message_id=%s saved=%s raw_message_id=%s",
+                    incoming.source_chat_id,
+                    incoming.telegram_message_id,
+                    result.saved,
+                    result.raw_message_id,
+                )
+            return result
 from parser_test.scripts.db_paths import resolve_parser_test_db_path
 
 
@@ -49,6 +100,10 @@ class MediaPayload:
     media_mime_type: str | None = None
     media_filename: str | None = None
     media_blob: bytes | None = None
+
+
+def _emit(message: str) -> None:
+    print(message, flush=True)
 
 
 def parse_args() -> argparse.Namespace:
@@ -86,7 +141,7 @@ def main() -> None:
 
 
 async def _run_import(args: argparse.Namespace, TelegramClient: object) -> None:
-    parser_test_dir = PROJECT_ROOT / "parser_test"
+    parser_test_dir = PARSER_TEST_DIR
     env_path = parser_test_dir / ".env"
     if env_path.exists():
         _load_env_file(env_path)
@@ -96,9 +151,9 @@ async def _run_import(args: argparse.Namespace, TelegramClient: object) -> None:
         raise RuntimeError(
             "Missing chat target. Provide --chat-id or set PARSER_TEST_CHAT_ID in parser_test/.env."
         )
-    print(f"chat target used: {chat_ref}")
+    _emit(f"chat target used: {chat_ref}")
     if args.topic_id is not None:
-        print(f"topic target used: {args.topic_id}")
+        _emit(f"topic target used: {args.topic_id}")
 
     db_path = resolve_parser_test_db_path(
         project_root=PROJECT_ROOT,
@@ -110,7 +165,9 @@ async def _run_import(args: argparse.Namespace, TelegramClient: object) -> None:
     )
     _ensure_not_live_db(db_path)
     Path(db_path).parent.mkdir(parents=True, exist_ok=True)
-    apply_migrations(db_path=db_path, migrations_dir=str(PROJECT_ROOT / "db" / "migrations"))
+    applied = apply_migrations(db_path=db_path, migrations_dir=str(PROJECT_ROOT / "db" / "migrations"))
+    _emit(f"db_path resolved: {db_path}")
+    _emit(f"migrations applied: {applied}")
 
     log_path = os.getenv("PARSER_TEST_LOG_PATH", str(parser_test_dir / "logs" / "import_history.log"))
     log_path = str((PROJECT_ROOT / log_path).resolve()) if not Path(log_path).is_absolute() else log_path
@@ -118,24 +175,34 @@ async def _run_import(args: argparse.Namespace, TelegramClient: object) -> None:
 
     api_id = int(_required_env("TELEGRAM_API_ID"))
     api_hash = _required_env("TELEGRAM_API_HASH")
-    session_name = args.session or os.getenv("PARSER_TEST_TELEGRAM_SESSION") or os.getenv("TELEGRAM_SESSION") or "parser_test"
+    default_session_name = str((PARSER_TEST_DIR / "parser_test").resolve())
+    session_name = (
+        args.session
+        or os.getenv("PARSER_TEST_TELEGRAM_SESSION")
+        or os.getenv("TELEGRAM_SESSION")
+        or default_session_name
+    )
 
     from_ts = _parse_cli_date(args.from_date, end_of_day=False) if args.from_date else None
     to_ts = _parse_cli_date(args.to_date, end_of_day=True) if args.to_date else None
     if from_ts and to_ts and from_ts > to_ts:
         raise RuntimeError("--from-date must be <= --to-date")
+    _emit(f"telegram session opening... {session_name}")
 
     raw_store = RawMessageStore(db_path=db_path)
     ingestion = RawMessageIngestionService(store=raw_store, logger=logger)
     stats = Stats()
 
     async with TelegramClient(session_name, api_id, api_hash) as client:
+        _emit("telegram session opened")
         entity, resolution_method = await _resolve_target_entity(client=client, chat_ref=str(chat_ref).strip())
-        print(f"chat resolution method: {resolution_method}")
+        _emit(f"chat resolution method: {resolution_method}")
         source_chat_id = str(getattr(entity, "id", chat_ref))
         source_chat_title = getattr(entity, "title", None) or getattr(entity, "username", None)
         source_type = _resolve_source_type(entity)
         max_existing_id = _max_existing_message_id(db_path=db_path, source_chat_id=source_chat_id) if args.only_new else None
+        _emit(f"source chat resolved id: {source_chat_id}")
+        _emit("download started...")
 
         async for message in _iter_target_messages(
             client=client,
@@ -145,6 +212,12 @@ async def _run_import(args: argparse.Namespace, TelegramClient: object) -> None:
             topic_id=args.topic_id,
         ):
             stats.read += 1
+            if stats.read == 1:
+                _emit("first message received from Telegram")
+            elif stats.read % 50 == 0:
+                _emit(
+                    f"progress: read={stats.read} inserted={stats.inserted} duplicates={stats.duplicates} skipped={stats.skipped}"
+                )
             if message is None or getattr(message, "id", None) is None:
                 stats.skipped += 1
                 continue
@@ -186,16 +259,27 @@ async def _run_import(args: argparse.Namespace, TelegramClient: object) -> None:
             result = ingestion.ingest(incoming)
             if result.saved:
                 stats.inserted += 1
+                if stats.inserted <= 3 or stats.inserted % 50 == 0:
+                    _emit(
+                        f"saved message {incoming.telegram_message_id} "
+                        f"(inserted={stats.inserted}, duplicates={stats.duplicates}, skipped={stats.skipped})"
+                    )
             else:
                 stats.duplicates += 1
+                if stats.duplicates <= 3 or stats.duplicates % 50 == 0:
+                    _emit(
+                        f"duplicate message {incoming.telegram_message_id} "
+                        f"(inserted={stats.inserted}, duplicates={stats.duplicates}, skipped={stats.skipped})"
+                    )
 
-    print(f"db_path: {db_path}")
-    print(f"source chat id used: {chat_ref}")
-    print(f"source chat resolved id: {source_chat_id}")
-    print(f"total messages read: {stats.read}")
-    print(f"total inserted: {stats.inserted}")
-    print(f"total duplicates: {stats.duplicates}")
-    print(f"total skipped: {stats.skipped}")
+    _emit("download finished")
+    _emit(f"db_path: {db_path}")
+    _emit(f"source chat id used: {chat_ref}")
+    _emit(f"source chat resolved id: {source_chat_id}")
+    _emit(f"total messages read: {stats.read}")
+    _emit(f"total inserted: {stats.inserted}")
+    _emit(f"total duplicates: {stats.duplicates}")
+    _emit(f"total skipped: {stats.skipped}")
 
 def _ensure_not_live_db(db_path: str) -> None:
     candidate = Path(db_path).resolve()

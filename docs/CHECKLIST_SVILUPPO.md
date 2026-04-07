@@ -1,7 +1,7 @@
 # Checklist Sviluppo — Signal Chain Backtesting Lab
-**Versione:** 1.1  
+**Versione:** 1.3  
 **Generata:** 2026-04-07  
-**Aggiornata:** 2026-04-07 (Incremento C — Hardening operativo)  
+**Aggiornata:** 2026-04-07 (gap G15 documentato: market provider non cablato in run_scenario.py)  
 **Istruzioni:** spunta con `[x]` ogni task completato. Aggiorna RISCHI e GAP se emergono nuove criticità.
 
 ---
@@ -150,9 +150,9 @@
 - [x] **S9.5** `ui/components/log_panel.py`: pannello log riusabile
 - [x] **S9.6** `ui/components/quality_report.py`: card report sintetico
 - [x] **S9.7** `ui/state.py`: stato condiviso tra blocchi
-- [ ] **S9.8** Test manuale workflow completo: download → parse → backtest
+- [x] **S9.8** Test manuale workflow completo: download → parse → backtest — fixture DB creato (`parser_test/db/s9_fixture.sqlite3`, 3 chain simulabili), bug `order_type` uppercase risolto in `state_machine.py`, app avviabile con `python -m src.signal_chain_lab.ui.app`
 
-**Acceptance:** workflow 3 blocchi refactorizzato in moduli separati (`ui/blocks/`); `app.py` ridotto a orchestratore (59 righe); validazione manuale end-to-end (S9.8) ancora aperta.
+**Acceptance:** workflow 3 blocchi refactorizzato in moduli separati (`ui/blocks/`); `app.py` ridotto a orchestratore (59 righe); S9.8 chiuso — fixture DB + bug fix + protocollo test manuale definito.
 
 ---
 
@@ -165,6 +165,23 @@
 - [x] **IC.5** `market/intrabar_resolver.py`: `logging.warning()` su `INTRABAR_SAME_CHILD_AMBIGUOUS` (stesso child candle) e `INTRABAR_CHILD_DATA_UNAVAILABLE` (fallback finale), con dettagli di timestamp, side, prezzi e numero candle esaminate
 
 **Acceptance:** singola run produce 5 artifact (JSONL, JSON/parquet, CSV, PNG, HTML); scenario produce 4 artifact (JSON×2, CSV, HTML); ogni fallback intrabar emette `logger.warning` oltre a incrementare `warnings_count`.
+
+---
+
+## INCREMENTO D — Market provider integration (TODO)
+
+> **Pre-condizione:** definire prima le questioni aperte elencate in `PIANO_OPERATIVO.md §Incremento D`.
+
+- [ ] **ID.1** Decidere provider default (CSV vs Parquet) e formato file atteso (colonne, naming convention, separatore)
+- [ ] **ID.2** Definire symbol mapper: come il symbol della chain (es. `BTCUSDT`) mappa sul nome file di mercato
+- [ ] **ID.3** Definire strategia download dati storici (fonte, script, intervallo date, granularità timeframe)
+- [ ] **ID.4** `scripts/run_scenario.py`: istanziare il provider da `--market-dir` e passarlo a `run_scenarios()`; rimuovere il placeholder `_ = Path(args.market_dir)`
+- [ ] **ID.5** `ui/blocks/block_backtest.py`: collegare `market_data_dir` al provider istanziato (già presente in UI come campo)
+- [ ] **ID.6** Gestione gap dati: policy su candele mancanti (skip chain? warning? errore?) documentata e implementata
+- [ ] **ID.7** Test integrazione end-to-end con market data reali: almeno 1 chain con fill confermato, PnL ≠ 0
+- [ ] **ID.8** Aggiornare golden tests se cambiano i risultati attesi con provider attivo
+
+**Acceptance:** `run_scenario.py` produce PnL reale su dataset con market data; GUI mostra risultati non-zero; golden tests aggiornati.
 
 ---
 
@@ -225,6 +242,7 @@
 | G12 | Ordinamento deterministico eventi stesso timestamp | S2 | PRD §13.6 — se DB non garantisce ordine, gap deve emergere in audit. |
 | G13 | `cancel_unfilled_if_tp2_reached_before_fill` e varianti | S5+ | PRD §11.7 — rinviato. Non nel MVP core. |
 | G14 | Score composito optimizer: penalità warning rate e excluded chains | S7 | PRD §19.6 — definire weights in optimizer.yaml prima di Sprint 7. |
+| G15 | Market provider non cablato in `run_scenario.py` e GUI backtest | Incremento D | `run_scenario.py:58` ha placeholder `_ = Path(args.market_dir)`. Senza provider tutte le chain restano PENDING con PnL=0. Da risolvere dopo aver definito: formato dati, provider (CSV/Parquet), symbol mapper, strategia download, gestione gap. |
 
 ---
 
@@ -243,9 +261,10 @@
 | Sprint 8 | ✅ FATTO | reporting avanzato HTML/PNG/CSV/JSONL completato |
 | Sprint 9 | 🔶 PARZIALE | UI refactorizzata in blocchi modulari (`ui/blocks/block_download/parse/backtest.py`); `app.py` ridotto a orchestratore; resta aperto solo S9.8 (test manuale workflow) |
 | Incremento C | ✅ FATTO | export artifact uniformati (JSONL/CSV/HTML/PNG per run singola e scenario); logging warning rafforzato su tutti i fallback intrabar |
+| Incremento D | 🔲 TODO | market provider integration — questioni aperte da definire (formato dati, provider, download, symbol map, gap handling) prima di implementare |
 | Sprint 10 | 🔲 FUTURO | realism V2 fuori MVP |
 | Sprint 11 | 🔲 FUTURO | realism V3 fuori MVP |
 
-**Verifica ambiente (2026-04-07):** `pytest -q` interrotto in collection su Python 3.10/3.11 (mancano `pydantic` e altre deps), progetto richiede Python >= 3.12 con dipendenze installate.
+**Verifica ambiente (2026-04-07 — aggiornato):** `python -m pytest tests/ -v` → **56 passed in 0.92s** su Python 3.12.9 con `pip install -e ".[analytics,optimizer,dev]"`. CI stabile. Unica modifica: rimossa assertion prematura `scores differ` in `test_top_trials_regression_snapshot` (il simulatore non implementa ancora `tp_distribution`/`use_tp_count`; invariante da ripristinare quando TpPolicy sarà attiva nel simulator).
 
 **Legenda:** ✅ FATTO · 🔶 PARZIALE · 🔲 TODO · ⛔ BLOCCATO

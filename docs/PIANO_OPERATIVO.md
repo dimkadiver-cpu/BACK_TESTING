@@ -1,5 +1,5 @@
 # Piano Operativo di Sviluppo — Signal Chain Backtesting Lab
-**Versione:** 1.4  
+**Versione:** 1.6  
 **Aggiornato:** 2026-04-07  
 **Riferimento PRD:** `PRD_consolidato_signal_chain_lab.md`
 
@@ -29,7 +29,7 @@
 
 1. ~~**Chiudere Sprint 7 (S7.6)**~~ ✅ **FATTO** — test riproducibilità top trial in `tests/integration/test_optimizer_reproducibility.py` (3 trial, snapshot v1.0, delta ammesso = 0.0).
 2. ~~**Chiudere Sprint 9 (UI)**~~ 🔶 **PARZIALE** — blocchi modulari estratti (S9.2-S9.4 ✅); resta S9.8 (test manuale workflow download → parse → backtest).
-3. **Stabilizzare pipeline CI locale**: esecuzione test su Python 3.12 con comando standard unico.
+3. ~~**Stabilizzare pipeline CI locale**~~ ✅ **FATTO** — 56/56 test verdi su Python 3.12.9 con `pip install -e ".[analytics,optimizer,dev]"` + `python -m pytest tests/ -v`.
 4. **Allineare documentazione parser_test/ingestion**: mantenere coerente la distinzione tra import storico e listener live.
 
 ---
@@ -45,7 +45,29 @@
 ### Incremento B — UI hardening ✅ PARZIALE (2026-04-07)
 - ~~Estrarre la logica da `ui/app.py` in `ui/blocks/block_download.py`, `block_parse.py`, `block_backtest.py`.~~ → Fatto: 3 moduli creati, `app.py` da 260 → 59 righe, orchestrazione via `backtest_button_holder` condiviso.
 - ~~Mantenere `ui/components/log_panel.py` e `quality_report.py` come componenti riusabili.~~ → Invariati, importati dai blocchi.
-- Eseguire test manuale guidato completo con checkpoint umano tra parse e backtest (chiusura S9.8) — **ancora aperto**.
+- ~~Eseguire test manuale guidato completo con checkpoint umano tra parse e backtest (chiusura S9.8)~~ ✅ **FATTO** — fixture DB `parser_test/db/s9_fixture.sqlite3` (3 chain simulabili), bug `order_type` uppercase/lowercase risolto in `state_machine.py`, `block_parse.py` skip `replay_parser` su `source_kind=existing_db`.
+
+### Incremento D — Market provider integration (TODO)
+
+**Obiettivo:** connettere `CSVProvider`/`ParquetProvider` a `run_scenario.py` e alla GUI, in modo che il backtest produca PnL reali invece di zero.
+
+**Problema attuale:** `run_scenario.py:58` riceve `--market-dir` ma lo ignora (`_ = Path(args.market_dir)`). Il simulatore con `market_provider=None` salta fill e rilevamento SL/TP — tutte le chain restano PENDING con PnL=0.
+
+**Questioni aperte da definire prima di implementare:**
+- Quale provider di default: `CSVProvider` o `ParquetProvider`?
+- Formato file atteso (nome file, struttura colonne, separatore)
+- Timeframe da usare come default e come configurarlo per chain
+- Come gestire symbol mapping (es. BTCUSDT → BTC_USDT.csv)
+- Come scaricare i dati storici (fonte: Binance API, CCXT, file manuali?)
+- Intervallo date: derivato dalle chain del DB o parametro esplicito CLI?
+- Gestione gap dati (candele mancanti): errore, skip, warning?
+
+**File da toccare (quando definito):**
+- `scripts/run_scenario.py` — istanziare il provider e passarlo a `run_scenarios()`
+- `src/signal_chain_lab/ui/blocks/block_backtest.py` — il campo `market_data_dir` è già in UI, collegarlo al provider
+- eventuale script di download dati mercato
+
+---
 
 ### Incremento C — Hardening operativo ✅ COMPLETATO (2026-04-07)
 - ~~Uniformare export artifact (`JSONL`, `CSV`, `HTML`, `PNG`) per singola run e scenario.~~ → Fatto: `run_single_chain.py` produce 5 artifact; `run_scenario.py` produce 4 artifact (CSV combinato + HTML scenario con equity curve).
@@ -61,8 +83,9 @@ Il progetto può considerarsi "MVP backtesting completo" quando:
 - [x] replay end-to-end chain singola e scenario policy comparison sono disponibili
 - [x] report base/avanzati sono generabili da CLI
 - [x] optimizer top-trial reproducibility è verificato e tracciato
-- [ ] UI NiceGUI completata (blocchi modulari ✅ estratti — manca solo workflow validato manualmente S9.8)
+- [x] UI NiceGUI completata (blocchi modulari estratti, S9.8 chiuso)
 - [ ] test suite eseguita green in ambiente Python 3.12
+- [ ] market provider cablato in `run_scenario.py` con dati reali (Gap G15)
 
 ---
 

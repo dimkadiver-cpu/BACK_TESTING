@@ -23,7 +23,7 @@ def _apply_open_signal(state: TradeState, event: CanonicalEvent) -> tuple[str, E
     state.entries_planned = [
         EntryPlan(
             role="primary",
-            order_type=payload.get("entry_type", "market"),
+            order_type=(payload.get("entry_type") or "market").lower(),
             price=(payload.get("entry_prices") or [None])[0],
             size_ratio=1.0,
             sequence=event.sequence,
