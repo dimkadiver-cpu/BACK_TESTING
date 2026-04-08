@@ -1,0 +1,113 @@
+# Template MVP minimale per policy Signal Chain Lab.
+#
+# Scopo:
+# - fornire una base semplice e subito usabile
+# - includere solo i campi principali del contratto attuale
+# - evitare le estensioni future o piu' complesse
+#
+# Nota:
+# - il simulatore oggi usa davvero soprattutto timeout e latency
+# - gli altri flag restano comunque utili per mantenere coerenza tra policy
+
+name: policy_template_mvp
+
+entry:
+  # true = usa la struttura entry gia' presente nella chain
+  # (entry singola, multi-entry, averaging) quando disponibile
+  use_original_entries: true
+
+  # Fallback semplice di allocazione.
+  # Valori noti:
+  # - equal
+  # - front_loaded
+  # - back_loaded
+  #
+  # Nota:
+  # la logica reale ora puo' anche usare entry_split quando il payload contiene
+  # piu' entry esplicite; questo campo resta il fallback generale di alto livello.
+  entry_allocation: equal
+  max_entries_to_use: null
+
+  # Config minima per casi multi-entry.
+  # Il motore puo' applicarla quando OPEN_SIGNAL contiene abbastanza dettaglio
+  # (per esempio MARKET + LIMIT averaging, LIMIT + LIMIT averaging, ZONE).
+  entry_split:
+
+    LIMIT:
+      single:
+        weights:
+          E1: 1.0
+      range:
+        # split_mode operativo:
+        # - endpoints: usa entrambe le entry del range
+        # - firstpoint: usa solo la prima entry del range
+        # - midpoint: crea una sola entry al prezzo medio
+        split_mode: endpoints
+        weights:
+          E1: 0.50
+          E2: 0.50
+      averaging:
+        weights:
+          E1: 0.70
+          E2: 0.30
+      ladder:
+        weights:
+          E1: 0.50
+          E2: 0.50
+
+    MARKET:
+      single:
+        weights:
+          E1: 1.0
+      averaging:
+        weights:
+          E1: 0.70
+          E2: 0.30
+
+  allow_add_entry_updates: true
+
+tp:
+  use_original_tp: true
+  # La chain valida deve avere gia' almeno 1 TP.
+  # Se manca almeno un TP, il messaggio non dovrebbe diventare NEW_SIGNAL.
+  # Questa policy decide solo come usare TP gia' presenti.
+  use_tp_count: null
+  # Distribuzione della size sui TP usati.
+  # Se la chain non porta una distribuzione esplicita di close sizing,
+  # questa tabella fornisce il fallback minimo del MVP.
+  tp_distribution:
+    tp_distribution: follow_all_signal_tps
+    max_tp_levels: 4
+    tp_close_distribution:
+      1: [100]
+      2: [50, 50]
+      3: [30, 30, 40]
+      4: [25, 25, 25, 25]
+
+sl:
+  use_original_sl: true
+  break_even_mode: none
+  be_trigger: null
+  move_sl_with_trader: true
+
+updates:
+  apply_move_stop: true
+  apply_close_partial: true
+  apply_close_full: true
+  apply_cancel_pending: true
+  apply_add_entry: true
+  partial_close_fallback_pct: 0.5
+
+pending:
+  pending_timeout_hours: 24
+  chain_timeout_hours: 168
+  cancel_pending_on_timeout: true
+  cancel_unfilled_if_tp1_reached_before_fill: false
+  cancel_averaging_pending_after_tp1: false
+
+risk: {}
+
+execution:
+  latency_ms: 0
+  slippage_model: none
+  fill_touch_guaranteed: true

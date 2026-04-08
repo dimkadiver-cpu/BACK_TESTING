@@ -55,6 +55,10 @@ def _new_signal_payload(chain: SignalChain) -> dict:
             {"price": tp.price.value, "label": tp.label}
             for tp in ents.take_profits
         ]
+        for extra_key in ("entry_plan_entries", "entry_plan_type", "entry_structure", "has_averaging_plan"):
+            extra_value = getattr(ents, extra_key, None)
+            if extra_value is not None:
+                payload[extra_key] = extra_value
 
     return payload
 

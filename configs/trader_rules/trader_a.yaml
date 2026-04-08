@@ -29,8 +29,7 @@ global_defaults:
       weights:
         E1: 0.50
         E2: 0.50
-    AVERAGING:
-      distribution: equal               # equal | decreasing
+
     LIMIT:
       single:
         weights:

@@ -41,7 +41,7 @@ def simulate_chain(
     intrabar_resolver = IntrabarResolver()
 
     for event in events:
-        logs.append(apply_event(state, event))
+        logs.append(apply_event(state, event, policy=policy))
 
         if market_provider is None:
             continue
@@ -82,7 +82,7 @@ def simulate_chain(
 
         _apply_close_resolution(state=state, resolution=resolution)
         engine_event = _build_engine_close_event(chain=chain, resolution=resolution, sequence_seed=event.sequence)
-        engine_log = apply_event(state, engine_event)
+        engine_log = apply_event(state, engine_event, policy=policy)
         engine_log.reason = resolution.reason
         logs.append(engine_log)
 

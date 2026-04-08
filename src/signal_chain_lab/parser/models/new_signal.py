@@ -83,6 +83,8 @@ class NewSignalEntities(BaseModel):
     represented and stored for later review.
     """
 
+    model_config = ConfigDict(extra="allow")
+
     # --- Core signal fields -------------------------------------------------
 
     symbol: str | None = None

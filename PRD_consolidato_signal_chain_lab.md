@@ -3251,7 +3251,7 @@ L’utente può lavorare con dati provenienti da:
 - canale Telegram
 - topic Telegram
 - chat Telegram
-oppure con DB già popolato derivato da tali sorgenti.
+
 
 #### AC-PROD-02 — Verifica pipeline esistente
 Il sistema espone una checklist o report di verifica che indica se ingestione, parser e chain reconstruction esistenti sono riusabili senza modifiche maggiori.

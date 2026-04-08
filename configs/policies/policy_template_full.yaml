@@ -1,0 +1,210 @@
+# Template generale completo per policy Signal Chain Lab.
+#
+# Obiettivo:
+# - documentare il contratto YAML attuale
+# - restare caricabile dal PolicyLoader
+# - includere sia campi MVP sia estensioni gia' accettate dal modello
+#
+# Nota importante:
+# - il loader accetta piu' campi di quanti il simulatore usi oggi davvero
+# - alcuni blocchi sono "contratto/config" piu' che logica gia' attiva end-to-end
+
+name: policy_template_full
+
+entry:
+  # true  = usa la struttura entry originale della chain
+  # false = lascia spazio a regole future di override
+  #
+  # Nota:
+  # il motore ora puo' costruire piu' EntryPlan da OPEN_SIGNAL quando il payload
+  # contiene abbastanza dettaglio su entries / entry_prices / entry_type.
+  use_original_entries: true
+
+  # Valori oggi presenti nello search space optimizer:
+  # - equal
+  # - front_loaded
+  # - back_loaded
+  #
+  # Semantica:
+  # - equal: distribuzione uniforme tra entry
+  # - front_loaded: piu' size sulle prime entry
+  # - back_loaded: piu' size sulle entry successive
+  entry_allocation: equal
+
+  # null = nessun limite esplicito sul numero di entry utilizzabili
+  max_entries_to_use: null
+
+  # Config estesa per definire il frazionamento in base alla struttura reale
+  # del piano di entry.
+  # Il motore usa soprattutto:
+  # - LIMIT.single
+  # - LIMIT.range
+  # - LIMIT.averaging
+  # - LIMIT.ladder
+  # - MARKET.single
+  # - MARKET.averaging
+  #
+  # Nota DB-driven:
+  # nei dati reali compaiono spesso strutture RANGE / TWO_STEP / LADDER.
+  # Queste sono piu' affidabili di un vecchio distinguo teorico "ZONE vs LIMIT".
+  #
+  # Resta comunque necessario che il payload della chain contenga abbastanza
+  # informazione per ricostruire il piano di entry.
+  entry_split:
+
+    LIMIT:
+      single:
+        weights:
+          E1: 1.0
+      range:
+        # split_mode operativo:
+        # - endpoints: usa entrambe le entry del range
+        # - firstpoint: usa solo la prima entry del range
+        # - midpoint: crea una sola entry al prezzo medio
+        split_mode: endpoints # firstpoint | endpoints | midpoint
+        weights:
+          E1: 0.50
+          E2: 0.50
+      averaging:
+        weights:
+          E1: 0.70
+          E2: 0.30
+      ladder:
+        weights:
+          E1: 0.50
+          E2: 0.50
+
+    MARKET:
+      single:
+        weights:
+          E1: 1.0
+      averaging:
+        weights:
+          E1: 0.70
+          E2: 0.30
+
+    AVERAGING:
+      distribution: equal # equal | decreasing
+      weights: {}
+
+  # true = consenti update ADD_ENTRY del trader
+  allow_add_entry_updates: true
+
+tp:
+  # true = usa i target originali della chain
+  use_original_tp: true
+
+  # Numero target TP da usare.
+  # null = usa il numero originale presente nella chain
+  #
+  # Regola di dominio:
+  # la chain valida deve avere gia' almeno 1 TP.
+  # Se il parser non trova almeno un TP, il segnale non deve essere generato.
+  # Quindi questa policy non gestisce "TP mancanti", ma solo quanti TP usare
+  # tra quelli gia' presenti nella chain.
+  use_tp_count: null
+
+  # Formato legacy:
+  # tp_distribution: original
+  #
+  # Formato esteso:
+  # - follow_all_signal_tps: segue tutti i TP del segnale
+  # - limit_to_max_levels: limita i TP usati al numero indicato
+  #
+  # Nota: il simulatore MVP non applica ancora tutta questa semantica.
+  tp_distribution:
+    tp_distribution: follow_all_signal_tps # follow_all_signal_tps | limit_to_max_levels
+    max_tp_levels: 3
+    tp_close_distribution:
+      1: [100]
+      2: [50, 50]
+      3: [30, 30, 40]
+      4: [25, 25, 25, 25]
+    # Questa tabella non crea TP mancanti.
+    # Serve solo a distribuire la size di uscita sui TP gia' esistenti
+    # nella chain, per esempio quando i TP usati sono 2, 3 o 4.
+
+sl:
+  # true = conserva lo SL iniziale/originale
+  use_original_sl: true
+
+  # Valori oggi noti:
+  # - none
+  # - after_tp1
+  # - after_trigger
+  break_even_mode: none
+
+  # Trigger osservati/previsti:
+  # - null
+  # - tp1
+  # - tp2
+  be_trigger: null
+
+  # true = applica move stop trader-driven
+  move_sl_with_trader: true
+
+updates:
+  # Bootstrap MVP: flag semplici per filtrare gli update del trader.
+  apply_move_stop: true
+  apply_close_partial: true
+  apply_close_full: true
+  apply_cancel_pending: true
+  apply_add_entry: true
+
+  # fallback 50% se il partial close non specifica bene la quota
+  partial_close_fallback_pct: 0.5
+
+pending:
+  # Timeout di un ordine pending non fillato
+  pending_timeout_hours: 24
+
+  # Timeout massimo dell'intera chain
+  chain_timeout_hours: 168
+
+  # true = allo scadere del timeout genera cancel engine-driven
+  cancel_pending_on_timeout: true
+
+  # Alias esteso supportato dal modello.
+  # Se true, cancella pending non fillati quando il prezzo ha gia' raggiunto
+  # un target prima dell'ingresso.
+  cancel_unfilled_if_reached_before_fill: false
+
+  # Alias esteso supportato dal modello.
+  # Se true, cancella gli averaging pending residui dopo il trigger definito.
+  cancel_averaging_pending_after: false
+
+  # Campi legacy ancora supportati e sincronizzati automaticamente:
+  # cancel_unfilled_if_tp1_reached_before_fill: false
+  # cancel_averaging_pending_after_tp1: false
+
+  # Estensioni PRD non ancora stabilizzate nel core:
+  # cancel_unfilled_if_tp2_reached_before_fill: false
+  # cancel_remaining_pending_after_first_fill: false
+  # cancel_all_pending_after_partial_close: false
+  # cancel_all_pending_after_break_even: false
+
+risk:
+  # Blocco opzionale.
+  # Oggi non ha campi obbligatori nel PolicyConfig.
+  #
+  # Esempi possibili:
+  # risk_percent: null
+  # fixed_notional: null
+  # max_leverage: null
+
+execution:
+  # Usato oggi da latency_model.py / fill_model.py
+  latency_ms: 0
+
+  # Placeholder contrattuale.
+  # Oggi il fill_model MVP non applica ancora uno slippage reale.
+  slippage_model: none
+
+  # Placeholder contrattuale per il modello di fill touch-based.
+  fill_touch_guaranteed: true
+
+  # Estensioni possibili:
+  # fee_model: none
+  # partial_fill_model: none
+  # spread_model: none
+  # funding_model: none
