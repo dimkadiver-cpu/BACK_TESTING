@@ -183,9 +183,9 @@
 
 ## INCREMENTO E — Implementazione Market Data Incrementale (MVP)
 
-- [ ] **IE.1** Implementare scanner domanda da DB segnali (simbolo, open timestamp, last update, stato chain)
-- [ ] **IE.2** Implementare planner intervalli con buffer adattivi (intraday/swing/position/unknown)
-- [ ] **IE.3** Implementare merge intervalli per simbolo con soglia configurabile
+- [x] **IE.1** Implementare scanner domanda da DB segnali (simbolo, open timestamp, last update, stato chain)
+- [x] **IE.2** Implementare planner intervalli con buffer adattivi (intraday/swing/position/unknown)
+- [x] **IE.3** Implementare merge intervalli per simbolo con soglia configurabile
 - [ ] **IE.4** Implementare `coverage_index` e log base (`download_log`, `validation_log`) in `data/market/manifests/`
 - [ ] **IE.5** Implementare gap detection (sottrazione intervalli richiesti vs coperti)
 - [ ] **IE.6** Implementare sync Bybit incrementale `futures_linear` con export separato `.last.parquet` e `.mark.parquet`
