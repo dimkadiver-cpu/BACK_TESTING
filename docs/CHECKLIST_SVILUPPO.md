@@ -1,7 +1,7 @@
 # Checklist Sviluppo — Signal Chain Backtesting Lab
-**Versione:** 1.3  
+**Versione:** 1.4
 **Generata:** 2026-04-07  
-**Aggiornata:** 2026-04-07 (gap G15 documentato: market provider non cablato in run_scenario.py)  
+**Aggiornata:** 2026-04-08 (allineamento a PRD market data incrementale + mini PRD Bybit)
 **Istruzioni:** spunta con `[x]` ogni task completato. Aggiorna RISCHI e GAP se emergono nuove criticità.
 
 ---
@@ -168,20 +168,35 @@
 
 ---
 
-## INCREMENTO D — Market provider integration (TODO)
+## INCREMENTO D — Decision lock market data (PRD alignment) ✅ COMPLETATO (2026-04-08)
 
-> **Pre-condizione:** definire prima le questioni aperte elencate in `PIANO_OPERATIVO.md §Incremento D`.
+- [x] **ID.1** Provider canonico ufficiale fissato: **Bybit** per run exchange-faithful
+- [x] **ID.2** Mercato prioritario fissato: **futures linear**
+- [x] **ID.3** Price basis minima fissata: **last + mark** (index opzionale fase successiva)
+- [x] **ID.4** Strategia dati fissata: **planner DB-driven + cache incrementale + download solo gap**
+- [x] **ID.5** Storage canonico fissato: **Parquet partizionato** + manifest (`coverage_index`, `download_log`, `validation_log`)
+- [x] **ID.6** Regola run ufficiale fissata: no fallback silenzioso cross-exchange; run non Bybit etichettato comparativo/non canonico
 
-- [ ] **ID.1** Decidere provider default (CSV vs Parquet) e formato file atteso (colonne, naming convention, separatore)
-- [ ] **ID.2** Definire symbol mapper: come il symbol della chain (es. `BTCUSDT`) mappa sul nome file di mercato
-- [ ] **ID.3** Definire strategia download dati storici (fonte, script, intervallo date, granularità timeframe)
-- [ ] **ID.4** `scripts/run_scenario.py`: istanziare il provider da `--market-dir` e passarlo a `run_scenarios()`; rimuovere il placeholder `_ = Path(args.market_dir)`
-- [ ] **ID.5** `ui/blocks/block_backtest.py`: collegare `market_data_dir` al provider istanziato (già presente in UI come campo)
-- [ ] **ID.6** Gestione gap dati: policy su candele mancanti (skip chain? warning? errore?) documentata e implementata
-- [ ] **ID.7** Test integrazione end-to-end con market data reali: almeno 1 chain con fill confermato, PnL ≠ 0
-- [ ] **ID.8** Aggiornare golden tests se cambiano i risultati attesi con provider attivo
+**Acceptance:** decisioni prodotto critiche congelate e tracciate; eliminata ambiguità progettuale pre-implementazione.
 
-**Acceptance:** `run_scenario.py` produce PnL reale su dataset con market data; GUI mostra risultati non-zero; golden tests aggiornati.
+---
+
+## INCREMENTO E — Implementazione Market Data Incrementale (MVP)
+
+- [ ] **IE.1** Implementare scanner domanda da DB segnali (simbolo, open timestamp, last update, stato chain)
+- [ ] **IE.2** Implementare planner intervalli con buffer adattivi (intraday/swing/position/unknown)
+- [ ] **IE.3** Implementare merge intervalli per simbolo con soglia configurabile
+- [ ] **IE.4** Implementare `coverage_index` e log base (`download_log`, `validation_log`) in `data/market/manifests/`
+- [ ] **IE.5** Implementare gap detection (sottrazione intervalli richiesti vs coperti)
+- [ ] **IE.6** Implementare sync Bybit incrementale `futures_linear` con export separato `.last.parquet` e `.mark.parquet`
+- [ ] **IE.7** Implementare validazione minima post-download (sorting, deduplica, schema, copertura range)
+- [ ] **IE.8** Integrare provider in `scripts/run_scenario.py` usando `--market-dir` (rimozione placeholder `_ = Path(args.market_dir)`)
+- [ ] **IE.9** Integrare policy di price basis (`last|mark`) nel flusso scenario/backtest
+- [ ] **IE.10** Integrare GUI (`ui/blocks/block_backtest.py`) per passare configurazione basis/timeframe al run
+- [ ] **IE.11** Creare CLI operative: `plan-market-data`, `sync-market-data`, `validate-market-data`, `report-market-coverage`
+- [ ] **IE.12** Test integrazione E2E: almeno 1 dataset con chain coperte, fill reali e PnL non-zero
+
+**Acceptance:** pipeline `plan → sync → validate → backtest` disponibile, incrementale e riusabile offline-first.
 
 ---
 
@@ -221,6 +236,10 @@
 | R10 | `partial_close_fallback_pct` applicato silentemente senza log | BASSA | MEDIO | S2 | Ogni fallback deve produrre warning in event log. |
 | R11 | Metriche scenario non consistenti tra run (float precision) | BASSA | MEDIO | S5 | Usare Decimal o round consistency dove serve. |
 | R12 | Telethon session / auth Telegram non disponibile in ambiente nuovo | ALTA | MEDIO | S9 | Blocco 1 GUI deve funzionare anche senza Telegram (DB esistente). |
+| R13 | Rate limit / outage API Bybit in fase sync | ALTA | ALTO | IE | Retry/backoff + resume job + log download dettagliato. |
+| R14 | Divergenza tra `last` e `mark` non tracciata nel report run | MEDIA | ALTO | IE | Rendere obbligatoria la dichiarazione `price_basis` negli artifact scenario. |
+| R15 | Coverage index inconsistente con partizioni reali su disco | MEDIA | ALTO | IE | Validazione incrociata manifest↔filesystem prima del backtest. |
+| R16 | Gap temporali silenziosi causano chain escluse senza visibilità | MEDIA | ALTO | IE | Report coverage e warning espliciti per chain fuori copertura. |
 
 ---
 
@@ -243,6 +262,11 @@
 | G13 | `cancel_unfilled_if_tp2_reached_before_fill` e varianti | S5+ | PRD §11.7 — rinviato. Non nel MVP core. |
 | G14 | Score composito optimizer: penalità warning rate e excluded chains | S7 | PRD §19.6 — definire weights in optimizer.yaml prima di Sprint 7. |
 | G15 | Market provider non cablato in `run_scenario.py` e GUI backtest | Incremento D | `run_scenario.py:58` ha placeholder `_ = Path(args.market_dir)`. Senza provider tutte le chain restano PENDING con PnL=0. Da risolvere dopo aver definito: formato dati, provider (CSV/Parquet), symbol mapper, strategia download, gestione gap. |
+| G16 | CLI market data (`plan/sync/validate/report`) non ancora presente | Incremento E | Richiesta esplicita dal PRD incrementale §15. |
+| G17 | Manifest coverage/download/validation non implementato su `data/market/manifests` | Incremento E | Richiesto da PRD incrementale §§11-12. |
+| G18 | Price basis ufficiale `last|mark` non propagata fino al runner scenario | Incremento E | Richiesto da mini PRD Bybit §§7, 11, 13. |
+| G19 | Storage separato `.last.parquet`/`.mark.parquet` non ancora operativo | Incremento E | Richiesto da mini PRD Bybit §9. |
+| G20 | Modalità ufficiale exchange-faithful non etichettata negli artifact finali | Incremento E | Necessario distinguere run canonici vs comparativi. |
 
 ---
 
@@ -259,9 +283,10 @@
 | Sprint 6 | ✅ FATTO | intrabar resolver + provider parquet + integrazione collisioni completati |
 | Sprint 7 | ✅ FATTO | optimizer implementato; S7.6 chiuso: test riproducibilità top trial in `tests/integration/test_optimizer_reproducibility.py` (snapshot v1.0, delta=0.0) |
 | Sprint 8 | ✅ FATTO | reporting avanzato HTML/PNG/CSV/JSONL completato |
-| Sprint 9 | 🔶 PARZIALE | UI refactorizzata in blocchi modulari (`ui/blocks/block_download/parse/backtest.py`); `app.py` ridotto a orchestratore; resta aperto solo S9.8 (test manuale workflow) |
+| Sprint 9 | ✅ FATTO | UI refactorizzata in blocchi modulari (`ui/blocks/block_download/parse/backtest.py`); `app.py` ridotto a orchestratore; S9.8 chiuso con test manuale guidato |
 | Incremento C | ✅ FATTO | export artifact uniformati (JSONL/CSV/HTML/PNG per run singola e scenario); logging warning rafforzato su tutti i fallback intrabar |
-| Incremento D | 🔲 TODO | market provider integration — questioni aperte da definire (formato dati, provider, download, symbol map, gap handling) prima di implementare |
+| Incremento D | ✅ FATTO | decision lock PRD market data: Bybit canonico, futures linear, basis last/mark, cache incrementale gap-only |
+| Incremento E | 🔲 TODO | implementazione pipeline market data incrementale (scanner/planner/sync/validate/coverage + integrazione runner/UI) |
 | Sprint 10 | 🔲 FUTURO | realism V2 fuori MVP |
 | Sprint 11 | 🔲 FUTURO | realism V3 fuori MVP |
 
