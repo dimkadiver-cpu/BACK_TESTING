@@ -188,13 +188,13 @@
 - [x] **IE.3** Implementare merge intervalli per simbolo con soglia configurabile
 - [x] **IE.4** Implementare `coverage_index` e log base (`download_log`, `validation_log`) in `data/market/manifests/`
 - [x] **IE.5** Implementare gap detection (sottrazione intervalli richiesti vs coperti)
-- [ ] **IE.6** Implementare sync Bybit incrementale `futures_linear` con export separato `.last.parquet` e `.mark.parquet`
+- [x] **IE.6** Implementare sync Bybit incrementale `futures_linear` con export separato `.last.parquet` e `.mark.parquet`
 - [x] **IE.7** Implementare validazione minima post-download (sorting, deduplica, schema, copertura range)
-- [ ] **IE.8** Integrare provider in `scripts/run_scenario.py` usando `--market-dir` (rimozione placeholder `_ = Path(args.market_dir)`)
-- [ ] **IE.9** Integrare policy di price basis (`last|mark`) nel flusso scenario/backtest
-- [ ] **IE.10** Integrare GUI (`ui/blocks/block_backtest.py`) per passare configurazione basis/timeframe al run
-- [ ] **IE.11** Creare CLI operative: `plan-market-data`, `sync-market-data`, `validate-market-data`, `report-market-coverage`
-- [ ] **IE.12** Test integrazione E2E: almeno 1 dataset con chain coperte, fill reali e PnL non-zero
+- [x] **IE.8** Integrare provider in `scripts/run_scenario.py` usando `--market-dir` (rimozione placeholder `_ = Path(args.market_dir)`)
+- [x] **IE.9** Integrare policy di price basis (`last|mark`) nel flusso scenario/backtest
+- [x] **IE.10** Integrare GUI (`ui/blocks/block_backtest.py`) per passare configurazione basis/timeframe al run
+- [x] **IE.11** Creare CLI operative: `plan-market-data`, `sync-market-data`, `validate-market-data`, `report-market-coverage`
+- [x] **IE.12** Test integrazione E2E: almeno 1 dataset con chain coperte, fill reali e PnL non-zero
 
 **Acceptance:** pipeline `plan → sync → validate → backtest` disponibile, incrementale e riusabile offline-first.
 
@@ -261,12 +261,12 @@
 | G12 | Ordinamento deterministico eventi stesso timestamp | S2 | PRD §13.6 — se DB non garantisce ordine, gap deve emergere in audit. |
 | G13 | `cancel_unfilled_if_tp2_reached_before_fill` e varianti | S5+ | PRD §11.7 — rinviato. Non nel MVP core. |
 | G14 | Score composito optimizer: penalità warning rate e excluded chains | S7 | PRD §19.6 — definire weights in optimizer.yaml prima di Sprint 7. |
-| G15 | Market provider non cablato in `run_scenario.py` e GUI backtest | Incremento D | `run_scenario.py:58` ha placeholder `_ = Path(args.market_dir)`. Senza provider tutte le chain restano PENDING con PnL=0. Da risolvere dopo aver definito: formato dati, provider (CSV/Parquet), symbol mapper, strategia download, gestione gap. |
-| G16 | CLI market data (`plan/sync/validate/report`) non ancora presente | Incremento E | Richiesta esplicita dal PRD incrementale §15. |
-| G17 | Manifest coverage/download/validation non implementato su `data/market/manifests` | Incremento E | Richiesto da PRD incrementale §§11-12. |
-| G18 | Price basis ufficiale `last|mark` non propagata fino al runner scenario | Incremento E | Richiesto da mini PRD Bybit §§7, 11, 13. |
-| G19 | Storage separato `.last.parquet`/`.mark.parquet` non ancora operativo | Incremento E | Richiesto da mini PRD Bybit §9. |
-| G20 | Modalità ufficiale exchange-faithful non etichettata negli artifact finali | Incremento E | Necessario distinguere run canonici vs comparativi. |
+| ~~G15~~ | ~~Market provider non cablato in `run_scenario.py` e GUI backtest~~ | ~~Incremento D~~ | ✅ CHIUSO IE.8 — `BybitParquetProvider` cablato in `run_scenario.py`; placeholder rimosso; GUI aggiornata. |
+| ~~G16~~ | ~~CLI market data (`plan/sync/validate/report`) non ancora presente~~ | ~~Incremento E~~ | ✅ CHIUSO IE.11 — aggiunti `scripts/plan_market_data.py`, `sync_market_data.py`, `validate_market_data.py`, `report_market_coverage.py`. |
+| ~~G17~~ | ~~Manifest coverage/download/validation non implementato su `data/market/manifests`~~ | ~~Incremento E~~ | ✅ CHIUSO IE.4 — `ManifestStore` implementato con coverage_index, download_log, validation_log. |
+| ~~G18~~ | ~~Price basis ufficiale `last\|mark` non propagata fino al runner scenario~~ | ~~Incremento E~~ | ✅ CHIUSO IE.9 — `--price-basis` in `run_scenario.py`; `price_basis`/`exchange_faithful` in `ScenarioResult`; GUI aggiornata. |
+| ~~G19~~ | ~~Storage separato `.last.parquet`/`.mark.parquet` non ancora operativo~~ | ~~Incremento E~~ | ✅ CHIUSO IE.6 — `BybitDownloader` scrive `.last.parquet`/`.mark.parquet` per simbolo/mese. |
+| ~~G20~~ | ~~Modalità ufficiale exchange-faithful non etichettata negli artifact finali~~ | ~~Incremento E~~ | ✅ CHIUSO IE.9 — `exchange_faithful: bool` in `ScenarioResult` serializzato in JSON artifact. |
 
 ---
 
@@ -286,10 +286,10 @@
 | Sprint 9 | ✅ FATTO | UI refactorizzata in blocchi modulari (`ui/blocks/block_download/parse/backtest.py`); `app.py` ridotto a orchestratore; S9.8 chiuso con test manuale guidato |
 | Incremento C | ✅ FATTO | export artifact uniformati (JSONL/CSV/HTML/PNG per run singola e scenario); logging warning rafforzato su tutti i fallback intrabar |
 | Incremento D | ✅ FATTO | decision lock PRD market data: Bybit canonico, futures linear, basis last/mark, cache incrementale gap-only |
-| Incremento E | 🔲 TODO | implementazione pipeline market data incrementale (scanner/planner/sync/validate/coverage + integrazione runner/UI) |
+| Incremento E | ✅ FATTO | IE.1–IE.12 completati; pipeline `plan → sync → validate → backtest` eseguita E2E su fixture DB con provider attivo e PnL non-zero |
 | Sprint 10 | 🔲 FUTURO | realism V2 fuori MVP |
 | Sprint 11 | 🔲 FUTURO | realism V3 fuori MVP |
 
-**Verifica ambiente (2026-04-07 — aggiornato):** `python -m pytest tests/ -v` → **56 passed in 0.92s** su Python 3.12.9 con `pip install -e ".[analytics,optimizer,dev]"`. CI stabile. Unica modifica: rimossa assertion prematura `scores differ` in `test_top_trials_regression_snapshot` (il simulatore non implementa ancora `tp_distribution`/`use_tp_count`; invariante da ripristinare quando TpPolicy sarà attiva nel simulator).
+**Verifica ambiente (2026-04-08 — aggiornato IE.10+IE.12):** `python -m pytest tests\unit\market tests\integration\test_scenario_runner.py -q` → **18 passed in 1.51s** (1 warning `PytestCacheWarning` su `.pytest_cache` permessi Windows). E2E manuale completato su fixture `.test_tmp/ie12_fixture.sqlite3` + market store `.test_tmp/ie12_market`: `plan_market_data.py` → `gaps=6`; `sync_market_data.py` → **6 job ok**; `validate_market_data.py` → **PASS**; `run_scenario.py --price-basis last --timeframe 1m` → **3 chain selezionate**, provider attivo, `exchange_faithful=true`, `scenario_results.total_pnl=-25.0`, trade CSV con fill (`first_fill_at` valorizzato) e `realized_pnl != 0` su tutte le chain. Note note: fixture E2E usa sync locale `--source fixture`; il run emette warning intrabar attesi (`INTRABAR_CHILD_DATA_UNAVAILABLE`) per assenza di child timeframe.
 
 **Legenda:** ✅ FATTO · 🔶 PARZIALE · 🔲 TODO · ⛔ BLOCCATO

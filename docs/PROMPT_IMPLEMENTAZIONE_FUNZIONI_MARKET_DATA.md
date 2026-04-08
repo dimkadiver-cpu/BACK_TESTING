@@ -149,6 +149,13 @@ Accettazione:
 
 ---
 
+Riferimenti:
+- `docs/PRD_market_data_backtesting_incrementale.md`
+- `docs/mini_prd_allegato_bybit_provider_backtesting.md`
+- `docs/PIANO_OPERATIVO.md` (Incremento E)
+- `docs/CHECKLIST_SVILUPPO.md` (task IE.1 → IE.12)
+
+
 ## Prompt 4 — Integrazione runner/GUI + CLI operative (IE.8, IE.9, IE.10, IE.11)
 
 ```text
@@ -187,32 +194,7 @@ Accettazione:
 ```
 
 ---
-
-## Prompt 5 — E2E e chiusura incremento (IE.12)
-
-```text
-Sei un agente di sviluppo Python sul repository /workspace/back_testing.
-
-Obiettivo sessione:
-Eseguire test end-to-end e chiudere Incremento E con evidenze.
-
-Task in scope:
-- IE.12 test integrazione E2E
-
-Scenario minimo richiesto:
-1) plan-market-data su dataset reale/fixture
-2) sync-market-data su gap trovati
-3) validate-market-data con esito PASS
-4) run_scenario con provider attivo + basis dichiarata
-5) verifica output: almeno una chain con fill e PnL != 0
-
-Output richiesto:
-- tabella evidenze (comando, esito, artifact prodotto)
-- path artifact (scenario json/csv/html + manifest)
-- aggiornamento checklist con IE.12 spuntato
-- note sui limiti residui (se presenti)
-```
-
+/
 ---
 
 ## Prompt master (opzionale) — Implementazione completa Incremento E

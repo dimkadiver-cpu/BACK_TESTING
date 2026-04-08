@@ -68,6 +68,9 @@ class ScenarioResult(BaseModel):
     simulated_chains_count: int = 0
     excluded_chains_count: int = 0
     avg_warnings_per_trade: float = 0.0
+    # Run-level metadata (same for all policies in a run)
+    price_basis: str = "last"       # "last" | "mark"
+    exchange_faithful: bool = True  # True = Bybit official run; False = comparative
 
 
 class ScenarioComparison(BaseModel):

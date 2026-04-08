@@ -1,0 +1,36 @@
+Metadata-Version: 2.4
+Name: signal-chain-lab
+Version: 0.1.0
+Summary: Event-driven backtesting lab for signal chains
+Requires-Python: >=3.12
+Requires-Dist: pydantic>=2.0
+Requires-Dist: pydantic-settings>=2.0
+Requires-Dist: PyYAML>=6.0
+Requires-Dist: aiosqlite>=0.20.0
+Requires-Dist: python-dotenv>=1.0.0
+Provides-Extra: gui
+Requires-Dist: nicegui>=2.0; extra == "gui"
+Provides-Extra: telegram
+Requires-Dist: telethon>=1.34.0; extra == "telegram"
+Provides-Extra: db
+Requires-Dist: sqlalchemy>=2.0; extra == "db"
+Provides-Extra: analytics
+Requires-Dist: pandas>=2.0; extra == "analytics"
+Requires-Dist: pyarrow>=15.0; extra == "analytics"
+Requires-Dist: duckdb>=1.0; extra == "analytics"
+Requires-Dist: polars>=1.0; extra == "analytics"
+Requires-Dist: plotly>=5.0; extra == "analytics"
+Provides-Extra: optimizer
+Requires-Dist: optuna>=4.0; extra == "optimizer"
+Provides-Extra: full
+Requires-Dist: nicegui>=2.0; extra == "full"
+Requires-Dist: telethon>=1.34.0; extra == "full"
+Requires-Dist: sqlalchemy>=2.0; extra == "full"
+Requires-Dist: pandas>=2.0; extra == "full"
+Requires-Dist: pyarrow>=15.0; extra == "full"
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.23; extra == "dev"
+Requires-Dist: pytest-cov>=5.0; extra == "dev"
+Requires-Dist: mypy>=1.0; extra == "dev"
+Requires-Dist: ruff>=0.5; extra == "dev"

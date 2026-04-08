@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(py -3.12 --version)",
+      "Bash(pip install:*)",
+      "Bash(python -m scripts.run_scenario --policy original_chain,signal_only --db-path parser_test/db/s9_fixture.sqlite3 --market-dir data/market)",
+      "WebFetch(domain:github.com)",
+      "Bash(find /tmp/TRADING_BOT_TELEGRAM -name \"*.py\" -type f -exec grep -l \"download\" {} \\\\;)",
+      "Bash(find:*)",
+      "Bash(xargs grep:*)",
+      "Bash(python -c \"import telethon; print\\(telethon.__version__\\)\")",
+      "Bash(python -m pytest tests/ -q)",
+      "Bash(python:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
+    ]
+  }
+}

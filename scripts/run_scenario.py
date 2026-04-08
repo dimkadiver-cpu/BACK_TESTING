@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import argparse
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 import sys
 
@@ -18,9 +18,12 @@ from src.signal_chain_lab.scenario.runner import compare_scenarios, run_scenario
 
 def _parse_date(value: str) -> datetime:
     try:
-        return datetime.fromisoformat(value)
+        parsed = datetime.fromisoformat(value)
     except ValueError as exc:  # pragma: no cover - argparse handles formatting as message
         raise argparse.ArgumentTypeError(f"Invalid date format: {value}. Use YYYY-MM-DD") from exc
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
 
 
 def parse_args() -> argparse.Namespace:
@@ -32,9 +35,36 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--db-path", required=True, help="Path to SQLite backtesting DB")
     parser.add_argument("--market-dir", required=True, help="Path to market data directory")
+    parser.add_argument(
+        "--price-basis",
+        default="last",
+        choices=["last", "mark"],
+        help="Price basis for trigger evaluation: 'last' (default) or 'mark'",
+    )
+    parser.add_argument(
+        "--timeframe",
+        default="1m",
+        help="Market data timeframe to load from provider (default: 1m)",
+    )
     parser.add_argument("--date-from", type=_parse_date, default=None, help="Dataset start date (YYYY-MM-DD)")
     parser.add_argument("--date-to", type=_parse_date, default=None, help="Dataset end date (YYYY-MM-DD)")
     return parser.parse_args()
+
+
+def _build_market_provider(market_dir: str, timeframe: str, price_basis: str):
+    """Instantiate BybitParquetProvider.  Returns None if market-dir is empty or absent."""
+    from src.signal_chain_lab.market.providers.bybit_parquet_provider import BybitParquetProvider
+
+    root = Path(market_dir)
+    if not root.exists():
+        print(f"WARNING: market-dir not found ({root}), running without market provider (PnL=0)")
+        return None
+
+    return BybitParquetProvider(
+        market_dir=root,
+        timeframe=timeframe,
+        basis=price_basis,
+    )
 
 
 def main() -> int:
@@ -49,14 +79,31 @@ def main() -> int:
 
     chains = SignalChainBuilder.build_all(db_path=args.db_path)
     canonical = [adapt_signal_chain(chain) for chain in chains]
+    for chain in canonical:
+        chain.metadata["timeframe"] = args.timeframe
 
     if args.date_from is not None:
         canonical = [chain for chain in canonical if chain.created_at >= args.date_from]
     if args.date_to is not None:
         canonical = [chain for chain in canonical if chain.created_at <= args.date_to]
 
-    _ = Path(args.market_dir)  # reserved for market providers integration
-    scenario_results, per_policy_trades = run_scenarios(canonical, policies, market_provider=None)
+    market_provider = _build_market_provider(
+        market_dir=args.market_dir,
+        timeframe=args.timeframe,
+        price_basis=args.price_basis,
+    )
+
+    # exchange_faithful: True when using Bybit as the canonical provider
+    # (market-dir must exist and basis must be declared)
+    exchange_faithful = market_provider is not None
+
+    scenario_results, per_policy_trades = run_scenarios(
+        canonical,
+        policies,
+        market_provider=market_provider,
+        price_basis=args.price_basis,
+        exchange_faithful=exchange_faithful,
+    )
     comparisons = compare_scenarios(scenario_results, baseline_policy=policies[0].name)
 
     output_dir = Path("artifacts") / "scenarios"
@@ -69,6 +116,8 @@ def main() -> int:
 
     print(f"chains_selected={len(canonical)}")
     print(f"policies={','.join(policy_names)}")
+    print(f"price_basis={args.price_basis}")
+    print(f"exchange_faithful={str(exchange_faithful).lower()}")
     print(f"scenario_results={scenario_path}")
     print(f"scenario_comparison={comparison_path}")
     if csv_path:

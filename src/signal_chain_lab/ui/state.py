@@ -4,6 +4,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 
+_PROJECT_ROOT = Path(__file__).resolve().parents[3]
+
 
 @dataclass(slots=True)
 class QualityReport:
@@ -21,6 +23,10 @@ class QualityReport:
     total_signals: int = 0
     simulable_signals: int = 0
     non_simulable_signals: int = 0
+    signals_rows: int = 0
+    operational_signals_rows: int = 0
+    operational_new_signal_rows: int = 0
+    backtest_ready: bool = False
     top_warnings: list[tuple[str, int]] = field(default_factory=list)
 
 
@@ -48,8 +54,16 @@ class UiState:
     proceed_to_backtest: bool = False
 
     policy_name: str = "original_chain"
-    market_data_dir: str = "data/market"
-    timeframe: str = "M1"
+    market_data_dir: str = str((_PROJECT_ROOT / "data" / "market").resolve())
+    market_data_mode: str = "existing_dir"
+    market_data_ready: bool = False
+    market_data_checked: bool = False
+    market_data_gap_count: int = 0
+    latest_market_plan_path: str = ""
+    latest_market_sync_report_path: str = ""
+    latest_market_validation_report_path: str = ""
+    timeframe: str = "1m"
+    price_basis: str = "last"
     timeout_seconds: int = 60
 
     latest_artifact_path: str = ""

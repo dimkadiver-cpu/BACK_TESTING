@@ -48,6 +48,7 @@ class CoverageKey:
     market_type: str
     timeframe: str
     symbol: str
+    basis: str = ""  # "" = unspecified; "last" | "mark" for Bybit
 
 
 @dataclass(frozen=True, slots=True)
@@ -63,6 +64,7 @@ class CoverageRecord:
             "market_type": self.key.market_type,
             "timeframe": self.key.timeframe,
             "symbol": self.key.symbol,
+            "basis": self.key.basis,
             "covered_intervals": [interval.to_dict() for interval in self.covered_intervals],
             "validation_status": self.validation_status,
             "last_updated": self.last_updated.isoformat(),
@@ -102,6 +104,7 @@ class ManifestStore:
                         market_type=str(entry["market_type"]),
                         timeframe=str(entry["timeframe"]),
                         symbol=str(entry["symbol"]),
+                        basis=str(entry.get("basis", "")),
                     ),
                     covered_intervals=[Interval.from_dict(i) for i in entry.get("covered_intervals", [])],
                     validation_status=entry.get("validation_status", "unknown"),

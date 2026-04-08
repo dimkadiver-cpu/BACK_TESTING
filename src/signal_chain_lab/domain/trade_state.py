@@ -16,6 +16,7 @@ class EntryPlan(BaseModel):
     size_ratio: float
     label: str | None = None
     sequence: int | None = None
+    activation_ts: datetime | None = None
 
 
 class FillRecord(BaseModel):

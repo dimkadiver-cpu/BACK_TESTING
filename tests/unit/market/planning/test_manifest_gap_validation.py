@@ -84,5 +84,51 @@ def test_batch_validator_detects_dirty_dataset() -> None:
     assert "TIMESTAMP_UNSORTED" in codes
     assert "DUPLICATES_REMOVED" in codes
     assert "SCHEMA_MISSING_FIELDS" in codes
-    assert "COVERAGE_INCOMPLETE" in codes
     assert result.has_errors is True
+
+
+def test_batch_validator_accepts_end_within_last_timeframe_bucket() -> None:
+    validator = BatchValidator()
+    requested = Interval(
+        start=datetime(2026, 4, 1, 0, 0, 43, tzinfo=timezone.utc),
+        end=datetime(2026, 4, 1, 0, 2, 46, tzinfo=timezone.utc),
+    )
+
+    rows = [
+        {
+            "timestamp": "2026-04-01T00:00:43+00:00",
+            "open": 1.0,
+            "high": 1.0,
+            "low": 1.0,
+            "close": 1.0,
+            "volume": 1.0,
+            "symbol": "BTCUSDT",
+            "timeframe": "1m",
+        },
+        {
+            "timestamp": "2026-04-01T00:01:43+00:00",
+            "open": 1.0,
+            "high": 1.0,
+            "low": 1.0,
+            "close": 1.0,
+            "volume": 1.0,
+            "symbol": "BTCUSDT",
+            "timeframe": "1m",
+        },
+        {
+            "timestamp": "2026-04-01T00:02:43+00:00",
+            "open": 1.0,
+            "high": 1.0,
+            "low": 1.0,
+            "close": 1.0,
+            "volume": 1.0,
+            "symbol": "BTCUSDT",
+            "timeframe": "1m",
+        },
+    ]
+
+    result = validator.validate(rows=rows, requested_range=requested)
+    codes = {issue.code for issue in result.issues}
+
+    assert "COVERAGE_INCOMPLETE" not in codes
+    assert result.has_errors is False

@@ -1,0 +1,323 @@
+﻿raw_message_id,parse_status,reply_to_message_id,raw_text,warning_text,warnings_summary,primary_intent,intents,action_types,actions_structured_summary,symbol,direction,market_type,confidence,parser_used,parser_mode,status,signal_id,target_scope_kind,target_scope_scope,target_refs,target_refs_count,linking_strategy,new_stop_level,close_scope,close_fraction,hit_target,fill_state,result_mode,cancel_scope,reported_results,reported_profit_percent,reported_leverage_hint,tp_prices,links_count,hashtags_count,validation_warning_count,diagnostics_summary
+1515,PARSED,1407,"[trader#d]
+Перевод в безубыток",,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE | U_REPORT_FINAL_RESULT,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,1407,signal,single,1407,1,,ENTRY,,,,,,,,,,,0,0,0,
+1511,PARSED,,"https://t.me/c/3171748254/1408
+[trader#d] позиция ушла в бу",,,U_EXIT_BE,U_EXIT_BE,,,,,,0.68,,,,1408,signal,single,1408,1,,,,,,,,,,,,,0,0,0,
+1489,PARSED,1439,"Trader#d
+Перевод в бу",,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,1439,signal,single,1439,1,,ENTRY,,,,,,,,,,,0,0,0,
+1487,PARSED,1443,"Trader#d
+Стоп.
+-0.5%",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,1443,signal,single,1443,1,,,FULL,,STOP,,,,,-0.5,,,0,0,0,
+1486,PARSED,1439,"Trader#d
+Стоп сдвигаю в +
+0.4671",,,U_MOVE_STOP,U_MOVE_STOP,MOVE_STOP,MOVE_STOP(new_stop_level=0.4671),,,,0.68,,,,1439,signal,single,1439,1,,0.4671,,,,,,,,,,,0,0,0,
+1480,PARSED,1448,"Trader#d
+Ушли по стопу в + 0.1%
+ обидно)",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,1448,signal,single,1448,1,,,FULL,,STOP,,,,,0.1,,,0,0,0,
+1476,PARSED,1461,"trader#d
+upd кину в бу",,,,,,,,,,0.68,,,,1461,signal,single,1461,1,,,,,,,,,,,,,0,0,0,
+1475,PARSED,1462,"trader#d
+upd#бу",,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,1462,signal,single,1462,1,,ENTRY,,,,,,,,,,,0,0,0,
+1468,PARSED,1476,"[Trader#d]
+tp1+
+Перевод в бу",,,U_TP_HIT,U_TP_HIT | U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,1476,signal,single,1476,1,,ENTRY,,,TP1,,,,,,,,0,0,0,
+1466,PARSED,1477,"[trader#d]
+ТП2
+позиция закрыта +0,75",,,U_CLOSE_FULL,U_CLOSE_FULL | U_REPORT_FINAL_RESULT | U_TP_HIT,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,1477,signal,single,1477,1,,,FULL,,TP2,,,,,0.75,,,0,0,0,
+1462,PARSED,1481,"[Trader#d] 
+стоп
+ -0,5",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,1481,signal,single,1481,1,,,FULL,,STOP,,,,,,,,0,0,0,
+1458,PARSED,1486,"Trader#d
+Sl -0.5",,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,1486,signal,single,1486,1,,,FULL,,,,,,,,,,0,0,0,
+1457,PARSED,1487,"Trader#d
+Перевел в бу",,,,,,,,,,0.68,,,,1487,signal,single,1487,1,,,,,,,,,,,,,0,0,0,
+1456,PARSED,1489,"Попробую перезаход
+Sl 0.02902
+Tp 0.024482
+Tp2 0.021766",,,U_TP_HIT,U_TP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,1489,signal,single,1489,1,,,FULL,,TP,,,,,,,,0,0,0,
+1455,PARSED,1491,Upd: сразу кину в бу,,,,,,,,,,0.68,,,,1491,signal,single,1491,1,,,,,,,,,,,,,0,0,0,
+1453,PARSED,1491,Фикс 50% чтоб погасить частично стоп,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION | CLOSE_POSITION,,,,0.68,,,,1491,signal,single,1491,1,,,PARTIAL,0.5,STOP,,,,,50,,,0,0,0,
+1452,PARSED,1487,"Тут тоже фикс 50%
+Для полного погашения стопа",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION | CLOSE_POSITION,,,,0.68,,,,1487,signal,single,1487,1,,,PARTIAL,0.5,STOP,,,,,50,,,0,0,0,
+1451,PARSED,1496,"Trader#d
+Gmt остаток ушел в бу
++0.15%",,,U_EXIT_BE,U_EXIT_BE,,,GMTUSDT,,,0.68,,,,1496,signal,single,1496,1,,,,,,,,,,0.15,,,0,0,0,
+1450,PARSED,1491,"Trader#d
+Gun Полный фикс,не нравится.
++0.5%",,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,GUNUSDT,,,0.68,,,,1491,signal,single,1491,1,,,FULL,,,,,,,0.5,,,0,0,0,
+1427,PARSED,1536,upd:Перевод в бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,1536,signal,single,1536,1,,ENTRY,,,,,,,,,,,0,0,0,
+1426,PARSED,1537,upd:позиция ушла в бу,,,U_EXIT_BE,U_EXIT_BE,,,,,,0.68,,,,1537,signal,single,1537,1,,,,,,,,,,,,,0,0,0,
+1419,PARSED,1541,"trader#d
+btc в бу перевел",,,,,,,BTCUSDT,,,0.68,,,,1541,signal,single,1541,1,,,,,,,,,,,,,0,0,0,
+1417,PARSED,1541,"Trader#d
+upd
+btc первый фикс сделаем на снятии Лондона 91591",,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,1541,signal,single,1541,1,,,,,,,,,,,,,0,0,0,
+1416,PARSED,1548,"фикс +0,25",,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,1548,signal,single,1548,1,,,,,,,,,,,,,0,0,0,
+1415,PARSED,1545,"trader#d
+Link перевод в бу",,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),LINKUSDT,,,0.68,,,,1545,signal,single,1545,1,,ENTRY,,,,,,,,,,,0,0,0,
+1412,PARSED,1552,"Upd : лимитку убрал
+Сделка не актуальна",,,U_CANCEL_PENDING_ORDERS,U_CANCEL_PENDING_ORDERS,CANCEL_PENDING,CANCEL_PENDING,,,,0.68,,,,1552,signal,single,1552,1,,,,,,,,TARGETED,,,,,0,0,0,
+1409,PARSED,1556,"Trader#d
+Upd.Стоп в бу на ночь 🤝",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,1556,signal,single,1556,1,,ENTRY,FULL,,STOP,,,,,,,,0,0,0,
+1408,PARSED,1557,Upd:бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,1557,signal,single,1557,1,,ENTRY,,,,,,,,,,,0,0,0,
+1407,PARSED,1541,Upd:Btc остатки закрываю,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,1541,signal,single,1541,1,,,FULL,,,,,,,,,,0,0,0,
+1404,PARSED,1564,upd перевод в бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,1564,signal,single,1564,1,,ENTRY,,,,,,,,,,,0,0,0,
+1403,PARSED,1566,ушли в бу,,,,,,,,,,0.68,,,,1566,signal,single,1566,1,,,,,,,,,,,,,0,0,0,
+1402,PARSED,1544,"trader#D
+Zil перевожу в бу",,,,,,,ZILUSDT,,,0.68,,,,1544,signal,single,1544,1,,,,,,,,,,,,,0,0,0,
+1400,PARSED,1570,"Trader#d
+Zil закрываю позицию полностью +0,35%",,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,ZILUSDT,,,0.68,,,,1570,signal,single,1570,1,,,FULL,,,,,,,0.35,,,0,0,0,
+1391,PARSED,1579,upd:Перевод в бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,1579,signal,single,1579,1,,ENTRY,,,,,,,,,,,0,0,0,
+1373,PARSED,1601,Upd:перевод в бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,1601,signal,single,1601,1,,ENTRY,,,,,,,,,,,0,0,0,
+1372,PARSED,1582,"Upd:лимитку снимаем.
+Сделка не актуальна",,,U_CANCEL_PENDING_ORDERS,U_CANCEL_PENDING_ORDERS,CANCEL_PENDING,CANCEL_PENDING,,,,0.68,,,,1582,signal,single,1582,1,,,,,,,,TARGETED,,,,,0,0,0,
+1371,PARSED,1603,Upd:позиция ушла в бу,,,U_EXIT_BE,U_EXIT_BE,,,,,,0.68,,,,1603,signal,single,1603,1,,,,,,,,,,,,,0,0,0,
+1370,PARSED,1585,"Trader#d
+Dash остаток ушел в бу",,,U_EXIT_BE,U_EXIT_BE,,,DASHUSDT,,,0.68,,,,1585,signal,single,1585,1,,,,,,,,,,,,,0,0,0,
+1369,PARSED,1595,"Sl.-0,5%",,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,1595,signal,single,1595,1,,,FULL,,,,,,,-0.5,,,0,0,0,
+1358,PARSED,1616,Upd;стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,1616,signal,single,1616,1,,ENTRY,FULL,,STOP,,,,,,,,0,0,0,
+1357,PARSED,1621,бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,1621,signal,single,1621,1,,ENTRY,,,,,,,,,,,0,0,0,
+1356,PARSED,1622,"перезаход
+стоп 1,3085
+тп 1,1341",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_TP_HIT,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,1622,signal,single,1622,1,,,FULL,,TP1,,,,,,,,0,0,0,
+1355,PARSED,1624,стоп -0.5,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,1624,signal,single,1624,1,,,FULL,,STOP,,,,,,,,0,0,0,
+1349,PARSED,1630,перевел в бу,,,,,,,,,,0.68,,,,1630,signal,single,1630,1,,,,,,,,,,,,,0,0,0,
+1345,PARSED,1632,Тп1 +0.3,,,U_TP_HIT,U_TP_HIT,,,,,,0.68,,,,1632,signal,single,1632,1,,,,,TP1,,,,,,,,0,0,0,
+1338,PARSED,1639,Остаток ушел в бу,,,U_EXIT_BE,U_EXIT_BE,,,,,,0.68,,,,1639,signal,single,1639,1,,,,,,,,,,,,,0,0,0,
+1336,PARSED,1615,Upd: sl- 0.5,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,1615,signal,single,1615,1,,,FULL,,,,,,,,,,0,0,0,
+1332,PARSED,1652,sl -0.5,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,1652,signal,single,1652,1,,,FULL,,,,,,,,,,0,0,0,
+1326,PARSED,1658,upd;стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,1658,signal,single,1658,1,,ENTRY,FULL,,STOP,,,,,,,,0,0,0,
+1324,PARSED,1664,стоп сдвигаем в + на 96408,,,U_MOVE_STOP,U_MOVE_STOP,MOVE_STOP,MOVE_STOP(new_stop_level=96408),,,,0.68,,,,1664,signal,single,1664,1,,96408.0,,,,,,,,,,,0,0,0,
+1323,PARSED,1666,"стоп +0,1%",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,1666,signal,single,1666,1,,,FULL,,STOP,,,,,0.1,,,0,0,0,
+1322,PARSED,,"trader#d 
+long btc
+sl 95347
+tp1 97955
+tp2 99900
+tp3 107505",trader_d_update_missing_target,trader_d_update_missing_target,U_TP_HIT,U_TP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,,signal,unknown,,0,,,FULL,,TP,,,,,,,,0,0,0,
+1319,PARSED,1670,upd перевод в бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,1670,signal,single,1670,1,,ENTRY,,,,,,,,,,,0,0,0,
+1318,PARSED,1671,бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,1671,signal,single,1671,1,,ENTRY,,,,,,,,,,,0,0,0,
+1315,PARSED,1669,Sl -0.5,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,1669,signal,single,1669,1,,,FULL,,,,,,,,,,0,0,0,
+1314,PARSED,1673,Sl -0.5,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,1673,signal,single,1673,1,,,FULL,,,,,,,,,,0,0,0,
+1312,PARSED,1668,Sl -0.5,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,1668,signal,single,1668,1,,,FULL,,,,,,,,,,0,0,0,
+1302,PARSED,1692,upd стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,1692,signal,single,1692,1,,ENTRY,FULL,,STOP,,,,,,,,0,0,0,
+1300,PARSED,1693,позиция ушла в бу,,,U_EXIT_BE,U_EXIT_BE,,,,,,0.68,,,,1693,signal,single,1693,1,,,,,,,,,,,,,0,0,0,
+1290,PARSED,1703,стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,1703,signal,single,1703,1,,ENTRY,FULL,,STOP,,,,,,,,0,0,0,
+1289,PARSED,1707,позиция ушла в бу,,,U_EXIT_BE,U_EXIT_BE,,,,,,0.68,,,,1707,signal,single,1707,1,,,,,,,,,,,,,0,0,0,
+1282,PARSED,1710,Sl -0.5,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,1710,signal,single,1710,1,,,FULL,,,,,,,,,,0,0,0,
+1253,PARSED,1771,upd перевод в бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,1771,signal,single,1771,1,,ENTRY,,,,,,,,,,,0,0,0,
+1252,PARSED,1772,позиция ушла в бу,,,U_EXIT_BE,U_EXIT_BE,,,,,,0.68,,,,1772,signal,single,1772,1,,,,,,,,,,,,,0,0,0,
+1244,PARSED,1782,перевод в бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,1782,signal,single,1782,1,,ENTRY,,,,,,,,,,,0,0,0,
+1243,PARSED,1784,бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,1784,signal,single,1784,1,,ENTRY,,,,,,,,,,,0,0,0,
+1242,PARSED,1780,"Sl -0,5",,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,1780,signal,single,1780,1,,,FULL,,,,,,,,,,0,0,0,
+1224,PARSED,,"trader#d
+Sxt short 0.5
+tp1 0.03549
+tp2 0.03281",,,U_TP_HIT,U_TP_HIT,,,SXTUSDT,,,0.68,,,,,signal,unknown,,0,,,,,TP,,,,,,,,0,0,0,
+1220,PARSED,1810,sl -0.5,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,1810,signal,single,1810,1,,,FULL,,,,,,,,,,0,0,0,
+1209,PARSED,1813,"Trader#d
+Фикс 70%
+Стоп в бу",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_CLOSE_PARTIAL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,1813,signal,single,1813,1,,ENTRY,PARTIAL,0.7,STOP,,,,,70,,,0,0,0,
+1204,PARSED,1811,Закрываю в бу,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,1811,signal,single,1811,1,,,FULL,,,,,,,,,,0,0,0,
+1203,PARSED,1828,Остаток в бу,,,,,,,,,,0.68,,,,1828,signal,single,1828,1,,,,,,,,,,,,,0,0,0,
+1188,PARSED,1861,upd стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,1861,signal,single,1861,1,,ENTRY,FULL,,STOP,,,,,,,,0,0,0,
+1187,PARSED,1860,Upd стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,1860,signal,single,1860,1,,ENTRY,FULL,,STOP,,,,,,,,0,0,0,
+1184,PARSED,,"https://t.me/c/3171748254/1864
+https://t.me/c/3171748254/1863
+Бу
+Trader#d",,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,,signal_group,multiple,1864 | 1863,2,,ENTRY,,,,,,,,,,,0,0,0,
+1143,PARSED,1949,"[trader #D]
+upd:50% срежем rr 1;1 стоп в бу",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_CLOSE_PARTIAL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,1949,signal,single,1949,1,,ENTRY,PARTIAL,0.5,STOP,,,,,50,,,0,0,0,
+1141,PARSED,1954,"[trader #D]
+Upd.остаток ушел в бу",,,U_EXIT_BE,U_EXIT_BE,,,,,,0.68,,,,1954,signal,single,1954,1,,,,,,,,,,,,,0,0,0,
+1127,PARSED,1976,"[trader #D]
+тп1 фикс 50% +0,35%
+стоп в бу",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_TP_HIT | U_CLOSE_PARTIAL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,1976,signal,single,1976,1,,ENTRY,PARTIAL,0.5,TP1,,,,,50,,,0,0,0,
+1126,PARSED,1976,"[trader #D]
+Tp2 срезал ещё 25% +0.36%
+Остаток 25% позиции
+Стоп находится в бу",,,U_MOVE_STOP,U_MOVE_STOP | U_STOP_HIT | U_CLOSE_FULL | U_TP_HIT | U_CLOSE_PARTIAL,MOVE_STOP | CLOSE_POSITION,MOVE_STOP | CLOSE_POSITION | CLOSE_POSITION,,,,0.68,,,,1976,signal,single,1976,1,,,PARTIAL,0.25,TP2,,,,,25,,,0,0,0,
+1124,PARSED,1977,"[trader #D]
+Tp1 срезал 50% +0.25
+Стоп в бу",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_TP_HIT | U_CLOSE_PARTIAL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,1977,signal,single,1977,1,,ENTRY,PARTIAL,0.5,TP1,,,,,50,,,0,0,0,
+1122,PARSED,1976,"[trader #D]
+Tp3 общий профит +1.18%",,,U_REPORT_FINAL_RESULT,U_REPORT_FINAL_RESULT | U_TP_HIT,,,,,,0.68,,,,1976,signal,single,1976,1,,,,,TP3,,,,,1.18,,,0,0,0,
+1088,PARSED,2070,"[trader #D]
+Tp 1 срезал 50% +0,245 
+стоп в бу",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_TP_HIT | U_CLOSE_PARTIAL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,2070,signal,single,2070,1,,ENTRY,PARTIAL,0.5,TP1,,,,,50,,,0,0,0,
+1086,PARSED,2078,sl -0.5,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,2078,signal,single,2078,1,,,FULL,,,,,,,,,,0,0,0,
+1084,PARSED,2081,sl -0.5,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,2081,signal,single,2081,1,,,FULL,,,,,,,,,,0,0,0,
+1081,PARSED,2070,"[trader #D]
+TP2 срезал еще 25%
+Остаток 25%",,,U_TP_HIT,U_TP_HIT | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,2070,signal,single,2070,1,,,PARTIAL,0.25,TP2,,,,,25,,,0,0,0,
+1054,PARSED,2123,Sl:-0.5r,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,2123,signal,single,2123,1,,,FULL,,,,,,,,,,0,0,0,
+1006,PARSED,2086,"[trader #D]
+остаток ушел в бу.",,,U_EXIT_BE,U_EXIT_BE,,,,,,0.68,,,,2086,signal,single,2086,1,,,,,,,,,,,,,0,0,0,
+988,PARSED,2206,стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,2206,signal,single,2206,1,,ENTRY,FULL,,STOP,,,,,,,,0,0,0,
+986,PARSED,2206,Upd:Бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,2206,signal,single,2206,1,,ENTRY,,,,,,,,,,,0,0,0,
+956,PARSED,2263,"ТП1 фикс 50% +0.24
+стоп в бу",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_TP_HIT | U_CLOSE_PARTIAL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,2263,signal,single,2263,1,,ENTRY,PARTIAL,0.5,TP1,,,,,50,,,0,0,0,
+955,PARSED,2264,Тп2 фикс 25% + 0.25,,,U_TP_HIT,U_TP_HIT | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,2264,signal,single,2264,1,,,PARTIAL,0.25,TP2,,,,,25,,,0,0,0,
+953,PARSED,2262,"Закрою полностью по текущим.
+Не очень нравится 
+Р +0.4%",,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,2262,signal,single,2262,1,,,FULL,,,,,,,0.4,,,0,0,0,
+951,PARSED,2265,Остаток ушел в бу,,,U_EXIT_BE,U_EXIT_BE,,,,,,0.68,,,,2265,signal,single,2265,1,,,,,,,,,,,,,0,0,0,
+942,PARSED,2277,"закрываю в бу.
+не нравится",,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,2277,signal,single,2277,1,,,FULL,,,,,,,,,,0,0,0,
+931,PARSED,2299,Upd : Стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,2299,signal,single,2299,1,,ENTRY,FULL,,STOP,,,,,,,,0,0,0,
+929,PARSED,2299,"фикс 50% +0,25
+тяжело идет",,,U_CLOSE_PARTIAL,U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,2299,signal,single,2299,1,,,PARTIAL,0.5,,,,,,50,,,0,0,0,
+928,PARSED,2299,"стоп передвигаю в + 0,0614",,,U_MOVE_STOP,U_MOVE_STOP,MOVE_STOP,MOVE_STOP,,,,0.68,,,,2299,signal,single,2299,1,,,,,,,,,,,,,0,0,0,
+927,PARSED,2299,тп 1: срезал еще 25%,,,U_TP_HIT,U_TP_HIT | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,2299,signal,single,2299,1,,,PARTIAL,0.25,TP1,,,,,25,,,0,0,0,
+924,PARSED,2299,TP2 срезал 12.5%,,,U_TP_HIT,U_TP_HIT | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,2299,signal,single,2299,1,,,PARTIAL,0.125,TP2,,,,,12.5,,,0,0,0,
+921,PARSED,2310,sl -0.5 поторопился.Буду искать перезаход,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,2310,signal,single,2310,1,,,FULL,,,,,,,,,,0,0,0,
+895,PARSED,2320,Стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,2320,signal,single,2320,1,,ENTRY,FULL,,STOP,,,,,,,,0,0,0,
+888,PARSED,2320,"Trader#D
+Стоп в бу
+Срежем тут 60% чтобы отбить предидущий стоп)+0,59р",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_CLOSE_PARTIAL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,2320,signal,single,2320,1,,ENTRY,PARTIAL,0.6,STOP,,,,,60,,,0,0,0,
+873,PARSED,2320,"Tp 1 
+Tp2
+Закрываем полностью",,,U_CLOSE_FULL,U_CLOSE_FULL | U_TP_HIT,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,2320,signal,single,2320,1,,,FULL,,TP,,,,,,,,0,0,0,
+871,PARSED,2299,Tp3. Сделка закрыта,,,U_TP_HIT,U_TP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,2299,signal,single,2299,1,,,,,TP3,,,,,,,,0,0,0,
+856,PARSED,2376,[trader #D] Стоп переставим в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,2376,signal,single,2376,1,,,FULL,,STOP,,,,,,,,0,0,0,
+854,PARSED,2376,"[trader #D] 
+Tp1 фикс 50% R+0,26
+стоп в бу
+Остальные 2 цели по 25%",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_TP_HIT | U_CLOSE_PARTIAL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,2376,signal,single,2376,1,,ENTRY,PARTIAL,0.5,TP1,,,,,50,,,0,0,0,
+849,PARSED,2376,"[trader #D] 
+Tp2 фикс 25% R+0,27
+остаток 25 %",,,U_TP_HIT,U_TP_HIT | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,2376,signal,single,2376,1,,,PARTIAL,0.25,TP2,,,,,25,,,0,0,0,
+835,PARSED,2403,"Tp1 фикс 50%
+Стоп в бу",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_TP_HIT | U_CLOSE_PARTIAL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,2403,signal,single,2403,1,,ENTRY,PARTIAL,0.5,TP1,,,,,50,,,0,0,0,
+822,PARSED,2395,"[ trader #D]
+Остаток ушел в бу.",,,U_EXIT_BE,U_EXIT_BE,,,,,,0.68,,,,2395,signal,single,2395,1,,,,,,,,,,,,,0,0,0,
+803,PARSED,2462,Sl:-0.5,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,2462,signal,single,2462,1,,,FULL,,,,,,,,,,0,0,0,
+795,PARSED,2475,"Стоп в б.у
+есть опасение что дадут пересвип как вчера c uma",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,2475,signal,single,2475,1,,,FULL,,STOP,,,,,,,,0,0,0,
+794,PARSED,2475,"[trader #D]
+тп1 фикс 50% +0,29",,,U_TP_HIT,U_TP_HIT | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,2475,signal,single,2475,1,,,PARTIAL,0.5,TP1,,,,,50,,,0,0,0,
+790,PARSED,2479,"[trader #D]
+стоп переставляем в + на 1,2453",,,U_MOVE_STOP,U_MOVE_STOP,MOVE_STOP,MOVE_STOP(new_stop_level=1.2453),,,,0.68,,,,2479,signal,single,2479,1,,1.2453,,,,,,,,,,,0,0,0,
+788,PARSED,2484,"[trader #D]
+Стоп в бу",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,2484,signal,single,2484,1,,ENTRY,FULL,,STOP,,,,,,,,0,0,0,
+787,PARSED,2475,"[trader #D]
+Tp 2😑",,,U_TP_HIT,U_TP_HIT,,,,,,0.68,,,,2475,signal,single,2475,1,,,,,TP2,,,,,,,,0,0,0,
+786,PARSED,2484,"[trader #D]
+Срежем тут 50% +0,42р
+Первый тейк убираем",,,U_CLOSE_PARTIAL,U_CLOSE_PARTIAL | U_UPDATE_TAKE_PROFITS,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,2484,signal,single,2484,1,,,PARTIAL,0.5,,,,,,50,,,0,0,0,
+784,PARSED,2488,[trader #D] остаток ушел в бу+,,,U_EXIT_BE,U_EXIT_BE,,,,,,0.68,,,,2488,signal,single,2488,1,,,,,,,,,,,,,0,0,0,
+781,PARSED,2497,[trader #D] стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,2497,signal,single,2497,1,,ENTRY,FULL,,STOP,,,,,,,,0,0,0,
+778,PARSED,2484,"[trader #D]
+JTO закрываем полностью 0,307
++1р",,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,JTOUSDT,,,0.68,,,,2484,signal,single,2484,1,,,FULL,,,,,,,,,,0,0,0,
+775,PARSED,2501,[trader #D] стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,2501,signal,single,2501,1,,ENTRY,FULL,,STOP,,,,,,,,0,0,0,
+774,PARSED,2501,"[trader #D]
+Tp1 фикс 50% +0.38r😑",,,U_TP_HIT,U_TP_HIT | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,2501,signal,single,2501,1,,,PARTIAL,0.5,TP1,,,,,50,,,0,0,0,
+746,PARSED,2501,"[trader #D]
+Tp2 сделка закрыта
+Общий профит +1.49р🔫",,,U_TP_HIT,U_TP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,2501,signal,single,2501,1,,,,,TP2,,,,,1.49,,,0,0,0,
+737,PARSED,2403,"Trader [ #D]
+Остаток ушел в бу
++0.6r по позиции",,,U_EXIT_BE,U_EXIT_BE,,,,,,0.68,,,,2403,signal,single,2403,1,,,,,,,,,,,,,0,0,0,
+718,PARSED,2576,"Trader [ #D]
+Стоп в бу",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,2576,signal,single,2576,1,,ENTRY,FULL,,STOP,,,,,,,,0,0,0,
+714,PARSED,2581,ставим в бу),,,,,,,,,,0.68,,,,2581,signal,single,2581,1,,,,,,,,,,,,,0,0,0,
+686,PARSED,2608,"[trader #D ]
+Стоп в бу.",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,2608,signal,single,2608,1,,ENTRY,FULL,,STOP,,,,,,,,0,0,0,
+684,PARSED,2593,"[trader #D ]
+Остаток ушел в бу",,,U_EXIT_BE,U_EXIT_BE,,,,,,0.68,,,,2593,signal,single,2593,1,,,,,,,,,,,,,0,0,0,
+663,PARSED,2659,"Tp1 фикс 50%
+Стоп в бу",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_TP_HIT | U_CLOSE_PARTIAL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,2659,signal,single,2659,1,,ENTRY,PARTIAL,0.5,TP1,,,,,50,,,0,0,0,
+660,PARSED,2661,"[trader #D ]
+Tp2 фикс 25%",,,U_TP_HIT,U_TP_HIT | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,2661,signal,single,2661,1,,,PARTIAL,0.25,TP2,,,,,25,,,0,0,0,
+652,PARSED,2664,"[trader #D ]
+Остаток позиции закрываем по текущим 31.57",,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,2664,signal,single,2664,1,,,FULL,,,,,,,,,,0,0,0,
+650,PARSED,2678,Стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,2678,signal,single,2678,1,,ENTRY,FULL,,STOP,,,,,,,,0,0,0,
+649,PARSED,2679,бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,2679,signal,single,2679,1,,ENTRY,,,,,,,,,,,0,0,0,
+633,PARSED,2686,"Trader [ #D]
+закрываю по текущим 0,1664",,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,2686,signal,single,2686,1,,,FULL,,,,,,,,,,0,0,0,
+590,PARSED,2705,Стоп  - 0.5,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,2705,signal,single,2705,1,,,FULL,,STOP,,,,,,,,0,0,0,
+588,PARSED,2689,"[trader #D ]
+Срезаем тут 50% +0.25R ,
+тп 1 убираем
+Стоп в бу.",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_TP_HIT | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,2689,signal,single,2689,1,,ENTRY,FULL,,TP1,,,,,50,,,0,0,0,
+572,PARSED,2752,"[trader #D]
+Остаток ушел в бу",,,U_EXIT_BE,U_EXIT_BE,,,,,,0.68,,,,2752,signal,single,2752,1,,,,,,,,,,,,,0,0,0,
+564,PARSED,2784,стоп в бу.,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,2784,signal,single,2784,1,,ENTRY,FULL,,STOP,,,,,,,,0,0,0,
+563,PARSED,2784,"[trader #D]
+TP1 +031R
+Фикс 50%
+ стоп все так же в бу",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_TP_HIT | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION | CLOSE_POSITION,,,,0.68,,,,2784,signal,single,2784,1,,,PARTIAL,0.5,TP1,,,,,50,,,0,0,0,
+562,PARSED,2784,"[trader #D]
+Tp2 
+сделка закрыта
+профит +1,15R",,,U_TP_HIT,U_TP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,2784,signal,single,2784,1,,,,,TP2,,,,,1.15,,,0,0,0,
+486,PARSED,2899,стоп  в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,2899,signal,single,2899,1,,,FULL,,STOP,,,,,,,,0,0,0,
+484,PARSED,2902,Бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,2902,signal,single,2902,1,,ENTRY,,,,,,,,,,,0,0,0,
+482,PARSED,2906,Стоп в бу🤝,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,2906,signal,single,2906,1,,ENTRY,FULL,,STOP,,,,,,,,0,0,0,
+452,PARSED,2935,Sl -0.5,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,2935,signal,single,2935,1,,,FULL,,,,,,,,,,0,0,0,
+411,PARSED,2992,Стоп в бу.,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,2992,signal,single,2992,1,,ENTRY,FULL,,STOP,,,,,,,,0,0,0,
+410,PARSED,2993,Бу🤝,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,2993,signal,single,2993,1,,ENTRY,,,,,,,,,,,0,0,0,
+403,PARSED,3003,быстро однако)стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,3003,signal,single,3003,1,,ENTRY,FULL,,STOP,,,,,,,,0,0,0,
+402,PARSED,3003,бу😂,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,3003,signal,single,3003,1,,ENTRY,,,,,,,,,,,0,0,0,
+351,PARSED,3078,Стоп можно перенести в бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE | U_STOP_HIT | U_CLOSE_FULL,MOVE_STOP | CLOSE_POSITION,MOVE_STOP(new_stop_level=ENTRY) | CLOSE_POSITION,,,,0.68,,,,3078,signal,single,3078,1,,ENTRY,FULL,,STOP,,,,,,,,0,0,0,
+343,PARSED,3079,бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,3079,signal,single,3079,1,,ENTRY,,,,,,,,,,,0,0,0,
+327,PARSED,3112,R 1-1 можно срезать 50% стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,3112,signal,single,3112,1,,ENTRY,FULL,,STOP,,,,,50,,,0,0,0,
+326,PARSED,3112,tp1 срезал еще 25%,,,U_TP_HIT,U_TP_HIT | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,3112,signal,single,3112,1,,,PARTIAL,0.25,TP1,,,,,25,,,0,0,0,
+324,PARSED,3114,Остаток 25% ушел в бу.,,,,,,,,,,0.68,,,,3114,signal,single,3114,1,,,,,,,,,,25,,,0,0,0,
+313,PARSED,3131,"[Trader #D]
+Upd;перевел в бу",,,,,,,,,,0.68,,,,3131,signal,single,3131,1,,,,,,,,,,,,,0,0,0,
+312,PARSED,3131,"[Trader #D]
+Tp1 фикс 50%",,,U_TP_HIT,U_TP_HIT | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,3131,signal,single,3131,1,,,PARTIAL,0.5,TP1,,,,,50,,,0,0,0,
+310,PARSED,3137,кину в бу.Топчемся на месте,,,,,,,,,,0.68,,,,3137,signal,single,3137,1,,,,,,,,,,,,,0,0,0,
+308,PARSED,3131,"Trader [ #D]
+стоп двигаем в + на  0,015534",,,U_MOVE_STOP,U_MOVE_STOP,MOVE_STOP,MOVE_STOP(new_stop_level=0.015534),,,,0.68,,,,3131,signal,single,3131,1,,0.015534,,,,,,,,,,,0,0,0,
+307,PARSED,3140,"Sl
+Сделка закрыта + 0.295 R",,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,3140,signal,single,3140,1,,,,,,,,,,,,,0,0,0,
+298,PARSED,3153,стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,3153,signal,single,3153,1,,ENTRY,FULL,,STOP,,,,,,,,0,0,0,
+278,PARSED,3179,"срежем тут 30 %  0,014219
+стоп в бу",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_CLOSE_PARTIAL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,3179,signal,single,3179,1,,ENTRY,PARTIAL,0.3,STOP,,,,,30,,,0,0,0,
+273,PARSED,3182,остаток позиции ушел в бу,,,U_EXIT_BE,U_EXIT_BE,,,,,,0.68,,,,3182,signal,single,3182,1,,,,,,,,,,,,,0,0,0,
+268,PARSED,3189,тут стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,3189,signal,single,3189,1,,ENTRY,FULL,,STOP,,,,,,,,0,0,0,
+267,PARSED,3189,Tp1 фикс 50%,,,U_TP_HIT,U_TP_HIT | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,3189,signal,single,3189,1,,,PARTIAL,0.5,TP1,,,,,50,,,0,0,0,
+264,PARSED,3191,стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,3191,signal,single,3191,1,,ENTRY,FULL,,STOP,,,,,,,,0,0,0,
+263,PARSED,3190,стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,3190,signal,single,3190,1,,ENTRY,FULL,,STOP,,,,,,,,0,0,0,
+258,PARSED,3198,Бу🤝,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,3198,signal,single,3198,1,,ENTRY,,,,,,,,,,,0,0,0,
+256,PARSED,3194,"[Trader #D]
+Стоп сдвигаем на 1 тейк",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,3194,signal,single,3194,1,,,FULL,,STOP,,,,,,,,0,0,0,
+254,PARSED,3189,Сделка закрыта +0.64R,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,3189,signal,single,3189,1,,,,,,,,,,0.64,,,0,0,0,
+224,PARSED,3254,Перевожу в бу,,,,,,,,,,0.68,,,,3254,signal,single,3254,1,,,,,,,,,,,,,0,0,0,
+222,PARSED,3255,Стоп -0.5,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,3255,signal,single,3255,1,,,FULL,,STOP,,,,,,,,0,0,0,
+221,PARSED,3254,"Tp1,фикс 50%",,,U_TP_HIT,U_TP_HIT | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,3254,signal,single,3254,1,,,PARTIAL,0.5,TP1,,,,,50,,,0,0,0,
+216,PARSED,3261,"Закрываем тут полностью,перекроем стоп 🤝",,,U_CLOSE_FULL,U_CLOSE_FULL | U_STOP_HIT,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,3261,signal,single,3261,1,,,FULL,,STOP,,,,,,,,0,0,0,
+199,PARSED,3286,перевожу в бу.,,,,,,,,,,0.68,,,,3286,signal,single,3286,1,,,,,,,,,,,,,0,0,0,
+195,PARSED,3289,Sl -0.5,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,3289,signal,single,3289,1,,,FULL,,,,,,,,,,0,0,0,
+194,PARSED,3290,"Закрою руками в бу
+Не нравится рынок перед фрс",,,,,,,,,,0.68,,,,3290,signal,single,3290,1,,,,,,,,,,,,,0,0,0,
+171,PARSED,3317,Стоп переводим в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,3317,signal,single,3317,1,,ENTRY,FULL,,STOP,,,,,,,,0,0,0,
+170,PARSED,3317,Tp1 фикс 50%,,,U_TP_HIT,U_TP_HIT | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,3317,signal,single,3317,1,,,PARTIAL,0.5,TP1,,,,,50,,,0,0,0,
+169,PARSED,3319,остаток ушел в бу.,,,U_EXIT_BE,U_EXIT_BE,,,,,,0.68,,,,3319,signal,single,3319,1,,,,,,,,,,,,,0,0,0,
+135,PARSED,3378,"быстро однако.
+tp1
+стоп в бу",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_TP_HIT | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,3378,signal,single,3378,1,,ENTRY,FULL,,TP1,,,,,,,,0,0,0,
+134,PARSED,3379,"остаток отлетел в бу.
+ликвидности мало кидает со стороны в сторону",,,,,,,,,,0.68,,,,3379,signal,single,3379,1,,,,,,,,,,,,,0,0,0,
+127,PARSED,3385,"Перевожу в бу.
+Не очень нравится топтание",,,,,,,,,,0.68,,,,3385,signal,single,3385,1,,,,,,,,,,,,,0,0,0,
+124,PARSED,3389,Тут стоп -0.5r,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,3389,signal,single,3389,1,,,FULL,,STOP,,,,,,,,0,0,0,
+117,PARSED,3396,"TP1
+стоп в бу",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_TP_HIT | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,3396,signal,single,3396,1,,ENTRY,FULL,,TP1,,,,,,,,0,0,0,
+116,PARSED,3397,остаток ушел в бу,,,U_EXIT_BE,U_EXIT_BE,,,,,,0.68,,,,3397,signal,single,3397,1,,,,,,,,,,,,,0,0,0,
+112,PARSED,3400,стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,3400,signal,single,3400,1,,ENTRY,FULL,,STOP,,,,,,,,0,0,0,
+106,PARSED,3400,"Trader [ #D]
+
+стоп сдвигаем 0,065",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,3400,signal,single,3400,1,,,FULL,,STOP,,,,,,,,0,0,0,
+105,PARSED,3408,"Trader [ #D]
+Закрываю по текущим.",,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,3408,signal,single,3408,1,,,FULL,,,,,,,,,,0,0,0,
+57,PARSED,3456,стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,0.68,,,,3456,signal,single,3456,1,,ENTRY,FULL,,STOP,,,,,,,,0,0,0,
+26,PARSED,3487,"Trader [ #D]
+
+сделка не актуальна.
+Дошли до 1 тп за 4 минуты",,,U_CANCEL_PENDING_ORDERS,U_CANCEL_PENDING_ORDERS,CANCEL_PENDING,CANCEL_PENDING,,,,0.68,,,,3487,signal,single,3487,1,,,,,,,,TARGETED,,,,,0,0,0,
+14,PARSED,3499,"Trader [ #D]
+sl -0.5",,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,0.68,,,,3499,signal,single,3499,1,,,FULL,,,,,,,,,,0,0,0,

@@ -1,5 +1,5 @@
 # Piano Operativo di Sviluppo — Signal Chain Backtesting Lab
-**Versione:** 1.7
+**Versione:** 1.9
 **Aggiornato:** 2026-04-08
 **Riferimento PRD:** `PRD_consolidato_signal_chain_lab.md`, `docs/PRD_market_data_backtesting_incrementale.md`, `docs/mini_prd_allegato_bybit_provider_backtesting.md`
 
@@ -18,7 +18,7 @@
 - ✅ Optimizer implementato + riproducibilità top trial verificata (`src/signal_chain_lab/optimizer/`, `tests/integration/test_optimizer_reproducibility.py`)
 - ✅ UI NiceGUI: blocchi modulari estratti (`ui/blocks/block_download/parse/backtest.py`), `app.py` ridotto a orchestratore; workflow manuale S9.8 chiuso
 - 🔶 Ingestion Telegram disponibile in modalità **storica/offline** via `parser_test/scripts/import_history.py`; listener live `src.telegram` non incluso nel workspace corrente
-- 🔶 Market provider layer presente a livello libreria (`market/providers/csv_provider.py`, `parquet_provider.py`) ma non ancora cablato nel flusso scenario ufficiale (`scripts/run_scenario.py` usa ancora `market_provider=None`)
+- ✅ Market provider Bybit cablato nel flusso scenario ufficiale (`scripts/run_scenario.py`) con `--market-dir`, `--timeframe`, `--price-basis`
 
 ### Qualità e test
 - ✅ Presenza suite unit/integration/golden (`tests/`)
@@ -60,7 +60,7 @@
 - storage: **Parquet partizionato** con manifest di copertura/validazione/download log
 - runtime desiderato: **offline-first**, senza fallback silenzioso cross-exchange nei run ufficiali
 
-### Incremento E — Market Data Backtesting Incrementale (MVP) 🔲 TODO
+### Incremento E — Market Data Backtesting Incrementale (MVP) ✅ COMPLETATO (2026-04-08)
 
 **Obiettivo:** rendere operativo il flusso `plan → sync → validate → backtest` con cache locale incrementale.
 
@@ -68,9 +68,11 @@
 1. Scanner domanda da DB segnali (simboli + intervalli chain)
 2. Coverage planner con buffer adattivi e merge intervalli
 3. Coverage index/manifest + gap detection
-4. Sync incrementale Bybit (`last` e `mark`) in Parquet
-5. Validazione minima dataset e logging job
-6. Integrazione provider in `run_scenario.py` e GUI (`block_backtest.py`)
+4. ✅ Sync incrementale Bybit (`last` e `mark`) in Parquet — `src/signal_chain_lab/market/sync/bybit_downloader.py`
+5. ✅ Validazione minima dataset e logging job
+6. ✅ Integrazione provider in `run_scenario.py` e GUI (`block_backtest.py`)
+7. ✅ CLI operative `plan_market_data.py`, `sync_market_data.py`, `validate_market_data.py`, `report_market_coverage.py`
+8. ✅ E2E fixture run: `plan → sync → validate → run_scenario` con provider attivo, fill reali e PnL non-zero
 
 ### Incremento F — Hardening Market Data 🔲 TODO
 
@@ -100,9 +102,9 @@ Il progetto può considerarsi "MVP backtesting completo" quando:
 - [x] optimizer top-trial reproducibility è verificato e tracciato
 - [x] UI NiceGUI completata (blocchi modulari estratti, S9.8 chiuso)
 - [ ] test suite eseguita green in ambiente Python 3.12
-- [ ] pipeline market data incrementale disponibile (plan/sync/validate/coverage)
-- [ ] run ufficiale Bybit exchange-faithful attivo (last/mark, no fallback cross-exchange)
-- [ ] market provider cablato in `run_scenario.py` e GUI con PnL non-zero su dataset coperto
+- [x] pipeline market data incrementale disponibile (plan/sync/validate/coverage)
+- [x] run ufficiale Bybit exchange-faithful attivo (last/mark, no fallback cross-exchange)
+- [x] market provider cablato in `run_scenario.py` e GUI con PnL non-zero su dataset coperto
 
 ---
 

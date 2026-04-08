@@ -1,0 +1,99 @@
+from __future__ import annotations
+
+import argparse
+import json
+from datetime import datetime, timezone
+from pathlib import Path
+import sys
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from src.signal_chain_lab.market.planning.coverage_planner import CoveragePlanner
+from src.signal_chain_lab.market.planning.demand_scanner import SignalDemandScanner
+from src.signal_chain_lab.market.planning.gap_detection import detect_gaps
+from src.signal_chain_lab.market.planning.manifest_store import CoverageKey, ManifestStore
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Generate a market-data coverage plan from a backtesting DB")
+    parser.add_argument("--db-path", required=True, help="Path to SQLite backtesting DB")
+    parser.add_argument("--market-dir", required=True, help="Path to market data root")
+    parser.add_argument("--timeframe", default="1m", help="Market timeframe (default: 1m)")
+    parser.add_argument("--bases", default="last,mark", help="Comma-separated bases (default: last,mark)")
+    parser.add_argument(
+        "--output",
+        default=None,
+        help="Optional output JSON path; default under artifacts/market_data/",
+    )
+    return parser.parse_args()
+
+
+def main() -> int:
+    args = parse_args()
+    market_dir = Path(args.market_dir)
+    bases = [item.strip() for item in args.bases.split(",") if item.strip()]
+
+    demand = SignalDemandScanner(args.db_path).scan()
+    coverage_plan = CoveragePlanner().plan(demand)
+    manifest = ManifestStore(root=market_dir / "manifests")
+    coverage_index = manifest.load_coverage_index()
+
+    payload: dict[str, object] = {
+        "generated_at": datetime.now(tz=timezone.utc).isoformat(),
+        "db_path": str(Path(args.db_path).resolve()),
+        "market_dir": str(market_dir.resolve()),
+        "timeframe": args.timeframe,
+        "bases": bases,
+        "chains_scanned": len(demand),
+        "symbols": {},
+    }
+
+    total_required = 0
+    total_gaps = 0
+    symbols_payload: dict[str, object] = {}
+    for symbol, intervals in coverage_plan.intervals_by_symbol.items():
+        required_rows = [interval.to_dict() for interval in intervals]
+        total_required += len(required_rows)
+        basis_payload: dict[str, object] = {}
+        for basis in bases:
+            key = CoverageKey(
+                exchange="bybit",
+                market_type="futures_linear",
+                timeframe=args.timeframe,
+                symbol=symbol,
+                basis=basis,
+            )
+            covered = next((record.covered_intervals for record in coverage_index if record.key == key), [])
+            gaps = detect_gaps(required=intervals, covered=covered)
+            gap_rows = [interval.to_dict() for interval in gaps]
+            total_gaps += len(gap_rows)
+            basis_payload[basis] = {
+                "required_intervals": required_rows,
+                "covered_intervals": [interval.to_dict() for interval in covered],
+                "gaps": gap_rows,
+            }
+        symbols_payload[symbol] = basis_payload
+
+    payload["symbols"] = symbols_payload
+    payload["summary"] = {
+        "symbols": len(symbols_payload),
+        "required_intervals": total_required,
+        "gaps": total_gaps,
+    }
+
+    output = Path(args.output) if args.output else Path("artifacts/market_data/plan_market_data.json")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+    print(f"plan_file={output}")
+    print(f"chains_scanned={len(demand)}")
+    print(f"symbols={len(symbols_payload)}")
+    print(f"required_intervals={total_required}")
+    print(f"gaps={total_gaps}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

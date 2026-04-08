@@ -1,0 +1,80 @@
+﻿raw_message_id,parse_status,reply_to_message_id,raw_text,warning_text,warnings_summary,primary_intent,intents,action_types,actions_structured_summary,symbol,direction,completeness,missing_fields,entry_plan_type,entry_structure,has_averaging_plan,missing_stop_flag,missing_tp_flag,missing_entry_flag,validation_warning_count,notes_summary,diagnostics_summary
+1363,PARSED,,"Trader#d
+среднесрок
+Ltc Long с текущих
+риск 0,5
+sl:75.16
+tp:93.49",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=LONG; take_profits=93.49),LTCUSDT,LONG,,,SINGLE_MARKET,ONE_SHOT,False,True,False,False,0,,
+1321,PARSED,,"Trader#d
+XRP Long
+риск 0,5
+sl 2.0673
+tp1 2.2
+tp2 2.3184
+tp3 2.415",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=LONG; take_profits=2.2 | 2.3184 | 2.415),XRPUSDT,LONG,,,SINGLE_MARKET,ONE_SHOT,False,True,False,False,0,,
+1320,PARSED,,"trader#d
+Usual short
+риск 0,5
+sl 0.03143
+tp 0.03013
+tp2 0.02987
+tp3 0.02918",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.03013 | 0.02987 | 0.02918),USUALUSDT,SHORT,,,SINGLE_MARKET,ONE_SHOT,False,True,False,False,0,,
+1317,PARSED,,"Trader#d
+Sol Long
+риск 0,5 
+sl 141.67
+tp1 145.95
+tp2 148.93
+tp3 151",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=LONG; take_profits=145.95 | 148.93 | 151),SOLUSDT,LONG,,,SINGLE_MARKET,ONE_SHOT,False,True,False,False,0,,
+1287,PARSED,,"Trader#d
+scrt short
+риск 0,5
+сл 0,13764
+тп1 0,12522
+тп2 0,11886",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.12522 | 0.11886),SCRTUSDT,SHORT,,,SINGLE_MARKET,ONE_SHOT,False,True,False,False,0,,
+1247,PARSED,,"Trader#d
+ xrp long
+sl 1.9052
+tp1 2.0294",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=LONG; take_profits=2.0294),XRPUSDT,LONG,,,SINGLE_MARKET,ONE_SHOT,False,True,False,False,0,,
+1245,PARSED,,"trader#d
+Dusk Short 0.5
+sl 0.24914
+tp1 0.18268",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.18268),DUSKUSDT,SHORT,,,SINGLE_MARKET,ONE_SHOT,False,True,False,False,0,,
+1223,PARSED,,"Trader#d
+Pha Short 0.5
+sl 0.04743
+tp1 0.03952
+tp2  0.03636",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.03952 | 0.03636),PHAUSDT,SHORT,,,SINGLE_MARKET,ONE_SHOT,False,True,False,False,0,,
+1221,PARSED,,"Trader#d
+Axs Short 0.5
+sl 2.56
+tp1 1.6367",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=1.6367),AXSUSDT,SHORT,,,SINGLE_MARKET,ONE_SHOT,False,True,False,False,0,,
+1190,PARSED,,"Trader#d
+Stg short
+риск 0,5
+sl 0.20339
+tp1 0.17713
+tp2  0.16060",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.17713 | 0.1606),STGUSDT,SHORT,,,SINGLE_MARKET,ONE_SHOT,False,True,False,False,0,,
+1189,PARSED,,"Trader#d
+Zro Short
+риск 0,,5
+sl 2.3656
+tp1 2.1225
+tp2 1.7373",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=2.1225 | 1.7373),ZROUSDT,SHORT,,,SINGLE_MARKET,ONE_SHOT,False,True,False,False,0,,
+1147,PARSED,,"[trader #D]
+Sent short риск 0,5
+sl 0.034094
+tp 0.027789
+tp2 0.026276",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.027789 | 0.026276),SENTUSDT,SHORT,,,SINGLE_MARKET,ONE_SHOT,False,True,False,False,0,,
+1129,PARSED,,"[trader #D]
+Enj шорт риск 0,5
+sl 0.02832
+тп1 0,02751
+тп 2 0,0270
+тп3 0,02669",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.02751 | 0.027 | 0.02669),ENJUSDT,SHORT,,,SINGLE_MARKET,ONE_SHOT,False,True,False,False,0,,
+1128,PARSED,,"[trader #D]
+Nmr шорт риск 0,5
+sl 10.294
+tp1 9.637
+tp2 9.307
+tp3 8.909",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=9.637 | 9.307 | 8.909),NMRUSDT,SHORT,,,SINGLE_MARKET,ONE_SHOT,False,True,False,False,0,,

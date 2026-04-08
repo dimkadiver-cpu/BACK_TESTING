@@ -31,7 +31,13 @@ def _compute_max_drawdown(pnl_series: list[float]) -> float:
     return max_drawdown
 
 
-def _aggregate_policy_results(policy_name: str, trade_results: list[TradeResult], excluded: int) -> ScenarioResult:
+def _aggregate_policy_results(
+    policy_name: str,
+    trade_results: list[TradeResult],
+    excluded: int,
+    price_basis: str = "last",
+    exchange_faithful: bool = True,
+) -> ScenarioResult:
     trades_count = len(trade_results)
     realized = [item.realized_pnl for item in trade_results]
     wins = [pnl for pnl in realized if pnl > 0.0]
@@ -61,6 +67,8 @@ def _aggregate_policy_results(policy_name: str, trade_results: list[TradeResult]
         simulated_chains_count=trades_count,
         excluded_chains_count=excluded,
         avg_warnings_per_trade=avg_warnings,
+        price_basis=price_basis,
+        exchange_faithful=exchange_faithful,
     )
 
 
@@ -68,6 +76,8 @@ def run_scenarios(
     chains: list[CanonicalChain],
     policies: list[PolicyConfig],
     market_provider: MarketDataProvider | None = None,
+    price_basis: str = "last",
+    exchange_faithful: bool = True,
 ) -> tuple[list[ScenarioResult], dict[str, list[TradeResult]]]:
     scenario_results: list[ScenarioResult] = []
     per_policy_trades: dict[str, list[TradeResult]] = {}
@@ -87,7 +97,13 @@ def run_scenarios(
 
         per_policy_trades[policy.name] = trade_results
         scenario_results.append(
-            _aggregate_policy_results(policy_name=policy.name, trade_results=trade_results, excluded=excluded_chains)
+            _aggregate_policy_results(
+                policy_name=policy.name,
+                trade_results=trade_results,
+                excluded=excluded_chains,
+                price_basis=price_basis,
+                exchange_faithful=exchange_faithful,
+            )
         )
 
     return scenario_results, per_policy_trades

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any
 
 from src.signal_chain_lab.market.planning.gap_detection import Interval
@@ -127,11 +127,17 @@ class BatchValidator:
 
         first_ts = rows[0]["timestamp"]
         last_ts = rows[-1]["timestamp"]
-        if first_ts > requested_range.start or last_ts < requested_range.end:
+        effective_end = last_ts
+        timeframe_delta = _timeframe_to_delta(str(rows[0].get("timeframe", "")))
+        if timeframe_delta is not None:
+            effective_end = last_ts + timeframe_delta
+
+        if first_ts > requested_range.start or effective_end < requested_range.end:
             message = (
                 "batch does not fully cover requested range "
                 f"[{requested_range.start.isoformat()} - {requested_range.end.isoformat()}] "
-                f"(actual [{first_ts.isoformat()} - {last_ts.isoformat()}])"
+                f"(actual [{first_ts.isoformat()} - {last_ts.isoformat()}], "
+                f"effective_end={effective_end.isoformat()})"
             )
             issues.append(ValidationIssue("error", "COVERAGE_INCOMPLETE", message))
             logger.error(message)
@@ -141,3 +147,20 @@ def _as_datetime(raw: Any) -> datetime:
     if isinstance(raw, datetime):
         return raw
     return datetime.fromisoformat(str(raw).replace("Z", "+00:00"))
+
+
+def _timeframe_to_delta(timeframe: str) -> timedelta | None:
+    if not timeframe:
+        return None
+    unit = timeframe[-1:].lower()
+    value = timeframe[:-1]
+    if not value.isdigit():
+        return None
+    amount = int(value)
+    if unit == "m":
+        return timedelta(minutes=amount)
+    if unit == "h":
+        return timedelta(hours=amount)
+    if unit == "d":
+        return timedelta(days=amount)
+    return None

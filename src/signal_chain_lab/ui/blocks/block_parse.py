@@ -98,8 +98,16 @@ def _resolve_output_dir(value: str) -> Path:
     return path if path.is_absolute() else (_PROJECT_ROOT / path).resolve()
 
 
-def _build_quality_report(db_path: str, trader_id: str) -> QualityReport:
-    chains = SignalChainBuilder.build_all(db_path=db_path)
+def _safe_count(conn: sqlite3.Connection, query: str, params: tuple[object, ...] = ()) -> int:
+    try:
+        row = conn.execute(query, params).fetchone()
+    except sqlite3.OperationalError:
+        return 0
+    return int(row[0]) if row else 0
+
+
+async def _build_quality_report(db_path: str, trader_id: str) -> QualityReport:
+    chains = await SignalChainBuilder.build_all_async(db_path=db_path)
     canonical = [adapt_signal_chain(chain) for chain in chains]
 
     warning_counter: Counter[str] = Counter()
@@ -130,6 +138,12 @@ def _build_quality_report(db_path: str, trader_id: str) -> QualityReport:
             """,
             params,
         ).fetchall()
+        signals_rows = _safe_count(conn, "SELECT COUNT(*) FROM signals")
+        operational_rows = _safe_count(conn, "SELECT COUNT(*) FROM operational_signals")
+        operational_new_signal_rows = _safe_count(
+            conn,
+            "SELECT COUNT(*) FROM operational_signals WHERE message_type = 'NEW_SIGNAL'",
+        )
 
     message_type_counter: Counter[str] = Counter()
     parse_warning_counter: Counter[str] = Counter()
@@ -155,6 +169,7 @@ def _build_quality_report(db_path: str, trader_id: str) -> QualityReport:
             parse_warning_counter.update([part])
 
     top_warnings = (warning_counter + parse_warning_counter).most_common(5)
+    backtest_ready = operational_new_signal_rows > 0 and len(canonical) > 0
     return QualityReport(
         trader_id=trader_id.strip(),
         total_messages=len(rows),
@@ -168,6 +183,10 @@ def _build_quality_report(db_path: str, trader_id: str) -> QualityReport:
         total_signals=len(canonical),
         simulable_signals=simulable,
         non_simulable_signals=max(len(canonical) - simulable, 0),
+        signals_rows=signals_rows,
+        operational_signals_rows=operational_rows,
+        operational_new_signal_rows=operational_new_signal_rows,
+        backtest_ready=backtest_ready,
         top_warnings=top_warnings,
     )
 
@@ -193,6 +212,8 @@ async def _handle_parse(
     state.proceed_to_backtest = False
     state.latest_reports_dir = ""
     log_panel.clear()
+    if backtest_button_holder:
+        backtest_button_holder[0].disable()
 
     if not state.parsed_db_path:
         ui.notify("Seleziona un DB prima del parse", color="negative")
@@ -201,8 +222,10 @@ async def _handle_parse(
     if state.source_kind == "existing_db":
         # DB già parsato: skip replay_parser, costruisci direttamente il quality report.
         # replay_parser.py richiede src.telegram (non incluso in questo workspace).
-        log_panel.push("Sorgente DB esistente: skip replay parser, carico chain builder direttamente.")
+        log_panel.push("Fase 1/3 - Parse: DB esistente rilevato, skip replay_parser.py.")
+        log_panel.push("Fase 2/3 - Operation rules: provo a materializzare signals/operational_signals dal DB.")
     else:
+        log_panel.push("Fase 1/3 - Parse: avvio replay_parser.py.")
         command = [
             sys.executable,
             "parser_test/scripts/replay_parser.py",
@@ -215,6 +238,21 @@ async def _handle_parse(
         if rc != 0:
             ui.notify("Replay parser fallito: controlla log", color="negative")
             return
+        log_panel.push("Fase 1/3 - Parse: completata.")
+        log_panel.push("Fase 2/3 - Operation rules: materializzo signals/operational_signals.")
+
+    command = [
+        sys.executable,
+        "parser_test/scripts/replay_operation_rules.py",
+        "--db-path",
+        state.parsed_db_path,
+    ]
+    if state.parser_profile:
+        command += ["--trader", state.parser_profile]
+    rc = await run_streaming_command(command, log_panel)
+    if rc != 0:
+        ui.notify("Replay operation rules fallito: controlla log", color="negative")
+        return
 
     reports_dir_resolved = _resolve_output_dir(state.parse_reports_dir)
     if state.generate_parse_csv:
@@ -229,15 +267,39 @@ async def _handle_parse(
         log_panel.push(f"CSV generati in: {reports_dir_resolved}")
         log_panel.push(f"File aggiornati: {len(updated)} / righe scritte: {total_rows}")
 
-    report = _build_quality_report(state.parsed_db_path, state.parser_profile)
+    log_panel.push("Fase 3/3 - Chain builder: costruzione report di ricostruzione catene.")
+    report = await _build_quality_report(state.parsed_db_path, state.parser_profile)
     with report_container:
         report_container.clear()
         render_quality_report(report, reports_dir=state.latest_reports_dir)
 
-    state.proceed_to_backtest = True
+    state.proceed_to_backtest = report.backtest_ready
     if backtest_button_holder:
-        backtest_button_holder[0].enable()
-    ui.notify("Parse completato. Ora puoi procedere al backtest.", color="positive")
+        if report.backtest_ready:
+            backtest_button_holder[0].enable()
+        else:
+            backtest_button_holder[0].disable()
+
+    if report.backtest_ready:
+        log_panel.push(
+            "Fase 3/3 - Chain builder: OK, trovate chain ricostruibili."
+        )
+        log_panel.push("Backtest: DB pronto.")
+        ui.notify("Parse completato. Ora puoi procedere al backtest.", color="positive")
+    else:
+        log_panel.push(
+            "Fase 3/3 - Chain builder: nessuna chain ricostruibile trovata."
+        )
+        if state.source_kind == "existing_db":
+            log_panel.push(
+                "Nota: in modalita' existing_db la GUI salta replay_parser.py; CSV e parse_results "
+                "non implicano automaticamente signals/operational_signals."
+            )
+        log_panel.push("Backtest: bloccato finche' il DB non diventa backtestabile.")
+        ui.notify(
+            "Parse completato, ma il DB non contiene ancora chain backtestabili.",
+            color="warning",
+        )
 
 
 def render_block_parse(

@@ -27,6 +27,7 @@ def _apply_open_signal(state: TradeState, event: CanonicalEvent) -> tuple[str, E
             price=(payload.get("entry_prices") or [None])[0],
             size_ratio=1.0,
             sequence=event.sequence,
+            activation_ts=event.timestamp,
         )
     ]
     state.initial_sl = payload.get("sl_price")
@@ -60,6 +61,7 @@ def apply_event(state: TradeState, event: CanonicalEvent) -> EventLogEntry:
                     price=event.payload.get("price"),
                     size_ratio=float(event.payload.get("size_ratio", 1.0)),
                     sequence=event.sequence,
+                    activation_ts=event.timestamp,
                 )
             )
             state.pending_size += float(event.payload.get("size_ratio", 1.0))
