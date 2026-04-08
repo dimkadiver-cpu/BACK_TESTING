@@ -40,9 +40,42 @@ python scripts/run_single_chain.py --help
 # run scenario
 python scripts/run_scenario.py --help
 
+# run single-policy dataset report
+python scripts/run_policy_report.py --help
+
 # export parser report CSV
 python parser_test/scripts/export_reports_csv.py --help
 ```
+
+## Single-policy dataset report
+
+Use `run_policy_report.py` when you want one policy over the whole dataset, with one aggregated report plus trade-level outputs.
+
+```bash
+python scripts/run_policy_report.py \
+  --policy original_chain \
+  --db-path db/backtest.sqlite3 \
+  --market-dir data/market \
+  --date-from 2025-01-01 \
+  --date-to 2025-12-31 \
+  --output-dir artifacts/policy_reports/original_chain \
+  --write-trade-artifacts
+```
+
+Main outputs in `artifacts/policy_reports/<policy_name>/`:
+
+- `policy_summary.json` and `policy_summary.csv`: aggregated metrics for the selected policy
+- `trade_results.csv`: one row per simulated chain/trade
+- `excluded_chains.csv`: excluded chains with validation reason
+- `policy_report.html`: human-readable dataset report
+- `trades/<signal_id>/...`: optional per-trade drill-down artifacts when `--write-trade-artifacts` is enabled
+
+Implementation note:
+
+- dataset loading and canonical adaptation reuse `adapters.chain_builder` and `adapters.chain_adapter`
+- simulation and validation reuse `engine.simulator`, `adapters.validators`, and the existing policy/adapter path without changing scenario semantics
+- per-trade drill-down artifacts reuse `reports.event_log_report`, `reports.trade_report`, and `reports.chain_plot`
+- the single-policy report runner stays isolated in `src/signal_chain_lab/policy_report/*`, so existing `run_scenario.py` behavior remains unchanged
 
 
 ## Acquisizione Telegram (stato attuale)
