@@ -186,10 +186,10 @@
 - [x] **IE.1** Implementare scanner domanda da DB segnali (simbolo, open timestamp, last update, stato chain)
 - [x] **IE.2** Implementare planner intervalli con buffer adattivi (intraday/swing/position/unknown)
 - [x] **IE.3** Implementare merge intervalli per simbolo con soglia configurabile
-- [ ] **IE.4** Implementare `coverage_index` e log base (`download_log`, `validation_log`) in `data/market/manifests/`
-- [ ] **IE.5** Implementare gap detection (sottrazione intervalli richiesti vs coperti)
+- [x] **IE.4** Implementare `coverage_index` e log base (`download_log`, `validation_log`) in `data/market/manifests/`
+- [x] **IE.5** Implementare gap detection (sottrazione intervalli richiesti vs coperti)
 - [ ] **IE.6** Implementare sync Bybit incrementale `futures_linear` con export separato `.last.parquet` e `.mark.parquet`
-- [ ] **IE.7** Implementare validazione minima post-download (sorting, deduplica, schema, copertura range)
+- [x] **IE.7** Implementare validazione minima post-download (sorting, deduplica, schema, copertura range)
 - [ ] **IE.8** Integrare provider in `scripts/run_scenario.py` usando `--market-dir` (rimozione placeholder `_ = Path(args.market_dir)`)
 - [ ] **IE.9** Integrare policy di price basis (`last|mark`) nel flusso scenario/backtest
 - [ ] **IE.10** Integrare GUI (`ui/blocks/block_backtest.py`) per passare configurazione basis/timeframe al run
