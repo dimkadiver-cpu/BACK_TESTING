@@ -111,6 +111,8 @@ python parser_test/scripts/import_history.py \
 4. Se la cartella e selezionata deve e 
 5. Input timeframe + numero timeout (secondi)
 6. Pulsante "Esegui Backtest" (disabilitato finché DB non trovato o parse non completato)
+7. Al completamento: genera il report secondo il PRD_REPORT.md
+8. Al completamento: genera un link che mi apre il folder con report generate
 
 da fare:
 
