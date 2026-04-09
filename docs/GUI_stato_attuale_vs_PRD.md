@@ -1,11 +1,6 @@
-# GUI — Stato Attuale vs PRD
-**Versione:** 1.0  
-**Data:** 2026-04-07  
-**Riferimento PRD:** `PRD_consolidato_signal_chain_lab.md` §4.14, §4.15, §4.16, §4.18
+# GUI 
 
----
-
-## 1. Funzionamento attuale della GUI
+## 1. Funzionamento vsluto della GUI
 
 ### Struttura e avvio
 
@@ -18,22 +13,6 @@ python src/signal_chain_lab/ui/app.py
 # porta: localhost:7777
 ```
 
-`app.py` (59 righe) è un puro orchestratore: crea lo stato condiviso `UiState`, definisce il comando di streaming asincrono (`_run_streaming_command`), e renderizza i 3 tab chiamando i moduli `block_*.py`.
-
-### Architettura moduli
-
-```
-src/signal_chain_lab/ui/
-├── app.py                   ← entry point, orchestratore
-├── blocks/
-│   ├── block_download.py    ← tab 1: download Telegram
-│   ├── block_parse.py       ← tab 2: parse + quality report
-│   └── block_backtest.py    ← tab 3: scenario backtest
-├── components/
-│   ├── log_panel.py         ← pannello log riusabile (dark terminal)
-│   └── quality_report.py    ← card metriche sintetiche parse
-└── state.py                 ← UiState dataclass condivisa
-```
 
 ### Stato condiviso (UiState)
 
@@ -96,19 +75,15 @@ python parser_test/scripts/import_history.py \
 **Cosa fa:**
 
 1. Input DB sorgente (pre-popolato con `state.effective_db_path()`) + "Sfoglia"
-2. Select trader filtro: Auto | trader_a | trader_b | trader_c | trader_d | trader_3
-3. Campo date range / limit per il parse
-4. Input trader mapping (default `configs/telegram_source_map.json`)
-5. Checkbox "Genera CSV report a fine parse"
-6. Input cartella CSV report + "Sfoglia"
-7. Pulsante "Esegui Parse + Chain Builder"
-8. Al completamento: genera un link che mi apre il folder con report generate
+3. Select trader filtro: Auto | trader_a | trader_b | trader_c | trader_d | trader_3
+4. Campo date range / limit per il parse
+5. Input trader mapping (default `configs/telegram_source_map.json`)
+6. Checkbox "Genera CSV report a fine parse"
+7. Input cartella CSV report + "Sfoglia"
+8. Pulsante "Esegui Parse + Chain Builder"
+9. Al completamento: genera un link che mi apre il folder con report generate
 
-**Flusso esecuzione:**
-- Se `source_kind == "existing_db"`: salta `replay_parser.py`, va diretto al chain builder
-- Altrimenti: lancia `replay_parser.py` in streaming
-- Se "Genera CSV": chiama `export_reports_csv_v2()` in thread separato
-- Costruisce `QualityReport` via `SignalChainBuilder` + `validate_chain_for_simulation`
+
 
 
 **Quality Report mostrato:**
@@ -137,143 +112,19 @@ python parser_test/scripts/import_history.py \
 5. Input timeframe + numero timeout (secondi)
 6. Pulsante "Esegui Backtest" (disabilitato finché DB non trovato o parse non completato)
 
-**Flusso esecuzione:**
+da fare:
 
-```bash
-python scripts/run_scenario.py \
-  --policy <policy>,signal_only \
-  --db-path <db_path> \
-  --market-dir <market_data_dir>
-```
+1. Aggiungere menu a tendina che mi permette sciegliere le policy per simulatore da cartella "C:\Back_Testing\configs\policies"
+2. Aggiungere la posibilita configurazione di modifica della polici slezionata, con posibilita di salvarlo, o creare uno nuovo in un popup.
+3. Verfica automatica di del db slezionato per Multitraider e deve permette di selezionare qual trader usare per backtesting o tutti.
+4. Aggiungere date range (Dal / Al) per trade da becktestare
+5. Aggiungere la limitazione de numero di trade da bektesting
+7. Posibilta di configurare il report:
+   a. Dove Salvarlo (indicare la cartella) lasciare di defauilt una cartella interna del progetto.
+8. Unavolta termninato il baktesting deve comparire il link che apre il report HTML
 
-Al completamento: parsing del log per estrarre `chains_selected` e righe summary policy, rendering card risultati (policy / trades / escluse / PnL / win_rate / expectancy).
-
-**Limitazioni attuali:**
-- `--market-dir` è passato ma ignorato nel CLI (`_ = Path(args.market_dir)` — Gap G15): nessun market provider istanziato → tutte le chain restano PENDING, PnL=0
-- Policy selezionabile solo tra `original_chain` e `signal_only` (nessuna policy custom dalla GUI)
-- Nessun date range applicabile al dataset prima del backtest (filtro solo in CLI via `--date-from`/`--date-to`)
-- Nessuna visualizzazione artifact (HTML, CSV) con link cliccabile dall'UI
-
----
-
-## 2. Confronto con il PRD
-
-### §4.14 — Workflow ufficiale a 3 blocchi
-
-| Requisito PRD | Stato | Note |
-|---|---|---|
-| 3 blocchi sequenziali con checkpoint umano dopo blocco 2 | ✅ | Tab separati, backtest bloccato fino a parse completato |
-| Blocco 1 sempre abilitato | ✅ | Tab "Download" sempre accessibile |
-| Blocco 2 abilitato quando esiste DB raw | ⚠️ parziale | Il campo DB è pre-popolato ma non c'è controllo che esista prima di eseguire |
-| Blocco 3 abilitato dopo conferma esplicita utente | ⚠️ parziale | Si abilita automaticamente dopo parse OK, senza conferma esplicita dell'utente |
-| DB persistenti: si può rieseguire qualsiasi blocco | ✅ | I path restano in `UiState`, si può tornare ai tab |
-| Loop iterativo Blocco 2 è il caso normale | ✅ strutturalmente | Ma non c'è CTA "Riesegui parse con nuovo profilo" |
-
-### §4.15 — Requisiti acquisizione dati
-
-| Requisito PRD | Stato | Note |
-|---|---|---|
-| Sorgente: canale Telegram | ✅ | Implementato con auth OTP completo |
-| Sorgente: topic di canale Telegram | ✅ | Campo topic-id opzionale |
-| Sorgente: chat | ✅ | chat-id generico |
-| Sorgente: DB esistente | ❌ | `source_kind="existing_db"` esiste nel codice ma nessun selettore UI nel Blocco 1 |
-| Sorgente: dataset esportato | ❌ | Non implementato |
-| Supporto 2FA Telegram | ❌ | Avvisa solo, rimanda al terminale |
-
-### §4.16 — Parser management
+### Blocco 4 — Ottimizazione - da definire inseguito
 
 
 
-### §4.18 — GUI: struttura file e componenti
-
-| Elemento PRD | Stato | Note |
-|---|---|---|
-| `app.py` entry point | ✅ | 59 righe, orchestratore puro |
-| `block_download.py` | ✅ | Implementato |
-| `block_parse.py` | ✅ | Implementato |
-| `block_backtest.py` | ✅ | Implementato |
-| `log_panel.py` | ✅ | Implementato |
-| `quality_report.py` | ✅ | Implementato |
-| `preset_manager.py` | ❌ | Previsto dalla struttura PRD, non creato |
-| Form impostazioni per blocco | ✅ | |
-| Pulsante esecuzione per blocco | ✅ | |
-| Log in tempo reale per blocco | ✅ | Streaming asincrono riga per riga |
-| Esito sintetico al completamento | ✅ blocco 2 | Quality report; blocco 3 ha solo card PnL sintetica |
-
-### §4.18 — Blocco 1 specifico
-
-| Campo PRD | Stato | Note |
-|---|---|---|
-| Selezione sorgente: Telegram \| DB esistente | ❌ | Solo Telegram; nessun selettore UI sorgente |
-| chat-id | ✅ | |
-| topic-id | ✅ | |
-| date range | ✅ | Toggle full history / dal-al |
-| limit | ❌ | Non implementato (non c'è `--limit` in import_history.py) |
-| session | ✅ | Gestita con OTP flow |
-| Log: messaggi scaricati, duplicati, path DB | ⚠️ parziale | Mostra path e summary DB ma non esplicita i duplicati |
-
-### §4.18 — Blocco 2 specifico
-
-| Campo PRD | Stato | Note |
-|---|---|---|
-| Selezione DB sorgente | ✅ | Input + Sfoglia |
-| Selezione parser/profilo | ✅ | Select dropdown |
-| Trader mapping | ✅ | Input |
-| Date range | ❌ | Non implementato nel blocco parse |
-| Limit | ❌ | Non implementato |
-| Report sintetico N segnali, N simulabili, top warnings | ✅ | Quality report completo |
-| Pulsante "Procedi al Backtest →" esplicito | ⚠️ | Il backtest si sblocca automaticamente, senza CTA esplicita separata |
-
-### §4.18 — Blocco 3 specifico
-
-| Campo PRD | Stato | Note |
-|---|---|---|
-| Selezione DB parsato | ✅ | Input + Sfoglia + validazione live |
-| Selezione policy (original / signal_only / custom) | ⚠️ | Solo original_chain e signal_only; nessuna policy custom selezionabile |
-| Market data dir | ✅ UI | Il campo esiste ma il valore è ignorato dal CLI (Gap G15) |
-| Timeframe | ✅ UI | Campo presente; non ancora usato dal provider |
-| Timeout | ✅ | Implementato con `asyncio.wait_for` |
-
-### §4.18 — Cosa la GUI non deve includere (vincoli rispettati)
-
-| Vincolo PRD | Rispettato |
-|---|---|
-| No report trade dettagliati inline | ✅ |
-| No dashboard statistiche | ✅ |
-| No confronto visuale avanzato tra policy | ✅ |
-| No timeline eventi come vista primaria | ✅ |
-| No HTML report embedded | ✅ |
-
----
-
-## 3. Gap da colmare — riepilogo priorità
-
-### Gap bloccanti (output backtest non reale)
-
-| Gap | Impatto | File | Riferimento |
-|---|---|---|---|
-| **G15** Market provider non cablato in `run_scenario.py` | Critico — PnL sempre 0 | `scripts/run_scenario.py:58` | Incremento D |
-
-### Gap funzionali GUI non implementati
-
-| Gap | Priorità | Riferimento |
-|---|---|---|
-
-| Campo `--limit` in download e parse | Media | PRD §4.18 |
-| Date range nel Blocco 2 (filter per parse) | Media | PRD §4.18 |
-| Policy custom selezionabile nel Blocco 3 | Media | PRD §4.18 |
-| Link artifact cliccabili dopo backtest (HTML, CSV) | Bassa | PRD §4.18 |
-| CTA esplicita "Procedi al Backtest →" separata | Bassa | PRD §4.14 |
-| `preset_manager.py` salva/carica configurazioni | Bassa | PRD §4.18 struttura file |
-| Supporto 2FA Telegram in-UI | Bassa | PRD §4.15 |
-
-
-## 4. Note operative
-
-**Avvio GUI:**
-```bash
-pip install -e ".[gui]"
-python -m src.signal_chain_lab.ui.app
-# → http://localhost:7777
-```
 
