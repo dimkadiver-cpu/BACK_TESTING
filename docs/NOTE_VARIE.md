@@ -15,3 +15,5 @@ Blocco 3: deve diventare solo legato al backtesting in base alla polyci selezion
  -   Aggiungere menu a tendina (ce gia) che mi permette sciegliere le policy per simulatore da cartella "C:\Back_Testing\configs\policies"
 
     
+Report: 
+    - Ridefinire il report Polycy (esempio "policy_report_full_example.zip",  )
