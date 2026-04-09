@@ -1,10 +1,10 @@
-"""Standalone HTML reporting for scenario outputs."""
+"""Standalone HTML reporting for backtest outputs."""
 from __future__ import annotations
 
 import html
 from pathlib import Path
 
-from src.signal_chain_lab.domain.results import ScenarioComparison, ScenarioResult, TradeResult
+from src.signal_chain_lab.domain.results import ScenarioResult, TradeResult
 
 
 def _equity_series(trades: list[TradeResult]) -> list[float]:
@@ -33,10 +33,9 @@ def _series_to_polyline(series: list[float], width: int = 760, height: int = 260
 
 def write_scenario_html_report(
     scenario_results: list[ScenarioResult],
-    comparisons: list[ScenarioComparison],
     per_policy_trades: dict[str, list[TradeResult]],
     output_path: str | Path,
-    title: str = "Scenario Report",
+    title: str = "Backtest Report",
 ) -> Path:
     metrics_rows = "".join(
         (
@@ -50,20 +49,6 @@ def write_scenario_html_report(
             "</tr>"
         )
         for row in scenario_results
-    )
-
-    delta_rows = "".join(
-        (
-            "<tr>"
-            f"<td>{html.escape(item.base_policy_name)}</td>"
-            f"<td>{html.escape(item.target_policy_name)}</td>"
-            f"<td>{item.delta_pnl:.4f}</td>"
-            f"<td>{item.delta_drawdown:.4f}</td>"
-            f"<td>{item.delta_win_rate:.2%}</td>"
-            f"<td>{item.delta_expectancy:.4f}</td>"
-            "</tr>"
-        )
-        for item in comparisons
     )
 
     charts: list[str] = []
@@ -100,17 +85,12 @@ def write_scenario_html_report(
 </head>
 <body>
   <h1>{html.escape(title)}</h1>
-  <h2>Scenario metrics</h2>
+  <h2>Backtest metrics</h2>
   <table border=\"1\" cellspacing=\"0\" cellpadding=\"6\">
     <thead><tr><th>Policy</th><th>Total PnL</th><th>Max DD</th><th>Win rate</th><th>Expectancy</th><th>Trades</th></tr></thead>
     <tbody>{metrics_rows}</tbody>
   </table>
-  <h2>Scenario deltas</h2>
-  <table border=\"1\" cellspacing=\"0\" cellpadding=\"6\">
-    <thead><tr><th>Base</th><th>Target</th><th>Δ PnL</th><th>Δ DD</th><th>Δ Win rate</th><th>Δ Expectancy</th></tr></thead>
-    <tbody>{delta_rows}</tbody>
-  </table>
-  <h2>Comparison visual</h2>
+  <h2>Equity curve</h2>
   {''.join(charts)}
   <h2>Trade results</h2>
   <table border=\"1\" cellspacing=\"0\" cellpadding=\"6\">

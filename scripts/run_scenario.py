@@ -1,4 +1,4 @@
-"""Run scenario backtests: same dataset, multiple policies, aggregated comparison."""
+"""Run a single-policy backtest and produce a self-contained report."""
 from __future__ import annotations
 
 import argparse
@@ -13,7 +13,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from src.signal_chain_lab.adapters.chain_adapter import adapt_signal_chain
 from src.signal_chain_lab.adapters.chain_builder import SignalChainBuilder
 from src.signal_chain_lab.policies.policy_loader import PolicyLoader
-from src.signal_chain_lab.scenario.runner import compare_scenarios, run_scenarios, write_scenario_artifacts
+from src.signal_chain_lab.scenario.runner import run_scenarios, write_scenario_artifacts
 
 
 def _parse_date(value: str) -> datetime:
@@ -27,11 +27,11 @@ def _parse_date(value: str) -> datetime:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run multi-policy scenario simulation")
+    parser = argparse.ArgumentParser(description="Run single-policy backtest")
     parser.add_argument(
         "--policy",
         required=True,
-        help="Comma-separated policies, e.g. original_chain,signal_only",
+        help="Single policy name, e.g. original_chain",
     )
     parser.add_argument("--db-path", required=True, help="Path to SQLite backtesting DB")
     parser.add_argument("--market-dir", required=True, help="Path to market data directory")
@@ -77,18 +77,19 @@ def _build_market_provider(market_dir: str, timeframe: str, price_basis: str):
 def main() -> int:
     args = parse_args()
 
-    policy_names = [item.strip() for item in args.policy.split(",") if item.strip()]
-    if len(policy_names) < 1:
-        raise SystemExit("At least one policy is required")
+    policy_name = args.policy.strip()
+    if not policy_name:
+        raise SystemExit("A policy name is required")
 
     loader = PolicyLoader()
-    policies = [loader.load(name) for name in policy_names]
+    policy = loader.load(policy_name)
 
     chains = SignalChainBuilder.build_all(db_path=args.db_path)
     canonical = [adapt_signal_chain(chain) for chain in chains]
     for chain in canonical:
         chain.metadata["timeframe"] = args.timeframe
 
+    # Apply dataset filters
     if args.date_from is not None:
         canonical = [chain for chain in canonical if chain.created_at >= args.date_from]
     if args.date_to is not None:
@@ -104,37 +105,35 @@ def main() -> int:
         price_basis=args.price_basis,
     )
 
-    # exchange_faithful: True when using Bybit as the canonical provider
-    # (market-dir must exist and basis must be declared)
     exchange_faithful = market_provider is not None
 
     scenario_results, per_policy_trades = run_scenarios(
         canonical,
-        policies,
+        [policy],
         market_provider=market_provider,
         price_basis=args.price_basis,
         exchange_faithful=exchange_faithful,
     )
-    comparisons = compare_scenarios(scenario_results, baseline_policy=policies[0].name)
 
     output_dir = Path(args.output_dir)
-    scenario_path, comparison_path, csv_path, html_path = write_scenario_artifacts(
+    scenario_path, csv_path, html_path = write_scenario_artifacts(
         scenario_results=scenario_results,
-        comparisons=comparisons,
         output_dir=output_dir,
         per_policy_trades=per_policy_trades,
     )
 
+    log_path = Path(args.output_dir) / "LOG.html"
+
     print(f"chains_selected={len(canonical)}")
-    print(f"policies={','.join(policy_names)}")
+    print(f"policy={policy_name}")
     print(f"price_basis={args.price_basis}")
     print(f"exchange_faithful={str(exchange_faithful).lower()}")
     print(f"scenario_results={scenario_path}")
-    print(f"scenario_comparison={comparison_path}")
     if csv_path:
         print(f"trade_results_csv={csv_path}")
     if html_path:
         print(f"scenario_html={html_path}")
+    print(f"artifacts_log={log_path}")
     print("Summary:")
     for result in scenario_results:
         print(

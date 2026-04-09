@@ -1,7 +1,10 @@
 """Run datasets across multiple policies and aggregate scenario metrics."""
 from __future__ import annotations
 
+import html as _html
 import json
+import re
+from datetime import datetime, timezone
 from pathlib import Path
 
 from src.signal_chain_lab.adapters.validators import validate_chain_for_simulation
@@ -135,24 +138,118 @@ def compare_scenarios(
     return comparisons
 
 
+def _make_run_dir(base_dir: Path, policy_name: str) -> Path:
+    ts = datetime.now(tz=timezone.utc).strftime("%Y%m%d_%H%M%S")
+    safe = re.sub(r"[^\w-]", "_", policy_name)[:40]
+    run_dir = base_dir / f"{ts}_{safe}"
+    run_dir.mkdir(parents=True, exist_ok=True)
+    return run_dir
+
+
+def _rebuild_log_html(base_dir: Path) -> Path:
+    entries: list[tuple[str, dict, list[dict], bool]] = []
+    for sub in sorted(base_dir.iterdir(), reverse=True):
+        if not sub.is_dir():
+            continue
+        meta_file = sub / "run_meta.json"
+        results_file = sub / "scenario_results.json"
+        if not (meta_file.exists() and results_file.exists()):
+            continue
+        meta: dict = json.loads(meta_file.read_text(encoding="utf-8"))
+        results: list[dict] = json.loads(results_file.read_text(encoding="utf-8"))
+        has_html = (sub / "backtest_report.html").exists()
+        entries.append((sub.name, meta, results, has_html))
+
+    rows_html = ""
+    for run_id, meta, results, has_html in entries:
+        for r in results:
+            link = (
+                f'<a href="./{_html.escape(run_id)}/backtest_report.html" target="_blank">open report</a>'
+                if has_html
+                else "—"
+            )
+            rows_html += (
+                "<tr>"
+                f"<td>{_html.escape(meta.get('run_at', ''))}</td>"
+                f"<td>{_html.escape(r.get('policy_name', ''))}</td>"
+                f"<td>{r.get('trades_count', 0)}</td>"
+                f"<td>{r.get('win_rate', 0.0):.1%}</td>"
+                f"<td>{r.get('return_pct', 0.0):.2%}</td>"
+                f"<td>{r.get('max_drawdown', 0.0):.2%}</td>"
+                f"<td>{r.get('profit_factor', 0.0):.2f}</td>"
+                f"<td>{r.get('expectancy', 0.0):.4f}</td>"
+                f"<td>{link}</td>"
+                "</tr>\n"
+            )
+
+    log_html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Backtest Artifacts Log</title>
+  <style>
+    body {{ font-family: sans-serif; margin: 2em; background: #fff; color: #222; }}
+    h1 {{ margin-bottom: 0.3em; }}
+    p.subtitle {{ color: #666; margin-top: 0; }}
+    table {{ border-collapse: collapse; width: 100%; margin-top: 1em; }}
+    th, td {{ border: 1px solid #ccc; padding: 6px 10px; text-align: left; white-space: nowrap; }}
+    th {{ background: #f0f0f0; font-weight: 600; }}
+    tr:nth-child(even) {{ background: #fafafa; }}
+    a {{ color: #1a6fc4; text-decoration: none; }}
+    a:hover {{ text-decoration: underline; }}
+  </style>
+</head>
+<body>
+  <h1>Backtest Artifacts — LOG</h1>
+  <p class="subtitle">Auto-generated index. Newest runs first. Metrics in % where applicable.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Run at (UTC)</th>
+        <th>Policy</th>
+        <th>Trades</th>
+        <th>Win rate</th>
+        <th>Return / trade</th>
+        <th>Max DD</th>
+        <th>Profit factor</th>
+        <th>Expectancy</th>
+        <th>Report</th>
+      </tr>
+    </thead>
+    <tbody>
+{rows_html}    </tbody>
+  </table>
+</body>
+</html>
+"""
+
+    log_path = base_dir / "LOG.html"
+    log_path.write_text(log_html, encoding="utf-8")
+    return log_path
+
+
 def write_scenario_artifacts(
     scenario_results: list[ScenarioResult],
-    comparisons: list[ScenarioComparison],
     output_dir: str | Path,
     per_policy_trades: dict[str, list[TradeResult]] | None = None,
-) -> tuple[Path, Path, Path | None, Path | None]:
-    directory = Path(output_dir)
-    directory.mkdir(parents=True, exist_ok=True)
+) -> tuple[Path, Path | None, Path | None]:
+    base_dir = Path(output_dir)
+    base_dir.mkdir(parents=True, exist_ok=True)
 
-    scenario_path = directory / "scenario_results.parquet"
-    comparison_path = directory / "scenario_comparison.parquet"
+    policy_name = scenario_results[0].policy_name if scenario_results else "run"
+    run_dir = _make_run_dir(base_dir, policy_name)
 
+    run_meta = {
+        "run_at": datetime.now(tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
+        "policy_name": policy_name,
+    }
+    (run_dir / "run_meta.json").write_text(
+        json.dumps(run_meta, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+
+    scenario_path = run_dir / "scenario_results.json"
     scenario_path.write_text(
         json.dumps([item.model_dump(mode="json") for item in scenario_results], ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
-    comparison_path.write_text(
-        json.dumps([item.model_dump(mode="json") for item in comparisons], ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
 
@@ -161,12 +258,14 @@ def write_scenario_artifacts(
 
     if per_policy_trades is not None:
         all_trades = [trade for trades in per_policy_trades.values() for trade in trades]
-        csv_path = write_trade_results_csv(all_trades, directory / "trade_results.csv")
+        csv_path = write_trade_results_csv(all_trades, run_dir / "trade_results.csv")
         html_path = write_scenario_html_report(
             scenario_results=scenario_results,
-            comparisons=comparisons,
             per_policy_trades=per_policy_trades,
-            output_path=directory / "scenario_report.html",
+            output_path=run_dir / "backtest_report.html",
+            title=f"Backtest Report: {policy_name}",
         )
 
-    return scenario_path, comparison_path, csv_path, html_path
+    _rebuild_log_html(base_dir)
+
+    return scenario_path, csv_path, html_path
