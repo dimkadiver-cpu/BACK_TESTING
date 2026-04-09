@@ -91,30 +91,25 @@ python parser_test/scripts/import_history.py \
   --db-path parser_test/db/parser_test__chat_<chat>.sqlite3 \
   [--topic-id <topic>] [--from-date <date>] [--to-date <date>] [--download-media]
 ```
-
-**Limitazioni attuali:**
-- La sorgente è sempre Telegram — non esiste UI per selezionare "DB esistente" o dataset esportato
-- `source_kind` è hardcoded a `"telegram"` in `_handle_download`; l'unico modo per usare `"existing_db"` è impostarlo manualmente nel codice o tramite un DB caricato direttamente nel Blocco 2
-
----
-
 ### Blocco 2 — Parse (tab "2. Parse")
 
 **Cosa fa:**
 
 1. Input DB sorgente (pre-popolato con `state.effective_db_path()`) + "Sfoglia"
 2. Select trader filtro: Auto | trader_a | trader_b | trader_c | trader_d | trader_3
-3. Input trader mapping (default `configs/telegram_source_map.json`)
-4. Checkbox "Genera CSV report a fine parse"
-5. Input cartella CSV report + "Sfoglia"
-6. Pulsante "Esegui Parse + Chain Builder"
+3. Campo date range / limit per il parse
+4. Input trader mapping (default `configs/telegram_source_map.json`)
+5. Checkbox "Genera CSV report a fine parse"
+6. Input cartella CSV report + "Sfoglia"
+7. Pulsante "Esegui Parse + Chain Builder"
+8. Al completamento: genera un link che mi apre il folder con report generate
 
 **Flusso esecuzione:**
 - Se `source_kind == "existing_db"`: salta `replay_parser.py`, va diretto al chain builder
 - Altrimenti: lancia `replay_parser.py` in streaming
 - Se "Genera CSV": chiama `export_reports_csv_v2()` in thread separato
 - Costruisce `QualityReport` via `SignalChainBuilder` + `validate_chain_for_simulation`
-- Abilita il pulsante Backtest nel Blocco 3 tramite `backtest_button_holder[0].enable()`
+
 
 **Quality Report mostrato:**
 
@@ -127,22 +122,20 @@ python parser_test/scripts/import_history.py \
 | Chain simulabili / non simulabili | da `validate_chain_for_simulation()` |
 | Top 5 warnings | union di warning chain + warning parse, most_common(5) |
 
-**Limitazioni attuali:**
-- Nessun campo date range / limit per il parse (il PRD lo prevede)
-- Il pulsante di sblocco Blocco 3 non ha un CTA esplicito ("Procedi al Backtest →") — il blocco si abilita implicitamente dopo il parse
-- Non c'è loop iterativo esplicito in UI (l'utente deve tornare manualmente al tab 2 per rieseguire)
+
 
 ---
 
-### Blocco 3 — Backtest (tab "3. Backtest")
+### Blocco 3 — Backtest (tab "3. Backtest dedicato a solo Backtesing")
 
 **Cosa fa:**
 
 1. Input DB parsato + "Sfoglia" (con validazione live: etichetta "DB valido" / "DB non trovato")
 2. Select policy: `original_chain` | `signal_only`
 3. Input cartella market data + "Sfoglia"
-4. Input timeframe + numero timeout (secondi)
-5. Pulsante "Esegui Backtest" (disabilitato finché DB non trovato o parse non completato)
+4. Se la cartella e selezionata deve e 
+5. Input timeframe + numero timeout (secondi)
+6. Pulsante "Esegui Backtest" (disabilitato finché DB non trovato o parse non completato)
 
 **Flusso esecuzione:**
 
@@ -189,13 +182,7 @@ Al completamento: parsing del log per estrarre `chains_selected` e righe summary
 
 ### §4.16 — Parser management
 
-| Requisito PRD | Stato | Note |
-|---|---|---|
-| Selezione parser/profilo esistente | ✅ | Dropdown nel Blocco 2 |
-| Duplicazione profilo parser | ❌ | Rinviato post-MVP (G10) |
-| Modifica vocabolario/alias/regole | ❌ | Rinviato post-MVP (G10) |
-| Test rapido parser su testo campione | ❌ | Rinviato post-MVP (G10) |
-| Salvataggio configurazione parser | ❌ | Rinviato post-MVP (G10) |
+
 
 ### §4.18 — GUI: struttura file e componenti
 
@@ -271,7 +258,7 @@ Al completamento: parsing del log per estrarre `chains_selected` e righe summary
 
 | Gap | Priorità | Riferimento |
 |---|---|---|
-| Selettore sorgente Blocco 1: Telegram \| DB esistente | Alta | PRD §4.15, §4.18 |
+
 | Campo `--limit` in download e parse | Media | PRD §4.18 |
 | Date range nel Blocco 2 (filter per parse) | Media | PRD §4.18 |
 | Policy custom selezionabile nel Blocco 3 | Media | PRD §4.18 |
@@ -280,11 +267,6 @@ Al completamento: parsing del log per estrarre `chains_selected` e righe summary
 | `preset_manager.py` salva/carica configurazioni | Bassa | PRD §4.18 struttura file |
 | Supporto 2FA Telegram in-UI | Bassa | PRD §4.15 |
 
-### Gap rinviati post-MVP (G10)
-
-Parser management completo (§4.16): duplicazione profilo, modifica vocabolario, test su testo campione, salvataggio configurazione.
-
----
 
 ## 4. Note operative
 
@@ -295,10 +277,3 @@ python -m src.signal_chain_lab.ui.app
 # → http://localhost:7777
 ```
 
-**DB di test disponibile:** `parser_test/db/s9_fixture.sqlite3` (3 chain simulabili: BTCUSDT, ETHUSDT, SOLUSDT, trader_a)
-
-**Comportamento atteso con fixture DB senza market data:**
-- Blocco 3 esegue senza errori
-- 3 chain selezionate, 0 escluse
-- PnL = 0, status = PENDING su tutte (per design — Gap G15)
-- 4 artifact generati in `artifacts/scenarios/`
