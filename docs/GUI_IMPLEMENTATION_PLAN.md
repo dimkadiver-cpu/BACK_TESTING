@@ -37,9 +37,16 @@ Allineare la GUI NiceGUI al PRD mantenendo **tutte le funzionalità già present
 
 ## Principi di compatibilità (vincolo richiesto)
 - Non rimuovere feature esistenti di Download/Parse/Market data.
-- Non spezzare il flusso sequenziale Download → Parse → Backtest.
+- Rendere i blocchi **indipendenti**: Download / Parse / Backtest devono poter essere usati anche separatamente, a condizione che l'input richiesto sia valido.
 - Mantenere comportamento default attuale se i nuovi campi non vengono valorizzati.
 - Implementare fallback robusti: in assenza di metadata/policy extra, la GUI continua a funzionare in modalità baseline.
+
+## Nota architetturale aggiornata (su richiesta)
+- Il flusso guidato a tab resta disponibile come percorso consigliato.
+- Tuttavia, l'applicazione deve supportare anche uso non lineare:
+  - Parse avviato su DB già esistente senza passare da Download.
+  - Backtest avviato su DB già pronto senza passare da Parse nella stessa sessione GUI.
+- I gate di abilitazione devono quindi basarsi su **validazione input** (esistenza DB, schema minimo, campi obbligatori), non sull'ordine di esecuzione dei tab.
 
 ## Piano di implementazione (incrementale)
 
