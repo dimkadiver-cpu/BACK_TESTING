@@ -20,6 +20,14 @@ def _warning(state: TradeState) -> None:
     state.ignored_events_count += 1
 
 
+def _realize_pnl_for_close(state: TradeState, exit_price: float) -> None:
+    if state.open_size <= 0 or state.avg_entry_price is None:
+        return
+    direction = 1.0 if state.side.upper() in {"BUY", "LONG"} else -1.0
+    state.realized_pnl += (float(exit_price) - state.avg_entry_price) * state.open_size * direction
+    state.unrealized_pnl = 0.0
+
+
 def _normalize_order_type(value: Any, *, default: str = "limit") -> str:
     if not isinstance(value, str):
         return default
@@ -298,6 +306,10 @@ def apply_event(state: TradeState, event: CanonicalEvent, *, policy: PolicyConfi
         else:
             close_pct = float(event.payload.get("close_pct", 0.5))
             closed_qty = min(state.open_size, state.open_size * close_pct)
+            close_price = event.payload.get("close_price")
+            if close_price is not None and state.avg_entry_price is not None and closed_qty > 0:
+                direction = 1.0 if state.side.upper() in {"BUY", "LONG"} else -1.0
+                state.realized_pnl += (float(close_price) - state.avg_entry_price) * closed_qty * direction
             state.open_size -= closed_qty
             state.status = TradeStatus.PARTIALLY_CLOSED if state.open_size > 0 else TradeStatus.CLOSED
             if state.open_size <= 0:
@@ -310,6 +322,9 @@ def apply_event(state: TradeState, event: CanonicalEvent, *, policy: PolicyConfi
             reason = "close_full_without_position"
             _warning(state)
         else:
+            close_price = event.payload.get("close_price")
+            if close_price is not None:
+                _realize_pnl_for_close(state, float(close_price))
             state.open_size = 0.0
             state.pending_size = 0.0
             state.status = TradeStatus.CLOSED
@@ -350,6 +365,7 @@ def apply_event(state: TradeState, event: CanonicalEvent, *, policy: PolicyConfi
         executed_action=executed_action,
         processing_status=status,
         reason=reason,
+        raw_text=str(event.payload.get("raw_text")) if event.payload.get("raw_text") is not None else None,
         state_before=_snapshot(before_state),
         state_after=_snapshot(state),
     )

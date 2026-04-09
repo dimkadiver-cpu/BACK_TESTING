@@ -1,0 +1,4 @@
+{"time": "2026-02-17 11:08:00 UTC", "event_type": "NEW_SIGNAL", "requested": "open_trade", "executed": "position_opened", "status": "applied", "price_ref": "2844", "original": "[Trader A]\nETHUSDT SHORT\nEntry: 2844\nTargets: 2806 / 2782\nSL: 2865"}
+{"time": "2026-02-17 15:58:00 UTC", "event_type": "TP1_HIT", "requested": "partial_close_50pct", "executed": "partial_close_done", "status": "generated", "price_ref": "2806", "original": "System generated event from market candles after target 1 was reached."}
+{"time": "2026-02-17 16:02:00 UTC", "event_type": "UPDATE", "requested": "move_stop_to_be", "executed": "stop_updated", "status": "applied", "price_ref": "2844", "original": "Update: move stop to entry after TP1."}
+{"time": "2026-02-17 18:26:00 UTC", "event_type": "STOP_HIT", "requested": "close_remaining", "executed": "close_done", "status": "generated", "price_ref": "2831", "original": "System generated stop event; remaining half closed after price reversed."}

@@ -287,6 +287,9 @@
 | Incremento C | ✅ FATTO | export artifact uniformati (JSONL/CSV/HTML/PNG per run singola e scenario); logging warning rafforzato su tutti i fallback intrabar |
 | Incremento D | ✅ FATTO | decision lock PRD market data: Bybit canonico, futures linear, basis last/mark, cache incrementale gap-only |
 | Incremento E | ✅ FATTO | IE.1–IE.12 completati; pipeline `plan → sync → validate → backtest` eseguita E2E su fixture DB con provider attivo e PnL non-zero |
+| Incremento F (GUI Fase 0+1) | ✅ FATTO | `backtest_support.py` (Fase 0); policy dinamiche + editor popup (Fase 1); `state.py` aggiornato (`backtest_policies`, `latest_html_report_path`); HTML report link nel summary |
+| Incremento G (GUI Fase 2+3) | ✅ FATTO | Multi-trader detection da DB + filtro per run (Fase 2); filtri `Dal`/`Al`/`Max trade` + validazione date (Fase 3); `run_scenario.py` esteso con `--trader-id`/`--max-trades` |
+| Incremento H (GUI Fase 4+5) | ✅ FATTO | Campo "Cartella report output" + `--output-dir` in `run_scenario.py` (Fase 4); `GUI_PRD.md` aggiornato + protocollo QA 3 percorsi documentato (Fase 5) |
 | Sprint 10 | 🔲 FUTURO | realism V2 fuori MVP |
 | Sprint 11 | 🔲 FUTURO | realism V3 fuori MVP |
 

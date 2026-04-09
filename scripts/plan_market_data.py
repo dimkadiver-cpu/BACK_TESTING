@@ -27,6 +27,9 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Optional output JSON path; default under artifacts/market_data/",
     )
+    parser.add_argument("--trader-id", default=None, help="Filter signals by trader_id (default: all)")
+    parser.add_argument("--date-from", default=None, help="Filter signals from this date YYYY-MM-DD (default: all)")
+    parser.add_argument("--date-to", default=None, help="Filter signals up to this date YYYY-MM-DD (default: all)")
     return parser.parse_args()
 
 
@@ -35,7 +38,11 @@ def main() -> int:
     market_dir = Path(args.market_dir)
     bases = [item.strip() for item in args.bases.split(",") if item.strip()]
 
-    demand = SignalDemandScanner(args.db_path).scan()
+    demand = SignalDemandScanner(args.db_path).scan(
+        trader_id=args.trader_id or None,
+        date_from=args.date_from or None,
+        date_to=args.date_to or None,
+    )
     coverage_plan = CoveragePlanner().plan(demand)
     manifest = ManifestStore(root=market_dir / "manifests")
     coverage_index = manifest.load_coverage_index()

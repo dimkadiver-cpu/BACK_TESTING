@@ -1,0 +1,15 @@
+Signal ID,Symbol,Reason,Note,Original TEXT
+sig_000133,SOLUSDT,missing_stop_loss,Signal skipped because stop loss was not parsable with sufficient confidence.,"[Trader A]
+SOL/USDT LONG
+Entry: 144.2 - 143.5
+Targets: 147 / 149 / 151
+Leverage 10x
+Hold safe
+"
+sig_000141,XRPUSDT,ambiguous_side,Message mixed close-short wording with long entry syntax; chain excluded.,"[Trader A]
+XRP setup ready
+Close shorts area 2.18
+Entry 2.17 - 2.15
+TP 2.21 / 2.24
+SL 2.12
+"

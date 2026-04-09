@@ -1,0 +1,2 @@
+Signal ID,Symbol,Side,Status,Close reason,Realized PnL %,Created,Closed,Warnings,Ignored events,Entries count,Avg entry,Max size,Fees
+sig_000185,ETHUSDT,SHORT,CLOSED,sl_hit_after_be,-0.28%,2026-02-17 11:08:00 UTC,2026-02-17 18:26:00 UTC,0,1,1,2844.0,2.00,0.09%

@@ -38,6 +38,7 @@ def _new_signal_payload(chain: SignalChain) -> dict:
         "tp_levels": chain.tp_prices,
         "side": chain.side,
         "symbol": chain.symbol,
+        "raw_text": chain.new_signal.raw_text,
     }
 
     # Include richer entities if available
@@ -65,7 +66,7 @@ def _new_signal_payload(chain: SignalChain) -> dict:
 
 def _update_payload(msg: ChainedMessage) -> dict:
     """Build the payload for an UPDATE-derived event."""
-    payload: dict = {"intents": msg.intents}
+    payload: dict = {"intents": msg.intents, "raw_text": msg.raw_text}
 
     if not isinstance(msg.entities, UpdateEntities):
         return payload
@@ -158,6 +159,7 @@ def adapt_signal_chain(chain: SignalChain) -> CanonicalChain:
         "attempt_key": chain.new_signal.attempt_key,
         "is_blocked": chain.new_signal.is_blocked,
         "block_reason": chain.new_signal.block_reason,
+        "new_signal_raw_text": chain.new_signal.raw_text,
     }
     if skipped_updates:
         metadata["skipped_updates"] = skipped_updates

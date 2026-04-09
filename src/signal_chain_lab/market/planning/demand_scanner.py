@@ -45,9 +45,35 @@ class SignalDemandScanner:
     def __init__(self, db_path: str) -> None:
         self._db_path = db_path
 
-    def scan(self) -> list[DemandChain]:
-        """Return all demand chains sorted deterministically."""
-        query = """
+    def scan(
+        self,
+        *,
+        trader_id: str | None = None,
+        date_from: str | None = None,
+        date_to: str | None = None,
+    ) -> list[DemandChain]:
+        """Return demand chains sorted deterministically.
+
+        Optional filters mirror those used at backtest time so the planner
+        only checks coverage for the signals that will actually be run.
+        """
+        where_clauses = [
+            "s.symbol IS NOT NULL",
+            "TRIM(s.symbol) <> ''",
+        ]
+        params: list[str] = []
+        if trader_id:
+            where_clauses.append("s.trader_id = ?")
+            params.append(trader_id)
+        if date_from:
+            where_clauses.append("s.created_at >= ?")
+            params.append(date_from)
+        if date_to:
+            where_clauses.append("s.created_at <= ?")
+            params.append(date_to)
+
+        where_sql = " AND ".join(where_clauses)
+        query = f"""
             SELECT
                 s.attempt_key,
                 UPPER(TRIM(s.symbol)) AS symbol,
@@ -66,13 +92,12 @@ class SignalDemandScanner:
                   AND os.attempt_key IS NOT NULL
                 GROUP BY os.attempt_key
             ) u ON u.attempt_key = s.attempt_key
-            WHERE s.symbol IS NOT NULL
-              AND TRIM(s.symbol) <> ''
+            WHERE {where_sql}
             ORDER BY UPPER(TRIM(s.symbol)) ASC, s.created_at ASC, s.attempt_key ASC
         """
 
         with sqlite3.connect(self._db_path) as conn:
-            rows = conn.execute(query).fetchall()
+            rows = conn.execute(query, params).fetchall()
 
         demand: list[DemandChain] = []
         for attempt_key, symbol, raw_open, raw_last_update, status in rows:

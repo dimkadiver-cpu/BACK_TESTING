@@ -22,6 +22,8 @@ class EventLogEntry(BaseModel):
     price_reference: float | None = None
     reason: str | None = None
 
+    raw_text: str | None = None
+
     state_before: dict[str, Any] = Field(default_factory=dict)
     state_after: dict[str, Any] = Field(default_factory=dict)
 

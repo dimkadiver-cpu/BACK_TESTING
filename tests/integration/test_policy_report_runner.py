@@ -65,6 +65,7 @@ def test_run_policy_report_writes_dataset_artifacts(tmp_path) -> None:
     assert artifacts.summary_csv_path.exists()
     assert artifacts.trade_results_csv_path.exists()
     assert artifacts.excluded_chains_csv_path.exists()
+    assert artifacts.policy_yaml_path.exists()
     assert artifacts.html_report_path.exists()
 
     summary = json.loads(artifacts.summary_json_path.read_text(encoding="utf-8"))
@@ -75,6 +76,8 @@ def test_run_policy_report_writes_dataset_artifacts(tmp_path) -> None:
     assert summary["chains_excluded"] == 1
     assert summary["excluded_reasons_summary"] == {"take_profit": 1}
     assert summary["trades_count"] == 1
+    assert "net_profit_pct" in summary
+    assert "win_rate_pct" in summary
     assert "generated_at" in summary
 
     with artifacts.trade_results_csv_path.open("r", encoding="utf-8", newline="") as handle:
@@ -85,20 +88,22 @@ def test_run_policy_report_writes_dataset_artifacts(tmp_path) -> None:
 
     with artifacts.excluded_chains_csv_path.open("r", encoding="utf-8", newline="") as handle:
         excluded_rows = list(csv.DictReader(handle))
-    assert excluded_rows == [
-        {
-            "signal_id": "sig-invalid",
-            "reason_code": "take_profit",
-            "reason_message": "take_profit: OPEN_SIGNAL has no take_profit levels",
-        }
-    ]
+    assert len(excluded_rows) == 1
+    assert excluded_rows[0]["signal_id"] == "sig-invalid"
+    assert excluded_rows[0]["symbol"] == "BTCUSDT"
+    assert excluded_rows[0]["reason"] == "take_profit"
+    assert excluded_rows[0]["reason_code"] == "take_profit"
+    assert excluded_rows[0]["reason_message"] == "take_profit: OPEN_SIGNAL has no take_profit levels"
 
     trade_dir = tmp_path / "policy_report" / "trades" / "sig-valid"
     assert (trade_dir / "event_log.jsonl").exists()
     assert (trade_dir / "trade_result.csv").exists()
     assert (trade_dir / "equity_curve.png").exists()
     assert (trade_dir / "equity_curve.html").exists()
+    assert (trade_dir / "detail.html").exists()
 
     html_text = artifacts.html_report_path.read_text(encoding="utf-8")
     assert "Policy Report - original_chain" in html_text
-    assert "trades/sig-valid/equity_curve.html" in html_text
+    assert "Policy Summary" in html_text
+    assert "Metadata - policy.yaml values" in html_text
+    assert "trades/sig-valid/detail.html" in html_text

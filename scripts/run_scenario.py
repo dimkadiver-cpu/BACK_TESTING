@@ -48,6 +48,13 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--date-from", type=_parse_date, default=None, help="Dataset start date (YYYY-MM-DD)")
     parser.add_argument("--date-to", type=_parse_date, default=None, help="Dataset end date (YYYY-MM-DD)")
+    parser.add_argument("--trader-id", default=None, help="Filter chains by trader_id (default: all)")
+    parser.add_argument("--max-trades", type=int, default=0, help="Max chains to backtest (0 = no limit)")
+    parser.add_argument(
+        "--output-dir",
+        default="artifacts/scenarios",
+        help="Directory for scenario artifacts (default: artifacts/scenarios)",
+    )
     return parser.parse_args()
 
 
@@ -71,8 +78,8 @@ def main() -> int:
     args = parse_args()
 
     policy_names = [item.strip() for item in args.policy.split(",") if item.strip()]
-    if len(policy_names) < 2:
-        raise SystemExit("At least two policies are required for scenario comparison")
+    if len(policy_names) < 1:
+        raise SystemExit("At least one policy is required")
 
     loader = PolicyLoader()
     policies = [loader.load(name) for name in policy_names]
@@ -86,6 +93,10 @@ def main() -> int:
         canonical = [chain for chain in canonical if chain.created_at >= args.date_from]
     if args.date_to is not None:
         canonical = [chain for chain in canonical if chain.created_at <= args.date_to]
+    if args.trader_id:
+        canonical = [chain for chain in canonical if chain.trader_id == args.trader_id]
+    if args.max_trades > 0:
+        canonical = canonical[: args.max_trades]
 
     market_provider = _build_market_provider(
         market_dir=args.market_dir,
@@ -106,7 +117,7 @@ def main() -> int:
     )
     comparisons = compare_scenarios(scenario_results, baseline_policy=policies[0].name)
 
-    output_dir = Path("artifacts") / "scenarios"
+    output_dir = Path(args.output_dir)
     scenario_path, comparison_path, csv_path, html_path = write_scenario_artifacts(
         scenario_results=scenario_results,
         comparisons=comparisons,

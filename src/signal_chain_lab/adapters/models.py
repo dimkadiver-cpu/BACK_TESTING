@@ -21,6 +21,8 @@ class ChainedMessage(BaseModel):
     intents: list[str] = Field(default_factory=list)
     entities: NewSignalEntities | UpdateEntities | None = None
 
+    raw_text: str | None = None
+
     op_signal_id: int | None = None
     attempt_key: str | None = None
     is_blocked: bool = False

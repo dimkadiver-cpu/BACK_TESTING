@@ -32,13 +32,22 @@ python src/signal_chain_lab/ui/app.py
 | `generate_parse_csv` | `False` | block_parse |
 | `parse_reports_dir` | `"parser_test/reports"` | block_parse |
 | `proceed_to_backtest` | `False` | block_parse → block_backtest |
-| `policy_name` | `"original_chain"` | block_backtest |
+| `backtest_policies` | `["original_chain","signal_only"]` | block_backtest — multi-select policy |
+| `backtest_trader_filter` | `"all"` | block_backtest — filtro trader |
+| `backtest_date_from` | `""` | block_backtest — filtro data inizio (YYYY-MM-DD) |
+| `backtest_date_to` | `""` | block_backtest — filtro data fine (YYYY-MM-DD) |
+| `backtest_max_trades` | `0` | block_backtest — limite catene (0 = nessun limite) |
+| `backtest_report_dir` | `""` | block_backtest — cartella output report (vuoto = `artifacts/scenarios`) |
+| `latest_html_report_path` | `""` | block_backtest — path HTML generato |
 | `market_data_dir` | `"data/market"` | block_backtest |
-| `timeframe` | `"M1"` | block_backtest |
+| `timeframe` | `"1m"` | block_backtest |
 | `timeout_seconds` | `60` | block_backtest |
 | `latest_artifact_path` | `""` | block_backtest |
 
 `effective_db_path()` restituisce `parsed_db_path or downloaded_db_path`.
+
+> **Nota**: `policy_name` (singolo) è stato sostituito da `backtest_policies` (lista). I blocchi
+> Download e Parse non sono stati modificati: restano completamente retrocompatibili.
 
 ---
 

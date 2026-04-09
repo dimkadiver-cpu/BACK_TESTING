@@ -53,7 +53,13 @@ class UiState:
     latest_reports_dir: str = ""
     proceed_to_backtest: bool = False
 
-    policy_name: str = "original_chain"
+    backtest_policies: list[str] = field(default_factory=lambda: ["original_chain", "signal_only"])
+    latest_html_report_path: str = ""
+    backtest_trader_filter: str = "all"
+    backtest_date_from: str = ""
+    backtest_date_to: str = ""
+    backtest_max_trades: int = 0
+    backtest_report_dir: str = ""
     market_data_dir: str = str((_PROJECT_ROOT / "data" / "market").resolve())
     market_data_mode: str = "existing_dir"
     market_data_ready: bool = False

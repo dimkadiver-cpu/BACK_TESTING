@@ -101,13 +101,37 @@ Allineare la GUI NiceGUI al PRD mantenendo **tutte le funzionalità già present
 **Compatibilità**
 - Se report HTML non trovato, mostrare path artifact come fallback attuale.
 
-### Fase 5 — QA, regressione e documentazione
-- Test manuali guidati su 3 percorsi:
-  1. flusso completo standard;
-  2. DB multi-trader con filtri;
-  3. policy custom edit/save + report custom dir.
-- Aggiornare `docs/GUI_PRD.md` (se serve) con decisioni implementative finali.
-- Aggiornare help testuale in GUI per chiarire default/fallback.
+### Fase 5 — QA, regressione e documentazione ✅ COMPLETATA 2026-04-09
+
+`docs/GUI_PRD.md` aggiornato con nuovi campi UiState.
+
+#### Protocollo test manuale — 3 percorsi
+
+**Percorso A — flusso completo standard**
+1. Avvia app: `python -m src.signal_chain_lab.ui.app`
+2. Blocco 3: inserisci DB parsato esistente → verifica che "Rileva" popoli trader e date
+3. Policy: verifica che il select mostri tutte le policy in `configs/policies/` (esclusi template)
+4. Esegui con impostazioni default → verifica log, summary e link HTML al report
+5. Atteso: `artifacts/scenarios/scenario_report.html` cliccabile nel summary
+
+**Percorso B — DB multi-trader con filtri**
+1. Usa un DB con almeno 2 trader → "Rileva" → seleziona un trader specifico
+2. Imposta `Dal` e `Al` su un sottoinsieme del range rilevato
+3. Imposta `Max trade = 5`
+4. Esegui → verifica nel log: `chains_selected=N` con N ≤ 5 e solo il trader selezionato
+5. Atteso: nessun errore anche se i campi filtro riducono le chain a 0 (run_scenario lo gestisce)
+
+**Percorso C — policy custom + cartella report personalizzata**
+1. Apri "Modifica" su una policy → modifica un campo numerico → "Salva"
+2. Crea nuova policy via "Nuova" con nome `test_custom` → verifica che appaia nel select dopo "Ricarica"
+3. Seleziona 2 policy inclusa `test_custom`
+4. Imposta "Cartella report output" su una cartella personalizzata (es. `artifacts/test_run`)
+5. Esegui → verifica che il report HTML sia creato nella cartella custom e il link sia corretto
+
+#### Regressions da verificare
+- Download e Parse funzionano invariati (nessuna modifica ai blocchi 1 e 2)
+- Con filtri vuoti / policy di default il comportamento è identico al pre-Fase 0
+- `--output-dir artifacts/scenarios` (default) produce gli stessi artifact di prima
 
 ## Ordine consigliato delle modifiche codice
 1. `src/signal_chain_lab/ui/state.py`

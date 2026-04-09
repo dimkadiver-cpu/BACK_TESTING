@@ -67,6 +67,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--write-trade-artifacts",
         action="store_true",
+        default=True,
         help="Write per-trade drill-down artifacts under trades/<signal_id>/",
     )
     return parser.parse_args()

@@ -48,6 +48,7 @@ _NEW_SIGNAL_QUERY = """
         os.entry_split_json,
         os.management_rules_json,
         pr.parse_result_normalized_json,
+        rm.raw_text,
         rm.source_chat_id,
         rm.source_trader_id AS trader_id_raw,
         os.trader_id,
@@ -76,6 +77,7 @@ _UPDATE_QUERY = """
         os.entry_split_json,
         os.management_rules_json,
         pr.parse_result_normalized_json,
+        rm.raw_text,
         rm.source_chat_id,
         os.trader_id,
         os.resolved_target_ids,
@@ -239,6 +241,8 @@ def _row_to_chained_message(row: aiosqlite.Row, message_type: str) -> ChainedMes
         except json.JSONDecodeError:
             pass
 
+    raw_text: str | None = row["raw_text"] if "raw_text" in row.keys() else None
+
     return ChainedMessage(
         raw_message_id=row["raw_message_id"],
         parse_result_id=row["parse_result_id"],
@@ -247,6 +251,7 @@ def _row_to_chained_message(row: aiosqlite.Row, message_type: str) -> ChainedMes
         message_type=message_type,  # type: ignore[arg-type]
         intents=_parse_intents(normalized_json),
         entities=_deserialize_entities(normalized_json, message_type),
+        raw_text=raw_text,
         op_signal_id=row["op_signal_id"],
         attempt_key=row["attempt_key"],
         is_blocked=bool(row["is_blocked"]),

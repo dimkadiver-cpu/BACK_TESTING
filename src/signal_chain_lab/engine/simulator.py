@@ -10,6 +10,7 @@ from src.signal_chain_lab.domain.results import EventLogEntry
 from src.signal_chain_lab.domain.trade_state import TradeState
 from src.signal_chain_lab.engine.fill_model import fill_market_order, try_fill_limit_order_touch
 from src.signal_chain_lab.engine.state_machine import apply_event
+from src.signal_chain_lab.engine.timeout_manager import check_chain_timeout, check_pending_timeout
 from src.signal_chain_lab.market.data_models import Candle, MarketDataProvider
 from src.signal_chain_lab.market.intrabar_resolver import IntrabarResolution, IntrabarResolver
 from src.signal_chain_lab.policies.base import PolicyConfig
@@ -39,52 +40,27 @@ def simulate_chain(
 
     events = sorted(chain.events, key=lambda evt: (evt.timestamp, evt.sequence))
     intrabar_resolver = IntrabarResolver()
+    last_replayed_candle_ts: datetime | None = None
 
-    for event in events:
+    for index, event in enumerate(events):
         logs.append(apply_event(state, event, policy=policy))
 
         if market_provider is None:
             continue
 
-        timeframe = str(chain.metadata.get("timeframe", "1h"))
-        candle = _get_event_candle(
-            market_provider=market_provider,
-            symbol=chain.symbol,
-            timeframe=timeframe,
-            event_ts=event.timestamp,
-        )
-        if candle is None:
-            continue
-
-        _try_fill_pending_entries(state=state, policy=policy, candle=candle)
-
-        collision = _detect_sl_tp_collision(state=state, candle=candle)
-        if collision is None:
-            continue
-
-        resolution = _resolve_collision(
-            state=state,
+        next_event_ts = events[index + 1].timestamp if index + 1 < len(events) else None
+        last_replayed_candle_ts = _replay_market_segment(
             chain=chain,
+            state=state,
+            policy=policy,
             market_provider=market_provider,
-            candle=candle,
             intrabar_resolver=intrabar_resolver,
+            logs=logs,
+            sequence_seed=event.sequence,
+            segment_start=event.timestamp,
+            next_event_ts=next_event_ts,
+            last_replayed_candle_ts=last_replayed_candle_ts,
         )
-
-        if resolution.used_fallback:
-            state.warnings_count += 1
-            _logger.warning(
-                "Intrabar fallback applied: signal_id=%s symbol=%s warning_code=%s reason=%s",
-                chain.signal_id,
-                chain.symbol,
-                resolution.warning_code,
-                resolution.reason,
-            )
-
-        _apply_close_resolution(state=state, resolution=resolution)
-        engine_event = _build_engine_close_event(chain=chain, resolution=resolution, sequence_seed=event.sequence)
-        engine_log = apply_event(state, engine_event, policy=policy)
-        engine_log.reason = resolution.reason
-        logs.append(engine_log)
 
     return logs, state
 
@@ -94,7 +70,7 @@ def _detect_sl_tp_collision(state: TradeState, candle: Candle) -> tuple[bool, bo
         return None
     if state.current_sl is None or not state.tp_levels:
         return None
-    if state.pending_size <= 0 and state.open_size <= 0:
+    if state.open_size <= 0:
         return None
 
     normalized_side = state.side.upper()
@@ -171,9 +147,97 @@ def _build_engine_close_event(*, chain: CanonicalChain, resolution: IntrabarReso
         timestamp=resolution.decided_at,
         event_type=EventType.CLOSE_FULL,
         source=EventSource.ENGINE,
-        payload={"reason": reason},
+        payload={
+            "reason": reason,
+            "raw_text": (
+                "System generated event from market candles after target was reached."
+                if reason == "tp_hit"
+                else "System generated event from market candles after stop loss was reached."
+            ),
+        },
         sequence=sequence_seed + 10_000,
     )
+
+
+def _replay_market_segment(
+    *,
+    chain: CanonicalChain,
+    state: TradeState,
+    policy: PolicyConfig,
+    market_provider: MarketDataProvider,
+    intrabar_resolver: IntrabarResolver,
+    logs: list[EventLogEntry],
+    sequence_seed: int,
+    segment_start: datetime,
+    next_event_ts: datetime | None,
+    last_replayed_candle_ts: datetime | None,
+) -> datetime | None:
+    timeframe = str(chain.metadata.get("timeframe", "1h"))
+    segment_start_bucket = _floor_to_timeframe(segment_start, timeframe)
+    if next_event_ts is not None:
+        segment_end = _floor_to_timeframe(next_event_ts, timeframe)
+    else:
+        metadata = market_provider.get_metadata(chain.symbol, timeframe)
+        chain_timeout_at = (
+            state.created_at + timedelta(hours=policy.pending.chain_timeout_hours)
+            if state.created_at is not None
+            else segment_start_bucket
+        )
+        segment_end = min(chain_timeout_at, metadata.end) if metadata and metadata.end else chain_timeout_at
+
+    candles = market_provider.get_range(chain.symbol, timeframe, segment_start_bucket, segment_end)
+    for candle in candles:
+        if last_replayed_candle_ts is not None and candle.timestamp <= last_replayed_candle_ts:
+            continue
+        if next_event_ts is not None and candle.timestamp >= _floor_to_timeframe(next_event_ts, timeframe):
+            break
+
+        _try_fill_pending_entries(state=state, policy=policy, candle=candle)
+
+        timeout_event = check_pending_timeout(state, candle.timestamp, policy, sequence=sequence_seed + 20_000)
+        if timeout_event is None:
+            timeout_event = check_chain_timeout(state, candle.timestamp, policy, sequence=sequence_seed + 20_001)
+        if timeout_event is not None:
+            timeout_log = apply_event(state, timeout_event, policy=policy)
+            timeout_log.reason = str(timeout_event.payload.get("reason") or "")
+            logs.append(timeout_log)
+            last_replayed_candle_ts = candle.timestamp
+            if state.status in {TradeStatus.CLOSED, TradeStatus.CANCELLED, TradeStatus.EXPIRED, TradeStatus.INVALID}:
+                break
+
+        collision = _detect_sl_tp_collision(state=state, candle=candle)
+        if collision is None:
+            last_replayed_candle_ts = candle.timestamp
+            continue
+
+        resolution = _resolve_collision(
+            state=state,
+            chain=chain,
+            market_provider=market_provider,
+            candle=candle,
+            intrabar_resolver=intrabar_resolver,
+        )
+
+        if resolution.used_fallback:
+            state.warnings_count += 1
+            _logger.warning(
+                "Intrabar fallback applied: signal_id=%s symbol=%s warning_code=%s reason=%s",
+                chain.signal_id,
+                chain.symbol,
+                resolution.warning_code,
+                resolution.reason,
+            )
+
+        _apply_close_resolution(state=state, resolution=resolution)
+        engine_event = _build_engine_close_event(chain=chain, resolution=resolution, sequence_seed=sequence_seed)
+        engine_log = apply_event(state, engine_event, policy=policy)
+        engine_log.reason = resolution.reason
+        logs.append(engine_log)
+        last_replayed_candle_ts = candle.timestamp
+        if state.status in {TradeStatus.CLOSED, TradeStatus.CANCELLED, TradeStatus.EXPIRED, TradeStatus.INVALID}:
+            break
+
+    return last_replayed_candle_ts
 
 
 def _try_fill_pending_entries(state: TradeState, policy: PolicyConfig, candle: Candle) -> None:

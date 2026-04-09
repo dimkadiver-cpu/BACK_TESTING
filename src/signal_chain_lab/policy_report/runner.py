@@ -8,6 +8,9 @@ from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+import shutil
+
+import yaml
 
 from src.signal_chain_lab.adapters.validators import validate_chain_for_simulation
 from src.signal_chain_lab.domain.events import CanonicalChain
@@ -15,7 +18,11 @@ from src.signal_chain_lab.domain.results import EventLogEntry, TradeResult
 from src.signal_chain_lab.engine.simulator import simulate_chain
 from src.signal_chain_lab.market.data_models import MarketDataProvider
 from src.signal_chain_lab.policies.base import PolicyConfig
-from src.signal_chain_lab.policy_report.html_writer import write_policy_html_report
+from src.signal_chain_lab.policy_report.html_writer import (
+    flatten_policy_values,
+    write_policy_html_report,
+    write_single_trade_html_report,
+)
 from src.signal_chain_lab.reports.chain_plot import write_chain_plot_html, write_chain_plot_png
 from src.signal_chain_lab.reports.event_log_report import write_event_log_jsonl
 from src.signal_chain_lab.reports.trade_report import build_trade_result, write_trade_results_csv
@@ -28,6 +35,7 @@ class PolicyReportArtifacts:
     summary_csv_path: Path
     trade_results_csv_path: Path
     excluded_chains_csv_path: Path
+    policy_yaml_path: Path
     html_report_path: Path
 
 
@@ -95,6 +103,8 @@ def _aggregate_policy_results(
         "policy_name": policy_name,
         "total_pnl": total_pnl,
         "return_pct": return_pct,
+        "gross_profit_pct": gross_profit,
+        "gross_loss_pct": -gross_loss_abs,
         "max_drawdown": _compute_max_drawdown(realized),
         "win_rate": win_rate,
         "profit_factor": profit_factor,
@@ -111,8 +121,12 @@ def _aggregate_policy_results(
 def _build_exclusion_record(chain: CanonicalChain, reason_code: str, reason_message: str) -> dict[str, str]:
     return {
         "signal_id": chain.signal_id,
+        "symbol": chain.symbol,
         "reason_code": reason_code,
         "reason_message": reason_message,
+        "reason": reason_code,
+        "note": reason_message,
+        "original_text": str(chain.metadata.get("new_signal_raw_text") or ""),
     }
 
 
@@ -187,10 +201,16 @@ def _build_summary(
         "trades_count": int(aggregated["trades_count"]),
         "total_pnl": float(aggregated["total_pnl"]),
         "return_pct": float(aggregated["return_pct"]),
+        "net_profit_pct": float(aggregated["total_pnl"]),
+        "profit_pct": float(aggregated["gross_profit_pct"]),
+        "loss_pct": float(aggregated["gross_loss_pct"]),
         "max_drawdown": float(aggregated["max_drawdown"]),
+        "max_drawdown_pct": float(aggregated["max_drawdown"]),
         "win_rate": float(aggregated["win_rate"]),
+        "win_rate_pct": float(aggregated["win_rate"]) * 100.0,
         "profit_factor": float(aggregated["profit_factor"]),
         "expectancy": float(aggregated["expectancy"]),
+        "expectancy_pct": float(aggregated["expectancy"]),
         "avg_warnings_per_trade": float(aggregated["avg_warnings_per_trade"]),
         "total_ignored_events": total_ignored_events,
         "price_basis": price_basis,
@@ -212,7 +232,7 @@ def _write_single_row_csv(row: dict[str, object], output_path: str | Path) -> Pa
 def _write_excluded_chains_csv(excluded_chains: list[dict[str, str]], output_path: str | Path) -> Path:
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    fieldnames = ["signal_id", "reason_code", "reason_message"]
+    fieldnames = ["signal_id", "symbol", "reason", "note", "original_text", "reason_code", "reason_message"]
     with path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
         writer.writeheader()
@@ -240,7 +260,12 @@ def _write_trade_artifacts(
             signal_dir / "equity_curve.html",
             title=f"{trade.signal_id} - {trade.policy_name}",
         )
-        trade_detail_links[trade.signal_id] = f"trades/{signal_dir.name}/equity_curve.html"
+        write_single_trade_html_report(
+            trade=trade,
+            event_log=event_log,
+            output_path=signal_dir / "detail.html",
+        )
+        trade_detail_links[trade.signal_id] = f"trades/{signal_dir.name}/detail.html"
     return trade_detail_links
 
 
@@ -252,7 +277,7 @@ def run_policy_report(
     market_provider: MarketDataProvider | None = None,
     date_from: datetime | None = None,
     date_to: datetime | None = None,
-    write_trade_artifacts: bool = False,
+    write_trade_artifacts: bool = True,
     dataset_metadata: dict[str, object] | None = None,
     price_basis: str = "last",
     exchange_faithful: bool = True,
@@ -282,11 +307,30 @@ def run_policy_report(
     summary_csv_path = _write_single_row_csv(summary, directory / "policy_summary.csv")
     trade_results_csv_path = write_trade_results_csv(trade_results, directory / "trade_results.csv")
     excluded_chains_csv_path = _write_excluded_chains_csv(excluded_chains, directory / "excluded_chains.csv")
+    policy_yaml_path = directory / "policy.yaml"
+    policy_yaml_path.write_text(
+        yaml.safe_dump(policy.model_dump(mode="json", by_alias=True), sort_keys=False, allow_unicode=True),
+        encoding="utf-8",
+    )
 
     metadata = dict(dataset_metadata or {})
-    metadata.setdefault("policy_name", policy.name)
-    metadata.setdefault("chains_total", len(chains))
-    metadata.setdefault("chains_selected", len(selected_chains))
+    metadata = {
+        "Run Id": metadata.get("run_id") or f"policy_{policy.name}",
+        "Dataset Name": metadata.get("dataset_name") or metadata.get("db_path") or "dataset",
+        "Source Db": metadata.get("db_path") or "-",
+        "Trader Filter": metadata.get("trader_filter") or "all",
+        "Period Start": metadata.get("date_from") or "-",
+        "Period End": metadata.get("date_to") or "-",
+        "Input Mode": metadata.get("input_mode") or "mixed",
+        "Market Provider": metadata.get("market_provider") or ("bybit" if market_provider is not None else "none"),
+        "Timeframe": metadata.get("timeframe") or "-",
+        "Price Basis": metadata.get("price_basis") or price_basis,
+        "Selected Chains": len(selected_chains),
+        "Simulable Chains": len(trade_results),
+        "Excluded Chains": len(excluded_chains),
+        "Generated At": summary["generated_at"],
+    }
+    policy_values = flatten_policy_values(policy.model_dump(mode="json", by_alias=True))
 
     trade_detail_links = None
     if write_trade_artifacts:
@@ -301,10 +345,12 @@ def run_policy_report(
         trade_results=trade_results,
         excluded_chains=excluded_chains,
         dataset_metadata=metadata,
-        output_path=directory / "policy_report.html",
+        policy_values=policy_values,
+        output_path=directory / "policy_report_complete.html",
         trade_detail_links=trade_detail_links,
         title=f"Policy Report - {policy.name}",
     )
+    shutil.copyfile(html_report_path, directory / "policy_report.html")
 
     return PolicyReportArtifacts(
         output_dir=directory,
@@ -312,5 +358,6 @@ def run_policy_report(
         summary_csv_path=summary_csv_path,
         trade_results_csv_path=trade_results_csv_path,
         excluded_chains_csv_path=excluded_chains_csv_path,
+        policy_yaml_path=policy_yaml_path,
         html_report_path=html_report_path,
     )

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>sig_000184 — Single Trade Report</title>
+
+<style>
+:root{--bg:#f8fafc;--card:#ffffff;--text:#0f172a;--muted:#64748b;--line:#e2e8f0;--accent:#0f766e;--blue:#1d4ed8;}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}
+.wrap{max-width:1200px;margin:0 auto;padding:24px}
+h1{font-size:28px;margin:0 0 18px}
+h2{font-size:20px;margin:0 0 14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-bottom:18px;box-shadow:0 2px 10px rgba(15,23,42,.04)}
+.sticky{position:sticky;top:0;z-index:20}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.grid-4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.metric{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fff}
+.metric .k{font-size:12px;color:var(--muted);margin-bottom:6px}
+.metric .v{font-size:22px;font-weight:700}
+.metric .v.small{font-size:16px}
+details.card summary{cursor:pointer;font-weight:700;list-style:none}
+details.card summary::-webkit-details-marker{display:none}
+details.card summary:after{content:'Show';float:right;font-weight:600;color:var(--muted)}
+details[open].card summary:after{content:'Hide'}
+table{width:100%;border-collapse:collapse}
+th,td{padding:11px 10px;border-bottom:1px solid var(--line);text-align:left;font-size:14px;vertical-align:top}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.badge{display:inline-block;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:700}
+.ok{background:#dcfce7;color:#166534}.bad{background:#fee2e2;color:#991b1b}.muted{background:#e2e8f0;color:#334155}
+.link{color:var(--blue);text-decoration:none;font-weight:600}
+.note{color:var(--muted);font-size:13px}
+.code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;white-space:pre-wrap;background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:14px}
+.controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+button.inline-btn, a.inline-btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:7px 10px;font-size:13px;cursor:pointer;color:var(--blue);text-decoration:none}
+dialog{border:none;border-radius:14px;padding:0;max-width:780px;width:92%;box-shadow:0 20px 60px rgba(2,6,23,.35)}
+dialog::backdrop{background:rgba(15,23,42,.55)}
+.dialog-head{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.dialog-body{padding:18px}
+.timeline{display:grid;gap:12px}
+.ti{border:1px solid var(--line);border-radius:14px;padding:14px}
+.ti-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.ti-meta{display:grid;grid-template-columns:180px 1fr;gap:8px;font-size:14px}
+.ti-meta .lab{color:var(--muted)}
+.footer-nav{margin-top:20px}
+</style>
+<script>
+function openText(id){ document.getElementById(id).showModal(); }
+function closeText(id){ document.getElementById(id).close(); }
+</script>
+
+</head>
+<body>
+<div class="wrap">
+  <h1>Single Trade Report — sig_000184</h1>
+  <div class="card">
+    <h2>Trade Summary</h2>
+    <div class="grid-4"><div class="metric"><div class="k">Signal ID</div><div class="v">sig_000184</div></div>
+<div class="metric"><div class="k">Symbol</div><div class="v">BTCUSDT</div></div>
+<div class="metric"><div class="k">Side</div><div class="v">LONG</div></div>
+<div class="metric"><div class="k">Status</div><div class="v">CLOSED</div></div>
+<div class="metric"><div class="k">Close reason</div><div class="v">tp2_hit</div></div>
+<div class="metric"><div class="k">Realized PnL %</div><div class="v">+3.42%</div></div>
+<div class="metric"><div class="k">Created</div><div class="v small">2026-02-14 09:15:00 UTC</div></div>
+<div class="metric"><div class="k">Closed</div><div class="v small">2026-02-14 13:42:00 UTC</div></div>
+<div class="metric"><div class="k">Warnings</div><div class="v">1</div></div>
+<div class="metric"><div class="k">Ignored events</div><div class="v">0</div></div>
+<div class="metric"><div class="k">Entries count</div><div class="v">2</div></div>
+<div class="metric"><div class="k">Avg entry</div><div class="v">96300.0</div></div>
+<div class="metric"><div class="k">Max size</div><div class="v">1.50</div></div>
+<div class="metric"><div class="k">Fees</div><div class="v">0.12%</div></div></div>
+  </div>
+  <div class="card">
+    <h2>Price Chart</h2>
+    <div class="note" style="margin-bottom:10px">Realistic candlestick chart with operational overlays. TP hit / SL hit labels include profit or loss percentage.</div>
+    <svg viewBox="0 0 940 380" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="sig_000184 — BTCUSDT LONG"><rect x="0" y="0" width="940" height="380" fill="#ffffff"/><line x1="58" y1="24.00" x2="916" y2="24.00" stroke="#e5e7eb" stroke-width="1"/><text x="50" y="28.00" text-anchor="end" font-size="12" fill="#6b7280">97235.20</text><line x1="58" y1="85.60" x2="916" y2="85.60" stroke="#e5e7eb" stroke-width="1"/><text x="50" y="89.60" text-anchor="end" font-size="12" fill="#6b7280">97017.12</text><line x1="58" y1="147.20" x2="916" y2="147.20" stroke="#e5e7eb" stroke-width="1"/><text x="50" y="151.20" text-anchor="end" font-size="12" fill="#6b7280">96799.04</text><line x1="58" y1="208.80" x2="916" y2="208.80" stroke="#e5e7eb" stroke-width="1"/><text x="50" y="212.80" text-anchor="end" font-size="12" fill="#6b7280">96580.96</text><line x1="58" y1="270.40" x2="916" y2="270.40" stroke="#e5e7eb" stroke-width="1"/><text x="50" y="274.40" text-anchor="end" font-size="12" fill="#6b7280">96362.88</text><line x1="58" y1="332.00" x2="916" y2="332.00" stroke="#e5e7eb" stroke-width="1"/><text x="50" y="336.00" text-anchor="end" font-size="12" fill="#6b7280">96144.80</text><line x1="100.90" y1="262.74" x2="100.90" y2="310.76" stroke="#16a34a" stroke-width="2"/><rect x="81.59" y="274.04" width="38.61" height="19.77" fill="#16a34a" rx="1"/><line x1="186.70" y1="254.27" x2="186.70" y2="290.99" stroke="#dc2626" stroke-width="2"/><rect x="167.39" y="274.04" width="38.61" height="11.30" fill="#dc2626" rx="1"/><line x1="272.50" y1="248.62" x2="272.50" y2="293.81" stroke="#16a34a" stroke-width="2"/><rect x="253.19" y="257.09" width="38.61" height="28.25" fill="#16a34a" rx="1"/><line x1="358.30" y1="209.07" x2="358.30" y2="268.39" stroke="#16a34a" stroke-width="2"/><rect x="339.00" y="226.02" width="38.61" height="31.07" fill="#16a34a" rx="1"/><line x1="444.10" y1="180.82" x2="444.10" y2="234.49" stroke="#16a34a" stroke-width="2"/><rect x="424.80" y="192.12" width="38.61" height="33.90" fill="#16a34a" rx="1"/><line x1="529.90" y1="144.10" x2="529.90" y2="197.77" stroke="#16a34a" stroke-width="2"/><rect x="510.59" y="152.58" width="38.61" height="39.55" fill="#16a34a" rx="1"/><line x1="615.70" y1="107.38" x2="615.70" y2="169.53" stroke="#16a34a" stroke-width="2"/><rect x="596.40" y="127.16" width="38.61" height="25.42" fill="#16a34a" rx="1"/><line x1="701.50" y1="87.61" x2="701.50" y2="144.10" stroke="#16a34a" stroke-width="2"/><rect x="682.20" y="93.26" width="38.61" height="33.90" fill="#16a34a" rx="1"/><line x1="787.30" y1="50.89" x2="787.30" y2="113.03" stroke="#16a34a" stroke-width="2"/><rect x="768.00" y="65.01" width="38.61" height="28.25" fill="#16a34a" rx="1"/><line x1="873.10" y1="45.24" x2="873.10" y2="81.96" stroke="#16a34a" stroke-width="2"/><rect x="853.80" y="56.54" width="38.61" height="8.47" fill="#16a34a" rx="1"/><text x="100.90" y="362" text-anchor="middle" font-size="12" fill="#6b7280">09:15</text><text x="186.70" y="362" text-anchor="middle" font-size="12" fill="#6b7280">09:45</text><text x="272.50" y="362" text-anchor="middle" font-size="12" fill="#6b7280">10:15</text><text x="358.30" y="362" text-anchor="middle" font-size="12" fill="#6b7280">10:45</text><text x="444.10" y="362" text-anchor="middle" font-size="12" fill="#6b7280">11:15</text><text x="529.90" y="362" text-anchor="middle" font-size="12" fill="#6b7280">11:45</text><text x="615.70" y="362" text-anchor="middle" font-size="12" fill="#6b7280">12:15</text><text x="701.50" y="362" text-anchor="middle" font-size="12" fill="#6b7280">12:45</text><text x="787.30" y="362" text-anchor="middle" font-size="12" fill="#6b7280">13:15</text><text x="873.10" y="362" text-anchor="middle" font-size="12" fill="#6b7280">13:42</text><line x1="100.90" y1="282.51" x2="916" y2="282.51" stroke="#2563eb" stroke-dasharray="5 4" stroke-width="1.5"/><rect x="108.90" y="265.51" width="53.40" height="22" rx="6" fill="white" stroke="#2563eb" stroke-width="1.2"/><text x="116.90" y="280.51" font-size="12" fill="#2563eb" font-weight="600">Entry 1</text><circle cx="100.90" cy="282.51" r="4" fill="#2563eb"/><line x1="186.70" y1="293.81" x2="916" y2="293.81" stroke="#1d4ed8" stroke-dasharray="5 4" stroke-width="1.5"/><rect x="194.70" y="276.81" width="53.40" height="22" rx="6" fill="white" stroke="#1d4ed8" stroke-width="1.2"/><text x="202.70" y="291.81" font-size="12" fill="#1d4ed8" font-weight="600">Entry 2</text><circle cx="186.70" cy="293.81" r="4" fill="#1d4ed8"/><line x1="186.70" y1="288.16" x2="916" y2="288.16" stroke="#0f766e" stroke-dasharray="5 4" stroke-width="1.5"/><rect x="194.70" y="271.16" width="65.80" height="22" rx="6" fill="white" stroke="#0f766e" stroke-width="1.2"/><text x="202.70" y="286.16" font-size="12" fill="#0f766e" font-weight="600">Avg Entry</text><circle cx="186.70" cy="288.16" r="4" fill="#0f766e"/><line x1="100.90" y1="406.80" x2="916" y2="406.80" stroke="#b91c1c" stroke-dasharray="5 4" stroke-width="1.5"/><rect x="108.90" y="389.80" width="72.00" height="22" rx="6" fill="white" stroke="#b91c1c" stroke-width="1.2"/><text x="116.90" y="404.80" font-size="12" fill="#b91c1c" font-weight="600">SL initial</text><circle cx="100.90" cy="406.80" r="4" fill="#b91c1c"/><line x1="444.10" y1="288.16" x2="916" y2="288.16" stroke="#7c3aed" stroke-dasharray="5 4" stroke-width="1.5"/><rect x="452.10" y="271.16" width="59.60" height="22" rx="6" fill="white" stroke="#7c3aed" stroke-width="1.2"/><text x="460.10" y="286.16" font-size="12" fill="#7c3aed" font-weight="600">BE moved</text><circle cx="444.10" cy="288.16" r="4" fill="#7c3aed"/><line x1="615.70" y1="129.98" x2="916" y2="129.98" stroke="#15803d" stroke-dasharray="5 4" stroke-width="1.5"/><rect x="623.70" y="112.98" width="109.20" height="22" rx="6" fill="white" stroke="#15803d" stroke-width="1.2"/><text x="631.70" y="127.98" font-size="12" fill="#15803d" font-weight="600">TP1 hit (+1.83%)</text><circle cx="615.70" cy="129.98" r="4" fill="#15803d"/><line x1="873.10" y1="56.54" x2="916" y2="56.54" stroke="#166534" stroke-dasharray="5 4" stroke-width="1.5"/><rect x="806.80" y="39.54" width="109.20" height="22" rx="6" fill="white" stroke="#166534" stroke-width="1.2"/><text x="814.80" y="54.54" font-size="12" fill="#166534" font-weight="600">TP2 hit (+3.42%)</text><circle cx="873.10" cy="56.54" r="4" fill="#166534"/><text x="58" y="16" font-size="15" font-weight="700" fill="#111827">sig_000184 — BTCUSDT LONG</text></svg>
+  </div>
+  <div class="card">
+    <h2>Event Timeline</h2>
+    <div class="timeline">
+      
+        <div class="ti">
+          <div class="ti-head">
+            <div><strong>NEW_SIGNAL</strong></div>
+            <div class="note">2026-02-14 09:15:00 UTC</div>
+          </div>
+          <div class="ti-meta">
+            <div class="lab">Requested action</div><div>open_trade</div>
+            <div class="lab">Executed action</div><div>pending_entries_created</div>
+            <div class="lab">Status</div><div>applied</div>
+            <div class="lab">Price reference</div><div>96320 / 96280</div>
+            <div class="lab">Original TEXT</div><div><button class="inline-btn" onclick="openText('raw_sig_000184_0')">Open raw telegram text</button></div>
+          </div>
+        </div>
+        
+        <div class="ti">
+          <div class="ti-head">
+            <div><strong>UPDATE</strong></div>
+            <div class="note">2026-02-14 10:03:00 UTC</div>
+          </div>
+          <div class="ti-meta">
+            <div class="lab">Requested action</div><div>move_stop_to_be_after_tp1</div>
+            <div class="lab">Executed action</div><div>stop_updated</div>
+            <div class="lab">Status</div><div>applied</div>
+            <div class="lab">Price reference</div><div>96300</div>
+            <div class="lab">Original TEXT</div><div><button class="inline-btn" onclick="openText('raw_sig_000184_1')">Open raw telegram text</button></div>
+          </div>
+        </div>
+        
+        <div class="ti">
+          <div class="ti-head">
+            <div><strong>TP1_HIT</strong></div>
+            <div class="note">2026-02-14 12:15:00 UTC</div>
+          </div>
+          <div class="ti-meta">
+            <div class="lab">Requested action</div><div>partial_close_50pct</div>
+            <div class="lab">Executed action</div><div>partial_close_done</div>
+            <div class="lab">Status</div><div>generated</div>
+            <div class="lab">Price reference</div><div>96860</div>
+            <div class="lab">Original TEXT</div><div><button class="inline-btn" onclick="openText('raw_sig_000184_2')">Open raw telegram text</button></div>
+          </div>
+        </div>
+        
+        <div class="ti">
+          <div class="ti-head">
+            <div><strong>TP2_HIT</strong></div>
+            <div class="note">2026-02-14 13:42:00 UTC</div>
+          </div>
+          <div class="ti-meta">
+            <div class="lab">Requested action</div><div>close_trade</div>
+            <div class="lab">Executed action</div><div>full_close_done</div>
+            <div class="lab">Status</div><div>generated</div>
+            <div class="lab">Price reference</div><div>97120</div>
+            <div class="lab">Original TEXT</div><div><button class="inline-btn" onclick="openText('raw_sig_000184_3')">Open raw telegram text</button></div>
+          </div>
+        </div>
+        
+    </div>
+  </div>
+  <div class="footer-nav">
+    <a class="inline-btn" href="../../policy_report_complete.html">Back to Policy Report</a>
+  </div>
+  
+    <dialog id="raw_sig_000184_0">
+      <div class="dialog-head">
+        <strong>sig_000184 — Original TEXT</strong>
+        <button class="inline-btn" onclick="closeText('raw_sig_000184_0')">Close</button>
+      </div>
+      <div class="dialog-body">
+        <pre class="code">[Trader A]
+BTCUSDT LONG
+Entry: 96320 - 96280
+Targets: 96860 / 97120
+SL: 95880
+Leverage 10x</pre>
+      </div>
+    </dialog>
+    
+    <dialog id="raw_sig_000184_1">
+      <div class="dialog-head">
+        <strong>sig_000184 — Original TEXT</strong>
+        <button class="inline-btn" onclick="closeText('raw_sig_000184_1')">Close</button>
+      </div>
+      <div class="dialog-body">
+        <pre class="code">Update: once TP1 is touched, move stop to break even.</pre>
+      </div>
+    </dialog>
+    
+    <dialog id="raw_sig_000184_2">
+      <div class="dialog-head">
+        <strong>sig_000184 — Original TEXT</strong>
+        <button class="inline-btn" onclick="closeText('raw_sig_000184_2')">Close</button>
+      </div>
+      <div class="dialog-body">
+        <pre class="code">System generated event from market candles after target 1 was reached.</pre>
+      </div>
+    </dialog>
+    
+    <dialog id="raw_sig_000184_3">
+      <div class="dialog-head">
+        <strong>sig_000184 — Original TEXT</strong>
+        <button class="inline-btn" onclick="closeText('raw_sig_000184_3')">Close</button>
+      </div>
+      <div class="dialog-body">
+        <pre class="code">System generated event from market candles after final target was reached.</pre>
+      </div>
+    </dialog>
+    
+</div></body></html>
