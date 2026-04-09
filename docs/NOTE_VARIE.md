@@ -2,6 +2,10 @@ MODIFICHE DA FARE:
 
 In Gui:
 
+
+
+
+
 Blocco 3: deve diventare solo legato al backtesting in base alla polyci selezionata.
 
 - Aggiungere menu a tendina che mi permette sciegliere le policy per simulatore da cartella "C:\Back_Testing\configs\policies"
@@ -11,7 +15,7 @@ Blocco 3: deve diventare solo legato al backtesting in base alla polyci selezion
     - Dove Salvarlo (indicare la cartella) lasciare di defauilt una cartella interna del progetto.
     - Unavolta termninato il baktesting deve comparire il link ch emi apre il report HTML:
      
- Blocco 4: // dedicato solo alla ottimazione
+ Blocco 4: da definire // dedicato solo alla ottimazione
  -   Aggiungere menu a tendina (ce gia) che mi permette sciegliere le policy per simulatore da cartella "C:\Back_Testing\configs\policies"
 
     
