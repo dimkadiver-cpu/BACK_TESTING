@@ -7,3 +7,7 @@ Blocco 3:
 - Verfica il db per Multitrai e deve permette di selezionare qual trader usare o tutti
 - posibilta di configurare il report:
     - dove produrlo (indicare la cartella) lasciare di defautl
+    - quali dati rapresentare:
+        - report sintetico
+        - report detaglioto per tutti trade
+        - allegare immagini (plot) al trade     
