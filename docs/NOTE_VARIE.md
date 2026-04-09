@@ -16,4 +16,4 @@ Blocco 3: deve diventare solo legato al backtesting in base alla polyci selezion
 
     
 Report: 
-    - Ridefinire il report Polycy (esempio "policy_report_full_example.zip",  )
+    - Ridefinire il report Polycy (esempio "policy_report_full_example.zip", PRD_REPORT.md)
