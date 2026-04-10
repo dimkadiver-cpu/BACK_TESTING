@@ -183,6 +183,10 @@ Eliminare i ricalcoli inutili di Planner / Sync / Validate quando il contesto ma
 
 **Altissima**
 
+## Stato
+
+- [x] **FASE 1 completata** (2026-04-10)
+
 ---
 
 # Fase 2 — Single-run multi-policy
