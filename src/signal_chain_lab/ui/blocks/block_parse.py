@@ -106,6 +106,25 @@ def _safe_count(conn: sqlite3.Connection, query: str, params: tuple[object, ...]
     return int(row[0]) if row else 0
 
 
+def _reset_derived_tables(db_path: str, trader_id: str) -> tuple[int, int]:
+    with sqlite3.connect(db_path) as conn:
+        if trader_id.strip():
+            params = (trader_id.strip(),)
+            operational_deleted = conn.execute(
+                "DELETE FROM operational_signals WHERE trader_id = ?",
+                params,
+            ).rowcount
+            signals_deleted = conn.execute(
+                "DELETE FROM signals WHERE trader_id = ?",
+                params,
+            ).rowcount
+        else:
+            operational_deleted = conn.execute("DELETE FROM operational_signals").rowcount
+            signals_deleted = conn.execute("DELETE FROM signals").rowcount
+        conn.commit()
+    return int(operational_deleted or 0), int(signals_deleted or 0)
+
+
 async def _build_quality_report(db_path: str, trader_id: str) -> QualityReport:
     chains = await SignalChainBuilder.build_all_async(db_path=db_path)
     canonical = [adapt_signal_chain(chain) for chain in chains]
@@ -196,7 +215,6 @@ async def _handle_parse(
     state: UiState,
     db_path: str,
     parser_profile: str,
-    trader_mapping_path: str,
     generate_csv: bool,
     reports_dir: str,
     log_panel: LogPanel,
@@ -205,7 +223,6 @@ async def _handle_parse(
     run_streaming_command,
 ) -> None:
     state.parser_profile = canonicalize_trader_code(parser_profile.strip()) or ""
-    state.trader_mapping_path = trader_mapping_path.strip()
     state.generate_parse_csv = generate_csv
     state.parse_reports_dir = reports_dir.strip() or "parser_test/reports"
     state.parsed_db_path = db_path.strip()
@@ -234,6 +251,15 @@ async def _handle_parse(
         return
     log_panel.push("Fase 1/3 - Parse: completata.")
     log_panel.push("Fase 2/3 - Operation rules: materializzo signals/operational_signals.")
+    operational_deleted, signals_deleted = await asyncio.to_thread(
+        _reset_derived_tables,
+        state.parsed_db_path,
+        state.parser_profile,
+    )
+    log_panel.push(
+        "Pulizia tabelle derivate completata: "
+        f"operational_signals={operational_deleted}, signals={signals_deleted}."
+    )
 
     command = [
         sys.executable,
@@ -322,7 +348,6 @@ def render_block_parse(
             value=state.parser_profile,
             label="Trader filtro",
         ).classes("w-full")
-        trader_mapping = ui.input("Trader mapping", value=state.trader_mapping_path)
         generate_csv = ui.checkbox("Genera CSV report a fine parse", value=state.generate_parse_csv)
         with ui.row().classes("w-full items-end gap-2"):
             reports_dir = ui.input("Cartella CSV report", value=state.parse_reports_dir).classes("flex-1")
@@ -343,7 +368,6 @@ def render_block_parse(
                 state=state,
                 db_path=resolved_db_path,
                 parser_profile=parser_profile.value,
-                trader_mapping_path=trader_mapping.value,
                 generate_csv=bool(generate_csv.value),
                 reports_dir=reports_dir.value,
                 log_panel=block2_log,
