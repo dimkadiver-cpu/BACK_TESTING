@@ -30,8 +30,14 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run single-policy backtest")
     parser.add_argument(
         "--policy",
-        required=True,
-        help="Single policy name, e.g. original_chain",
+        default=None,
+        help="Single policy name, e.g. original_chain (backward compatible)",
+    )
+    parser.add_argument(
+        "--policies",
+        nargs="+",
+        default=None,
+        help="One or more policy names. Supports both repeated values and comma-separated entries.",
     )
     parser.add_argument("--db-path", required=True, help="Path to SQLite backtesting DB")
     parser.add_argument("--market-dir", required=True, help="Path to market data directory")
@@ -58,6 +64,23 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def _normalize_policy_names(args: argparse.Namespace) -> list[str]:
+    names: list[str] = []
+    if args.policy:
+        names.append(args.policy.strip())
+    if args.policies:
+        for item in args.policies:
+            for raw in item.split(","):
+                cleaned = raw.strip()
+                if cleaned:
+                    names.append(cleaned)
+    deduped: list[str] = []
+    for name in names:
+        if name not in deduped:
+            deduped.append(name)
+    return deduped
+
+
 def _build_market_provider(market_dir: str, timeframe: str, price_basis: str):
     """Instantiate BybitParquetProvider.  Returns None if market-dir is empty or absent."""
     from src.signal_chain_lab.market.providers.bybit_parquet_provider import BybitParquetProvider
@@ -77,12 +100,12 @@ def _build_market_provider(market_dir: str, timeframe: str, price_basis: str):
 def main() -> int:
     args = parse_args()
 
-    policy_name = args.policy.strip()
-    if not policy_name:
-        raise SystemExit("A policy name is required")
+    policy_names = _normalize_policy_names(args)
+    if not policy_names:
+        raise SystemExit("At least one policy is required via --policy or --policies")
 
     loader = PolicyLoader()
-    policy = loader.load(policy_name)
+    policies = [loader.load(name) for name in policy_names]
 
     chains = SignalChainBuilder.build_all(db_path=args.db_path)
     canonical = [adapt_signal_chain(chain) for chain in chains]
@@ -109,7 +132,7 @@ def main() -> int:
 
     scenario_results, per_policy_trades = run_scenarios(
         canonical,
-        [policy],
+        policies,
         market_provider=market_provider,
         price_basis=args.price_basis,
         exchange_faithful=exchange_faithful,
@@ -125,7 +148,7 @@ def main() -> int:
     log_path = Path(args.output_dir) / "LOG.html"
 
     print(f"chains_selected={len(canonical)}")
-    print(f"policy={policy_name}")
+    print(f"policies={','.join(policy_names)}")
     print(f"price_basis={args.price_basis}")
     print(f"exchange_faithful={str(exchange_faithful).lower()}")
     print(f"scenario_results={scenario_path}")
