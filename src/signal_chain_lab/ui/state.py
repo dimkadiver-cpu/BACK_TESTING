@@ -62,8 +62,12 @@ class UiState:
     backtest_report_dir: str = ""
     market_data_dir: str = str((_PROJECT_ROOT / "data" / "market").resolve())
     market_data_mode: str = "existing_dir"
+    market_data_prepare_mode: str = "SAFE"
+    market_data_source: str = "bybit"
     market_data_ready: bool = False
     market_data_checked: bool = False
+    market_validation_status: str = "needs_check"
+    market_validation_fingerprint: str = ""
     market_data_gap_count: int = 0
     latest_market_plan_path: str = ""
     latest_market_sync_report_path: str = ""

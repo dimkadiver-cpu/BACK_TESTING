@@ -14,6 +14,7 @@ from src.signal_chain_lab.market.planning.coverage_planner import CoveragePlanne
 from src.signal_chain_lab.market.planning.demand_scanner import SignalDemandScanner
 from src.signal_chain_lab.market.planning.gap_detection import detect_gaps
 from src.signal_chain_lab.market.planning.manifest_store import CoverageKey, ManifestStore
+from src.signal_chain_lab.market.preparation_cache import build_market_request, market_request_fingerprint
 
 
 def parse_args() -> argparse.Namespace:
@@ -30,6 +31,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--trader-id", default=None, help="Filter signals by trader_id (default: all)")
     parser.add_argument("--date-from", default=None, help="Filter signals from this date YYYY-MM-DD (default: all)")
     parser.add_argument("--date-to", default=None, help="Filter signals up to this date YYYY-MM-DD (default: all)")
+    parser.add_argument("--source", default="bybit", choices=["bybit", "fixture"], help="Market data source")
     return parser.parse_args()
 
 
@@ -55,7 +57,22 @@ def main() -> int:
         "bases": bases,
         "chains_scanned": len(demand),
         "symbols": {},
+        "source": args.source,
+        "trader_filter": args.trader_id or "all",
+        "date_from": args.date_from or "",
+        "date_to": args.date_to or "",
     }
+    request = build_market_request(
+        db_path=args.db_path,
+        market_data_dir=str(market_dir),
+        trader_filter=args.trader_id or "all",
+        date_from=args.date_from or "",
+        date_to=args.date_to or "",
+        timeframe=args.timeframe,
+        price_basis=bases[0] if bases else "last",
+        source=args.source,
+    )
+    payload["market_request_fingerprint"] = market_request_fingerprint(request)
 
     total_required = 0
     total_gaps = 0
@@ -99,6 +116,7 @@ def main() -> int:
     print(f"symbols={len(symbols_payload)}")
     print(f"required_intervals={total_required}")
     print(f"gaps={total_gaps}")
+    print(f"market_request_fingerprint={payload['market_request_fingerprint']}")
     return 0
 
 
