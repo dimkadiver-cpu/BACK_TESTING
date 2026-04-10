@@ -1,7 +1,9 @@
 MODIFICHE DA FARE:
 
 
-
+Verificare il parser:
+ - per .P in simbolo
+ - per entry a zone (forse range??)>>> conseguente operation rules e esecuzione
 
 Blocco 3 : aggiornamento del dataset, 
  - Scaricare il data set:
