@@ -364,6 +364,10 @@ Rendere il flusso misurabile e comprensibile all’utente.
 
 **Media**
 
+## Stato
+
+- [x] **FASE 5 completata** (2026-04-10)
+
 ---
 
 ## 9. Dipendenze logiche tra fasi
