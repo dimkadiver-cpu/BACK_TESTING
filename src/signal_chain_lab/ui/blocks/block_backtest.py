@@ -472,7 +472,7 @@ async def _prepare_market_data(
             ui.notify("Validation cache hit: market data già validati", color="positive")
         return True
 
-    log_panel.push("Fase market 1/3 - Planner: analisi copertura richiesta dal DB.")
+    log_panel.push("Fase market 1/4 - Planner: analisi copertura richiesta dal DB.")
     log_panel.push(f"Market data: modalita' selezionata -> {mode_label}.")
     log_panel.push(f"Market data: root locale -> {market_root}")
     log_panel.push(f"Market data: timeframe={timeframe}, basis primaria={price_basis}")
@@ -488,6 +488,7 @@ async def _prepare_market_data(
 
     plan_path = Path("artifacts/market_data/plan_market_data.json")
     sync_path = Path("artifacts/market_data/sync_market_data.json")
+    gap_validate_path = Path("artifacts/market_data/gap_validate_market_data.json")
     validate_path = Path("artifacts/market_data/validate_market_data.json")
 
     plan_command = [
@@ -522,7 +523,7 @@ async def _prepare_market_data(
     state.latest_market_plan_path = str(plan_path)
     state.market_data_gap_count = plan_summary["gaps"]
     log_panel.push(
-        "Fase market 1/3 - Planner: completata. "
+        "Fase market 1/4 - Planner: completata. "
         f"simboli={plan_summary['symbols']}, intervalli={plan_summary['required_intervals']}, gap={plan_summary['gaps']}."
     )
     log_panel.push(f"Artifact planner: {plan_path}")
@@ -531,7 +532,7 @@ async def _prepare_market_data(
     )
 
     if plan_summary["gaps"] > 0:
-        log_panel.push("Fase market 2/3 - Sync: avvio integrazione gap mancanti.")
+        log_panel.push("Fase market 2/4 - Sync: avvio integrazione gap mancanti.")
         log_panel.push(
             f"Market data: trovati {plan_summary['gaps']} gap. Avvio sync incrementale sulla cache locale."
         )
@@ -556,26 +557,48 @@ async def _prepare_market_data(
             _set_market_status(status_label, text="Market data: sync fallito", positive=False)
             return False
         state.latest_market_sync_report_path = str(sync_path)
-        log_panel.push(f"Fase market 2/3 - Sync: completata. Artifact sync: {sync_path}")
+        log_panel.push(f"Fase market 2/4 - Sync: completata. Artifact sync: {sync_path}")
+
+        log_panel.push("Fase market 3/4 - Gap Validation: verifica mirata dei gap sincronizzati.")
+        _set_market_status(status_label, text="Market data: gap validation in corso...", positive=None)
+        gap_validate_command = [
+            sys.executable,
+            "scripts/gap_validate_market_data.py",
+            "--plan-file",
+            str(plan_path),
+            "--sync-file",
+            str(sync_path),
+            "--market-dir",
+            str(market_root),
+            "--output",
+            str(gap_validate_path),
+        ]
+        rc = await run_streaming_command(gap_validate_command, log_panel)
+        if rc != 0 or not gap_validate_path.exists():
+            ui.notify("Gap validation market data fallita", color="negative")
+            _set_market_status(status_label, text="Market data: gap validation fallita", positive=False)
+            return False
+        log_panel.push(f"Fase market 3/4 - Gap Validation: completata. Artifact gap validation: {gap_validate_path}")
     else:
-        log_panel.push("Fase market 2/3 - Sync: nessun gap trovato, step saltato.")
+        log_panel.push("Fase market 2/4 - Sync: nessun gap trovato, step saltato.")
         log_panel.push("Market data: nessun gap trovato, sync non necessario.")
+        log_panel.push("Fase market 3/4 - Gap Validation: nessun gap sincronizzato, step saltato.")
 
     if prepare_mode == "FAST":
-        log_panel.push("FAST mode: validate saltato.")
+        log_panel.push("FAST mode: validate full saltata (gap validation già eseguita se necessaria).")
         state.latest_market_validation_report_path = ""
         state.market_data_ready = True
         state.market_data_checked = False
         _set_market_validation_status(state=state, status_label=status_label, status_key="ready_unvalidated")
         summary_label.set_text(
-            "FAST mode: planner/sync eseguiti, validate saltato in questa run."
+            "FAST mode: planner/sync/gap validation eseguiti, validate full saltata in questa run."
         )
         log_panel.push("Market data: cache pronta per il backtest (senza validazione in questa run).")
         if not silent:
             ui.notify("FAST mode: market data pronti senza validazione", color="warning")
         return True
 
-    log_panel.push("Fase market 3/3 - Validate: verifica consistenza cache locale.")
+    log_panel.push("Fase market 4/4 - Validate: verifica consistenza cache locale.")
     _set_market_status(status_label, text="Market data: validazione in corso...", positive=None)
     validate_command = [
         sys.executable,
@@ -605,7 +628,7 @@ async def _prepare_market_data(
         return False
 
     state.latest_market_validation_report_path = str(validate_path)
-    log_panel.push(f"Fase market 3/3 - Validate: completata. Artifact validate: {validate_path}")
+    log_panel.push(f"Fase market 4/4 - Validate: completata. Artifact validate: {validate_path}")
     state.market_data_ready = True
     state.market_data_checked = True
     _set_market_validation_status(state=state, status_label=status_label, status_key="validated")
