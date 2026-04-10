@@ -109,12 +109,16 @@ def _safe_dirname(value: str) -> str:
 def _write_comparison_report(
     *,
     scenario_results,
+    per_policy_trades,
     output_dir: Path,
     run_metadata: dict[str, object],
 ) -> tuple[Path, Path, Path]:
     rows = []
     for result in scenario_results:
         policy_name = result.policy_name
+        trades = per_policy_trades.get(policy_name, [])
+        gross_profit = sum(item.realized_pnl for item in trades if item.realized_pnl > 0.0)
+        gross_loss = sum(item.realized_pnl for item in trades if item.realized_pnl < 0.0)
         rows.append(
             {
                 "policy_name": policy_name,
@@ -122,6 +126,8 @@ def _write_comparison_report(
                 "excluded_chains_count": result.excluded_chains_count,
                 "win_rate_pct": result.win_rate * 100.0,
                 "net_profit_pct": result.total_pnl,
+                "profit_pct": gross_profit,
+                "loss_pct": gross_loss,
                 "profit_factor": result.profit_factor,
                 "expectancy_pct": result.expectancy,
                 "max_drawdown_pct": result.max_drawdown,
@@ -152,6 +158,8 @@ def _write_comparison_report(
             f"<td>{row['excluded_chains_count']}</td>"
             f"<td>{row['win_rate_pct']:.2f}%</td>"
             f"<td>{row['net_profit_pct']:.2f}%</td>"
+            f"<td>{row['profit_pct']:.2f}%</td>"
+            f"<td>{row['loss_pct']:.2f}%</td>"
             f"<td>{row['profit_factor']:.2f}</td>"
             f"<td>{row['expectancy_pct']:.2f}%</td>"
             f"<td>{row['max_drawdown_pct']:.2f}%</td>"
@@ -165,7 +173,7 @@ def _write_comparison_report(
         f"""<!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Comparison Report</title>
-<style>body{{font-family:Segoe UI,Arial,sans-serif;background:#f8fafc;color:#0f172a}}.wrap{{max-width:1200px;margin:0 auto;padding:24px}}.card{{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:16px}}table{{width:100%;border-collapse:collapse}}th,td{{padding:10px;border-bottom:1px solid #e2e8f0;text-align:left}}th{{font-size:12px;text-transform:uppercase;color:#64748b}}</style>
+<style>body{{font-family:Segoe UI,Arial,sans-serif;background:#f8fafc;color:#0f172a}}.wrap{{max-width:1240px;margin:0 auto;padding:24px}}.card{{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:16px}}table{{width:100%;border-collapse:collapse}}th,td{{padding:10px;border-bottom:1px solid #e2e8f0;text-align:left;white-space:nowrap}}th{{font-size:12px;text-transform:uppercase;color:#64748b}}a{{color:#1d4ed8;text-decoration:none;font-weight:600}}a:hover{{text-decoration:underline}}</style>
 </head><body><div class="wrap">
 <h1>Comparison Report</h1>
 <div class="card"><strong>Dataset:</strong> {run_metadata.get("dataset_name", "-")}<br>
@@ -176,7 +184,7 @@ def _write_comparison_report(
 <strong>Price basis:</strong> {run_metadata.get("price_basis", "-")}<br>
 <strong>Policies:</strong> {len(rows)}<br>
 <strong>Generated at:</strong> {run_metadata.get("generated_at", "-")}</div>
-<div class="card"><table><thead><tr><th>Policy</th><th>Trades</th><th>Excluded chains</th><th>Win rate %</th><th>Net Profit %</th><th>Profit factor</th><th>Expectancy %</th><th>Max drawdown %</th><th>Avg warnings / trade</th><th>Open Policy Report</th></tr></thead><tbody>{''.join(html_rows)}</tbody></table></div>
+<div class="card"><table><thead><tr><th>Policy</th><th>Trades</th><th>Excluded chains</th><th>Win rate %</th><th>Net Profit %</th><th>Profit %</th><th>Loss %</th><th>Profit factor</th><th>Expectancy %</th><th>Max drawdown %</th><th>Avg warnings / trade</th><th>Open Policy Report</th></tr></thead><tbody>{''.join(html_rows)}</tbody></table></div>
 </div></body></html>""",
         encoding="utf-8",
     )
@@ -262,6 +270,7 @@ def main() -> int:
             )
         comparison_html, _, _ = _write_comparison_report(
             scenario_results=scenario_results,
+            per_policy_trades=per_policy_trades,
             output_dir=comparison_root,
             run_metadata=dataset_metadata,
         )
