@@ -323,6 +323,10 @@ Oggi la validazione completa è utile ma potenzialmente costosa. Se il Sync ha a
 
 **Alta**
 
+## Stato
+
+- [x] **FASE 4 completata** (2026-04-10)
+
 ---
 
 # Fase 5 — Osservabilità, benchmark e UX
