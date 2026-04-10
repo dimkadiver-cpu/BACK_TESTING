@@ -272,6 +272,13 @@ def _close_ts_from_updates(updates: list[ChainedMessage]) -> datetime | None:
     return None
 
 
+def _normalize_chain_id(trader_id: str | None, attempt_key: str) -> str:
+    trader_prefix = f"{trader_id}:" if trader_id else ""
+    if trader_prefix and attempt_key.startswith(trader_prefix):
+        return attempt_key
+    return f"{trader_prefix}{attempt_key}" if trader_prefix else attempt_key
+
+
 # ---------------------------------------------------------------------------
 # Builder
 # ---------------------------------------------------------------------------
@@ -454,8 +461,7 @@ class SignalChainBuilder:
 
             close_ts = _close_ts_from_updates(updates)
 
-            chain_id = f"{cm.entities.symbol if isinstance(cm.entities, NewSignalEntities) and cm.entities.symbol else symbol}:{cm.attempt_key}"
-            chain_id = f"{row['trader_id']}:{cm.attempt_key}"
+            chain_id = _normalize_chain_id(row["trader_id"], cm.attempt_key)
 
             chains.append(
                 SignalChain(

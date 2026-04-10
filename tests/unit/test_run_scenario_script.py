@@ -116,6 +116,16 @@ def test_main_runs_multi_policy_in_single_flow(monkeypatch, tmp_path: Path) -> N
         "write_scenario_artifacts",
         lambda **kwargs: (tmp_path / "out/scenario_results.json", None, None),
     )
+    monkeypatch.setattr(
+        module,
+        "run_policy_report",
+        lambda **kwargs: None,
+    )
+    monkeypatch.setattr(
+        module,
+        "_write_comparison_report",
+        lambda **kwargs: (tmp_path / "out/comparison_report.html", tmp_path / "out/comparison_summary.json", tmp_path / "out/comparison_summary.csv"),
+    )
 
     rc = module.main()
     assert rc == 0
