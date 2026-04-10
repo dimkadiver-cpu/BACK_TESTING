@@ -221,6 +221,10 @@ La GUI lancia un run per policy, mentre il motore sottostante supporta già una 
 
 **Alta**
 
+## Stato
+
+- [x] **FASE 2 completata** (2026-04-10)
+
 ---
 
 # Fase 3 — Ottimizzazione BybitParquetProvider

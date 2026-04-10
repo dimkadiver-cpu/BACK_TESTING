@@ -331,11 +331,11 @@ async def _handle_backtest(
 
     effective_report_dir = state.backtest_report_dir or "artifacts/scenarios"
 
-    def _build_base_command(policy_name: str, output_dir: str) -> list[str]:
+    def _build_base_command(policy_names: list[str], output_dir: str) -> list[str]:
         cmd = [
             sys.executable,
             "scripts/run_scenario.py",
-            "--policy", policy_name,
+            "--policies", *policy_names,
             "--db-path", db_path,
             "--market-dir", state.market_data_dir,
             "--price-basis", state.price_basis,
@@ -352,25 +352,19 @@ async def _handle_backtest(
         cmd += ["--output-dir", output_dir]
         return cmd
 
-    for policy_name in state.backtest_policies:
-        # Each policy gets its own subdirectory when multiple are selected
-        if len(state.backtest_policies) > 1:
-            policy_out = str(Path(effective_report_dir) / policy_name)
-        else:
-            policy_out = effective_report_dir
-        command = _build_base_command(policy_name, policy_out)
-        log_panel.push(f"--- Backtest policy: {policy_name} ---")
-        try:
-            rc = await asyncio.wait_for(
-                run_streaming_command(command, log_panel),
-                timeout=state.timeout_seconds,
-            )
-        except TimeoutError:
-            ui.notify(f"Timeout backtest per policy '{policy_name}'", color="negative")
-            return
-        if rc != 0:
-            ui.notify(f"Backtest fallito per policy '{policy_name}': controlla log", color="negative")
-            return
+    command = _build_base_command(state.backtest_policies, effective_report_dir)
+    log_panel.push(f"--- Backtest multi-policy: {', '.join(state.backtest_policies)} ---")
+    try:
+        rc = await asyncio.wait_for(
+            run_streaming_command(command, log_panel),
+            timeout=state.timeout_seconds,
+        )
+    except TimeoutError:
+        ui.notify("Timeout backtest", color="negative")
+        return
+    if rc != 0:
+        ui.notify("Backtest fallito: controlla log", color="negative")
+        return
 
     state.latest_artifact_path = effective_report_dir
     artifact_label.set_text(f"Artifact: {state.latest_artifact_path}")
@@ -687,7 +681,7 @@ def render_block_backtest(
             multiple=True,
         ).classes("w-full")
         ui.label(
-            "Seleziona una o piu' policy. Con piu' policy ogni run produce un report separato nella propria sottocartella."
+            "Seleziona una o piu' policy. Se ne scegli più di una, il confronto viene eseguito in un unico run."
         ).classes("text-caption text-grey-6")
 
         def _on_reload_policies() -> None:
