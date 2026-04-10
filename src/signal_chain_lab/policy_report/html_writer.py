@@ -94,6 +94,10 @@ dialog::backdrop{background:rgba(15,23,42,.55)}
 .ti-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
 .ti-meta{display:grid;grid-template-columns:180px 1fr;gap:8px;font-size:14px}
 .ti-meta .lab{color:var(--muted)}
+.chart-wrap{position:relative;border:1px solid var(--line);border-radius:14px;padding:10px;background:#fff}
+.chart-toolbar{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-bottom:8px}
+.chart-toolbar button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:4px 9px;cursor:pointer}
+.chart-tooltip{position:absolute;pointer-events:none;background:#0f172a;color:#fff;padding:6px 8px;border-radius:8px;font-size:12px;transform:translate(10px,-10px);display:none}
 .footer-nav{margin-top:20px}
 @media (max-width: 900px){.grid-4{grid-template-columns:repeat(2,minmax(0,1fr))}.ti-meta{grid-template-columns:1fr}}
 </style>
@@ -335,109 +339,32 @@ def _event_outcome_labels(event_log: list[EventLogEntry]) -> set[str]:
     return labels
 
 
-def _synthetic_candles(trade: TradeResult, event_log: list[EventLogEntry]) -> list[dict[str, float | str]]:
-    anchors: list[float] = []
-    state0 = event_log[0].state_after if event_log else {}
-    for plan in state0.get("entries_planned") or []:
-        price = plan.get("price")
-        if isinstance(price, int | float):
-            anchors.append(float(price))
-    avg_entry = trade.avg_entry_price
-    if avg_entry is not None:
-        anchors.append(float(avg_entry))
-    state_last = event_log[-1].state_after if event_log else {}
-    current_sl = state_last.get("current_sl")
-    if isinstance(current_sl, int | float):
-        anchors.append(float(current_sl))
-    for tp in state_last.get("tp_levels") or []:
-        if isinstance(tp, int | float):
-            anchors.append(float(tp))
-
-    base = sum(anchors) / len(anchors) if anchors else 100.0
-    candles: list[dict[str, float | str]] = []
-    total = max(len(event_log), 6)
-    for index in range(total):
-        drift = ((index - (total / 2)) / max(total, 1)) * (base * 0.02)
-        open_price = base + drift
-        close_price = open_price + ((-1) ** index) * (base * 0.003)
-        high_price = max(open_price, close_price) + (base * 0.004)
-        low_price = min(open_price, close_price) - (base * 0.004)
-        if event_log:
-            event_idx = min(index, len(event_log) - 1)
-            stamp = _fmt_timestamp(event_log[event_idx].timestamp)
-            label = stamp[11:16] if len(stamp) >= 16 else stamp
-            if total > len(event_log):
-                label = f"T{index + 1}"
-        else:
-            label = str(index + 1)
-        candles.append(
+def _chart_points(event_log: list[EventLogEntry]) -> list[dict[str, object]]:
+    points: list[dict[str, object]] = []
+    for entry in event_log:
+        candidate_prices: list[float] = []
+        if isinstance(entry.price_reference, int | float):
+            candidate_prices.append(float(entry.price_reference))
+        state_after = entry.state_after or {}
+        for key in ("market_price", "mark_price", "last_price", "avg_entry_price", "close_price"):
+            value = state_after.get(key)
+            if isinstance(value, int | float):
+                candidate_prices.append(float(value))
+        if not candidate_prices:
+            continue
+        points.append(
             {
-                "label": label,
-                "open": open_price,
-                "close": close_price,
-                "high": high_price,
-                "low": low_price,
+                "timestamp": _fmt_timestamp(entry.timestamp),
+                "label": _display_event_name(entry.event_type),
+                "price": candidate_prices[0],
             }
         )
-    return candles
+    return points
 
 
-def _chart_svg(trade: TradeResult, event_log: list[EventLogEntry]) -> str:
-    candles = _synthetic_candles(trade, event_log)
-    prices = [float(item[key]) for item in candles for key in ("high", "low")]
-    prices.extend(
-        float(value)
-        for value in [trade.avg_entry_price]
-        if value is not None
-    )
-    if event_log:
-        last_state = event_log[-1].state_after
-        prices.extend(float(tp) for tp in last_state.get("tp_levels") or [] if isinstance(tp, int | float))
-        current_sl = last_state.get("current_sl")
-        if isinstance(current_sl, int | float):
-            prices.append(float(current_sl))
-    if not prices:
-        prices = [100.0, 101.0]
-
-    width = 940
-    height = 380
-    left = 58
-    top = 24
-    bottom = 332
-    right = 916
-
-    min_price = min(prices)
-    max_price = max(prices)
-    span = (max_price - min_price) or 1.0
-
-    def map_y(price: float) -> float:
-        ratio = (price - min_price) / span
-        return bottom - (ratio * (bottom - top))
-
-    parts = [f"<svg viewBox='0 0 {width} {height}' width='100%' height='auto' xmlns='http://www.w3.org/2000/svg' role='img' aria-label='{_escape(f'{trade.signal_id} - {trade.symbol} {trade.side}')}'>"]
-    parts.append(f"<rect x='0' y='0' width='{width}' height='{height}' fill='#ffffff'/>")
-    for idx in range(6):
-        price = max_price - ((span / 5) * idx)
-        y = map_y(price)
-        parts.append(f"<line x1='{left}' y1='{y:.2f}' x2='{right}' y2='{y:.2f}' stroke='#e5e7eb' stroke-width='1'/>")
-        parts.append(f"<text x='50' y='{y + 4:.2f}' text-anchor='end' font-size='12' fill='#6b7280'>{price:.2f}</text>")
-
-    candle_step = (right - left) / max(len(candles), 1)
-    candle_width = max(10.0, candle_step * 0.45)
-    for idx, candle in enumerate(candles):
-        x = left + candle_step * idx + (candle_step / 2)
-        open_y = map_y(float(candle["open"]))
-        close_y = map_y(float(candle["close"]))
-        high_y = map_y(float(candle["high"]))
-        low_y = map_y(float(candle["low"]))
-        color = "#16a34a" if float(candle["close"]) >= float(candle["open"]) else "#dc2626"
-        rect_y = min(open_y, close_y)
-        rect_h = max(abs(close_y - open_y), 2.0)
-        parts.append(f"<line x1='{x:.2f}' y1='{high_y:.2f}' x2='{x:.2f}' y2='{low_y:.2f}' stroke='{color}' stroke-width='2'/>")
-        parts.append(f"<rect x='{x - (candle_width / 2):.2f}' y='{rect_y:.2f}' width='{candle_width:.2f}' height='{rect_h:.2f}' fill='{color}' rx='1'/>")
-        parts.append(f"<text x='{x:.2f}' y='362' text-anchor='middle' font-size='12' fill='#6b7280'>{_escape(candle['label'])}</text>")
-
-    annotations: list[tuple[str, float, str, str]] = []
+def _chart_html(trade: TradeResult, event_log: list[EventLogEntry]) -> str:
+    points = _chart_points(event_log)
+    annotations: list[dict[str, object]] = []
     outcome_labels = _event_outcome_labels(event_log)
     if event_log:
         first_state = event_log[0].state_after
@@ -445,15 +372,23 @@ def _chart_svg(trade: TradeResult, event_log: list[EventLogEntry]) -> str:
         for idx, plan in enumerate(entries[:3]):
             price = plan.get("price")
             if isinstance(price, int | float):
-                annotations.append((f"Entry {idx + 1}", float(price), "#2563eb" if idx == 0 else "#1d4ed8", "0"))
+                annotations.append(
+                    {"label": f"Entry {idx + 1}", "price": float(price), "color": "#2563eb" if idx == 0 else "#1d4ed8"}
+                )
         if trade.avg_entry_price is not None:
-            annotations.append(("Avg Entry", float(trade.avg_entry_price), "#0f766e", "0"))
+            annotations.append({"label": "Avg Entry", "price": float(trade.avg_entry_price), "color": "#0f766e"})
         current_sl = event_log[-1].state_after.get("current_sl")
         if isinstance(current_sl, int | float):
             sl_hit = any("SL" in item for item in outcome_labels) or (trade.close_reason or "").lower() == "sl"
             label = "SL hit" if sl_hit else "SL initial"
             pnl = trade.realized_pnl if sl_hit else 0.0
-            annotations.append((f"{label} ({_fmt_percent(pnl)})" if "SL hit" in label else label, float(current_sl), "#b91c1c", "0"))
+            annotations.append(
+                {
+                    "label": f"{label} ({_fmt_percent(pnl)})" if "SL hit" in label else label,
+                    "price": float(current_sl),
+                    "color": "#b91c1c",
+                }
+            )
         realized_hit_label_added = False
         tp_levels = event_log[-1].state_after.get("tp_levels") or []
         for idx, tp in enumerate(tp_levels):
@@ -465,20 +400,91 @@ def _chart_svg(trade: TradeResult, event_log: list[EventLogEntry]) -> str:
                 if tp_hit and trade.realized_pnl is not None and not realized_hit_label_added:
                     suffix = f" hit ({_fmt_percent(trade.realized_pnl)})"
                     realized_hit_label_added = True
-                annotations.append((f"{label}{suffix}", float(tp), "#15803d", "0"))
+                annotations.append({"label": f"{label}{suffix}", "price": float(tp), "color": "#15803d"})
 
-    for idx, (label, price, color, _) in enumerate(annotations):
-        y = map_y(price)
-        x_start = left + 20 + (idx % 2) * 80
-        box_width = min(180, 12 + (len(label) * 6.8))
-        parts.append(f"<line x1='{x_start:.2f}' y1='{y:.2f}' x2='{right}' y2='{y:.2f}' stroke='{color}' stroke-dasharray='5 4' stroke-width='1.5'/>")
-        parts.append(f"<rect x='{x_start + 8:.2f}' y='{y - 17:.2f}' width='{box_width:.2f}' height='22' rx='6' fill='white' stroke='{color}' stroke-width='1.2'/>")
-        parts.append(f"<text x='{x_start + 16:.2f}' y='{y - 2:.2f}' font-size='12' fill='{color}' font-weight='600'>{_escape(label)}</text>")
-        parts.append(f"<circle cx='{x_start:.2f}' cy='{y:.2f}' r='4' fill='{color}'/>")
-
-    parts.append(f"<text x='{left}' y='16' font-size='15' font-weight='700' fill='#111827'>{_escape(f'{trade.signal_id} - {trade.symbol} {trade.side}')}</text>")
-    parts.append("</svg>")
-    return "".join(parts)
+    chart_payload = {
+        "points": points,
+        "annotations": annotations,
+        "title": f"{trade.signal_id} - {trade.symbol} {_display_side(trade.side)}",
+    }
+    chart_id = _safe_dom_id(f"chart_{trade.signal_id}")
+    payload_id = f"{chart_id}_payload"
+    return f"""
+    <div class="chart-wrap">
+      <div class="chart-toolbar">
+        <button type="button" onclick="{chart_id}_zoom(0.75)">Zoom +</button>
+        <button type="button" onclick="{chart_id}_zoom(1.33)">Zoom -</button>
+        <button type="button" onclick="{chart_id}_reset()">Reset</button>
+      </div>
+      <svg id="{chart_id}" viewBox="0 0 940 380" width="100%" height="auto"></svg>
+      <div id="{chart_id}_tip" class="chart-tooltip"></div>
+      <script type="application/json" id="{payload_id}">{_escape(json.dumps(chart_payload, ensure_ascii=False))}</script>
+      <script>
+      (() => {{
+        const svg = document.getElementById("{chart_id}");
+        const tip = document.getElementById("{chart_id}_tip");
+        const data = JSON.parse(document.getElementById("{payload_id}").textContent || "{{}}");
+        const left = 58, top = 24, bottom = 332, right = 916;
+        const allPrices = [...(data.points || []).map(p => Number(p.price)), ...(data.annotations || []).map(a => Number(a.price))].filter(Number.isFinite);
+        if (!allPrices.length) allPrices.push(100, 101);
+        const min = Math.min(...allPrices), max = Math.max(...allPrices);
+        const pad = Math.max((max - min) * 0.08, 0.0001);
+        const baseRange = {{ min: min - pad, max: max + pad }};
+        let viewRange = {{ ...baseRange }};
+        const mapY = (price) => bottom - (((price - viewRange.min) / Math.max(viewRange.max - viewRange.min, 1e-9)) * (bottom - top));
+        const mapX = (idx) => left + ((idx / Math.max((data.points || []).length - 1, 1)) * (right - left));
+        function render() {{
+          const points = data.points || [];
+          const grid = [];
+          for (let i = 0; i < 6; i++) {{
+            const p = viewRange.max - (((viewRange.max - viewRange.min) / 5) * i);
+            const y = mapY(p);
+            grid.push(`<line x1="${{left}}" y1="${{y.toFixed(2)}}" x2="${{right}}" y2="${{y.toFixed(2)}}" stroke="#e5e7eb" stroke-width="1"/>`);
+            grid.push(`<text x="50" y="${{(y + 4).toFixed(2)}}" text-anchor="end" font-size="12" fill="#6b7280">${{p.toFixed(2)}}</text>`);
+          }}
+          const poly = points.map((p, i) => `${{mapX(i).toFixed(2)}},${{mapY(Number(p.price)).toFixed(2)}}`).join(" ");
+          const circles = points.map((p, i) => `<circle cx="${{mapX(i).toFixed(2)}}" cy="${{mapY(Number(p.price)).toFixed(2)}}" r="3.2" fill="#2563eb"/>`).join("");
+          const ann = (data.annotations || []).map((a, idx) => {{
+            const y = mapY(Number(a.price));
+            const x = left + 20 + ((idx % 2) * 90);
+            return `<line x1="${{x}}" y1="${{y.toFixed(2)}}" x2="${{right}}" y2="${{y.toFixed(2)}}" stroke="${{a.color}}" stroke-dasharray="5 4" stroke-width="1.4"/>
+            <text x="${{x + 8}}" y="${{(y - 4).toFixed(2)}}" font-size="12" fill="${{a.color}}" font-weight="600">${{a.label}} (${{Number(a.price).toFixed(4)}})</text>`;
+          }}).join("");
+          svg.innerHTML = `<rect x="0" y="0" width="940" height="380" fill="#fff"/>
+            ${{grid.join("")}}
+            <polyline points="${{poly}}" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+            ${{circles}}
+            ${{ann}}
+            <text x="${{left}}" y="16" font-size="15" font-weight="700" fill="#111827">${{data.title || ""}}</text>`;
+        }}
+        svg.addEventListener("mousemove", (event) => {{
+          const pt = svg.createSVGPoint();
+          pt.x = event.clientX; pt.y = event.clientY;
+          const local = pt.matrixTransform(svg.getScreenCTM().inverse());
+          const points = data.points || [];
+          if (!points.length || local.x < left || local.x > right || local.y < top || local.y > bottom) {{
+            tip.style.display = "none"; return;
+          }}
+          const idx = Math.round(((local.x - left) / (right - left)) * Math.max(points.length - 1, 1));
+          const p = points[Math.max(0, Math.min(points.length - 1, idx))];
+          tip.style.display = "block";
+          tip.style.left = `${{event.offsetX}}px`;
+          tip.style.top = `${{event.offsetY}}px`;
+          tip.innerHTML = `${{p.timestamp}}<br/>${{p.label}} · ${{Number(p.price).toFixed(4)}}`;
+        }});
+        svg.addEventListener("mouseleave", () => {{ tip.style.display = "none"; }});
+        window.{chart_id}_zoom = (factor) => {{
+          const c = (viewRange.min + viewRange.max) / 2;
+          const h = ((viewRange.max - viewRange.min) * factor) / 2;
+          viewRange = {{ min: c - h, max: c + h }};
+          render();
+        }};
+        window.{chart_id}_reset = () => {{ viewRange = {{ ...baseRange }}; render(); }};
+        render();
+      }})();
+      </script>
+    </div>
+    """
 
 
 def write_single_trade_html_report(
@@ -560,8 +566,8 @@ def write_single_trade_html_report(
   </div>
   <div class="card">
     <h2>Price Chart</h2>
-    <div class="note" style="margin-bottom:10px">Candlestick-style view with operational overlays. Hit labels are shown only when detected in the event timeline.</div>
-    {_chart_svg(trade, event_log)}
+    <div class="note" style="margin-bottom:10px">Interactive chart based on runtime market references captured during simulation, with operational overlays (entry/SL/TP).</div>
+    {_chart_html(trade, event_log)}
   </div>
   <div class="card">
     <h2>Event Timeline</h2>
