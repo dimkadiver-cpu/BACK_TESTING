@@ -197,10 +197,69 @@ def _extract_summary_lines(
         if line.startswith("scenario_html="):
             html_path = line.split("=", 1)[1].strip()
             continue
+        if line.startswith("policy_report_html="):
+            html_path = line.split("=", 1)[1].strip()
+            continue
         match = _SUMMARY_RE.match(line.strip())
         if match:
             summaries.append(match.groupdict())
     return chains_selected, summaries, html_path
+
+
+def _build_single_policy_command(*, db_path: str, state: UiState, output_dir: str) -> list[str]:
+    import sys
+
+    command = [
+        sys.executable,
+        "scripts/run_policy_report.py",
+        "--policy",
+        state.backtest_policies[0],
+        "--db-path",
+        db_path,
+        "--market-dir",
+        state.market_data_dir,
+        "--price-basis",
+        state.price_basis,
+        "--timeframe",
+        state.timeframe,
+    ]
+    if state.backtest_trader_filter and state.backtest_trader_filter != "all":
+        command += ["--trader-id", state.backtest_trader_filter]
+    if state.backtest_date_from:
+        command += ["--date-from", state.backtest_date_from]
+    if state.backtest_date_to:
+        command += ["--date-to", state.backtest_date_to]
+    command += ["--output-dir", output_dir]
+    return command
+
+
+def _build_multi_policy_command(*, db_path: str, state: UiState, output_dir: str) -> list[str]:
+    import sys
+
+    command = [
+        sys.executable,
+        "scripts/run_scenario.py",
+        "--policies",
+        *state.backtest_policies,
+        "--db-path",
+        db_path,
+        "--market-dir",
+        state.market_data_dir,
+        "--price-basis",
+        state.price_basis,
+        "--timeframe",
+        state.timeframe,
+    ]
+    if state.backtest_trader_filter and state.backtest_trader_filter != "all":
+        command += ["--trader-id", state.backtest_trader_filter]
+    if state.backtest_date_from:
+        command += ["--date-from", state.backtest_date_from]
+    if state.backtest_date_to:
+        command += ["--date-to", state.backtest_date_to]
+    if state.backtest_max_trades > 0:
+        command += ["--max-trades", str(state.backtest_max_trades)]
+    command += ["--output-dir", output_dir]
+    return command
 
 
 def _render_backtest_summary(
@@ -266,7 +325,6 @@ async def _handle_backtest(
     summary_container,
     run_streaming_command,
 ) -> None:
-    import sys
     from datetime import datetime as _dt
 
     run_t0 = time.perf_counter()
@@ -339,32 +397,21 @@ async def _handle_backtest(
         if not market_ready:
             return
 
-    effective_report_dir = state.backtest_report_dir or "artifacts/scenarios"
-
-    def _build_base_command(policy_names: list[str], output_dir: str) -> list[str]:
-        cmd = [
-            sys.executable,
-            "scripts/run_scenario.py",
-            "--policies", *policy_names,
-            "--db-path", db_path,
-            "--market-dir", state.market_data_dir,
-            "--price-basis", state.price_basis,
-            "--timeframe", state.timeframe,
-        ]
-        if state.backtest_trader_filter and state.backtest_trader_filter != "all":
-            cmd += ["--trader-id", state.backtest_trader_filter]
-        if state.backtest_date_from:
-            cmd += ["--date-from", state.backtest_date_from]
-        if state.backtest_date_to:
-            cmd += ["--date-to", state.backtest_date_to]
-        if state.backtest_max_trades > 0:
-            cmd += ["--max-trades", str(state.backtest_max_trades)]
-        cmd += ["--output-dir", output_dir]
-        return cmd
-
-    command = _build_base_command(state.backtest_policies, effective_report_dir)
-    log_panel.push(f"--- Backtest multi-policy: {', '.join(state.backtest_policies)} ---")
-    log_panel.push("Fase backtest - esecuzione scenario in corso...")
+    is_single_policy = len(state.backtest_policies) == 1
+    effective_report_dir = state.backtest_report_dir or (
+        "artifacts/policy_reports" if is_single_policy else "artifacts/scenarios"
+    )
+    command = (
+        _build_single_policy_command(db_path=db_path, state=state, output_dir=effective_report_dir)
+        if is_single_policy
+        else _build_multi_policy_command(db_path=db_path, state=state, output_dir=effective_report_dir)
+    )
+    if is_single_policy:
+        log_panel.push(f"--- Backtest single-policy / policy report: {state.backtest_policies[0]} ---")
+        log_panel.push("Fase backtest - esecuzione policy report in corso...")
+    else:
+        log_panel.push(f"--- Backtest multi-policy / comparison report: {', '.join(state.backtest_policies)} ---")
+        log_panel.push("Fase backtest - esecuzione scenario in corso...")
     backtest_t0 = time.perf_counter()
     try:
         rc = await asyncio.wait_for(

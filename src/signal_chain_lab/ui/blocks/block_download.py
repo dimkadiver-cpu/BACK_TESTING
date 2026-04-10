@@ -372,7 +372,6 @@ async def _handle_download(
     db_output_label,
     run_streaming_command,
 ) -> None:
-    state.source_kind = "telegram"
     state.chat_id = chat_id.strip()
     state.topic_id = topic_id.strip()
     state.full_history = full_history
