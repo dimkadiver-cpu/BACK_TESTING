@@ -34,7 +34,6 @@ class QualityReport:
 class UiState:
     """Mutable state shared across the three sequential GUI blocks."""
 
-    source_kind: str = "telegram"
     chat_id: str = ""
     topic_id: str = ""
     date_from: str = ""
