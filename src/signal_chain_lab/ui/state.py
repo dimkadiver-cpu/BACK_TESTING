@@ -46,7 +46,6 @@ class UiState:
     parsed_db_path: str = ""
 
     parser_profile: str = ""
-    trader_mapping_path: str = "configs/telegram_source_map.json"
     generate_parse_csv: bool = False
     parse_reports_dir: str = "parser_test/reports"
     latest_reports_dir: str = ""
