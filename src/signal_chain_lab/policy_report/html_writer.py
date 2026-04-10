@@ -77,6 +77,8 @@ details[open].card summary:after{content:'Hide'}
 table{width:100%;border-collapse:collapse}
 th,td{padding:11px 10px;border-bottom:1px solid var(--line);text-align:left;font-size:14px;vertical-align:top}
 th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.th-sort{cursor:pointer;user-select:none}
+.th-sort:hover{color:var(--blue)}
 .badge{display:inline-block;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:700}
 .ok{background:#dcfce7;color:#166534}.bad{background:#fee2e2;color:#991b1b}.muted{background:#e2e8f0;color:#334155}
 .link{color:var(--blue);text-decoration:none;font-weight:600}
@@ -98,6 +100,64 @@ dialog::backdrop{background:rgba(15,23,42,.55)}
 <script>
 function openText(id){ document.getElementById(id).showModal(); }
 function closeText(id){ document.getElementById(id).close(); }
+let __tradeSortState = { key: "created", dir: "desc" };
+function __textValue(cell){
+  return (cell?.dataset?.sort || cell?.innerText || "").trim().toLowerCase();
+}
+function __numberValue(cell){
+  const raw = (cell?.dataset?.sort || cell?.innerText || "0").replace("%","").replace(",",".").trim();
+  const val = Number(raw);
+  return Number.isFinite(val) ? val : 0;
+}
+function __sortTradeRows(){
+  const table = document.getElementById("trade-results-table");
+  if(!table) return;
+  const body = table.querySelector("tbody");
+  if(!body) return;
+  const rows = Array.from(body.querySelectorAll("tr"));
+  const key = __tradeSortState.key;
+  const dir = __tradeSortState.dir === "asc" ? 1 : -1;
+  const colByKey = { signal:0, symbol:1, side:2, status:3, pnl:5, warnings:6, created:8, closed:9 };
+  const col = colByKey[key] ?? 8;
+  rows.sort((a,b) => {
+    const aCell = a.children[col];
+    const bCell = b.children[col];
+    if(["pnl","warnings","created","closed"].includes(key)){
+      return (__numberValue(aCell) - __numberValue(bCell)) * dir;
+    }
+    return __textValue(aCell).localeCompare(__textValue(bCell)) * dir;
+  });
+  for (const row of rows){ body.appendChild(row); }
+}
+function sortTradeTable(key){
+  if (__tradeSortState.key === key){
+    __tradeSortState.dir = __tradeSortState.dir === "asc" ? "desc" : "asc";
+  } else {
+    __tradeSortState.key = key;
+    __tradeSortState.dir = "asc";
+  }
+  __sortTradeRows();
+}
+function applyTradeFilters(){
+  const symbol = (document.getElementById("trade-filter-symbol")?.value || "").trim().toLowerCase();
+  const status = (document.getElementById("trade-filter-status")?.value || "all").trim().toLowerCase();
+  const outcome = (document.getElementById("trade-filter-outcome")?.value || "all").trim().toLowerCase();
+  const table = document.getElementById("trade-results-table");
+  if(!table) return;
+  const rows = Array.from(table.querySelectorAll("tbody tr"));
+  for (const row of rows){
+    const symbolText = row.children[1]?.innerText?.trim().toLowerCase() || "";
+    const statusText = row.children[3]?.innerText?.trim().toLowerCase() || "";
+    const pnl = __numberValue(row.children[5]);
+    const matchSymbol = !symbol || symbolText.includes(symbol);
+    const matchStatus = status === "all" || statusText === status;
+    let matchOutcome = true;
+    if (outcome === "gain"){ matchOutcome = pnl > 0; }
+    if (outcome === "loss"){ matchOutcome = pnl < 0; }
+    if (outcome === "flat"){ matchOutcome = pnl === 0; }
+    row.style.display = (matchSymbol && matchStatus && matchOutcome) ? "" : "none";
+  }
+}
 </script>
 """
 
@@ -188,11 +248,11 @@ def _trade_results_table(
             f"<td>{_escape(trade.side)}</td>"
             f"<td>{_escape(trade.status)}</td>"
             f"<td>{_escape(trade.close_reason)}</td>"
-            f"<td><span class='badge {_badge_class_for_percent(trade.realized_pnl)}'>{_fmt_percent(trade.realized_pnl)}</span></td>"
-            f"<td>{trade.warnings_count}</td>"
+            f"<td data-sort='{trade.realized_pnl:.8f}'><span class='badge {_badge_class_for_percent(trade.realized_pnl)}'>{_fmt_percent(trade.realized_pnl)}</span></td>"
+            f"<td data-sort='{trade.warnings_count}'>{trade.warnings_count}</td>"
             f"<td>{trade.ignored_events_count}</td>"
-            f"<td>{_escape(_fmt_timestamp(trade.created_at))}</td>"
-            f"<td>{_escape(_fmt_timestamp(trade.closed_at))}</td>"
+            f"<td data-sort='{trade.created_at or ''}'>{_escape(_fmt_timestamp(trade.created_at))}</td>"
+            f"<td data-sort='{trade.closed_at or ''}'>{_escape(_fmt_timestamp(trade.closed_at))}</td>"
             f"<td><a class='link' href='{_escape(detail_href)}'>{_escape(detail_label)}</a></td>"
             "</tr>"
         )
@@ -571,14 +631,32 @@ def write_policy_html_report(
 
   <div class="card">
     <h2>Trade results</h2>
-    <table>
-      <thead><tr><th>Signal ID</th><th>Symbol</th><th>Side</th><th>Status</th><th>Close reason</th><th>Realized PnL %</th><th>Warnings</th><th>Ignored events</th><th>Created</th><th>Closed</th><th>Detail</th></tr></thead>
+    <div class="note" style="margin-bottom:12px">Use filters and clickable headers to navigate quickly on large datasets. The Detail column opens the chain/signal report for drill-down.</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+      <input id="trade-filter-symbol" type="text" placeholder="Filter symbol" style="border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px;min-width:200px" oninput="applyTradeFilters()">
+      <select id="trade-filter-status" style="border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px" onchange="applyTradeFilters()">
+        <option value="all">Status: all</option>
+        <option value="closed">closed</option>
+        <option value="open">open</option>
+        <option value="cancelled">cancelled</option>
+        <option value="expired">expired</option>
+      </select>
+      <select id="trade-filter-outcome" style="border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px" onchange="applyTradeFilters()">
+        <option value="all">Outcome: all</option>
+        <option value="gain">gain</option>
+        <option value="loss">loss</option>
+        <option value="flat">flat</option>
+      </select>
+    </div>
+    <table id="trade-results-table">
+      <thead><tr><th class="th-sort" onclick="sortTradeTable('signal')">Signal ID</th><th class="th-sort" onclick="sortTradeTable('symbol')">Symbol</th><th class="th-sort" onclick="sortTradeTable('side')">Side</th><th class="th-sort" onclick="sortTradeTable('status')">Status</th><th>Close reason</th><th class="th-sort" onclick="sortTradeTable('pnl')">Realized PnL %</th><th class="th-sort" onclick="sortTradeTable('warnings')">Warnings</th><th>Ignored events</th><th class="th-sort" onclick="sortTradeTable('created')">Created</th><th class="th-sort" onclick="sortTradeTable('closed')">Closed</th><th>Detail</th></tr></thead>
       <tbody>{_trade_results_table(trade_results, trade_detail_links)}</tbody>
     </table>
   </div>
 
   {excluded_dialogs}
 </div>
+<script>__sortTradeRows();</script>
 </body></html>
 """
 
