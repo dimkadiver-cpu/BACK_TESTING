@@ -72,6 +72,7 @@ class UiState:
     latest_market_plan_path: str = ""
     latest_market_sync_report_path: str = ""
     latest_market_validation_report_path: str = ""
+    market_prepare_total_seconds: float = 0.0
     timeframe: str = "1m"
     price_basis: str = "last"
     timeout_seconds: int = 60

@@ -4,6 +4,8 @@ from __future__ import annotations
 import asyncio
 import json
 import re
+import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 from nicegui import ui
@@ -24,6 +26,10 @@ from src.signal_chain_lab.ui.blocks.backtest_support import (
     load_policy_yaml,
     save_policy_yaml,
 )
+from src.signal_chain_lab.ui.blocks.backtest_observability import (
+    append_benchmark_entry,
+    compute_benchmark_snapshot,
+)
 from src.signal_chain_lab.ui.components.log_panel import LogPanel
 from src.signal_chain_lab.ui.state import UiState
 
@@ -34,6 +40,7 @@ _SUMMARY_RE = re.compile(
     r"expectancy=(?P<expectancy>[-+]?\d+(?:\.\d+)?), "
     r"trades=(?P<trades>\d+), excluded=(?P<excluded>\d+)"
 )
+_BENCHMARK_PATH = Path("artifacts/market_data/backtest_benchmark.json")
 
 
 def _can_enable_backtest(*, db_path: str) -> bool:
@@ -65,6 +72,8 @@ def _set_market_validation_status(*, state: UiState, status_label, status_key: s
     state.market_validation_status = status_key
     if status_key == "validated":
         _set_market_status(status_label, text="Market data validati", positive=True)
+    elif status_key == "gap_validated":
+        _set_market_status(status_label, text="Market data pronti, gap validati", positive=True)
     elif status_key == "ready_unvalidated":
         _set_market_status(status_label, text="Market data pronti ma non validati in questa run", positive=None)
     else:
@@ -260,6 +269,7 @@ async def _handle_backtest(
     import sys
     from datetime import datetime as _dt
 
+    run_t0 = time.perf_counter()
     policies_clean = [p.strip() for p in policies if p.strip()]
     if not policies_clean:
         ui.notify("Seleziona almeno una policy prima del backtest", color="negative")
@@ -354,6 +364,8 @@ async def _handle_backtest(
 
     command = _build_base_command(state.backtest_policies, effective_report_dir)
     log_panel.push(f"--- Backtest multi-policy: {', '.join(state.backtest_policies)} ---")
+    log_panel.push("Fase backtest - esecuzione scenario in corso...")
+    backtest_t0 = time.perf_counter()
     try:
         rc = await asyncio.wait_for(
             run_streaming_command(command, log_panel),
@@ -365,6 +377,7 @@ async def _handle_backtest(
     if rc != 0:
         ui.notify("Backtest fallito: controlla log", color="negative")
         return
+    backtest_elapsed = time.perf_counter() - backtest_t0
 
     state.latest_artifact_path = effective_report_dir
     artifact_label.set_text(f"Artifact: {state.latest_artifact_path}")
@@ -377,6 +390,25 @@ async def _handle_backtest(
         artifact_path=state.latest_artifact_path,
         html_path=html_path,
     )
+    total_elapsed = time.perf_counter() - run_t0
+    log_panel.push(f"Timing fase Backtest: {backtest_elapsed:.2f}s")
+    log_panel.push(f"Timing run totale: {total_elapsed:.2f}s")
+    benchmark_entry = {
+        "timestamp_utc": datetime.now(timezone.utc).isoformat(),
+        "prepare_mode": state.market_data_prepare_mode,
+        "policy_count": len(state.backtest_policies),
+        "policies": state.backtest_policies,
+        "market_validation_status": state.market_validation_status,
+        "market_timing_seconds": getattr(state, "market_prepare_total_seconds", 0.0),
+        "backtest_seconds": round(backtest_elapsed, 3),
+        "total_seconds": round(total_elapsed, 3),
+    }
+    benchmark_payload = append_benchmark_entry(_BENCHMARK_PATH, benchmark_entry)
+    snapshot = compute_benchmark_snapshot(benchmark_payload)
+    if snapshot:
+        pairs = [f"{k}={v:.2f}s" for k, v in snapshot.items()]
+        log_panel.push("Benchmark snapshot: " + ", ".join(pairs))
+        log_panel.push(f"Benchmark artifact: {_BENCHMARK_PATH}")
     ui.notify("Backtest completato", color="positive")
 
 
@@ -400,6 +432,13 @@ async def _prepare_market_data(
 ) -> bool:
     import sys
 
+    phase_timings: dict[str, float] = {}
+
+    def _mark_phase(name: str, start_time: float) -> None:
+        phase_timings[name] = time.perf_counter() - start_time
+        log_panel.push(f"Timing fase {name}: {phase_timings[name]:.2f}s")
+
+    prepare_t0 = time.perf_counter()
     db_path = db_path.strip()
     market_root = Path(market_data_dir.strip())
     timeframe = timeframe.strip() or "1m"
@@ -465,6 +504,7 @@ async def _prepare_market_data(
         state.latest_market_validation_report_path = str(cached_record.get("validate_report_path") or "")
         state.market_data_gap_count = int((cached_record.get("summary") or {}).get("gaps", 0))
         _set_market_validation_status(state=state, status_label=status_label, status_key="validated")
+        state.market_prepare_total_seconds = 0.0
         summary_label.set_text(
             "Validation cache hit: market data già validati e compatibili con la richiesta corrente."
         )
@@ -513,12 +553,14 @@ async def _prepare_market_data(
         plan_command += ["--date-from", active_date_from]
     if active_date_to:
         plan_command += ["--date-to", active_date_to]
+    planner_t0 = time.perf_counter()
     rc = await run_streaming_command(plan_command, log_panel)
     if rc != 0 or not plan_path.exists():
         ui.notify("Planner market data fallito", color="negative")
         _set_market_status(status_label, text="Market data: planner fallito", positive=False)
         return False
 
+    _mark_phase("Planner", planner_t0)
     plan_summary = _market_plan_summary(plan_path)
     state.latest_market_plan_path = str(plan_path)
     state.market_data_gap_count = plan_summary["gaps"]
@@ -551,11 +593,13 @@ async def _prepare_market_data(
             "--source",
             market_source,
         ]
+        sync_t0 = time.perf_counter()
         rc = await run_streaming_command(sync_command, log_panel)
         if rc != 0 or not sync_path.exists():
             ui.notify("Sync market data fallito", color="negative")
             _set_market_status(status_label, text="Market data: sync fallito", positive=False)
             return False
+        _mark_phase("Sync", sync_t0)
         state.latest_market_sync_report_path = str(sync_path)
         log_panel.push(f"Fase market 2/4 - Sync: completata. Artifact sync: {sync_path}")
 
@@ -573,11 +617,13 @@ async def _prepare_market_data(
             "--output",
             str(gap_validate_path),
         ]
+        gap_validate_t0 = time.perf_counter()
         rc = await run_streaming_command(gap_validate_command, log_panel)
         if rc != 0 or not gap_validate_path.exists():
             ui.notify("Gap validation market data fallita", color="negative")
             _set_market_status(status_label, text="Market data: gap validation fallita", positive=False)
             return False
+        _mark_phase("Gap Validation", gap_validate_t0)
         log_panel.push(f"Fase market 3/4 - Gap Validation: completata. Artifact gap validation: {gap_validate_path}")
     else:
         log_panel.push("Fase market 2/4 - Sync: nessun gap trovato, step saltato.")
@@ -590,6 +636,8 @@ async def _prepare_market_data(
         state.market_data_ready = True
         state.market_data_checked = False
         _set_market_validation_status(state=state, status_label=status_label, status_key="ready_unvalidated")
+        state.market_prepare_total_seconds = round(time.perf_counter() - prepare_t0, 3)
+        log_panel.push(f"Timing prepare market totale: {state.market_prepare_total_seconds:.2f}s")
         summary_label.set_text(
             "FAST mode: planner/sync/gap validation eseguiti, validate full saltata in questa run."
         )
@@ -610,6 +658,7 @@ async def _prepare_market_data(
         "--output",
         str(validate_path),
     ]
+    validate_t0 = time.perf_counter()
     rc = await run_streaming_command(validate_command, log_panel)
     if rc != 0 or not validate_path.exists():
         ui.notify("Validazione market data fallita", color="negative")
@@ -631,7 +680,10 @@ async def _prepare_market_data(
     log_panel.push(f"Fase market 4/4 - Validate: completata. Artifact validate: {validate_path}")
     state.market_data_ready = True
     state.market_data_checked = True
-    _set_market_validation_status(state=state, status_label=status_label, status_key="validated")
+    if plan_summary["gaps"] > 0:
+        _set_market_validation_status(state=state, status_label=status_label, status_key="gap_validated")
+    else:
+        _set_market_validation_status(state=state, status_label=status_label, status_key="validated")
 
     upsert_validation_record(
         index_payload=index_payload,
@@ -645,6 +697,8 @@ async def _prepare_market_data(
     )
     save_validation_index(index_path, index_payload)
     log_panel.push(f"Validation index aggiornato: {index_path}")
+    state.market_prepare_total_seconds = round(time.perf_counter() - prepare_t0, 3)
+    log_panel.push(f"Timing prepare market totale: {state.market_prepare_total_seconds:.2f}s")
 
     summary_label.set_text(
         "Artifacts market data: "
@@ -1064,3 +1118,4 @@ def render_block_backtest(
             _refresh_trader_select(state.effective_db_path())
 
     backtest_button_holder.append(run_backtest_button)
+    _mark_phase("Validate full", validate_t0)
