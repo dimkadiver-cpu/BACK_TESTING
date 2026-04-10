@@ -25,11 +25,20 @@ TODO:
     - La GUI: comandi +  sistemare 
     - Che report Produce: deve fare solo un report completo per polycy compreso i trade.
     - Miglioramento il report:
-        - Intradurre il grafico interattivo e reale
+        - Intradurre il grafico interattivo e reale (in base alle impostazioni)
         - Perche in Signal ID ho "trader_c:trader_c:rm1571" "trader_c" due volte?
         - In elementi di Event Timeline:
             - In "new signal": aggiungere i dati estratti come livelli di entru, sl e tp , al posto   di  "Price reference"
-    - Custom report
+            - in LAtri tipi di eventi registrati 
+    
+    
+    
+    - Custom report - Creare un menu  impostazioni che mi permettano di mofificare il report_frinale della polycu
+         Varibili modificabili:
+            - In report riasuntivo: mostrare meta dati in policy
+            - In Single Trade Report: se il grafico chart deve essere statico o dinamico (sara implimitato in futuro)
+            
+         
 
 
 3) Blocco 4: da definire // dedicato solo alla ottimazione
