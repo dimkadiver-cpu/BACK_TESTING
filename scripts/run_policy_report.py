@@ -59,6 +59,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--date-from", type=_parse_date, default=None, help="Dataset start date (YYYY-MM-DD)")
     parser.add_argument("--date-to", type=_parse_date, default=None, help="Dataset end date (YYYY-MM-DD)")
+    parser.add_argument("--trader-id", default=None, help="Filter chains by trader_id (default: all)")
     parser.add_argument(
         "--output-dir",
         default=None,
@@ -86,6 +87,13 @@ def main() -> int:
     for chain in canonical:
         chain.metadata["timeframe"] = args.timeframe
 
+    if args.date_from is not None:
+        canonical = [chain for chain in canonical if chain.created_at >= args.date_from]
+    if args.date_to is not None:
+        canonical = [chain for chain in canonical if chain.created_at <= args.date_to]
+    if args.trader_id:
+        canonical = [chain for chain in canonical if chain.trader_id == args.trader_id]
+
     market_provider = _build_market_provider(
         market_dir=args.market_dir,
         timeframe=args.timeframe,
@@ -107,6 +115,7 @@ def main() -> int:
             "market_dir": args.market_dir,
             "date_from": args.date_from.isoformat() if args.date_from else None,
             "date_to": args.date_to.isoformat() if args.date_to else None,
+            "trader_filter": args.trader_id or "all",
             "timeframe": args.timeframe,
             "price_basis": args.price_basis,
         },

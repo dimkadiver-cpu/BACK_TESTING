@@ -219,27 +219,21 @@ async def _handle_parse(
         ui.notify("Seleziona un DB prima del parse", color="negative")
         return
 
-    if state.source_kind == "existing_db":
-        # DB già parsato: skip replay_parser, costruisci direttamente il quality report.
-        # replay_parser.py richiede src.telegram (non incluso in questo workspace).
-        log_panel.push("Fase 1/3 - Parse: DB esistente rilevato, skip replay_parser.py.")
-        log_panel.push("Fase 2/3 - Operation rules: provo a materializzare signals/operational_signals dal DB.")
-    else:
-        log_panel.push("Fase 1/3 - Parse: avvio replay_parser.py.")
-        command = [
-            sys.executable,
-            "parser_test/scripts/replay_parser.py",
-            "--db-path",
-            state.parsed_db_path,
-        ]
-        if state.parser_profile:
-            command += ["--trader", state.parser_profile]
-        rc = await run_streaming_command(command, log_panel)
-        if rc != 0:
-            ui.notify("Replay parser fallito: controlla log", color="negative")
-            return
-        log_panel.push("Fase 1/3 - Parse: completata.")
-        log_panel.push("Fase 2/3 - Operation rules: materializzo signals/operational_signals.")
+    log_panel.push("Fase 1/3 - Parse: avvio replay_parser.py (riprocessamento DB selezionato).")
+    command = [
+        sys.executable,
+        "parser_test/scripts/replay_parser.py",
+        "--db-path",
+        state.parsed_db_path,
+    ]
+    if state.parser_profile:
+        command += ["--trader", state.parser_profile]
+    rc = await run_streaming_command(command, log_panel)
+    if rc != 0:
+        ui.notify("Replay parser fallito: controlla log", color="negative")
+        return
+    log_panel.push("Fase 1/3 - Parse: completata.")
+    log_panel.push("Fase 2/3 - Operation rules: materializzo signals/operational_signals.")
 
     command = [
         sys.executable,
@@ -290,11 +284,6 @@ async def _handle_parse(
         log_panel.push(
             "Fase 3/3 - Chain builder: nessuna chain ricostruibile trovata."
         )
-        if state.source_kind == "existing_db":
-            log_panel.push(
-                "Nota: in modalita' existing_db la GUI salta replay_parser.py; CSV e parse_results "
-                "non implicano automaticamente signals/operational_signals."
-            )
         log_panel.push("Backtest: bloccato finche' il DB non diventa backtestabile.")
         ui.notify(
             "Parse completato, ma il DB non contiene ancora chain backtestabili.",
@@ -325,6 +314,9 @@ def render_block_parse(
                 await _browse_parse_db(parse_db)
 
             ui.button("Sfoglia", on_click=_on_browse_parse_db, icon="folder_open")
+        ui.label("Il DB selezionato verra' sempre riprocessato (parser + operation rules).").classes(
+            "text-caption text-grey-7"
+        )
         parser_profile = ui.select(
             options=_TRADER_OPTIONS,
             value=state.parser_profile,
