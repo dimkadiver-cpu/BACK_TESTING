@@ -14,19 +14,19 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from src.signal_chain_lab.market.planning.gap_detection import Interval
 from src.signal_chain_lab.market.planning.manifest_store import CoverageKey, CoverageRecord, ManifestStore
-from src.signal_chain_lab.market.sync.bybit_downloader import _atomic_write_parquet
+from src.signal_chain_lab.market.sync.bybit_downloader import BybitDownloader, _atomic_write_parquet
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Sync missing market-data gaps to local parquet storage")
     parser.add_argument("--plan-file", required=True, help="Plan JSON produced by plan_market_data.py")
-    parser.add_argument("--db-path", required=True, help="Path to SQLite backtesting DB")
+    parser.add_argument("--db-path", default=None, help="Path to SQLite backtesting DB (required only for fixture source)")
     parser.add_argument("--market-dir", required=True, help="Path to market data root")
     parser.add_argument(
         "--source",
-        default="fixture",
-        choices=["fixture"],
-        help="Data source backend. Only fixture mode is available in this workspace.",
+        default="bybit",
+        choices=["bybit", "fixture"],
+        help="Data source backend. Default: bybit (real download).",
     )
     parser.add_argument(
         "--output",
@@ -42,9 +42,105 @@ def main() -> int:
     market_dir = Path(args.market_dir)
     manifest = ManifestStore(root=market_dir / "manifests")
     timeframe = str(plan["timeframe"])
-    signal_map = _load_signal_specs(args.db_path)
+
+    if args.source == "fixture":
+        if not args.db_path:
+            raise SystemExit("--db-path is required when --source=fixture")
+        results = _sync_fixture(
+            plan=plan,
+            db_path=args.db_path,
+            market_dir=market_dir,
+            manifest=manifest,
+            timeframe=timeframe,
+            source=args.source,
+        )
+    else:
+        results = _sync_bybit(
+            plan=plan,
+            market_dir=market_dir,
+            manifest=manifest,
+            timeframe=timeframe,
+            source=args.source,
+        )
+
+    output = Path(args.output) if args.output else Path("artifacts/market_data/sync_market_data.json")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps({"source": args.source, "results": results}, indent=2), encoding="utf-8")
+
+    ok_count = sum(1 for item in results if item["status"] == "ok")
+    skipped_count = sum(1 for item in results if item["status"] == "skipped")
+    failed_count = sum(1 for item in results if item["status"] in {"error", "partial"})
+
+    print(f"sync_report={output}")
+    print(f"source={args.source}")
+    print(f"jobs={len(results)}")
+    print(f"ok={ok_count}")
+    print(f"skipped={skipped_count}")
+    print(f"failed={failed_count}")
+
+    return 1 if failed_count else 0
+
+
+def _sync_bybit(
+    *,
+    plan: dict[str, object],
+    market_dir: Path,
+    manifest: ManifestStore,
+    timeframe: str,
+    source: str,
+) -> list[dict[str, object]]:
+    downloader = BybitDownloader(
+        market_dir=market_dir,
+        manifest_store=manifest,
+        timeframe=timeframe,
+        bases=["last", "mark"],
+    )
 
     results: list[dict[str, object]] = []
+    symbols_payload = plan.get("symbols", {})
+    for symbol, basis_payload in symbols_payload.items():
+        if not isinstance(basis_payload, dict):
+            continue
+
+        for basis, entry in basis_payload.items():
+            gaps = [Interval.from_dict(item) for item in entry.get("gaps", [])]
+            if not gaps:
+                results.append({"symbol": symbol, "basis": basis, "status": "skipped", "rows_written": 0})
+                continue
+
+            sync_result = downloader.sync_gaps(symbol=symbol, gaps=gaps, bases=[basis])[0]
+            if sync_result.status in {"error", "partial"}:
+                print(
+                    f"ERROR sync_bybit symbol={symbol} basis={basis} "
+                    f"status={sync_result.status} errors={sync_result.errors}"
+                )
+
+            results.append(
+                {
+                    "symbol": symbol,
+                    "basis": basis,
+                    "status": sync_result.status,
+                    "rows_written": sync_result.rows_downloaded,
+                    "partitions_written": sync_result.partitions_written,
+                    "errors": sync_result.errors,
+                    "source": source,
+                }
+            )
+    return results
+
+
+def _sync_fixture(
+    *,
+    plan: dict[str, object],
+    db_path: str,
+    market_dir: Path,
+    manifest: ManifestStore,
+    timeframe: str,
+    source: str,
+) -> list[dict[str, object]]:
+    signal_map = _load_signal_specs(db_path)
+    results: list[dict[str, object]] = []
+
     for symbol, basis_payload in plan["symbols"].items():
         signal_spec = signal_map.get(symbol)
         if signal_spec is None:
@@ -55,13 +151,14 @@ def main() -> int:
                         "basis": basis,
                         "status": "missing_reference_price",
                         "rows_written": 0,
+                        "source": source,
                     }
                 )
             continue
         for basis, entry in basis_payload.items():
             gaps = [Interval.from_dict(item) for item in entry.get("gaps", [])]
             if not gaps:
-                results.append({"symbol": symbol, "basis": basis, "status": "skipped", "rows_written": 0})
+                results.append({"symbol": symbol, "basis": basis, "status": "skipped", "rows_written": 0, "source": source})
                 continue
 
             rows_written = 0
@@ -104,7 +201,7 @@ def main() -> int:
                         "rows": len(rows),
                         "partitions": partitions_written,
                         "status": "ok",
-                        "source": args.source,
+                        "source": source,
                     }
                 )
 
@@ -115,18 +212,10 @@ def main() -> int:
                     "status": "ok",
                     "rows_written": rows_written,
                     "partitions_written": partitions_written,
+                    "source": source,
                 }
             )
-
-    output = Path(args.output) if args.output else Path("artifacts/market_data/sync_market_data.json")
-    output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps({"results": results}, indent=2), encoding="utf-8")
-
-    print(f"sync_report={output}")
-    print(f"jobs={len(results)}")
-    print(f"ok={sum(1 for item in results if item['status'] == 'ok')}")
-    print(f"skipped={sum(1 for item in results if item['status'] == 'skipped')}")
-    return 0
+    return results
 
 
 def _load_signal_specs(db_path: str) -> dict[str, dict[str, object]]:
@@ -145,7 +234,6 @@ def _load_signal_specs(db_path: str) -> dict[str, dict[str, object]]:
         rows = conn.execute(query).fetchall()
     for symbol, message_ts, normalized_json in rows:
         payload = json.loads(normalized_json)
-        entities = payload.get("entities", {})
         reference_price = _extract_reference_price(payload)
         if reference_price is not None:
             key = str(symbol)
