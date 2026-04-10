@@ -65,7 +65,18 @@ def main() -> int:
 
     output = Path(args.output) if args.output else Path("artifacts/market_data/sync_market_data.json")
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps({"source": args.source, "results": results}, indent=2), encoding="utf-8")
+    output.write_text(
+        json.dumps(
+            {
+                "source": args.source,
+                "plan_file": str(Path(args.plan_file).resolve()),
+                "market_request_fingerprint": plan.get("market_request_fingerprint", ""),
+                "results": results,
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
 
     ok_count = sum(1 for item in results if item["status"] == "ok")
     skipped_count = sum(1 for item in results if item["status"] == "skipped")
@@ -77,6 +88,7 @@ def main() -> int:
     print(f"ok={ok_count}")
     print(f"skipped={skipped_count}")
     print(f"failed={failed_count}")
+    print(f"market_request_fingerprint={plan.get('market_request_fingerprint', '')}")
 
     return 1 if failed_count else 0
 

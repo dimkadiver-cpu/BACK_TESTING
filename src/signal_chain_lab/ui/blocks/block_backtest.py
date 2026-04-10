@@ -7,6 +7,15 @@ import re
 from pathlib import Path
 
 from nicegui import ui
+from src.signal_chain_lab.market.preparation_cache import (
+    build_market_request,
+    find_pass_validation_record,
+    load_validation_index,
+    market_request_fingerprint,
+    upsert_validation_record,
+    validation_index_path,
+    save_validation_index,
+)
 
 from src.signal_chain_lab.ui.blocks.backtest_support import (
     discover_date_range_from_db,
@@ -52,14 +61,25 @@ def _set_market_status(label, *, text: str, positive: bool | None = None) -> Non
         label.classes(add="text-grey-6")
 
 
+def _set_market_validation_status(*, state: UiState, status_label, status_key: str) -> None:
+    state.market_validation_status = status_key
+    if status_key == "validated":
+        _set_market_status(status_label, text="Market data validati", positive=True)
+    elif status_key == "ready_unvalidated":
+        _set_market_status(status_label, text="Market data pronti ma non validati in questa run", positive=None)
+    else:
+        _set_market_status(status_label, text="Market data da verificare", positive=None)
+
+
 def _invalidate_market_readiness(*, state: UiState, status_label, summary_label) -> None:
     state.market_data_ready = False
     state.market_data_checked = False
+    state.market_validation_fingerprint = ""
     state.market_data_gap_count = 0
     state.latest_market_plan_path = ""
     state.latest_market_sync_report_path = ""
     state.latest_market_validation_report_path = ""
-    _set_market_status(status_label, text="Market data da verificare", positive=None)
+    _set_market_validation_status(state=state, status_label=status_label, status_key="needs_check")
     summary_label.set_text(
         "La cartella verra' analizzata prima del backtest. Se mancano intervalli, la GUI eseguira' plan/sync/validate."
     )
@@ -228,6 +248,8 @@ async def _handle_backtest(
     timeframe: str,
     price_basis: str,
     timeout_seconds: int,
+    prepare_mode: str,
+    market_source: str,
     log_panel: LogPanel,
     market_status_label,
     market_summary_label,
@@ -273,6 +295,8 @@ async def _handle_backtest(
     state.timeframe = timeframe.strip() or "1m"
     state.price_basis = price_basis.strip() or "last"
     state.timeout_seconds = int(timeout_seconds)
+    state.market_data_prepare_mode = prepare_mode.strip().upper() or "SAFE"
+    state.market_data_source = market_source.strip() or "bybit"
     log_panel.clear()
     summary_container.clear()
 
@@ -299,6 +323,8 @@ async def _handle_backtest(
             trader_filter=state.backtest_trader_filter,
             date_from=state.backtest_date_from,
             date_to=state.backtest_date_to,
+            prepare_mode=state.market_data_prepare_mode,
+            market_source=state.market_data_source,
         )
         if not market_ready:
             return
@@ -375,6 +401,8 @@ async def _prepare_market_data(
     trader_filter: str = "all",
     date_from: str = "",
     date_to: str = "",
+    prepare_mode: str = "SAFE",
+    market_source: str = "bybit",
 ) -> bool:
     import sys
 
@@ -382,6 +410,10 @@ async def _prepare_market_data(
     market_root = Path(market_data_dir.strip())
     timeframe = timeframe.strip() or "1m"
     price_basis = price_basis.strip() or "last"
+    prepare_mode = (prepare_mode or "SAFE").strip().upper()
+    if prepare_mode not in {"SAFE", "FAST"}:
+        prepare_mode = "SAFE"
+    market_source = (market_source or "bybit").strip() or "bybit"
 
     if not db_path:
         ui.notify("Seleziona un DB parsato prima di preparare i market data", color="negative")
@@ -396,6 +428,8 @@ async def _prepare_market_data(
     state.market_data_dir = str(market_root)
     state.timeframe = timeframe
     state.price_basis = price_basis
+    state.market_data_prepare_mode = prepare_mode
+    state.market_data_source = market_source
 
     if state.market_data_mode == "existing_dir" and not market_root.exists():
         ui.notify("La cartella market data selezionata non esiste", color="negative")
@@ -411,11 +445,45 @@ async def _prepare_market_data(
     active_trader = trader_filter if trader_filter and trader_filter != "all" else None
     active_date_from = date_from.strip() or None
     active_date_to = date_to.strip() or None
+    request = build_market_request(
+        db_path=db_path,
+        market_data_dir=str(market_root),
+        trader_filter=active_trader or "all",
+        date_from=active_date_from or "",
+        date_to=active_date_to or "",
+        timeframe=timeframe,
+        price_basis=price_basis,
+        source=market_source,
+    )
+    fingerprint = market_request_fingerprint(request)
+    index_path = validation_index_path(str(market_root))
+    index_payload = load_validation_index(index_path)
+    cached_record = find_pass_validation_record(index_payload, fingerprint)
+    state.market_validation_fingerprint = fingerprint
+
+    if cached_record:
+        log_panel.push("Validation cache hit: riuso validazione PASS già esistente.")
+        log_panel.push(f"Validation cache fingerprint={fingerprint}")
+        state.market_data_ready = True
+        state.market_data_checked = True
+        state.latest_market_plan_path = str(cached_record.get("plan_path") or "")
+        state.latest_market_sync_report_path = str(cached_record.get("sync_report_path") or "")
+        state.latest_market_validation_report_path = str(cached_record.get("validate_report_path") or "")
+        state.market_data_gap_count = int((cached_record.get("summary") or {}).get("gaps", 0))
+        _set_market_validation_status(state=state, status_label=status_label, status_key="validated")
+        summary_label.set_text(
+            "Validation cache hit: market data già validati e compatibili con la richiesta corrente."
+        )
+        if not silent:
+            ui.notify("Validation cache hit: market data già validati", color="positive")
+        return True
 
     log_panel.push("Fase market 1/3 - Planner: analisi copertura richiesta dal DB.")
     log_panel.push(f"Market data: modalita' selezionata -> {mode_label}.")
     log_panel.push(f"Market data: root locale -> {market_root}")
     log_panel.push(f"Market data: timeframe={timeframe}, basis primaria={price_basis}")
+    log_panel.push(f"Market data: source={market_source}")
+    log_panel.push(f"Market data: prepare_mode={prepare_mode}, fingerprint={fingerprint}")
     filter_desc = ", ".join(filter(None, [
         f"trader={active_trader}" if active_trader else None,
         f"dal={active_date_from}" if active_date_from else None,
@@ -439,6 +507,8 @@ async def _prepare_market_data(
         timeframe,
         "--bases",
         "last,mark",
+        "--source",
+        market_source,
         "--output",
         str(plan_path),
     ]
@@ -483,6 +553,8 @@ async def _prepare_market_data(
             str(market_root),
             "--output",
             str(sync_path),
+            "--source",
+            market_source,
         ]
         rc = await run_streaming_command(sync_command, log_panel)
         if rc != 0 or not sync_path.exists():
@@ -494,6 +566,20 @@ async def _prepare_market_data(
     else:
         log_panel.push("Fase market 2/3 - Sync: nessun gap trovato, step saltato.")
         log_panel.push("Market data: nessun gap trovato, sync non necessario.")
+
+    if prepare_mode == "FAST":
+        log_panel.push("FAST mode: validate saltato.")
+        state.latest_market_validation_report_path = ""
+        state.market_data_ready = True
+        state.market_data_checked = False
+        _set_market_validation_status(state=state, status_label=status_label, status_key="ready_unvalidated")
+        summary_label.set_text(
+            "FAST mode: planner/sync eseguiti, validate saltato in questa run."
+        )
+        log_panel.push("Market data: cache pronta per il backtest (senza validazione in questa run).")
+        if not silent:
+            ui.notify("FAST mode: market data pronti senza validazione", color="warning")
+        return True
 
     log_panel.push("Fase market 3/3 - Validate: verifica consistenza cache locale.")
     _set_market_status(status_label, text="Market data: validazione in corso...", positive=None)
@@ -511,20 +597,37 @@ async def _prepare_market_data(
     if rc != 0 or not validate_path.exists():
         ui.notify("Validazione market data fallita", color="negative")
         _set_market_status(status_label, text="Market data: validazione fallita", positive=False)
+        upsert_validation_record(
+            index_payload=index_payload,
+            request=request,
+            fingerprint=fingerprint,
+            status="FAIL",
+            plan_path=str(plan_path),
+            sync_report_path=str(sync_path) if sync_path.exists() else "",
+            validate_report_path=str(validate_path) if validate_path.exists() else "",
+            summary=plan_summary,
+        )
+        save_validation_index(index_path, index_payload)
         return False
 
     state.latest_market_validation_report_path = str(validate_path)
     log_panel.push(f"Fase market 3/3 - Validate: completata. Artifact validate: {validate_path}")
     state.market_data_ready = True
     state.market_data_checked = True
-    if plan_summary["gaps"] > 0:
-        _set_market_status(
-            status_label,
-            text=f"Market data pronti: integrati {plan_summary['gaps']} gap e validati",
-            positive=True,
-        )
-    else:
-        _set_market_status(status_label, text="Market data pronti: cache gia' completa e validata", positive=True)
+    _set_market_validation_status(state=state, status_label=status_label, status_key="validated")
+
+    upsert_validation_record(
+        index_payload=index_payload,
+        request=request,
+        fingerprint=fingerprint,
+        status="PASS",
+        plan_path=str(plan_path),
+        sync_report_path=str(sync_path) if sync_path.exists() else "",
+        validate_report_path=str(validate_path),
+        summary=plan_summary,
+    )
+    save_validation_index(index_path, index_payload)
+    log_panel.push(f"Validation index aggiornato: {index_path}")
 
     summary_label.set_text(
         "Artifacts market data: "
@@ -792,7 +895,16 @@ def render_block_backtest(
                 value=state.price_basis,
                 label="Price basis",
             ).classes("flex-1")
+            market_source = ui.select(
+                options={"bybit": "bybit", "fixture": "fixture"},
+                value=state.market_data_source,
+                label="Market source",
+            ).classes("flex-1")
             timeout_seconds = ui.number("Timeout (s)", value=state.timeout_seconds, min=5, step=5).classes("flex-1")
+        market_prepare_mode = ui.radio(
+            {"SAFE": "SAFE (planner+sync+validate con cache)", "FAST": "FAST (planner+sync, validate opzionale)"},
+            value=state.market_data_prepare_mode,
+        ).props("inline")
 
         # --- Report output dir (Fase 4) ---
         with ui.row().classes("w-full items-end gap-2"):
@@ -839,6 +951,8 @@ def render_block_backtest(
                 timeframe=timeframe.value,
                 price_basis=price_basis.value,
                 timeout_seconds=int(timeout_seconds.value),
+                prepare_mode=market_prepare_mode.value,
+                market_source=market_source.value,
                 log_panel=block3_log,
                 market_status_label=market_status,
                 market_summary_label=market_summary,
@@ -868,6 +982,8 @@ def render_block_backtest(
                 trader_filter=trader_select.value or "all",
                 date_from=date_from_input.value,
                 date_to=date_to_input.value,
+                prepare_mode=market_prepare_mode.value,
+                market_source=market_source.value,
             )
             if ready:
                 _refresh_backtest_button()
@@ -912,6 +1028,7 @@ def render_block_backtest(
         ui.button("Prepara / verifica market data", on_click=_on_prepare_market_data, color="secondary")
 
         def _on_db_path_change(*_) -> None:
+            _invalidate_market_readiness(state=state, status_label=market_status, summary_label=market_summary)
             _refresh_backtest_button()
             _refresh_trader_select(backtest_db.value.strip() or state.effective_db_path())
 
@@ -920,6 +1037,8 @@ def render_block_backtest(
         market_data_dir.on("update:model-value", _on_market_inputs_change)
         timeframe.on("update:model-value", _on_market_inputs_change)
         price_basis.on("update:model-value", _on_market_inputs_change)
+        market_source.on("update:model-value", _on_market_inputs_change)
+        market_prepare_mode.on("update:model-value", _on_market_inputs_change)
         market_data_mode.on("update:model-value", _refresh_market_mode_hint)
         _refresh_market_mode_hint()
         _refresh_backtest_button()

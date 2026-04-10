@@ -103,7 +103,18 @@ def main() -> int:
 
     output = Path(args.output) if args.output else Path("artifacts/market_data/validate_market_data.json")
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps({"results": results}, indent=2), encoding="utf-8")
+    output.write_text(
+        json.dumps(
+            {
+                "market_request_fingerprint": plan.get("market_request_fingerprint", ""),
+                "status": "PASS" if not has_errors else "FAIL",
+                "checks": len(results),
+                "results": results,
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
 
     overall = "PASS" if not has_errors else "FAIL"
     print(f"validation_report={output}")
