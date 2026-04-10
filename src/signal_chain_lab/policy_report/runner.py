@@ -6,9 +6,8 @@ import json
 import re
 from collections import Counter
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
-import shutil
 
 import yaml
 
@@ -16,6 +15,7 @@ from src.signal_chain_lab.adapters.validators import validate_chain_for_simulati
 from src.signal_chain_lab.domain.events import CanonicalChain
 from src.signal_chain_lab.domain.results import EventLogEntry, TradeResult
 from src.signal_chain_lab.engine.simulator import simulate_chain
+from src.signal_chain_lab.market.data_models import Candle
 from src.signal_chain_lab.market.data_models import MarketDataProvider
 from src.signal_chain_lab.policies.base import PolicyConfig
 from src.signal_chain_lab.policy_report.html_writer import (
@@ -246,12 +246,19 @@ def _write_trade_artifacts(
     output_dir: Path,
     trade_results: list[TradeResult],
     event_logs_by_signal_id: dict[str, list[EventLogEntry]],
+    chains_by_signal_id: dict[str, CanonicalChain],
+    market_provider: MarketDataProvider | None,
 ) -> dict[str, str]:
     trade_detail_links: dict[str, str] = {}
     trades_dir = output_dir / "trades"
     for trade in trade_results:
         signal_dir = trades_dir / _safe_dirname(trade.signal_id)
         event_log = event_logs_by_signal_id.get(trade.signal_id, [])
+        chart_candles_by_timeframe = _load_trade_chart_candles_by_timeframe(
+            trade=trade,
+            chain=chains_by_signal_id.get(trade.signal_id),
+            market_provider=market_provider,
+        )
         write_event_log_jsonl(event_log, signal_dir / "event_log.jsonl")
         write_trade_results_csv([trade], signal_dir / "trade_result.csv")
         write_chain_plot_png(event_log, signal_dir / "equity_curve.png")
@@ -264,9 +271,46 @@ def _write_trade_artifacts(
             trade=trade,
             event_log=event_log,
             output_path=signal_dir / "detail.html",
+            candles_by_timeframe=chart_candles_by_timeframe,
         )
         trade_detail_links[trade.signal_id] = f"trades/{signal_dir.name}/detail.html"
     return trade_detail_links
+
+
+def _higher_timeframes(base_timeframe: str) -> list[str]:
+    ordered = ["1m", "5m", "15m", "1h", "4h", "1d"]
+    if base_timeframe not in ordered:
+        return [base_timeframe]
+    start = ordered.index(base_timeframe)
+    return ordered[start:]
+
+
+def _load_trade_chart_candles_by_timeframe(
+    *,
+    trade: TradeResult,
+    chain: CanonicalChain | None,
+    market_provider: MarketDataProvider | None,
+) -> dict[str, list[Candle]]:
+    if market_provider is None or chain is None:
+        return {}
+
+    if trade.created_at is None:
+        return {}
+
+    timeframe = str(chain.metadata.get("timeframe", "1m") or "1m")
+    timeframes = _higher_timeframes(timeframe)
+    start = trade.created_at - timedelta(hours=6)
+    end_anchor = trade.closed_at or trade.created_at
+    end = end_anchor + timedelta(hours=6)
+    result: dict[str, list[Candle]] = {}
+    for candidate_timeframe in timeframes:
+        try:
+            candles = market_provider.get_range(trade.symbol, candidate_timeframe, start, end)
+        except Exception:
+            candles = []
+        if candles:
+            result[candidate_timeframe] = candles
+    return result
 
 
 def run_policy_report(
@@ -331,6 +375,7 @@ def run_policy_report(
         "Generated At": summary["generated_at"],
     }
     policy_values = flatten_policy_values(policy.model_dump(mode="json", by_alias=True))
+    chains_by_signal_id = {chain.signal_id: chain for chain in selected_chains}
 
     trade_detail_links = None
     if write_trade_artifacts:
@@ -338,6 +383,8 @@ def run_policy_report(
             output_dir=directory,
             trade_results=trade_results,
             event_logs_by_signal_id=event_logs_by_signal_id,
+            chains_by_signal_id=chains_by_signal_id,
+            market_provider=market_provider,
         )
 
     html_report_path = write_policy_html_report(
@@ -346,11 +393,10 @@ def run_policy_report(
         excluded_chains=excluded_chains,
         dataset_metadata=metadata,
         policy_values=policy_values,
-        output_path=directory / "policy_report_complete.html",
+        output_path=directory / "policy_report.html",
         trade_detail_links=trade_detail_links,
         title=f"Policy Report - {policy.name}",
     )
-    shutil.copyfile(html_report_path, directory / "policy_report.html")
 
     return PolicyReportArtifacts(
         output_dir=directory,

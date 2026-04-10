@@ -1165,4 +1165,3 @@ def render_block_backtest(
             _refresh_trader_select(state.effective_db_path())
 
     backtest_button_holder.append(run_backtest_button)
-    _mark_phase("Validate full", validate_t0)

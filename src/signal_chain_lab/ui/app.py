@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 
 from nicegui import ui
+import nicegui.run as nicegui_run
 
 from src.signal_chain_lab.ui.blocks.block_backtest import render_block_backtest
 from src.signal_chain_lab.ui.blocks.block_download import render_block_download
@@ -11,6 +13,19 @@ from src.signal_chain_lab.ui.blocks.block_parse import render_block_parse
 from src.signal_chain_lab.ui.state import UiState
 
 APP_STATE = UiState()
+
+
+def _patch_nicegui_process_pool_setup() -> None:
+    """Allow startup to continue when Windows blocks ProcessPool creation."""
+    original_setup = nicegui_run.setup
+
+    def _safe_setup() -> None:
+        try:
+            original_setup()
+        except PermissionError as exc:
+            logging.warning("NiceGUI process pool disabled: %s", exc)
+
+    nicegui_run.setup = _safe_setup
 
 
 async def _run_streaming_command(command: list[str], log_panel, process_started=None) -> int:
@@ -61,6 +76,7 @@ def main_page() -> None:
 
 
 def run() -> None:
+    _patch_nicegui_process_pool_setup()
     ui.run(title="Signal Chain Lab GUI", reload=False, port=7777)
 
 

@@ -27,9 +27,9 @@ TODO:
     - La GUI: comandi +  sistemare 
     - Che report Produce: deve fare solo un report completo per polycy compreso i trade.
     - Miglioramento il report:
-        - Intradurre il grafico interattivo e reale (in base alle impostazioni)
+        - Intradurre il grafico interattivo e reale, in base alle impostazioni (C:\Back_Testing\docs\PRD_single_trade_interactive_report.md)
         - Perche in Signal ID ho "trader_c:trader_c:rm1571" "trader_c" due volte?
-        - In elementi di Event Timeline:
+        - In elementi di Event Timeline: (rivedere la logica)
             - In "new signal": aggiungere i dati estratti come livelli di entru, sl e tp , al posto   di  "Price reference"
             - in LAtri tipi di eventi registrati 
     

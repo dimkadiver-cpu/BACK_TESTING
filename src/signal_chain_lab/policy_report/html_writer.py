@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 from src.signal_chain_lab.domain.results import EventLogEntry, TradeResult
+from src.signal_chain_lab.market.data_models import Candle
 
 
 def _fmt_percent(value: float | int | None, *, signed: bool = True, digits: int = 2) -> str:
@@ -44,6 +45,17 @@ def _escape(value: object) -> str:
 
 
 def _badge_class_for_percent(value: float | int | None) -> str:
+    if value is None:
+        return "muted"
+    number = float(value)
+    if number > 0:
+        return "ok"
+    if number < 0:
+        return "bad"
+    return "muted"
+
+
+def _badge_class_for_number(value: float | int | None) -> str:
     if value is None:
         return "muted"
     number = float(value)
@@ -97,6 +109,7 @@ dialog::backdrop{background:rgba(15,23,42,.55)}
 .chart-wrap{position:relative;border:1px solid var(--line);border-radius:14px;padding:10px;background:#fff}
 .chart-toolbar{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-bottom:8px}
 .chart-toolbar button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:4px 9px;cursor:pointer}
+.chart-toolbar button.active{background:#dbeafe;border-color:#93c5fd;color:#1e3a8a;font-weight:700}
 .chart-tooltip{position:absolute;pointer-events:none;background:#0f172a;color:#fff;padding:6px 8px;border-radius:8px;font-size:12px;transform:translate(10px,-10px);display:none}
 .footer-nav{margin-top:20px}
 @media (max-width: 900px){.grid-4{grid-template-columns:repeat(2,minmax(0,1fr))}.ti-meta{grid-template-columns:1fr}}
@@ -191,12 +204,12 @@ def _trade_summary_metrics(summary: dict[str, object]) -> str:
             f"<div class='metric'><div class='k'>Policy name</div><div class='v small'>{_escape(summary.get('policy_name'))}</div></div>",
             f"<div class='metric'><div class='k'>Total trades</div><div class='v'>{_escape(summary.get('trades_count'))}</div></div>",
             f"<div class='metric'><div class='k'>Win Rate</div><div class='v'>{_fmt_percent(summary.get('win_rate_pct'), signed=False)}</div></div>",
-            f"<div class='metric'><div class='k'>Net Profit</div><div class='v'>{_fmt_percent(summary.get('net_profit_pct'))}</div></div>",
-            f"<div class='metric'><div class='k'>Profit %</div><div class='v'>{_fmt_percent(summary.get('profit_pct'))}</div></div>",
-            f"<div class='metric'><div class='k'>Loss %</div><div class='v'>{_fmt_percent(summary.get('loss_pct'))}</div></div>",
+            f"<div class='metric'><div class='k'>Net Profit</div><div class='v'>{_fmt_number(summary.get('net_profit_pct'))}</div></div>",
+            f"<div class='metric'><div class='k'>Profit</div><div class='v'>{_fmt_number(summary.get('profit_pct'))}</div></div>",
+            f"<div class='metric'><div class='k'>Loss</div><div class='v'>{_fmt_number(summary.get('loss_pct'))}</div></div>",
             f"<div class='metric'><div class='k'>Profit Factor</div><div class='v'>{_fmt_number(summary.get('profit_factor'))}</div></div>",
-            f"<div class='metric'><div class='k'>Expectancy %</div><div class='v'>{_fmt_percent(summary.get('expectancy_pct'))}</div></div>",
-            f"<div class='metric'><div class='k'>Max Drawdown %</div><div class='v'>{_fmt_percent(summary.get('max_drawdown_pct'), signed=False)}</div></div>",
+            f"<div class='metric'><div class='k'>Expectancy</div><div class='v'>{_fmt_number(summary.get('expectancy_pct'))}</div></div>",
+            f"<div class='metric'><div class='k'>Max Drawdown</div><div class='v'>{_fmt_number(summary.get('max_drawdown_pct'))}</div></div>",
             f"<div class='metric'><div class='k'>Avg Warnings / Trade</div><div class='v'>{_fmt_number(summary.get('avg_warnings_per_trade'))}</div></div>",
             f"<div class='metric'><div class='k'>Excluded Chains</div><div class='v'>{_escape(summary.get('chains_excluded'))}</div></div>",
         ]
@@ -252,7 +265,7 @@ def _trade_results_table(
             f"<td>{_escape(trade.side)}</td>"
             f"<td>{_escape(trade.status)}</td>"
             f"<td>{_escape(trade.close_reason)}</td>"
-            f"<td data-sort='{trade.realized_pnl:.8f}'><span class='badge {_badge_class_for_percent(trade.realized_pnl)}'>{_fmt_percent(trade.realized_pnl)}</span></td>"
+            f"<td data-sort='{trade.realized_pnl:.8f}'><span class='badge {_badge_class_for_number(trade.realized_pnl)}'>{_fmt_number(trade.realized_pnl, 4)}</span></td>"
             f"<td data-sort='{trade.warnings_count}'>{trade.warnings_count}</td>"
             f"<td>{trade.ignored_events_count}</td>"
             f"<td data-sort='{trade.created_at or ''}'>{_escape(_fmt_timestamp(trade.created_at))}</td>"
@@ -351,6 +364,16 @@ def _chart_points(event_log: list[EventLogEntry]) -> list[dict[str, object]]:
             if isinstance(value, int | float):
                 candidate_prices.append(float(value))
         if not candidate_prices:
+            entries_planned = state_after.get("entries_planned") or []
+            if isinstance(entries_planned, list):
+                planned_prices = [
+                    float(item.get("price"))
+                    for item in entries_planned
+                    if isinstance(item, dict) and isinstance(item.get("price"), int | float)
+                ]
+                if planned_prices:
+                    candidate_prices.append(sum(planned_prices) / len(planned_prices))
+        if not candidate_prices:
             continue
         points.append(
             {
@@ -362,7 +385,26 @@ def _chart_points(event_log: list[EventLogEntry]) -> list[dict[str, object]]:
     return points
 
 
-def _chart_html(trade: TradeResult, event_log: list[EventLogEntry]) -> str:
+def _serialize_candles(candles: list[Candle] | None) -> list[dict[str, object]]:
+    if not candles:
+        return []
+    return [
+        {
+            "timestamp": _fmt_timestamp(candle.timestamp),
+            "open": candle.open,
+            "high": candle.high,
+            "low": candle.low,
+            "close": candle.close,
+        }
+        for candle in candles
+    ]
+
+
+def _chart_html(
+    trade: TradeResult,
+    event_log: list[EventLogEntry],
+    candles: list[Candle] | None = None,
+) -> str:
     points = _chart_points(event_log)
     annotations: list[dict[str, object]] = []
     outcome_labels = _event_outcome_labels(event_log)
@@ -384,7 +426,7 @@ def _chart_html(trade: TradeResult, event_log: list[EventLogEntry]) -> str:
             pnl = trade.realized_pnl if sl_hit else 0.0
             annotations.append(
                 {
-                    "label": f"{label} ({_fmt_percent(pnl)})" if "SL hit" in label else label,
+                    "label": f"{label} ({_fmt_number(pnl, 4)})" if "SL hit" in label else label,
                     "price": float(current_sl),
                     "color": "#b91c1c",
                 }
@@ -398,11 +440,12 @@ def _chart_html(trade: TradeResult, event_log: list[EventLogEntry]) -> str:
                 hit_name = f"TP{idx + 1}"
                 tp_hit = any(hit_name in item for item in outcome_labels)
                 if tp_hit and trade.realized_pnl is not None and not realized_hit_label_added:
-                    suffix = f" hit ({_fmt_percent(trade.realized_pnl)})"
+                    suffix = f" hit ({_fmt_number(trade.realized_pnl, 4)})"
                     realized_hit_label_added = True
                 annotations.append({"label": f"{label}{suffix}", "price": float(tp), "color": "#15803d"})
 
     chart_payload = {
+        "candles": _serialize_candles(candles),
         "points": points,
         "annotations": annotations,
         "title": f"{trade.signal_id} - {trade.symbol} {_display_side(trade.side)}",
@@ -418,23 +461,31 @@ def _chart_html(trade: TradeResult, event_log: list[EventLogEntry]) -> str:
       </div>
       <svg id="{chart_id}" viewBox="0 0 940 380" width="100%" height="auto"></svg>
       <div id="{chart_id}_tip" class="chart-tooltip"></div>
-      <script type="application/json" id="{payload_id}">{_escape(json.dumps(chart_payload, ensure_ascii=False))}</script>
+      <script type="application/json" id="{payload_id}">{json.dumps(chart_payload, ensure_ascii=False)}</script>
       <script>
       (() => {{
         const svg = document.getElementById("{chart_id}");
         const tip = document.getElementById("{chart_id}_tip");
         const data = JSON.parse(document.getElementById("{payload_id}").textContent || "{{}}");
         const left = 58, top = 24, bottom = 332, right = 916;
-        const allPrices = [...(data.points || []).map(p => Number(p.price)), ...(data.annotations || []).map(a => Number(a.price))].filter(Number.isFinite);
+        const candles = data.candles || [];
+        const points = data.points || [];
+        const annotations = data.annotations || [];
+        const frameItems = candles.length ? candles : points;
+        const allPrices = [
+          ...candles.flatMap(c => [Number(c.low), Number(c.high)]),
+          ...points.map(p => Number(p.price)),
+          ...annotations.map(a => Number(a.price))
+        ].filter(Number.isFinite);
         if (!allPrices.length) allPrices.push(100, 101);
         const min = Math.min(...allPrices), max = Math.max(...allPrices);
         const pad = Math.max((max - min) * 0.08, 0.0001);
         const baseRange = {{ min: min - pad, max: max + pad }};
         let viewRange = {{ ...baseRange }};
         const mapY = (price) => bottom - (((price - viewRange.min) / Math.max(viewRange.max - viewRange.min, 1e-9)) * (bottom - top));
-        const mapX = (idx) => left + ((idx / Math.max((data.points || []).length - 1, 1)) * (right - left));
+        const mapX = (idx) => left + ((idx / Math.max(frameItems.length - 1, 1)) * (right - left));
+        const pointFrameIndex = (pointIdx) => Math.round((pointIdx / Math.max(points.length - 1, 1)) * Math.max(frameItems.length - 1, 1));
         function render() {{
-          const points = data.points || [];
           const grid = [];
           for (let i = 0; i < 6; i++) {{
             const p = viewRange.max - (((viewRange.max - viewRange.min) / 5) * i);
@@ -442,35 +493,76 @@ def _chart_html(trade: TradeResult, event_log: list[EventLogEntry]) -> str:
             grid.push(`<line x1="${{left}}" y1="${{y.toFixed(2)}}" x2="${{right}}" y2="${{y.toFixed(2)}}" stroke="#e5e7eb" stroke-width="1"/>`);
             grid.push(`<text x="50" y="${{(y + 4).toFixed(2)}}" text-anchor="end" font-size="12" fill="#6b7280">${{p.toFixed(2)}}</text>`);
           }}
-          const poly = points.map((p, i) => `${{mapX(i).toFixed(2)}},${{mapY(Number(p.price)).toFixed(2)}}`).join(" ");
-          const circles = points.map((p, i) => `<circle cx="${{mapX(i).toFixed(2)}}" cy="${{mapY(Number(p.price)).toFixed(2)}}" r="3.2" fill="#2563eb"/>`).join("");
-          const ann = (data.annotations || []).map((a, idx) => {{
+          const candleStep = Math.max((right - left) / Math.max(candles.length, 1), 3);
+          const candleBodyWidth = Math.max(Math.min(candleStep * 0.6, 18), 3);
+          const candleShapes = candles.map((candle, idx) => {{
+            const x = mapX(idx);
+            const openY = mapY(Number(candle.open));
+            const closeY = mapY(Number(candle.close));
+            const highY = mapY(Number(candle.high));
+            const lowY = mapY(Number(candle.low));
+            const rising = Number(candle.close) >= Number(candle.open);
+            const stroke = rising ? "#15803d" : "#b91c1c";
+            const fill = rising ? "#dcfce7" : "#fee2e2";
+            const topY = Math.min(openY, closeY);
+            const height = Math.max(Math.abs(closeY - openY), 1.2);
+            return `<line x1="${{x.toFixed(2)}}" y1="${{highY.toFixed(2)}}" x2="${{x.toFixed(2)}}" y2="${{lowY.toFixed(2)}}" stroke="${{stroke}}" stroke-width="1.2"/>
+            <rect x="${{(x - candleBodyWidth / 2).toFixed(2)}}" y="${{topY.toFixed(2)}}" width="${{candleBodyWidth.toFixed(2)}}" height="${{height.toFixed(2)}}" fill="${{fill}}" stroke="${{stroke}}" stroke-width="1.2" rx="1"/>`;
+          }}).join("");
+          const pointPositions = points.map((point, idx) => {{
+            const matchingIndex = frameItems.findIndex(item => item.timestamp === point.timestamp);
+            const xIdx = matchingIndex >= 0
+              ? matchingIndex
+              : pointFrameIndex(idx);
+            return {{ ...point, x: mapX(Math.max(xIdx, 0)), y: mapY(Number(point.price)) }};
+          }});
+          const poly = pointPositions.map((p) => `${{p.x.toFixed(2)}},${{p.y.toFixed(2)}}`).join(" ");
+          const circles = pointPositions.map((p) => `<circle cx="${{p.x.toFixed(2)}}" cy="${{p.y.toFixed(2)}}" r="3.6" fill="#2563eb" stroke="#ffffff" stroke-width="1.2"/>`).join("");
+          const ann = annotations.map((a, idx) => {{
             const y = mapY(Number(a.price));
             const x = left + 20 + ((idx % 2) * 90);
             return `<line x1="${{x}}" y1="${{y.toFixed(2)}}" x2="${{right}}" y2="${{y.toFixed(2)}}" stroke="${{a.color}}" stroke-dasharray="5 4" stroke-width="1.4"/>
             <text x="${{x + 8}}" y="${{(y - 4).toFixed(2)}}" font-size="12" fill="${{a.color}}" font-weight="600">${{a.label}} (${{Number(a.price).toFixed(4)}})</text>`;
           }}).join("");
+          const xAxisLabels = frameItems.length > 1
+            ? [0, Math.floor((frameItems.length - 1) / 2), frameItems.length - 1]
+                .filter((value, index, arr) => arr.indexOf(value) === index)
+                .map((idx) => `<text x="${{mapX(idx).toFixed(2)}}" y="356" text-anchor="middle" font-size="11" fill="#6b7280">${{frameItems[idx].timestamp || ""}}</text>`)
+                .join("")
+            : "";
           svg.innerHTML = `<rect x="0" y="0" width="940" height="380" fill="#fff"/>
             ${{grid.join("")}}
+            ${{candleShapes}}
             <polyline points="${{poly}}" fill="none" stroke="#1d4ed8" stroke-width="2"/>
             ${{circles}}
             ${{ann}}
+            <line x1="${{left}}" y1="${{bottom}}" x2="${{right}}" y2="${{bottom}}" stroke="#cbd5e1" stroke-width="1"/>
+            ${{xAxisLabels}}
             <text x="${{left}}" y="16" font-size="15" font-weight="700" fill="#111827">${{data.title || ""}}</text>`;
         }}
         svg.addEventListener("mousemove", (event) => {{
           const pt = svg.createSVGPoint();
           pt.x = event.clientX; pt.y = event.clientY;
           const local = pt.matrixTransform(svg.getScreenCTM().inverse());
-          const points = data.points || [];
-          if (!points.length || local.x < left || local.x > right || local.y < top || local.y > bottom) {{
+          if (!frameItems.length || local.x < left || local.x > right || local.y < top || local.y > bottom) {{
             tip.style.display = "none"; return;
           }}
-          const idx = Math.round(((local.x - left) / (right - left)) * Math.max(points.length - 1, 1));
+          const idx = Math.round(((local.x - left) / (right - left)) * Math.max(frameItems.length - 1, 1));
+          const candle = candles[Math.max(0, Math.min(candles.length - 1, idx))];
           const p = points[Math.max(0, Math.min(points.length - 1, idx))];
           tip.style.display = "block";
           tip.style.left = `${{event.offsetX}}px`;
           tip.style.top = `${{event.offsetY}}px`;
-          tip.innerHTML = `${{p.timestamp}}<br/>${{p.label}} · ${{Number(p.price).toFixed(4)}}`;
+          if (candle) {{
+            const nearby = pointPositions = points
+              .filter((item, pointIdx) => Math.abs(Math.round((pointIdx / Math.max(points.length - 1, 1)) * Math.max(frameItems.length - 1, 1)) - idx) <= 1)
+              .map(item => `${{item.label}} @ ${{Number(item.price).toFixed(4)}}`);
+            tip.innerHTML = `${{candle.timestamp}}<br/>O ${{Number(candle.open).toFixed(4)}} H ${{Number(candle.high).toFixed(4)}}<br/>L ${{Number(candle.low).toFixed(4)}} C ${{Number(candle.close).toFixed(4)}}${{nearby.length ? "<br/>" + nearby.join("<br/>") : ""}}`;
+          }} else if (p) {{
+            tip.innerHTML = `${{p.timestamp}}<br/>${{p.label}} · ${{Number(p.price).toFixed(4)}}`;
+          }} else {{
+            tip.style.display = "none";
+          }}
         }});
         svg.addEventListener("mouseleave", () => {{ tip.style.display = "none"; }});
         window.{chart_id}_zoom = (factor) => {{
@@ -487,12 +579,247 @@ def _chart_html(trade: TradeResult, event_log: list[EventLogEntry]) -> str:
     """
 
 
+def _chart_html_multi_tf(
+    trade: TradeResult,
+    event_log: list[EventLogEntry],
+    candles_by_timeframe: dict[str, list[Candle]],
+) -> str:
+    points = _chart_points(event_log)
+    annotations: list[dict[str, object]] = []
+    outcome_labels = _event_outcome_labels(event_log)
+    if event_log:
+        first_state = event_log[0].state_after
+        entries = first_state.get("entries_planned") or []
+        for idx, plan in enumerate(entries[:3]):
+            price = plan.get("price")
+            if isinstance(price, int | float):
+                annotations.append(
+                    {"label": f"Entry {idx + 1}", "price": float(price), "color": "#2563eb" if idx == 0 else "#1d4ed8"}
+                )
+        if trade.avg_entry_price is not None:
+            annotations.append({"label": "Avg Entry", "price": float(trade.avg_entry_price), "color": "#0f766e"})
+        current_sl = event_log[-1].state_after.get("current_sl")
+        if isinstance(current_sl, int | float):
+            sl_hit = any("SL" in item for item in outcome_labels) or (trade.close_reason or "").lower() == "sl"
+            label = "SL hit" if sl_hit else "SL initial"
+            pnl = trade.realized_pnl if sl_hit else 0.0
+            annotations.append(
+                {
+                    "label": f"{label} ({_fmt_number(pnl, 4)})" if "SL hit" in label else label,
+                    "price": float(current_sl),
+                    "color": "#b91c1c",
+                }
+            )
+        realized_hit_label_added = False
+        tp_levels = event_log[-1].state_after.get("tp_levels") or []
+        for idx, tp in enumerate(tp_levels):
+            if isinstance(tp, int | float):
+                label = f"TP{idx + 1}"
+                suffix = ""
+                hit_name = f"TP{idx + 1}"
+                tp_hit = any(hit_name in item for item in outcome_labels)
+                if tp_hit and trade.realized_pnl is not None and not realized_hit_label_added:
+                    suffix = f" hit ({_fmt_number(trade.realized_pnl, 4)})"
+                    realized_hit_label_added = True
+                annotations.append({"label": f"{label}{suffix}", "price": float(tp), "color": "#15803d"})
+
+    serialized = {
+        timeframe: _serialize_candles(tf_candles)
+        for timeframe, tf_candles in candles_by_timeframe.items()
+        if tf_candles
+    }
+    if not serialized:
+        return _chart_html(trade, event_log, None)
+
+    default_timeframe = next(iter(serialized.keys()))
+    chart_payload = {
+        "candles_by_timeframe": serialized,
+        "default_timeframe": default_timeframe,
+        "points": points,
+        "annotations": annotations,
+        "title": f"{trade.signal_id} - {trade.symbol} {_display_side(trade.side)}",
+    }
+    chart_id = _safe_dom_id(f"chart_{trade.signal_id}")
+    payload_id = f"{chart_id}_payload"
+    selector_html = "".join(
+        (
+            f"<button type='button' id='{chart_id}_tf_{_safe_dom_id(timeframe)}' "
+            f"class='{'active' if timeframe == default_timeframe else ''}' "
+            f"onclick=\"{chart_id}_setTimeframe('{_escape(timeframe)}')\">{_escape(timeframe)}</button>"
+        )
+        for timeframe in serialized
+    )
+    return f"""
+    <div class="chart-wrap">
+      <div class="chart-toolbar">
+        {selector_html}
+        <button type="button" onclick="{chart_id}_zoom(0.75)">Zoom +</button>
+        <button type="button" onclick="{chart_id}_zoom(1.33)">Zoom -</button>
+        <button type="button" onclick="{chart_id}_reset()">Reset</button>
+      </div>
+      <svg id="{chart_id}" viewBox="0 0 940 380" width="100%" height="auto"></svg>
+      <div id="{chart_id}_tip" class="chart-tooltip"></div>
+      <script type="application/json" id="{payload_id}">{json.dumps(chart_payload, ensure_ascii=False)}</script>
+      <script>
+      (() => {{
+        const svg = document.getElementById("{chart_id}");
+        const tip = document.getElementById("{chart_id}_tip");
+        const data = JSON.parse(document.getElementById("{payload_id}").textContent || "{{}}");
+        const left = 58, top = 24, bottom = 332, right = 916;
+        const candlesByTimeframe = data.candles_by_timeframe || {{}};
+        let currentTimeframe = data.default_timeframe || Object.keys(candlesByTimeframe)[0] || "events";
+        const points = data.points || [];
+        const annotations = data.annotations || [];
+        function getCandles() {{
+          return candlesByTimeframe[currentTimeframe] || [];
+        }}
+        function getFrameItems() {{
+          const candles = getCandles();
+          return candles.length ? candles : points;
+        }}
+        function getBaseRange() {{
+          const candles = getCandles();
+          const allPrices = [
+            ...candles.flatMap(c => [Number(c.low), Number(c.high)]),
+            ...points.map(p => Number(p.price)),
+            ...annotations.map(a => Number(a.price))
+          ].filter(Number.isFinite);
+          if (!allPrices.length) allPrices.push(100, 101);
+          const min = Math.min(...allPrices), max = Math.max(...allPrices);
+          const pad = Math.max((max - min) * 0.08, 0.0001);
+          return {{ min: min - pad, max: max + pad }};
+        }}
+        let baseRange = getBaseRange();
+        let viewRange = {{ ...baseRange }};
+        function mapY(price) {{
+          return bottom - (((price - viewRange.min) / Math.max(viewRange.max - viewRange.min, 1e-9)) * (bottom - top));
+        }}
+        function mapX(idx) {{
+          const frameItems = getFrameItems();
+          return left + ((idx / Math.max(frameItems.length - 1, 1)) * (right - left));
+        }}
+        function pointFrameIndex(pointIdx) {{
+          const frameItems = getFrameItems();
+          return Math.round((pointIdx / Math.max(points.length - 1, 1)) * Math.max(frameItems.length - 1, 1));
+        }}
+        function syncSelector() {{
+          Object.keys(candlesByTimeframe).forEach((timeframe) => {{
+            const button = document.getElementById("{chart_id}_tf_" + timeframe.replace(/[^a-zA-Z0-9_-]/g, "_"));
+            if (button) button.classList.toggle("active", timeframe === currentTimeframe);
+          }});
+        }}
+        function render() {{
+          const candles = getCandles();
+          const frameItems = getFrameItems();
+          const grid = [];
+          for (let i = 0; i < 6; i++) {{
+            const p = viewRange.max - (((viewRange.max - viewRange.min) / 5) * i);
+            const y = mapY(p);
+            grid.push(`<line x1="${{left}}" y1="${{y.toFixed(2)}}" x2="${{right}}" y2="${{y.toFixed(2)}}" stroke="#e5e7eb" stroke-width="1"/>`);
+            grid.push(`<text x="50" y="${{(y + 4).toFixed(2)}}" text-anchor="end" font-size="12" fill="#6b7280">${{p.toFixed(2)}}</text>`);
+          }}
+          const candleStep = Math.max((right - left) / Math.max(candles.length, 1), 3);
+          const candleBodyWidth = Math.max(Math.min(candleStep * 0.6, 18), 3);
+          const candleShapes = candles.map((candle, idx) => {{
+            const x = mapX(idx);
+            const openY = mapY(Number(candle.open));
+            const closeY = mapY(Number(candle.close));
+            const highY = mapY(Number(candle.high));
+            const lowY = mapY(Number(candle.low));
+            const rising = Number(candle.close) >= Number(candle.open);
+            const stroke = rising ? "#15803d" : "#b91c1c";
+            const fill = rising ? "#dcfce7" : "#fee2e2";
+            const topY = Math.min(openY, closeY);
+            const height = Math.max(Math.abs(closeY - openY), 1.2);
+            return `<line x1="${{x.toFixed(2)}}" y1="${{highY.toFixed(2)}}" x2="${{x.toFixed(2)}}" y2="${{lowY.toFixed(2)}}" stroke="${{stroke}}" stroke-width="1.2"/>
+            <rect x="${{(x - candleBodyWidth / 2).toFixed(2)}}" y="${{topY.toFixed(2)}}" width="${{candleBodyWidth.toFixed(2)}}" height="${{height.toFixed(2)}}" fill="${{fill}}" stroke="${{stroke}}" stroke-width="1.2" rx="1"/>`;
+          }}).join("");
+          const pointPositions = points.map((point, idx) => {{
+            const matchingIndex = frameItems.findIndex(item => item.timestamp === point.timestamp);
+            const xIdx = matchingIndex >= 0 ? matchingIndex : pointFrameIndex(idx);
+            return {{ ...point, x: mapX(Math.max(xIdx, 0)), y: mapY(Number(point.price)) }};
+          }});
+          const poly = pointPositions.map((p) => `${{p.x.toFixed(2)}},${{p.y.toFixed(2)}}`).join(" ");
+          const circles = pointPositions.map((p) => `<circle cx="${{p.x.toFixed(2)}}" cy="${{p.y.toFixed(2)}}" r="3.6" fill="#2563eb" stroke="#ffffff" stroke-width="1.2"/>`).join("");
+          const ann = annotations.map((a, idx) => {{
+            const y = mapY(Number(a.price));
+            const x = left + 20 + ((idx % 2) * 90);
+            return `<line x1="${{x}}" y1="${{y.toFixed(2)}}" x2="${{right}}" y2="${{y.toFixed(2)}}" stroke="${{a.color}}" stroke-dasharray="5 4" stroke-width="1.4"/>
+            <text x="${{x + 8}}" y="${{(y - 4).toFixed(2)}}" font-size="12" fill="${{a.color}}" font-weight="600">${{a.label}} (${{Number(a.price).toFixed(4)}})</text>`;
+          }}).join("");
+          const xAxisLabels = frameItems.length > 1
+            ? [0, Math.floor((frameItems.length - 1) / 2), frameItems.length - 1]
+                .filter((value, index, arr) => arr.indexOf(value) === index)
+                .map((idx) => `<text x="${{mapX(idx).toFixed(2)}}" y="356" text-anchor="middle" font-size="11" fill="#6b7280">${{frameItems[idx].timestamp || ""}}</text>`)
+                .join("")
+            : "";
+          svg.innerHTML = `<rect x="0" y="0" width="940" height="380" fill="#fff"/>
+            ${{grid.join("")}}
+            ${{candleShapes}}
+            <polyline points="${{poly}}" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+            ${{circles}}
+            ${{ann}}
+            <line x1="${{left}}" y1="${{bottom}}" x2="${{right}}" y2="${{bottom}}" stroke="#cbd5e1" stroke-width="1"/>
+            ${{xAxisLabels}}
+            <text x="${{left}}" y="16" font-size="15" font-weight="700" fill="#111827">${{data.title || ""}}${{candles.length ? " · " + currentTimeframe : ""}}</text>`;
+        }}
+        svg.addEventListener("mousemove", (event) => {{
+          const frameItems = getFrameItems();
+          const candles = getCandles();
+          const pt = svg.createSVGPoint();
+          pt.x = event.clientX; pt.y = event.clientY;
+          const local = pt.matrixTransform(svg.getScreenCTM().inverse());
+          if (!frameItems.length || local.x < left || local.x > right || local.y < top || local.y > bottom) {{
+            tip.style.display = "none"; return;
+          }}
+          const idx = Math.round(((local.x - left) / (right - left)) * Math.max(frameItems.length - 1, 1));
+          const candle = candles[Math.max(0, Math.min(candles.length - 1, idx))];
+          const p = points[Math.max(0, Math.min(points.length - 1, idx))];
+          tip.style.display = "block";
+          tip.style.left = `${{event.offsetX}}px`;
+          tip.style.top = `${{event.offsetY}}px`;
+          if (candle) {{
+            const nearby = points
+              .filter((item, pointIdx) => Math.abs(pointFrameIndex(pointIdx) - idx) <= 1)
+              .map(item => `${{item.label}} @ ${{Number(item.price).toFixed(4)}}`);
+            tip.innerHTML = `${{currentTimeframe}} · ${{candle.timestamp}}<br/>O ${{Number(candle.open).toFixed(4)}} H ${{Number(candle.high).toFixed(4)}}<br/>L ${{Number(candle.low).toFixed(4)}} C ${{Number(candle.close).toFixed(4)}}${{nearby.length ? "<br/>" + nearby.join("<br/>") : ""}}`;
+          }} else if (p) {{
+            tip.innerHTML = `${{p.timestamp}}<br/>${{p.label}} - ${{Number(p.price).toFixed(4)}}`;
+          }} else {{
+            tip.style.display = "none";
+          }}
+        }});
+        svg.addEventListener("mouseleave", () => {{ tip.style.display = "none"; }});
+        window.{chart_id}_setTimeframe = (timeframe) => {{
+          if (!(timeframe in candlesByTimeframe)) return;
+          currentTimeframe = timeframe;
+          baseRange = getBaseRange();
+          viewRange = {{ ...baseRange }};
+          syncSelector();
+          render();
+        }};
+        window.{chart_id}_zoom = (factor) => {{
+          const c = (viewRange.min + viewRange.max) / 2;
+          const h = ((viewRange.max - viewRange.min) * factor) / 2;
+          viewRange = {{ min: c - h, max: c + h }};
+          render();
+        }};
+        window.{chart_id}_reset = () => {{ viewRange = {{ ...baseRange }}; render(); }};
+        syncSelector();
+        render();
+      }})();
+      </script>
+    </div>
+    """
+
+
 def write_single_trade_html_report(
     *,
     trade: TradeResult,
     event_log: list[EventLogEntry],
+    candles_by_timeframe: dict[str, list[Candle]] | None = None,
     output_path: str | Path,
-    back_link_href: str = "../../policy_report_complete.html",
+    back_link_href: str = "../../policy_report.html",
 ) -> Path:
     summary_cards = "".join(
         [
@@ -501,7 +828,7 @@ def write_single_trade_html_report(
             f"<div class='metric'><div class='k'>Side</div><div class='v'>{_escape(_display_side(trade.side))}</div></div>",
             f"<div class='metric'><div class='k'>Status</div><div class='v'>{_escape(trade.status)}</div></div>",
             f"<div class='metric'><div class='k'>Close reason</div><div class='v'>{_escape(trade.close_reason or '-')}</div></div>",
-            f"<div class='metric'><div class='k'>Realized PnL %</div><div class='v'>{_fmt_percent(trade.realized_pnl)}</div></div>",
+            f"<div class='metric'><div class='k'>Realized PnL</div><div class='v'>{_fmt_number(trade.realized_pnl, 4)}</div></div>",
             f"<div class='metric'><div class='k'>Created</div><div class='v small'>{_escape(_fmt_timestamp(trade.created_at))}</div></div>",
             f"<div class='metric'><div class='k'>Closed</div><div class='v small'>{_escape(_fmt_timestamp(trade.closed_at))}</div></div>",
             f"<div class='metric'><div class='k'>Warnings</div><div class='v'>{trade.warnings_count}</div></div>",
@@ -509,7 +836,7 @@ def write_single_trade_html_report(
             f"<div class='metric'><div class='k'>Entries count</div><div class='v'>{trade.entries_count}</div></div>",
             f"<div class='metric'><div class='k'>Avg entry</div><div class='v'>{_fmt_number(trade.avg_entry_price, 4)}</div></div>",
             f"<div class='metric'><div class='k'>Max size</div><div class='v'>{_fmt_number(trade.max_position_size, 2)}</div></div>",
-            f"<div class='metric'><div class='k'>Fees</div><div class='v'>{_fmt_percent(trade.fees_paid)}</div></div>",
+            f"<div class='metric'><div class='k'>Fees</div><div class='v'>{_fmt_number(trade.fees_paid, 4)}</div></div>",
         ]
     )
 
@@ -566,8 +893,8 @@ def write_single_trade_html_report(
   </div>
   <div class="card">
     <h2>Price Chart</h2>
-    <div class="note" style="margin-bottom:10px">Interactive chart based on runtime market references captured during simulation, with operational overlays (entry/SL/TP).</div>
-    {_chart_html(trade, event_log)}
+    <div class="note" style="margin-bottom:10px">Interactive chart with real OHLC candles when market data is available, plus overlays for entries, SL, TP and execution events. Higher timeframes are shown when present in the local market dataset.</div>
+    {_chart_html_multi_tf(trade, event_log, candles_by_timeframe or {})}
   </div>
   <div class="card">
     <h2>Event Timeline</h2>
@@ -655,7 +982,7 @@ def write_policy_html_report(
       </select>
     </div>
     <table id="trade-results-table">
-      <thead><tr><th class="th-sort" onclick="sortTradeTable('signal')">Signal ID</th><th class="th-sort" onclick="sortTradeTable('symbol')">Symbol</th><th class="th-sort" onclick="sortTradeTable('side')">Side</th><th class="th-sort" onclick="sortTradeTable('status')">Status</th><th>Close reason</th><th class="th-sort" onclick="sortTradeTable('pnl')">Realized PnL %</th><th class="th-sort" onclick="sortTradeTable('warnings')">Warnings</th><th>Ignored events</th><th class="th-sort" onclick="sortTradeTable('created')">Created</th><th class="th-sort" onclick="sortTradeTable('closed')">Closed</th><th>Detail</th></tr></thead>
+      <thead><tr><th class="th-sort" onclick="sortTradeTable('signal')">Signal ID</th><th class="th-sort" onclick="sortTradeTable('symbol')">Symbol</th><th class="th-sort" onclick="sortTradeTable('side')">Side</th><th class="th-sort" onclick="sortTradeTable('status')">Status</th><th>Close reason</th><th class="th-sort" onclick="sortTradeTable('pnl')">Realized PnL</th><th class="th-sort" onclick="sortTradeTable('warnings')">Warnings</th><th>Ignored events</th><th class="th-sort" onclick="sortTradeTable('created')">Created</th><th class="th-sort" onclick="sortTradeTable('closed')">Closed</th><th>Detail</th></tr></thead>
       <tbody>{_trade_results_table(trade_results, trade_detail_links)}</tbody>
     </table>
   </div>
