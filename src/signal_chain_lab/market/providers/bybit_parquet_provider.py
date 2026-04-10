@@ -19,6 +19,7 @@ Implements MarketDataProvider protocol (src.signal_chain_lab.market.data_models)
 
 from __future__ import annotations
 
+from bisect import bisect_left, bisect_right
 import logging
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -106,6 +107,8 @@ class BybitParquetProvider:
         self._basis = basis
         # cache: (symbol, timeframe) -> sorted list[Candle]
         self._cache: dict[tuple[str, str], list[Candle]] = {}
+        # cache: (symbol, timeframe) -> sorted list[datetime]
+        self._ts_cache: dict[tuple[str, str], list[datetime]] = {}
 
     # ------------------------------------------------------------------
     # MarketDataProvider interface
@@ -117,11 +120,15 @@ class BybitParquetProvider:
 
     def get_candle(self, symbol: str, timeframe: str, ts: datetime) -> Candle | None:
         self._ensure_loaded(symbol, timeframe)
-        candles = self._cache.get((symbol, timeframe), [])
-        # Binary-search would be faster but list is sorted — linear scan is fine for MVP
-        for candle in candles:
-            if candle.timestamp == ts:
-                return candle
+        key = (symbol, timeframe)
+        candles = self._cache.get(key, [])
+        if not candles:
+            return None
+        ts_utc = _as_utc_datetime(ts)
+        ts_list = self._ts_cache.get(key, [])
+        idx = bisect_left(ts_list, ts_utc)
+        if idx < len(candles) and ts_list[idx] == ts_utc:
+            return candles[idx]
         return None
 
     def get_range(
@@ -132,11 +139,16 @@ class BybitParquetProvider:
         end: datetime,
     ) -> list[Candle]:
         self._ensure_loaded(symbol, timeframe)
-        return [
-            candle
-            for candle in self._cache.get((symbol, timeframe), [])
-            if start <= candle.timestamp <= end
-        ]
+        key = (symbol, timeframe)
+        candles = self._cache.get(key, [])
+        if not candles:
+            return []
+        start_utc = _as_utc_datetime(start)
+        end_utc = _as_utc_datetime(end)
+        ts_list = self._ts_cache.get(key, [])
+        left = bisect_left(ts_list, start_utc)
+        right = bisect_right(ts_list, end_utc)
+        return candles[left:right]
 
     def get_intrabar_range(
         self,
@@ -147,19 +159,20 @@ class BybitParquetProvider:
     ) -> list[Candle]:
         """Return child-timeframe candles that fall within one parent candle at ts."""
         self._ensure_loaded(symbol, child_timeframe)
+        key = (symbol, child_timeframe)
+        candles = self._cache.get(key, [])
+        if not candles:
+            return []
+        ts_list = self._ts_cache.get(key, [])
+        ts_utc = _as_utc_datetime(ts)
         parent_delta = _timeframe_to_delta(parent_timeframe)
         if parent_delta is None:
-            return [
-                candle
-                for candle in self._cache.get((symbol, child_timeframe), [])
-                if candle.timestamp >= ts
-            ]
-        upper = ts + parent_delta
-        return [
-            candle
-            for candle in self._cache.get((symbol, child_timeframe), [])
-            if ts <= candle.timestamp < upper
-        ]
+            left = bisect_left(ts_list, ts_utc)
+            return candles[left:]
+        upper = ts_utc + parent_delta
+        left = bisect_left(ts_list, ts_utc)
+        right = bisect_left(ts_list, upper)
+        return candles[left:right]
 
     def get_metadata(self, symbol: str, timeframe: str) -> MarketMetadata | None:
         self._ensure_loaded(symbol, timeframe)
@@ -247,6 +260,7 @@ class BybitParquetProvider:
                 logger.warning("Skipping malformed row: %s — %s", row, exc)
 
         self._cache[key] = candles
+        self._ts_cache[key] = [candle.timestamp for candle in candles]
         logger.info(
             "Loaded %d candles for %s/%s (basis=%s)", len(candles), symbol, timeframe, self._basis
         )
