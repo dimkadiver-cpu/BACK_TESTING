@@ -215,6 +215,30 @@ def _event_price_reference(entry: EventLogEntry) -> str:
     return " | ".join(parts) if parts else "-"
 
 
+def _event_extracted_signal_levels(entry: EventLogEntry) -> str:
+    state_after = entry.state_after or {}
+    parts: list[str] = []
+    entries = state_after.get("entries_planned") or []
+    if isinstance(entries, list) and entries:
+        entry_prices = [item.get("price") for item in entries if isinstance(item, dict)]
+        clean_entries = [price for price in entry_prices if isinstance(price, int | float)]
+        if clean_entries:
+            parts.append("entry=" + ", ".join(_fmt_number(value, 4) for value in clean_entries))
+    current_sl = state_after.get("current_sl")
+    if isinstance(current_sl, int | float):
+        parts.append(f"sl={_fmt_number(current_sl, 4)}")
+    tp_levels = state_after.get("tp_levels") or []
+    if isinstance(tp_levels, list) and tp_levels:
+        clean_tps = [tp for tp in tp_levels if isinstance(tp, int | float)]
+        if clean_tps:
+            parts.append("tp=" + ", ".join(_fmt_number(value, 4) for value in clean_tps))
+    return " | ".join(parts) if parts else "-"
+
+
+def _is_telegram_event(entry: EventLogEntry) -> bool:
+    return (entry.source or "").lower() == "trader"
+
+
 def _display_side(value: str | None) -> str:
     normalized = (value or "").upper()
     if normalized in {"BUY", "LONG"}:
@@ -428,7 +452,7 @@ def write_single_trade_html_report(
     for index, entry in enumerate(event_log):
         dialog_id = _safe_dom_id(f"raw_{trade.signal_id}_{index}")
         raw_button = "-"
-        if entry.raw_text:
+        if entry.raw_text and _is_telegram_event(entry):
             raw_button = f"<button class='inline-btn' onclick=\"openText('{dialog_id}')\">Open raw telegram text</button>"
             dialogs.append(
                 f"""
@@ -454,7 +478,8 @@ def write_single_trade_html_report(
             <div class="lab">Requested action</div><div>{_escape(entry.requested_action or '-')}</div>
             <div class="lab">Executed action</div><div>{_escape(entry.executed_action or '-')}</div>
             <div class="lab">Status</div><div>{_escape(entry.processing_status.value)}</div>
-            <div class="lab">Price reference</div><div>{_escape(_event_price_reference(entry))}</div>
+            <div class="lab">{_escape('Extracted levels' if _display_event_name(entry.event_type) == 'NEW_SIGNAL' else 'Price reference')}</div>
+            <div>{_escape(_event_extracted_signal_levels(entry) if _display_event_name(entry.event_type) == 'NEW_SIGNAL' else _event_price_reference(entry))}</div>
             <div class="lab">Original TEXT</div><div>{raw_button}</div>
           </div>
         </div>
