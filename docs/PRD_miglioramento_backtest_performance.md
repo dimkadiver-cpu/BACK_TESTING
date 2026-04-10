@@ -259,6 +259,10 @@ Il provider attuale cache-a bene i dati, ma alcune ricerche possono restare trop
 
 **Alta**
 
+## Stato
+
+- [x] **FASE 3 completata** (2026-04-10)
+
 ---
 
 # Fase 4 — Gap Validation incrementale
