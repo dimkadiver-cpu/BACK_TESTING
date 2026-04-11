@@ -4,10 +4,11 @@ import csv
 import json
 from datetime import datetime, timezone
 
-from src.signal_chain_lab.domain.enums import ChainInputMode, EventSource, EventType
+from src.signal_chain_lab.domain.enums import ChainInputMode, EventProcessingStatus, EventSource, EventType
 from src.signal_chain_lab.domain.events import CanonicalChain, CanonicalEvent
+from src.signal_chain_lab.domain.results import EventLogEntry, TradeResult
 from src.signal_chain_lab.policies.policy_loader import PolicyLoader
-from src.signal_chain_lab.policy_report.runner import run_policy_report
+from src.signal_chain_lab.policy_report.runner import _load_trade_chart_candles_by_timeframe, run_policy_report
 
 
 def _utc(ts: str) -> datetime:
@@ -107,3 +108,57 @@ def test_run_policy_report_writes_dataset_artifacts(tmp_path) -> None:
     assert "Policy Summary" in html_text
     assert "Metadata - policy.yaml values" in html_text
     assert "trades/sig-valid/detail.html" in html_text
+
+
+def test_trade_chart_uses_last_event_for_partially_closed_trade() -> None:
+    class FakeProvider:
+        def __init__(self) -> None:
+            self.calls: list[tuple[str, str, datetime, datetime]] = []
+
+        def get_range(self, symbol: str, timeframe: str, start: datetime, end: datetime):
+            self.calls.append((symbol, timeframe, start, end))
+            return []
+
+    chain = _build_chain("sig-open", with_tp=True, created_at="2026-01-01T00:00:00")
+    chain.metadata["timeframe"] = "1m"
+    trade = TradeResult(
+        signal_id="sig-open",
+        trader_id="trader-a",
+        symbol="BTCUSDT",
+        side="BUY",
+        status="PARTIALLY_CLOSED",
+        input_mode=ChainInputMode.CHAIN_COMPLETE,
+        policy_name="original_chain",
+        created_at=_utc("2026-01-01T00:00:00"),
+        first_fill_at=_utc("2026-01-01T00:05:00"),
+        closed_at=None,
+    )
+    event_log = [
+        EventLogEntry(
+            timestamp=_utc("2026-01-01T00:00:00"),
+            signal_id="sig-open",
+            event_type="OPEN_SIGNAL",
+            source="trader",
+            processing_status=EventProcessingStatus.APPLIED,
+        ),
+        EventLogEntry(
+            timestamp=_utc("2026-01-03T12:00:00"),
+            signal_id="sig-open",
+            event_type="CLOSE_PARTIAL",
+            source="engine",
+            processing_status=EventProcessingStatus.APPLIED,
+        ),
+    ]
+    provider = FakeProvider()
+
+    _load_trade_chart_candles_by_timeframe(
+        trade=trade,
+        chain=chain,
+        market_provider=provider,
+        event_log=event_log,
+    )
+
+    assert provider.calls
+    _, _, start, end = provider.calls[0]
+    assert start == _utc("2025-12-31T18:00:00")
+    assert end == _utc("2026-01-03T18:00:00")

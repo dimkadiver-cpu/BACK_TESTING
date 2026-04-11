@@ -53,12 +53,17 @@ def main_page() -> None:
 
     backtest_button_holder: list = []
 
-    with ui.tabs().classes("w-full") as tabs:
+    def _remember_active_tab(value: str | None) -> None:
+        if value in {"download", "parse", "backtest"}:
+            APP_STATE.active_tab = value
+
+    with ui.tabs(value=APP_STATE.active_tab).classes("w-full") as tabs:
         ui.tab("download", label="1. Download")
         ui.tab("parse", label="2. Parse")
         ui.tab("backtest", label="3. Backtest")
+    tabs.on("update:model-value", lambda e: _remember_active_tab(e.args))
 
-    with ui.tab_panels(tabs, value="download").classes("w-full"):
+    with ui.tab_panels(tabs, value=APP_STATE.active_tab).classes("w-full") as panels:
         with ui.tab_panel("download"):
             render_block_download(APP_STATE, run_streaming_command=_run_streaming_command)
         with ui.tab_panel("parse"):
@@ -73,6 +78,7 @@ def main_page() -> None:
                 backtest_button_holder=backtest_button_holder,
                 run_streaming_command=_run_streaming_command,
             )
+    panels.on("update:model-value", lambda e: _remember_active_tab(e.args))
 
 
 def run() -> None:

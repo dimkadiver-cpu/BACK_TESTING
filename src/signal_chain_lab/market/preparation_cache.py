@@ -20,6 +20,7 @@ class MarketDataRequest:
     trader_filter: str
     date_from: str
     date_to: str
+    max_trades: int
     market_data_dir: str
     timeframe: str
     price_basis: str
@@ -39,6 +40,7 @@ def build_market_request(
     trader_filter: str,
     date_from: str,
     date_to: str,
+    max_trades: int,
     timeframe: str,
     price_basis: str,
     source: str,
@@ -54,6 +56,7 @@ def build_market_request(
         trader_filter=_normalize_text(trader_filter, default="all") or "all",
         date_from=_normalize_text(date_from),
         date_to=_normalize_text(date_to),
+        max_trades=max(0, int(max_trades)),
         market_data_dir=str(market_resolved),
         timeframe=_normalize_text(timeframe, default="1m") or "1m",
         price_basis=_normalize_text(price_basis, default="last") or "last",
@@ -71,6 +74,7 @@ def market_request_payload(request: MarketDataRequest) -> dict[str, Any]:
         "trader_filter": request.trader_filter,
         "date_from": request.date_from,
         "date_to": request.date_to,
+        "max_trades": request.max_trades,
         "market_data_dir": request.market_data_dir,
         "timeframe": request.timeframe,
         "price_basis": request.price_basis,

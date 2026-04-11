@@ -31,6 +31,7 @@ from src.signal_chain_lab.ui.blocks.backtest_observability import (
     compute_benchmark_snapshot,
 )
 from src.signal_chain_lab.ui.components.log_panel import LogPanel
+from src.signal_chain_lab.ui.file_dialogs import ask_directory, ask_open_filename
 from src.signal_chain_lab.ui.state import UiState
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[4]
@@ -95,27 +96,11 @@ def _invalidate_market_readiness(*, state: UiState, status_label, summary_label)
 
 
 async def _browse_backtest_db(output_input) -> None:
-    def _pick_file() -> str:
-        try:
-            import tkinter as tk
-            from tkinter import filedialog
-        except Exception:
-            return ""
-
-        root = tk.Tk()
-        root.withdraw()
-        root.attributes("-topmost", True)
-        try:
-            selected_file = filedialog.askopenfilename(
-                initialdir=str(_PROJECT_ROOT),
-                title="Seleziona il DB parsato",
-                filetypes=[("SQLite DB", "*.sqlite3 *.db"), ("All files", "*.*")],
-            )
-        finally:
-            root.destroy()
-        return selected_file or ""
-
-    selected = await asyncio.to_thread(_pick_file)
+    selected = ask_open_filename(
+        initialdir=_PROJECT_ROOT,
+        title="Seleziona il DB parsato",
+        filetypes=[("SQLite DB", "*.sqlite3 *.db"), ("All files", "*.*")],
+    )
     if not selected:
         ui.notify("Selezione file annullata.", color="warning")
         return
@@ -126,27 +111,11 @@ async def _browse_backtest_db(output_input) -> None:
 
 
 async def _browse_report_dir(output_input) -> None:
-    def _pick_directory() -> str:
-        try:
-            import tkinter as tk
-            from tkinter import filedialog
-        except Exception:
-            return ""
-
-        root = tk.Tk()
-        root.withdraw()
-        root.attributes("-topmost", True)
-        try:
-            selected_dir = filedialog.askdirectory(
-                initialdir=str(_PROJECT_ROOT / "artifacts"),
-                title="Seleziona la cartella report output",
-                mustexist=False,
-            )
-        finally:
-            root.destroy()
-        return selected_dir or ""
-
-    selected = await asyncio.to_thread(_pick_directory)
+    selected = ask_directory(
+        initialdir=_PROJECT_ROOT / "artifacts",
+        title="Seleziona la cartella report output",
+        mustexist=False,
+    )
     if not selected:
         ui.notify("Selezione cartella annullata.", color="warning")
         return
@@ -155,27 +124,11 @@ async def _browse_report_dir(output_input) -> None:
 
 
 async def _browse_market_dir(output_input) -> None:
-    def _pick_directory() -> str:
-        try:
-            import tkinter as tk
-            from tkinter import filedialog
-        except Exception:
-            return ""
-
-        root = tk.Tk()
-        root.withdraw()
-        root.attributes("-topmost", True)
-        try:
-            selected_dir = filedialog.askdirectory(
-                initialdir=str(_PROJECT_ROOT),
-                title="Seleziona la cartella market data",
-                mustexist=False,
-            )
-        finally:
-            root.destroy()
-        return selected_dir or ""
-
-    selected = await asyncio.to_thread(_pick_directory)
+    selected = ask_directory(
+        initialdir=_PROJECT_ROOT,
+        title="Seleziona la cartella market data",
+        mustexist=False,
+    )
     if not selected:
         ui.notify("Selezione cartella annullata.", color="warning")
         return
@@ -229,6 +182,8 @@ def _build_single_policy_command(*, db_path: str, state: UiState, output_dir: st
         command += ["--date-from", state.backtest_date_from]
     if state.backtest_date_to:
         command += ["--date-to", state.backtest_date_to]
+    if state.backtest_max_trades > 0:
+        command += ["--max-trades", str(state.backtest_max_trades)]
     command += ["--output-dir", output_dir]
     return command
 
@@ -393,6 +348,7 @@ async def _handle_backtest(
             date_to=state.backtest_date_to,
             prepare_mode=state.market_data_prepare_mode,
             market_source=state.market_data_source,
+            max_trades=state.backtest_max_trades,
         )
         if not market_ready:
             return
@@ -476,6 +432,7 @@ async def _prepare_market_data(
     date_to: str = "",
     prepare_mode: str = "SAFE",
     market_source: str = "bybit",
+    max_trades: int = 0,
 ) -> bool:
     import sys
 
@@ -525,12 +482,14 @@ async def _prepare_market_data(
     active_trader = trader_filter if trader_filter and trader_filter != "all" else None
     active_date_from = date_from.strip() or None
     active_date_to = date_to.strip() or None
+    active_max_trades = max(0, int(max_trades))
     request = build_market_request(
         db_path=db_path,
         market_data_dir=str(market_root),
         trader_filter=active_trader or "all",
         date_from=active_date_from or "",
         date_to=active_date_to or "",
+        max_trades=active_max_trades,
         timeframe=timeframe,
         price_basis=price_basis,
         source=market_source,
@@ -569,6 +528,7 @@ async def _prepare_market_data(
         f"trader={active_trader}" if active_trader else None,
         f"dal={active_date_from}" if active_date_from else None,
         f"al={active_date_to}" if active_date_to else None,
+        f"max_trades={active_max_trades}" if active_max_trades > 0 else None,
     ])) or "nessun filtro (tutti i segnali)"
     log_panel.push(f"Market data: filtro applicato al planner -> {filter_desc}")
     _set_market_status(status_label, text="Market data: planner in esecuzione...", positive=None)
@@ -600,6 +560,8 @@ async def _prepare_market_data(
         plan_command += ["--date-from", active_date_from]
     if active_date_to:
         plan_command += ["--date-to", active_date_to]
+    if active_max_trades > 0:
+        plan_command += ["--max-trades", str(active_max_trades)]
     planner_t0 = time.perf_counter()
     rc = await run_streaming_command(plan_command, log_panel)
     if rc != 0 or not plan_path.exists():
@@ -1102,6 +1064,7 @@ def render_block_backtest(
                 date_to=date_to_input.value,
                 prepare_mode=market_prepare_mode.value,
                 market_source=market_source.value,
+                max_trades=int(max_trades_input.value or 0),
             )
             if ready:
                 _refresh_backtest_button()

@@ -47,3 +47,7 @@ TODO:
      -   Aggiungere menu a tendina (ce gia) che mi permette sciegliere le policy per simulatore da cartella "C:\Back_Testing\configs\policies"
     - Che report Produce:
     - 
+
+
+
+Da

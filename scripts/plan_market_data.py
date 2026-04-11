@@ -31,6 +31,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--trader-id", default=None, help="Filter signals by trader_id (default: all)")
     parser.add_argument("--date-from", default=None, help="Filter signals from this date YYYY-MM-DD (default: all)")
     parser.add_argument("--date-to", default=None, help="Filter signals up to this date YYYY-MM-DD (default: all)")
+    parser.add_argument("--max-trades", type=int, default=0, help="Limit planner to the first N filtered trades (0 = all)")
     parser.add_argument("--source", default="bybit", choices=["bybit", "fixture"], help="Market data source")
     return parser.parse_args()
 
@@ -44,6 +45,7 @@ def main() -> int:
         trader_id=args.trader_id or None,
         date_from=args.date_from or None,
         date_to=args.date_to or None,
+        max_trades=max(0, int(args.max_trades)),
     )
     coverage_plan = CoveragePlanner().plan(demand)
     manifest = ManifestStore(root=market_dir / "manifests")
@@ -61,6 +63,7 @@ def main() -> int:
         "trader_filter": args.trader_id or "all",
         "date_from": args.date_from or "",
         "date_to": args.date_to or "",
+        "max_trades": max(0, int(args.max_trades)),
     }
     request = build_market_request(
         db_path=args.db_path,
@@ -68,6 +71,7 @@ def main() -> int:
         trader_filter=args.trader_id or "all",
         date_from=args.date_from or "",
         date_to=args.date_to or "",
+        max_trades=max(0, int(args.max_trades)),
         timeframe=args.timeframe,
         price_basis=bases[0] if bases else "last",
         source=args.source,

@@ -1,10 +1,13 @@
 """Trade state machine: transitions driven by market events and signal updates."""
 from __future__ import annotations
 
+import logging
 from copy import deepcopy
 from typing import Any
 
 from src.signal_chain_lab.domain.enums import CloseReason, EventProcessingStatus, EventType, TradeStatus
+
+_logger = logging.getLogger(__name__)
 from src.signal_chain_lab.domain.events import CanonicalEvent
 from src.signal_chain_lab.domain.results import EventLogEntry
 from src.signal_chain_lab.domain.trade_state import EntryPlan, TradeState
@@ -26,6 +29,64 @@ def _realize_pnl_for_close(state: TradeState, exit_price: float) -> None:
     direction = 1.0 if state.side.upper() in {"BUY", "LONG"} else -1.0
     state.realized_pnl += (float(exit_price) - state.avg_entry_price) * state.open_size * direction
     state.unrealized_pnl = 0.0
+
+
+def _get_tp_absolute_weights(n_tps: int, distribution: str) -> list[float]:
+    """Return the fraction of total position to close at each TP level.
+
+    The returned list sums to 1.0 and has length ``n_tps``.
+    Supported distributions:
+      - "original" / "equal": equal split across all TPs
+      - "tp_50_30_20": 50 % / 30 % / 20 % for 3 TPs; predefined tables for 2–4 TPs;
+        falls back to equal for any other count with a log warning.
+    Unknown distribution names fall back silently to equal.
+    """
+    if n_tps <= 0:
+        return []
+    if n_tps == 1:
+        return [1.0]
+
+    if distribution == "tp_50_30_20":
+        predefined: dict[int, list[float]] = {
+            2: [0.5, 0.5],
+            3: [0.5, 0.3, 0.2],
+            4: [0.5, 0.3, 0.15, 0.05],
+        }
+        if n_tps in predefined:
+            return list(predefined[n_tps])
+        _logger.warning(
+            "tp_50_30_20 has no predefined table for %d TPs — falling back to equal split", n_tps
+        )
+
+    # equal / original / unknown → equal split
+    base = 1.0 / n_tps
+    weights = [base] * (n_tps - 1)
+    weights.append(max(0.0, 1.0 - sum(weights)))
+    return weights
+
+
+def _weights_to_fractions_of_current(absolute_weights: list[float]) -> list[float]:
+    """Convert absolute-weight distribution to fraction-of-remaining-open fractions.
+
+    Given ``absolute_weights[i]`` = fraction of TOTAL initial position to close at TP i,
+    returns ``fractions[i]`` = fraction of CURRENT open_size to close at TP i.
+    The last element is always 1.0 (close all remaining).
+
+    Example – equal with 3 TPs, weights=[1/3, 1/3, 1/3]:
+      f0 = (1/3)/1.0  = 0.333
+      f1 = (1/3)/0.667 = 0.500
+      f2 = 1.0
+    """
+    n = len(absolute_weights)
+    fractions: list[float] = []
+    remaining = 1.0
+    for i, w in enumerate(absolute_weights):
+        if i == n - 1 or remaining <= 1e-10:
+            fractions.append(1.0)
+        else:
+            fractions.append(min(1.0, w / remaining))
+        remaining = max(0.0, remaining - w)
+    return fractions
 
 
 def _normalize_order_type(value: Any, *, default: str = "limit") -> str:
@@ -247,7 +308,27 @@ def _apply_open_signal(
     ]
     state.initial_sl = payload.get("sl_price")
     state.current_sl = payload.get("sl_price")
-    state.tp_levels = list(payload.get("tp_levels") or [])
+
+    # Apply TP policy: limit count and compute per-level close fractions
+    raw_tp_levels: list[float] = list(payload.get("tp_levels") or [])
+    if policy is not None and policy.tp.use_tp_count is not None:
+        limit = int(policy.tp.use_tp_count)
+        if limit > 0:
+            raw_tp_levels = raw_tp_levels[:limit]
+    state.tp_levels = raw_tp_levels
+
+    n_tps = len(state.tp_levels)
+    if n_tps > 0:
+        tp_dist = policy.tp.tp_distribution if policy is not None else "original"
+        if isinstance(tp_dist, str):
+            dist_name = tp_dist
+        else:
+            dist_name = getattr(tp_dist, "mode", "original")
+        abs_weights = _get_tp_absolute_weights(n_tps, dist_name)
+        state.tp_close_fractions = _weights_to_fractions_of_current(abs_weights)
+    else:
+        state.tp_close_fractions = []
+
     state.pending_size = sum(plan.size_ratio for plan in state.entries_planned)
     state.status = TradeStatus.PENDING
     state.created_at = event.timestamp

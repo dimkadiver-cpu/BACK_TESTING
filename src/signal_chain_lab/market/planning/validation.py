@@ -127,16 +127,19 @@ class BatchValidator:
 
         first_ts = rows[0]["timestamp"]
         last_ts = rows[-1]["timestamp"]
+        effective_start = first_ts
         effective_end = last_ts
         timeframe_delta = _timeframe_to_delta(str(rows[0].get("timeframe", "")))
         if timeframe_delta is not None:
+            effective_start = first_ts - timeframe_delta
             effective_end = last_ts + timeframe_delta
 
-        if first_ts > requested_range.start or effective_end < requested_range.end:
+        if effective_start > requested_range.start or effective_end < requested_range.end:
             message = (
                 "batch does not fully cover requested range "
                 f"[{requested_range.start.isoformat()} - {requested_range.end.isoformat()}] "
                 f"(actual [{first_ts.isoformat()} - {last_ts.isoformat()}], "
+                f"effective_start={effective_start.isoformat()}, "
                 f"effective_end={effective_end.isoformat()})"
             )
             issues.append(ValidationIssue("error", "COVERAGE_INCOMPLETE", message))

@@ -48,6 +48,7 @@ class TradeState(BaseModel):
     initial_sl: float | None = None
     current_sl: float | None = None
     tp_levels: list[float] = Field(default_factory=list)
+    tp_close_fractions: list[float] = Field(default_factory=list)
     next_tp_index: int = 0
 
     realized_pnl: float = 0.0

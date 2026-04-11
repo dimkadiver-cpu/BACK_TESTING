@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
-from typing import Literal
+from datetime import datetime, timedelta, timezone
+from typing import Callable, Literal
 
 from src.signal_chain_lab.market.planning.demand_scanner import DemandChain
 
@@ -83,8 +83,14 @@ class CoveragePlanner:
 
     OPEN_STATUSES = {"NEW", "PENDING", "ACTIVE", "PARTIALLY_CLOSED", "OPEN"}
 
-    def __init__(self, config: PlannerConfig | None = None) -> None:
+    def __init__(
+        self,
+        config: PlannerConfig | None = None,
+        *,
+        now_provider: Callable[[], datetime] | None = None,
+    ) -> None:
         self._config = config or PlannerConfig()
+        self._now_provider = now_provider
 
     def classify_duration(self, chain: DemandChain) -> DurationClass:
         """Classify duration into intraday/swing/position/unknown."""
@@ -102,6 +108,7 @@ class CoveragePlanner:
 
     def plan(self, chains: list[DemandChain]) -> CoveragePlan:
         intervals: list[CoverageInterval] = []
+        now_utc = self._utc_now()
         for chain in chains:
             duration_class = self.classify_duration(chain)
             profile = self._config.profile_for(duration_class)
@@ -111,7 +118,9 @@ class CoveragePlanner:
                 raw_end = chain.timestamp_last_relevant_update
             else:
                 raw_end = chain.timestamp_open + profile.estimated_duration
-            end = raw_end + profile.post
+            end = min(raw_end + profile.post, now_utc)
+            if end <= start:
+                end = start
 
             intervals.append(CoverageInterval(symbol=chain.symbol, start=start, end=end))
 
@@ -142,3 +151,9 @@ class CoveragePlanner:
                 merged.append(current)
 
         return merged
+
+    def _utc_now(self) -> datetime:
+        current = self._now_provider() if self._now_provider is not None else datetime.now(tz=timezone.utc)
+        if current.tzinfo is None:
+            return current.replace(tzinfo=timezone.utc)
+        return current.astimezone(timezone.utc)

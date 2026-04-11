@@ -132,3 +132,40 @@ def test_batch_validator_accepts_end_within_last_timeframe_bucket() -> None:
 
     assert "COVERAGE_INCOMPLETE" not in codes
     assert result.has_errors is False
+
+
+def test_batch_validator_accepts_start_within_first_timeframe_bucket() -> None:
+    validator = BatchValidator()
+    requested = Interval(
+        start=datetime(2026, 4, 1, 0, 0, 43, tzinfo=timezone.utc),
+        end=datetime(2026, 4, 1, 0, 2, 0, tzinfo=timezone.utc),
+    )
+
+    rows = [
+        {
+            "timestamp": "2026-04-01T00:01:00+00:00",
+            "open": 1.0,
+            "high": 1.0,
+            "low": 1.0,
+            "close": 1.0,
+            "volume": 1.0,
+            "symbol": "BTCUSDT",
+            "timeframe": "1m",
+        },
+        {
+            "timestamp": "2026-04-01T00:02:00+00:00",
+            "open": 1.0,
+            "high": 1.0,
+            "low": 1.0,
+            "close": 1.0,
+            "volume": 1.0,
+            "symbol": "BTCUSDT",
+            "timeframe": "1m",
+        },
+    ]
+
+    result = validator.validate(rows=rows, requested_range=requested)
+    codes = {issue.code for issue in result.issues}
+
+    assert "COVERAGE_INCOMPLETE" not in codes
+    assert result.has_errors is False

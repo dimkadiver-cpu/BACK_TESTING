@@ -279,6 +279,22 @@ def _normalize_chain_id(trader_id: str | None, attempt_key: str) -> str:
     return f"{trader_prefix}{attempt_key}" if trader_prefix else attempt_key
 
 
+def _preferred_symbol_side(row: aiosqlite.Row, message: ChainedMessage) -> tuple[str | None, str | None]:
+    symbol: str | None = row["symbol"] if "symbol" in row.keys() else None
+    side: str | None = row["side"] if "side" in row.keys() else None
+
+    if isinstance(message.entities, NewSignalEntities):
+        entities = message.entities
+        if entities.symbol:
+            symbol = entities.symbol
+        if entities.direction == "LONG":
+            side = "BUY"
+        elif entities.direction == "SHORT":
+            side = "SELL"
+
+    return symbol, side
+
+
 # ---------------------------------------------------------------------------
 # Builder
 # ---------------------------------------------------------------------------
@@ -421,8 +437,7 @@ class SignalChainBuilder:
             cm: ChainedMessage = info["chained"]
             row = info["row"]
 
-            symbol: str | None = row["symbol"]
-            side: str | None = row["side"]
+            symbol, side = _preferred_symbol_side(row, cm)
 
             if not symbol or not side:
                 logger.warning(

@@ -34,6 +34,8 @@ class QualityReport:
 class UiState:
     """Mutable state shared across the three sequential GUI blocks."""
 
+    active_tab: str = "download"
+
     chat_id: str = ""
     topic_id: str = ""
     date_from: str = ""

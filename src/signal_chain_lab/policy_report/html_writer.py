@@ -7,6 +7,8 @@ from pathlib import Path
 
 from src.signal_chain_lab.domain.results import EventLogEntry, TradeResult
 from src.signal_chain_lab.market.data_models import Candle
+from src.signal_chain_lab.policy_report.trade_chart_echarts import render_trade_chart_echarts
+from src.signal_chain_lab.policy_report.trade_chart_payload import build_trade_chart_payload
 
 
 def _fmt_percent(value: float | int | None, *, signed: bool = True, digits: int = 2) -> str:
@@ -106,11 +108,10 @@ dialog::backdrop{background:rgba(15,23,42,.55)}
 .ti-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
 .ti-meta{display:grid;grid-template-columns:180px 1fr;gap:8px;font-size:14px}
 .ti-meta .lab{color:var(--muted)}
-.chart-wrap{position:relative;border:1px solid var(--line);border-radius:14px;padding:10px;background:#fff}
-.chart-toolbar{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-bottom:8px}
-.chart-toolbar button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:4px 9px;cursor:pointer}
-.chart-toolbar button.active{background:#dbeafe;border-color:#93c5fd;color:#1e3a8a;font-weight:700}
-.chart-tooltip{position:absolute;pointer-events:none;background:#0f172a;color:#fff;padding:6px 8px;border-radius:8px;font-size:12px;transform:translate(10px,-10px);display:none}
+.chart-wrap{border:1px solid var(--line);border-radius:14px;padding:10px;background:#fff}
+.chart-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.chart-toolbar-btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:4px 9px;cursor:pointer;font-size:13px}
+.chart-toolbar-btn.active{background:#dbeafe;border-color:#93c5fd;color:#1e3a8a;font-weight:700}
 .footer-nav{margin-top:20px}
 @media (max-width: 900px){.grid-4{grid-template-columns:repeat(2,minmax(0,1fr))}.ti-meta{grid-template-columns:1fr}}
 </style>
@@ -352,465 +353,16 @@ def _event_outcome_labels(event_log: list[EventLogEntry]) -> set[str]:
     return labels
 
 
-def _chart_points(event_log: list[EventLogEntry]) -> list[dict[str, object]]:
-    points: list[dict[str, object]] = []
-    for entry in event_log:
-        candidate_prices: list[float] = []
-        if isinstance(entry.price_reference, int | float):
-            candidate_prices.append(float(entry.price_reference))
-        state_after = entry.state_after or {}
-        for key in ("market_price", "mark_price", "last_price", "avg_entry_price", "close_price"):
-            value = state_after.get(key)
-            if isinstance(value, int | float):
-                candidate_prices.append(float(value))
-        if not candidate_prices:
-            entries_planned = state_after.get("entries_planned") or []
-            if isinstance(entries_planned, list):
-                planned_prices = [
-                    float(item.get("price"))
-                    for item in entries_planned
-                    if isinstance(item, dict) and isinstance(item.get("price"), int | float)
-                ]
-                if planned_prices:
-                    candidate_prices.append(sum(planned_prices) / len(planned_prices))
-        if not candidate_prices:
-            continue
-        points.append(
-            {
-                "timestamp": _fmt_timestamp(entry.timestamp),
-                "label": _display_event_name(entry.event_type),
-                "price": candidate_prices[0],
-            }
-        )
-    return points
 
-
-def _serialize_candles(candles: list[Candle] | None) -> list[dict[str, object]]:
-    if not candles:
-        return []
-    return [
-        {
-            "timestamp": _fmt_timestamp(candle.timestamp),
-            "open": candle.open,
-            "high": candle.high,
-            "low": candle.low,
-            "close": candle.close,
-        }
-        for candle in candles
-    ]
-
-
-def _chart_html(
-    trade: TradeResult,
-    event_log: list[EventLogEntry],
-    candles: list[Candle] | None = None,
-) -> str:
-    points = _chart_points(event_log)
-    annotations: list[dict[str, object]] = []
-    outcome_labels = _event_outcome_labels(event_log)
-    if event_log:
-        first_state = event_log[0].state_after
-        entries = first_state.get("entries_planned") or []
-        for idx, plan in enumerate(entries[:3]):
-            price = plan.get("price")
-            if isinstance(price, int | float):
-                annotations.append(
-                    {"label": f"Entry {idx + 1}", "price": float(price), "color": "#2563eb" if idx == 0 else "#1d4ed8"}
-                )
-        if trade.avg_entry_price is not None:
-            annotations.append({"label": "Avg Entry", "price": float(trade.avg_entry_price), "color": "#0f766e"})
-        current_sl = event_log[-1].state_after.get("current_sl")
-        if isinstance(current_sl, int | float):
-            sl_hit = any("SL" in item for item in outcome_labels) or (trade.close_reason or "").lower() == "sl"
-            label = "SL hit" if sl_hit else "SL initial"
-            pnl = trade.realized_pnl if sl_hit else 0.0
-            annotations.append(
-                {
-                    "label": f"{label} ({_fmt_number(pnl, 4)})" if "SL hit" in label else label,
-                    "price": float(current_sl),
-                    "color": "#b91c1c",
-                }
-            )
-        realized_hit_label_added = False
-        tp_levels = event_log[-1].state_after.get("tp_levels") or []
-        for idx, tp in enumerate(tp_levels):
-            if isinstance(tp, int | float):
-                label = f"TP{idx + 1}"
-                suffix = ""
-                hit_name = f"TP{idx + 1}"
-                tp_hit = any(hit_name in item for item in outcome_labels)
-                if tp_hit and trade.realized_pnl is not None and not realized_hit_label_added:
-                    suffix = f" hit ({_fmt_number(trade.realized_pnl, 4)})"
-                    realized_hit_label_added = True
-                annotations.append({"label": f"{label}{suffix}", "price": float(tp), "color": "#15803d"})
-
-    chart_payload = {
-        "candles": _serialize_candles(candles),
-        "points": points,
-        "annotations": annotations,
-        "title": f"{trade.signal_id} - {trade.symbol} {_display_side(trade.side)}",
-    }
-    chart_id = _safe_dom_id(f"chart_{trade.signal_id}")
-    payload_id = f"{chart_id}_payload"
-    return f"""
-    <div class="chart-wrap">
-      <div class="chart-toolbar">
-        <button type="button" onclick="{chart_id}_zoom(0.75)">Zoom +</button>
-        <button type="button" onclick="{chart_id}_zoom(1.33)">Zoom -</button>
-        <button type="button" onclick="{chart_id}_reset()">Reset</button>
-      </div>
-      <svg id="{chart_id}" viewBox="0 0 940 380" width="100%" height="auto"></svg>
-      <div id="{chart_id}_tip" class="chart-tooltip"></div>
-      <script type="application/json" id="{payload_id}">{json.dumps(chart_payload, ensure_ascii=False)}</script>
-      <script>
-      (() => {{
-        const svg = document.getElementById("{chart_id}");
-        const tip = document.getElementById("{chart_id}_tip");
-        const data = JSON.parse(document.getElementById("{payload_id}").textContent || "{{}}");
-        const left = 58, top = 24, bottom = 332, right = 916;
-        const candles = data.candles || [];
-        const points = data.points || [];
-        const annotations = data.annotations || [];
-        const frameItems = candles.length ? candles : points;
-        const allPrices = [
-          ...candles.flatMap(c => [Number(c.low), Number(c.high)]),
-          ...points.map(p => Number(p.price)),
-          ...annotations.map(a => Number(a.price))
-        ].filter(Number.isFinite);
-        if (!allPrices.length) allPrices.push(100, 101);
-        const min = Math.min(...allPrices), max = Math.max(...allPrices);
-        const pad = Math.max((max - min) * 0.08, 0.0001);
-        const baseRange = {{ min: min - pad, max: max + pad }};
-        let viewRange = {{ ...baseRange }};
-        const mapY = (price) => bottom - (((price - viewRange.min) / Math.max(viewRange.max - viewRange.min, 1e-9)) * (bottom - top));
-        const mapX = (idx) => left + ((idx / Math.max(frameItems.length - 1, 1)) * (right - left));
-        const pointFrameIndex = (pointIdx) => Math.round((pointIdx / Math.max(points.length - 1, 1)) * Math.max(frameItems.length - 1, 1));
-        function render() {{
-          const grid = [];
-          for (let i = 0; i < 6; i++) {{
-            const p = viewRange.max - (((viewRange.max - viewRange.min) / 5) * i);
-            const y = mapY(p);
-            grid.push(`<line x1="${{left}}" y1="${{y.toFixed(2)}}" x2="${{right}}" y2="${{y.toFixed(2)}}" stroke="#e5e7eb" stroke-width="1"/>`);
-            grid.push(`<text x="50" y="${{(y + 4).toFixed(2)}}" text-anchor="end" font-size="12" fill="#6b7280">${{p.toFixed(2)}}</text>`);
-          }}
-          const candleStep = Math.max((right - left) / Math.max(candles.length, 1), 3);
-          const candleBodyWidth = Math.max(Math.min(candleStep * 0.6, 18), 3);
-          const candleShapes = candles.map((candle, idx) => {{
-            const x = mapX(idx);
-            const openY = mapY(Number(candle.open));
-            const closeY = mapY(Number(candle.close));
-            const highY = mapY(Number(candle.high));
-            const lowY = mapY(Number(candle.low));
-            const rising = Number(candle.close) >= Number(candle.open);
-            const stroke = rising ? "#15803d" : "#b91c1c";
-            const fill = rising ? "#dcfce7" : "#fee2e2";
-            const topY = Math.min(openY, closeY);
-            const height = Math.max(Math.abs(closeY - openY), 1.2);
-            return `<line x1="${{x.toFixed(2)}}" y1="${{highY.toFixed(2)}}" x2="${{x.toFixed(2)}}" y2="${{lowY.toFixed(2)}}" stroke="${{stroke}}" stroke-width="1.2"/>
-            <rect x="${{(x - candleBodyWidth / 2).toFixed(2)}}" y="${{topY.toFixed(2)}}" width="${{candleBodyWidth.toFixed(2)}}" height="${{height.toFixed(2)}}" fill="${{fill}}" stroke="${{stroke}}" stroke-width="1.2" rx="1"/>`;
-          }}).join("");
-          const pointPositions = points.map((point, idx) => {{
-            const matchingIndex = frameItems.findIndex(item => item.timestamp === point.timestamp);
-            const xIdx = matchingIndex >= 0
-              ? matchingIndex
-              : pointFrameIndex(idx);
-            return {{ ...point, x: mapX(Math.max(xIdx, 0)), y: mapY(Number(point.price)) }};
-          }});
-          const poly = pointPositions.map((p) => `${{p.x.toFixed(2)}},${{p.y.toFixed(2)}}`).join(" ");
-          const circles = pointPositions.map((p) => `<circle cx="${{p.x.toFixed(2)}}" cy="${{p.y.toFixed(2)}}" r="3.6" fill="#2563eb" stroke="#ffffff" stroke-width="1.2"/>`).join("");
-          const ann = annotations.map((a, idx) => {{
-            const y = mapY(Number(a.price));
-            const x = left + 20 + ((idx % 2) * 90);
-            return `<line x1="${{x}}" y1="${{y.toFixed(2)}}" x2="${{right}}" y2="${{y.toFixed(2)}}" stroke="${{a.color}}" stroke-dasharray="5 4" stroke-width="1.4"/>
-            <text x="${{x + 8}}" y="${{(y - 4).toFixed(2)}}" font-size="12" fill="${{a.color}}" font-weight="600">${{a.label}} (${{Number(a.price).toFixed(4)}})</text>`;
-          }}).join("");
-          const xAxisLabels = frameItems.length > 1
-            ? [0, Math.floor((frameItems.length - 1) / 2), frameItems.length - 1]
-                .filter((value, index, arr) => arr.indexOf(value) === index)
-                .map((idx) => `<text x="${{mapX(idx).toFixed(2)}}" y="356" text-anchor="middle" font-size="11" fill="#6b7280">${{frameItems[idx].timestamp || ""}}</text>`)
-                .join("")
-            : "";
-          svg.innerHTML = `<rect x="0" y="0" width="940" height="380" fill="#fff"/>
-            ${{grid.join("")}}
-            ${{candleShapes}}
-            <polyline points="${{poly}}" fill="none" stroke="#1d4ed8" stroke-width="2"/>
-            ${{circles}}
-            ${{ann}}
-            <line x1="${{left}}" y1="${{bottom}}" x2="${{right}}" y2="${{bottom}}" stroke="#cbd5e1" stroke-width="1"/>
-            ${{xAxisLabels}}
-            <text x="${{left}}" y="16" font-size="15" font-weight="700" fill="#111827">${{data.title || ""}}</text>`;
-        }}
-        svg.addEventListener("mousemove", (event) => {{
-          const pt = svg.createSVGPoint();
-          pt.x = event.clientX; pt.y = event.clientY;
-          const local = pt.matrixTransform(svg.getScreenCTM().inverse());
-          if (!frameItems.length || local.x < left || local.x > right || local.y < top || local.y > bottom) {{
-            tip.style.display = "none"; return;
-          }}
-          const idx = Math.round(((local.x - left) / (right - left)) * Math.max(frameItems.length - 1, 1));
-          const candle = candles[Math.max(0, Math.min(candles.length - 1, idx))];
-          const p = points[Math.max(0, Math.min(points.length - 1, idx))];
-          tip.style.display = "block";
-          tip.style.left = `${{event.offsetX}}px`;
-          tip.style.top = `${{event.offsetY}}px`;
-          if (candle) {{
-            const nearby = pointPositions = points
-              .filter((item, pointIdx) => Math.abs(Math.round((pointIdx / Math.max(points.length - 1, 1)) * Math.max(frameItems.length - 1, 1)) - idx) <= 1)
-              .map(item => `${{item.label}} @ ${{Number(item.price).toFixed(4)}}`);
-            tip.innerHTML = `${{candle.timestamp}}<br/>O ${{Number(candle.open).toFixed(4)}} H ${{Number(candle.high).toFixed(4)}}<br/>L ${{Number(candle.low).toFixed(4)}} C ${{Number(candle.close).toFixed(4)}}${{nearby.length ? "<br/>" + nearby.join("<br/>") : ""}}`;
-          }} else if (p) {{
-            tip.innerHTML = `${{p.timestamp}}<br/>${{p.label}} · ${{Number(p.price).toFixed(4)}}`;
-          }} else {{
-            tip.style.display = "none";
-          }}
-        }});
-        svg.addEventListener("mouseleave", () => {{ tip.style.display = "none"; }});
-        window.{chart_id}_zoom = (factor) => {{
-          const c = (viewRange.min + viewRange.max) / 2;
-          const h = ((viewRange.max - viewRange.min) * factor) / 2;
-          viewRange = {{ min: c - h, max: c + h }};
-          render();
-        }};
-        window.{chart_id}_reset = () => {{ viewRange = {{ ...baseRange }}; render(); }};
-        render();
-      }})();
-      </script>
-    </div>
-    """
-
-
-def _chart_html_multi_tf(
+def _render_chart(
     trade: TradeResult,
     event_log: list[EventLogEntry],
     candles_by_timeframe: dict[str, list[Candle]],
+    echarts_asset_path: str,
 ) -> str:
-    points = _chart_points(event_log)
-    annotations: list[dict[str, object]] = []
-    outcome_labels = _event_outcome_labels(event_log)
-    if event_log:
-        first_state = event_log[0].state_after
-        entries = first_state.get("entries_planned") or []
-        for idx, plan in enumerate(entries[:3]):
-            price = plan.get("price")
-            if isinstance(price, int | float):
-                annotations.append(
-                    {"label": f"Entry {idx + 1}", "price": float(price), "color": "#2563eb" if idx == 0 else "#1d4ed8"}
-                )
-        if trade.avg_entry_price is not None:
-            annotations.append({"label": "Avg Entry", "price": float(trade.avg_entry_price), "color": "#0f766e"})
-        current_sl = event_log[-1].state_after.get("current_sl")
-        if isinstance(current_sl, int | float):
-            sl_hit = any("SL" in item for item in outcome_labels) or (trade.close_reason or "").lower() == "sl"
-            label = "SL hit" if sl_hit else "SL initial"
-            pnl = trade.realized_pnl if sl_hit else 0.0
-            annotations.append(
-                {
-                    "label": f"{label} ({_fmt_number(pnl, 4)})" if "SL hit" in label else label,
-                    "price": float(current_sl),
-                    "color": "#b91c1c",
-                }
-            )
-        realized_hit_label_added = False
-        tp_levels = event_log[-1].state_after.get("tp_levels") or []
-        for idx, tp in enumerate(tp_levels):
-            if isinstance(tp, int | float):
-                label = f"TP{idx + 1}"
-                suffix = ""
-                hit_name = f"TP{idx + 1}"
-                tp_hit = any(hit_name in item for item in outcome_labels)
-                if tp_hit and trade.realized_pnl is not None and not realized_hit_label_added:
-                    suffix = f" hit ({_fmt_number(trade.realized_pnl, 4)})"
-                    realized_hit_label_added = True
-                annotations.append({"label": f"{label}{suffix}", "price": float(tp), "color": "#15803d"})
-
-    serialized = {
-        timeframe: _serialize_candles(tf_candles)
-        for timeframe, tf_candles in candles_by_timeframe.items()
-        if tf_candles
-    }
-    if not serialized:
-        return _chart_html(trade, event_log, None)
-
-    default_timeframe = next(iter(serialized.keys()))
-    chart_payload = {
-        "candles_by_timeframe": serialized,
-        "default_timeframe": default_timeframe,
-        "points": points,
-        "annotations": annotations,
-        "title": f"{trade.signal_id} - {trade.symbol} {_display_side(trade.side)}",
-    }
+    payload = build_trade_chart_payload(trade, event_log, candles_by_timeframe)
     chart_id = _safe_dom_id(f"chart_{trade.signal_id}")
-    payload_id = f"{chart_id}_payload"
-    selector_html = "".join(
-        (
-            f"<button type='button' id='{chart_id}_tf_{_safe_dom_id(timeframe)}' "
-            f"class='{'active' if timeframe == default_timeframe else ''}' "
-            f"onclick=\"{chart_id}_setTimeframe('{_escape(timeframe)}')\">{_escape(timeframe)}</button>"
-        )
-        for timeframe in serialized
-    )
-    return f"""
-    <div class="chart-wrap">
-      <div class="chart-toolbar">
-        {selector_html}
-        <button type="button" onclick="{chart_id}_zoom(0.75)">Zoom +</button>
-        <button type="button" onclick="{chart_id}_zoom(1.33)">Zoom -</button>
-        <button type="button" onclick="{chart_id}_reset()">Reset</button>
-      </div>
-      <svg id="{chart_id}" viewBox="0 0 940 380" width="100%" height="auto"></svg>
-      <div id="{chart_id}_tip" class="chart-tooltip"></div>
-      <script type="application/json" id="{payload_id}">{json.dumps(chart_payload, ensure_ascii=False)}</script>
-      <script>
-      (() => {{
-        const svg = document.getElementById("{chart_id}");
-        const tip = document.getElementById("{chart_id}_tip");
-        const data = JSON.parse(document.getElementById("{payload_id}").textContent || "{{}}");
-        const left = 58, top = 24, bottom = 332, right = 916;
-        const candlesByTimeframe = data.candles_by_timeframe || {{}};
-        let currentTimeframe = data.default_timeframe || Object.keys(candlesByTimeframe)[0] || "events";
-        const points = data.points || [];
-        const annotations = data.annotations || [];
-        function getCandles() {{
-          return candlesByTimeframe[currentTimeframe] || [];
-        }}
-        function getFrameItems() {{
-          const candles = getCandles();
-          return candles.length ? candles : points;
-        }}
-        function getBaseRange() {{
-          const candles = getCandles();
-          const allPrices = [
-            ...candles.flatMap(c => [Number(c.low), Number(c.high)]),
-            ...points.map(p => Number(p.price)),
-            ...annotations.map(a => Number(a.price))
-          ].filter(Number.isFinite);
-          if (!allPrices.length) allPrices.push(100, 101);
-          const min = Math.min(...allPrices), max = Math.max(...allPrices);
-          const pad = Math.max((max - min) * 0.08, 0.0001);
-          return {{ min: min - pad, max: max + pad }};
-        }}
-        let baseRange = getBaseRange();
-        let viewRange = {{ ...baseRange }};
-        function mapY(price) {{
-          return bottom - (((price - viewRange.min) / Math.max(viewRange.max - viewRange.min, 1e-9)) * (bottom - top));
-        }}
-        function mapX(idx) {{
-          const frameItems = getFrameItems();
-          return left + ((idx / Math.max(frameItems.length - 1, 1)) * (right - left));
-        }}
-        function pointFrameIndex(pointIdx) {{
-          const frameItems = getFrameItems();
-          return Math.round((pointIdx / Math.max(points.length - 1, 1)) * Math.max(frameItems.length - 1, 1));
-        }}
-        function syncSelector() {{
-          Object.keys(candlesByTimeframe).forEach((timeframe) => {{
-            const button = document.getElementById("{chart_id}_tf_" + timeframe.replace(/[^a-zA-Z0-9_-]/g, "_"));
-            if (button) button.classList.toggle("active", timeframe === currentTimeframe);
-          }});
-        }}
-        function render() {{
-          const candles = getCandles();
-          const frameItems = getFrameItems();
-          const grid = [];
-          for (let i = 0; i < 6; i++) {{
-            const p = viewRange.max - (((viewRange.max - viewRange.min) / 5) * i);
-            const y = mapY(p);
-            grid.push(`<line x1="${{left}}" y1="${{y.toFixed(2)}}" x2="${{right}}" y2="${{y.toFixed(2)}}" stroke="#e5e7eb" stroke-width="1"/>`);
-            grid.push(`<text x="50" y="${{(y + 4).toFixed(2)}}" text-anchor="end" font-size="12" fill="#6b7280">${{p.toFixed(2)}}</text>`);
-          }}
-          const candleStep = Math.max((right - left) / Math.max(candles.length, 1), 3);
-          const candleBodyWidth = Math.max(Math.min(candleStep * 0.6, 18), 3);
-          const candleShapes = candles.map((candle, idx) => {{
-            const x = mapX(idx);
-            const openY = mapY(Number(candle.open));
-            const closeY = mapY(Number(candle.close));
-            const highY = mapY(Number(candle.high));
-            const lowY = mapY(Number(candle.low));
-            const rising = Number(candle.close) >= Number(candle.open);
-            const stroke = rising ? "#15803d" : "#b91c1c";
-            const fill = rising ? "#dcfce7" : "#fee2e2";
-            const topY = Math.min(openY, closeY);
-            const height = Math.max(Math.abs(closeY - openY), 1.2);
-            return `<line x1="${{x.toFixed(2)}}" y1="${{highY.toFixed(2)}}" x2="${{x.toFixed(2)}}" y2="${{lowY.toFixed(2)}}" stroke="${{stroke}}" stroke-width="1.2"/>
-            <rect x="${{(x - candleBodyWidth / 2).toFixed(2)}}" y="${{topY.toFixed(2)}}" width="${{candleBodyWidth.toFixed(2)}}" height="${{height.toFixed(2)}}" fill="${{fill}}" stroke="${{stroke}}" stroke-width="1.2" rx="1"/>`;
-          }}).join("");
-          const pointPositions = points.map((point, idx) => {{
-            const matchingIndex = frameItems.findIndex(item => item.timestamp === point.timestamp);
-            const xIdx = matchingIndex >= 0 ? matchingIndex : pointFrameIndex(idx);
-            return {{ ...point, x: mapX(Math.max(xIdx, 0)), y: mapY(Number(point.price)) }};
-          }});
-          const poly = pointPositions.map((p) => `${{p.x.toFixed(2)}},${{p.y.toFixed(2)}}`).join(" ");
-          const circles = pointPositions.map((p) => `<circle cx="${{p.x.toFixed(2)}}" cy="${{p.y.toFixed(2)}}" r="3.6" fill="#2563eb" stroke="#ffffff" stroke-width="1.2"/>`).join("");
-          const ann = annotations.map((a, idx) => {{
-            const y = mapY(Number(a.price));
-            const x = left + 20 + ((idx % 2) * 90);
-            return `<line x1="${{x}}" y1="${{y.toFixed(2)}}" x2="${{right}}" y2="${{y.toFixed(2)}}" stroke="${{a.color}}" stroke-dasharray="5 4" stroke-width="1.4"/>
-            <text x="${{x + 8}}" y="${{(y - 4).toFixed(2)}}" font-size="12" fill="${{a.color}}" font-weight="600">${{a.label}} (${{Number(a.price).toFixed(4)}})</text>`;
-          }}).join("");
-          const xAxisLabels = frameItems.length > 1
-            ? [0, Math.floor((frameItems.length - 1) / 2), frameItems.length - 1]
-                .filter((value, index, arr) => arr.indexOf(value) === index)
-                .map((idx) => `<text x="${{mapX(idx).toFixed(2)}}" y="356" text-anchor="middle" font-size="11" fill="#6b7280">${{frameItems[idx].timestamp || ""}}</text>`)
-                .join("")
-            : "";
-          svg.innerHTML = `<rect x="0" y="0" width="940" height="380" fill="#fff"/>
-            ${{grid.join("")}}
-            ${{candleShapes}}
-            <polyline points="${{poly}}" fill="none" stroke="#1d4ed8" stroke-width="2"/>
-            ${{circles}}
-            ${{ann}}
-            <line x1="${{left}}" y1="${{bottom}}" x2="${{right}}" y2="${{bottom}}" stroke="#cbd5e1" stroke-width="1"/>
-            ${{xAxisLabels}}
-            <text x="${{left}}" y="16" font-size="15" font-weight="700" fill="#111827">${{data.title || ""}}${{candles.length ? " · " + currentTimeframe : ""}}</text>`;
-        }}
-        svg.addEventListener("mousemove", (event) => {{
-          const frameItems = getFrameItems();
-          const candles = getCandles();
-          const pt = svg.createSVGPoint();
-          pt.x = event.clientX; pt.y = event.clientY;
-          const local = pt.matrixTransform(svg.getScreenCTM().inverse());
-          if (!frameItems.length || local.x < left || local.x > right || local.y < top || local.y > bottom) {{
-            tip.style.display = "none"; return;
-          }}
-          const idx = Math.round(((local.x - left) / (right - left)) * Math.max(frameItems.length - 1, 1));
-          const candle = candles[Math.max(0, Math.min(candles.length - 1, idx))];
-          const p = points[Math.max(0, Math.min(points.length - 1, idx))];
-          tip.style.display = "block";
-          tip.style.left = `${{event.offsetX}}px`;
-          tip.style.top = `${{event.offsetY}}px`;
-          if (candle) {{
-            const nearby = points
-              .filter((item, pointIdx) => Math.abs(pointFrameIndex(pointIdx) - idx) <= 1)
-              .map(item => `${{item.label}} @ ${{Number(item.price).toFixed(4)}}`);
-            tip.innerHTML = `${{currentTimeframe}} · ${{candle.timestamp}}<br/>O ${{Number(candle.open).toFixed(4)}} H ${{Number(candle.high).toFixed(4)}}<br/>L ${{Number(candle.low).toFixed(4)}} C ${{Number(candle.close).toFixed(4)}}${{nearby.length ? "<br/>" + nearby.join("<br/>") : ""}}`;
-          }} else if (p) {{
-            tip.innerHTML = `${{p.timestamp}}<br/>${{p.label}} - ${{Number(p.price).toFixed(4)}}`;
-          }} else {{
-            tip.style.display = "none";
-          }}
-        }});
-        svg.addEventListener("mouseleave", () => {{ tip.style.display = "none"; }});
-        window.{chart_id}_setTimeframe = (timeframe) => {{
-          if (!(timeframe in candlesByTimeframe)) return;
-          currentTimeframe = timeframe;
-          baseRange = getBaseRange();
-          viewRange = {{ ...baseRange }};
-          syncSelector();
-          render();
-        }};
-        window.{chart_id}_zoom = (factor) => {{
-          const c = (viewRange.min + viewRange.max) / 2;
-          const h = ((viewRange.max - viewRange.min) * factor) / 2;
-          viewRange = {{ min: c - h, max: c + h }};
-          render();
-        }};
-        window.{chart_id}_reset = () => {{ viewRange = {{ ...baseRange }}; render(); }};
-        syncSelector();
-        render();
-      }})();
-      </script>
-    </div>
-    """
+    return render_trade_chart_echarts(payload, chart_id=chart_id, asset_path=echarts_asset_path)
 
 
 def write_single_trade_html_report(
@@ -820,6 +372,11 @@ def write_single_trade_html_report(
     candles_by_timeframe: dict[str, list[Candle]] | None = None,
     output_path: str | Path,
     back_link_href: str = "../../policy_report.html",
+    echarts_asset_path: str = "../../assets/echarts.min.js",
+    prev_link: str | None = None,
+    next_link: str | None = None,
+    trade_index: int | None = None,
+    trades_total: int | None = None,
 ) -> Path:
     summary_cards = "".join(
         [
@@ -893,15 +450,17 @@ def write_single_trade_html_report(
   </div>
   <div class="card">
     <h2>Price Chart</h2>
-    <div class="note" style="margin-bottom:10px">Interactive chart with real OHLC candles when market data is available, plus overlays for entries, SL, TP and execution events. Higher timeframes are shown when present in the local market dataset.</div>
-    {_chart_html_multi_tf(trade, event_log, candles_by_timeframe or {})}
+    <div class="note" style="margin-bottom:10px">ECharts interactive chart — candlestick with native zoom, tooltip and layer toggles. Use the timeframe buttons to switch views; toggle series groups via the legend.</div>
+    {_render_chart(trade, event_log, candles_by_timeframe or {}, echarts_asset_path)}
   </div>
   <div class="card">
     <h2>Event Timeline</h2>
     <div class="timeline">{''.join(timeline_blocks)}</div>
   </div>
-  <div class="footer-nav">
-    <a class="inline-btn" href="{_escape(back_link_href)}">Back to Policy Report</a>
+  <div class="footer-nav" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    {f'<a class="inline-btn" href="{_escape(prev_link)}" title="Previous trade">&larr; Prev</a>' if prev_link else '<span class="inline-btn" style="opacity:.35;cursor:default">&larr; Prev</span>'}
+    <a class="inline-btn" href="{_escape(back_link_href)}">{'&#8801; Summary' + (f' ({trade_index}/{trades_total})' if trade_index is not None and trades_total is not None else '')}</a>
+    {f'<a class="inline-btn" href="{_escape(next_link)}" title="Next trade">Next &rarr;</a>' if next_link else '<span class="inline-btn" style="opacity:.35;cursor:default">Next &rarr;</span>'}
   </div>
   {''.join(dialogs)}
 </div></body></html>

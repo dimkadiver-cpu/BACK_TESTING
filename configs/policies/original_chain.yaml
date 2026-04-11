@@ -26,8 +26,8 @@ updates:
   partial_close_fallback_pct: 0.5
 
 pending:
-  pending_timeout_hours: 24
-  chain_timeout_hours: 168
+  pending_timeout_hours: 36
+  chain_timeout_hours: 400
   cancel_pending_on_timeout: true
   cancel_unfilled_if_tp1_reached_before_fill: false
   cancel_averaging_pending_after_tp1: false

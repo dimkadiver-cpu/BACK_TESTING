@@ -51,6 +51,7 @@ class SignalDemandScanner:
         trader_id: str | None = None,
         date_from: str | None = None,
         date_to: str | None = None,
+        max_trades: int = 0,
     ) -> list[DemandChain]:
         """Return demand chains sorted deterministically.
 
@@ -93,11 +94,13 @@ class SignalDemandScanner:
                 GROUP BY os.attempt_key
             ) u ON u.attempt_key = s.attempt_key
             WHERE {where_sql}
-            ORDER BY UPPER(TRIM(s.symbol)) ASC, s.created_at ASC, s.attempt_key ASC
+            ORDER BY s.created_at ASC, s.attempt_key ASC
         """
 
         with sqlite3.connect(self._db_path) as conn:
             rows = conn.execute(query, params).fetchall()
+        if max_trades > 0:
+            rows = rows[:max_trades]
 
         demand: list[DemandChain] = []
         for attempt_key, symbol, raw_open, raw_last_update, status in rows:

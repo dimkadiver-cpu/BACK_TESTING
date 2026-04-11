@@ -30,6 +30,7 @@ def test_market_request_fingerprint_is_stable_for_same_market_context(tmp_path: 
         trader_filter="all",
         date_from="2026-01-01",
         date_to="2026-01-31",
+        max_trades=20,
         timeframe="1m",
         price_basis="last",
         source="bybit",
@@ -40,6 +41,7 @@ def test_market_request_fingerprint_is_stable_for_same_market_context(tmp_path: 
         trader_filter="all",
         date_from="2026-01-01",
         date_to="2026-01-31",
+        max_trades=20,
         timeframe="1m",
         price_basis="last",
         source="bybit",
@@ -59,6 +61,7 @@ def test_market_request_fingerprint_changes_when_market_context_changes(tmp_path
         trader_filter="all",
         date_from="",
         date_to="",
+        max_trades=0,
         timeframe="1m",
         price_basis="last",
         source="bybit",
@@ -69,6 +72,7 @@ def test_market_request_fingerprint_changes_when_market_context_changes(tmp_path
         trader_filter="trader#a",
         date_from="",
         date_to="",
+        max_trades=0,
         timeframe="1m",
         price_basis="last",
         source="bybit",
@@ -79,6 +83,18 @@ def test_market_request_fingerprint_changes_when_market_context_changes(tmp_path
         trader_filter="all",
         date_from="2026-02-01",
         date_to="",
+        max_trades=0,
+        timeframe="1m",
+        price_basis="last",
+        source="bybit",
+    )
+    changed_max_trades = build_market_request(
+        db_path=str(db_path),
+        market_data_dir=str(market_dir),
+        trader_filter="all",
+        date_from="",
+        date_to="",
+        max_trades=20,
         timeframe="1m",
         price_basis="last",
         source="bybit",
@@ -86,6 +102,7 @@ def test_market_request_fingerprint_changes_when_market_context_changes(tmp_path
 
     assert market_request_fingerprint(baseline) != market_request_fingerprint(changed_filter)
     assert market_request_fingerprint(baseline) != market_request_fingerprint(changed_date)
+    assert market_request_fingerprint(baseline) != market_request_fingerprint(changed_max_trades)
 
 
 def test_validation_index_roundtrip_and_pass_lookup(tmp_path: Path) -> None:
@@ -98,6 +115,7 @@ def test_validation_index_roundtrip_and_pass_lookup(tmp_path: Path) -> None:
         trader_filter="all",
         date_from="",
         date_to="",
+        max_trades=0,
         timeframe="1m",
         price_basis="last",
         source="bybit",

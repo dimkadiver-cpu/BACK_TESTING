@@ -4,6 +4,7 @@ from __future__ import annotations
 import csv
 import json
 import re
+import shutil
 from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -241,6 +242,17 @@ def _write_excluded_chains_csv(excluded_chains: list[dict[str, str]], output_pat
     return path
 
 
+_ECHARTS_SOURCE = Path(__file__).parent / "assets" / "echarts.min.js"
+_ECHARTS_RELATIVE_PATH = "../../assets/echarts.min.js"
+
+
+def _copy_chart_assets(output_dir: Path) -> None:
+    dest = output_dir / "assets" / "echarts.min.js"
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    if _ECHARTS_SOURCE.exists() and not dest.exists():
+        shutil.copy2(_ECHARTS_SOURCE, dest)
+
+
 def _write_trade_artifacts(
     *,
     output_dir: Path,
@@ -249,16 +261,22 @@ def _write_trade_artifacts(
     chains_by_signal_id: dict[str, CanonicalChain],
     market_provider: MarketDataProvider | None,
 ) -> dict[str, str]:
+    _copy_chart_assets(output_dir)
     trade_detail_links: dict[str, str] = {}
     trades_dir = output_dir / "trades"
-    for trade in trade_results:
-        signal_dir = trades_dir / _safe_dirname(trade.signal_id)
+    # Pre-compute dir names so we can build prev/next links
+    dir_names = [_safe_dirname(trade.signal_id) for trade in trade_results]
+    for index, trade in enumerate(trade_results):
+        signal_dir = trades_dir / dir_names[index]
         event_log = event_logs_by_signal_id.get(trade.signal_id, [])
         chart_candles_by_timeframe = _load_trade_chart_candles_by_timeframe(
             trade=trade,
             chain=chains_by_signal_id.get(trade.signal_id),
             market_provider=market_provider,
+            event_log=event_log,
         )
+        prev_link = f"../{dir_names[index - 1]}/detail.html" if index > 0 else None
+        next_link = f"../{dir_names[index + 1]}/detail.html" if index < len(trade_results) - 1 else None
         write_event_log_jsonl(event_log, signal_dir / "event_log.jsonl")
         write_trade_results_csv([trade], signal_dir / "trade_result.csv")
         write_chain_plot_png(event_log, signal_dir / "equity_curve.png")
@@ -272,6 +290,11 @@ def _write_trade_artifacts(
             event_log=event_log,
             output_path=signal_dir / "detail.html",
             candles_by_timeframe=chart_candles_by_timeframe,
+            echarts_asset_path=_ECHARTS_RELATIVE_PATH,
+            prev_link=prev_link,
+            next_link=next_link,
+            trade_index=index + 1,
+            trades_total=len(trade_results),
         )
         trade_detail_links[trade.signal_id] = f"trades/{signal_dir.name}/detail.html"
     return trade_detail_links
@@ -285,11 +308,25 @@ def _higher_timeframes(base_timeframe: str) -> list[str]:
     return ordered[start:]
 
 
+def _trade_chart_end_anchor(
+    trade: TradeResult,
+    event_log: list[EventLogEntry],
+) -> datetime | None:
+    if trade.closed_at is not None:
+        return trade.closed_at
+    if event_log:
+        timestamps = [entry.timestamp for entry in event_log if entry.timestamp is not None]
+        if timestamps:
+            return max(timestamps)
+    return trade.created_at
+
+
 def _load_trade_chart_candles_by_timeframe(
     *,
     trade: TradeResult,
     chain: CanonicalChain | None,
     market_provider: MarketDataProvider | None,
+    event_log: list[EventLogEntry] | None = None,
 ) -> dict[str, list[Candle]]:
     if market_provider is None or chain is None:
         return {}
@@ -300,7 +337,9 @@ def _load_trade_chart_candles_by_timeframe(
     timeframe = str(chain.metadata.get("timeframe", "1m") or "1m")
     timeframes = _higher_timeframes(timeframe)
     start = trade.created_at - timedelta(hours=6)
-    end_anchor = trade.closed_at or trade.created_at
+    end_anchor = _trade_chart_end_anchor(trade, event_log or [])
+    if end_anchor is None:
+        end_anchor = trade.created_at
     end = end_anchor + timedelta(hours=6)
     result: dict[str, list[Candle]] = {}
     for candidate_timeframe in timeframes:

@@ -90,7 +90,10 @@ def test_planner_handles_incomplete_chain_with_unknown_class() -> None:
         chain_status="EXPIRED",
     )
 
-    planner = CoveragePlanner(config=PlannerConfig())
+    planner = CoveragePlanner(
+        config=PlannerConfig(),
+        now_provider=lambda: datetime(2026, 5, 1, 0, 0, tzinfo=timezone.utc),
+    )
     duration_class = planner.classify_duration(chain)
     plan = planner.plan([chain]).to_dict()
 
@@ -124,3 +127,45 @@ def test_planner_merges_adjacent_intervals_for_same_symbol() -> None:
     assert len(plan["BTCUSDT"]) == 1
     assert plan["BTCUSDT"][0]["start"] == "2026-03-31T00:00:00+00:00"
     assert plan["BTCUSDT"][0]["end"] == "2026-04-04T02:00:00+00:00"
+
+
+def test_planner_caps_future_coverage_to_now_for_open_chains() -> None:
+    frozen_now = datetime(2026, 4, 10, 19, 15, tzinfo=timezone.utc)
+    planner = CoveragePlanner(
+        config=PlannerConfig(),
+        now_provider=lambda: frozen_now,
+    )
+
+    chain = DemandChain(
+        chain_id="open_chain",
+        symbol="ADAUSDT",
+        timestamp_open=datetime(2026, 4, 6, 12, 31, 30, tzinfo=timezone.utc),
+        timestamp_last_relevant_update=None,
+        chain_status="OPEN",
+    )
+
+    plan = planner.plan([chain]).to_dict()
+
+    assert plan["ADAUSDT"][0]["start"] == "2026-04-01T12:31:30+00:00"
+    assert plan["ADAUSDT"][0]["end"] == "2026-04-10T19:15:00+00:00"
+
+
+def test_scanner_applies_max_trades_in_creation_order(tmp_path) -> None:
+    db_path = tmp_path / "scanner_limit.sqlite3"
+    with sqlite3.connect(db_path) as conn:
+        _create_schema(conn)
+        conn.execute("ALTER TABLE signals ADD COLUMN trader_id TEXT")
+        conn.execute(
+            "INSERT INTO signals(attempt_key, symbol, status, created_at, trader_id) VALUES (?, ?, ?, ?, ?)",
+            ("chain_2", "ethusdt", "CLOSED", "2026-04-01T11:00:00+00:00", "trader_3"),
+        )
+        conn.execute(
+            "INSERT INTO signals(attempt_key, symbol, status, created_at, trader_id) VALUES (?, ?, ?, ?, ?)",
+            ("chain_1", "btcusdt", "CLOSED", "2026-04-01T10:00:00+00:00", "trader_3"),
+        )
+        conn.commit()
+
+    records = SignalDemandScanner(str(db_path)).scan(trader_id="trader_3", max_trades=1)
+
+    assert len(records) == 1
+    assert records[0].chain_id == "chain_1"

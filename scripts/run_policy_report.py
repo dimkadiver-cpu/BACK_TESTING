@@ -41,6 +41,14 @@ def _build_market_provider(market_dir: str, timeframe: str, price_basis: str):
     )
 
 
+def _builder_filters(args: argparse.Namespace) -> dict[str, str | None]:
+    return {
+        "trader_id": args.trader_id,
+        "date_from": args.date_from.date().isoformat() if args.date_from else None,
+        "date_to": args.date_to.date().isoformat() if args.date_to else None,
+    }
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run a full dataset report for one policy")
     parser.add_argument("--policy", required=True, help="Policy name or YAML path")
@@ -60,6 +68,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--date-from", type=_parse_date, default=None, help="Dataset start date (YYYY-MM-DD)")
     parser.add_argument("--date-to", type=_parse_date, default=None, help="Dataset end date (YYYY-MM-DD)")
     parser.add_argument("--trader-id", default=None, help="Filter chains by trader_id (default: all)")
+    parser.add_argument("--max-trades", type=int, default=0, help="Max chains to backtest (0 = no limit)")
     parser.add_argument(
         "--output-dir",
         default=None,
@@ -82,17 +91,22 @@ def main() -> int:
     loader = PolicyLoader()
     policy = loader.load(args.policy)
 
-    chains = SignalChainBuilder.build_all(db_path=args.db_path)
+    chains = SignalChainBuilder.build_all(
+        db_path=args.db_path,
+        **_builder_filters(args),
+    )
     canonical = [adapt_signal_chain(chain) for chain in chains]
     for chain in canonical:
         chain.metadata["timeframe"] = args.timeframe
 
     if args.date_from is not None:
-        canonical = [chain for chain in canonical if chain.created_at >= args.date_from]
+        canonical = [chain for chain in canonical if chain.created_at.date() >= args.date_from.date()]
     if args.date_to is not None:
-        canonical = [chain for chain in canonical if chain.created_at <= args.date_to]
+        canonical = [chain for chain in canonical if chain.created_at.date() <= args.date_to.date()]
     if args.trader_id:
         canonical = [chain for chain in canonical if chain.trader_id == args.trader_id]
+    if args.max_trades > 0:
+        canonical = canonical[: args.max_trades]
 
     market_provider = _build_market_provider(
         market_dir=args.market_dir,

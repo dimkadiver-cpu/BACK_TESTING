@@ -21,6 +21,7 @@ from parser_test.reporting.report_export import export_reports_csv_v2
 from src.signal_chain_lab.parser.trader_profiles.registry import canonicalize_trader_code
 from src.signal_chain_lab.ui.components.log_panel import LogPanel
 from src.signal_chain_lab.ui.components.quality_report import render_quality_report
+from src.signal_chain_lab.ui.file_dialogs import ask_directory, ask_open_filename
 from src.signal_chain_lab.ui.state import QualityReport, UiState
 
 
@@ -36,27 +37,11 @@ _TRADER_OPTIONS = {
 
 
 async def _browse_parse_db(output_input) -> None:
-    def _pick_file() -> str:
-        try:
-            import tkinter as tk
-            from tkinter import filedialog
-        except Exception:
-            return ""
-
-        root = tk.Tk()
-        root.withdraw()
-        root.attributes("-topmost", True)
-        try:
-            selected_file = filedialog.askopenfilename(
-                initialdir=str(_PROJECT_ROOT),
-                title="Seleziona il DB da parsare",
-                filetypes=[("SQLite DB", "*.sqlite3 *.db"), ("All files", "*.*")],
-            )
-        finally:
-            root.destroy()
-        return selected_file or ""
-
-    selected = await asyncio.to_thread(_pick_file)
+    selected = ask_open_filename(
+        initialdir=_PROJECT_ROOT,
+        title="Seleziona il DB da parsare",
+        filetypes=[("SQLite DB", "*.sqlite3 *.db"), ("All files", "*.*")],
+    )
     if not selected:
         ui.notify("Selezione file annullata.", color="warning")
         return
@@ -65,27 +50,11 @@ async def _browse_parse_db(output_input) -> None:
 
 
 async def _browse_reports_dir(output_input) -> None:
-    def _pick_directory() -> str:
-        try:
-            import tkinter as tk
-            from tkinter import filedialog
-        except Exception:
-            return ""
-
-        root = tk.Tk()
-        root.withdraw()
-        root.attributes("-topmost", True)
-        try:
-            selected_dir = filedialog.askdirectory(
-                initialdir=str(_PROJECT_ROOT),
-                title="Seleziona la cartella CSV report",
-                mustexist=False,
-            )
-        finally:
-            root.destroy()
-        return selected_dir or ""
-
-    selected = await asyncio.to_thread(_pick_directory)
+    selected = ask_directory(
+        initialdir=_PROJECT_ROOT,
+        title="Seleziona la cartella CSV report",
+        mustexist=False,
+    )
     if not selected:
         ui.notify("Selezione cartella annullata.", color="warning")
         return

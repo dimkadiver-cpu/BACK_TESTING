@@ -10,6 +10,7 @@ from pathlib import Path
 from nicegui import ui
 
 from src.signal_chain_lab.ui.components.log_panel import LogPanel
+from src.signal_chain_lab.ui.file_dialogs import ask_directory
 from src.signal_chain_lab.ui.state import UiState
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[4]
@@ -212,27 +213,11 @@ def _summarize_download_db(db_path: Path) -> dict[str, int]:
 
 
 async def _browse_output_dir(output_input) -> None:
-    def _pick_directory() -> str:
-        try:
-            import tkinter as tk
-            from tkinter import filedialog
-        except Exception:
-            return ""
-
-        root = tk.Tk()
-        root.withdraw()
-        root.attributes("-topmost", True)
-        try:
-            selected_dir = filedialog.askdirectory(
-                initialdir=str(_PROJECT_ROOT),
-                title="Seleziona la cartella dove salvare il DB",
-                mustexist=False,
-            )
-        finally:
-            root.destroy()
-        return selected_dir or ""
-
-    selected = await asyncio.to_thread(_pick_directory)
+    selected = ask_directory(
+        initialdir=_PROJECT_ROOT,
+        title="Seleziona la cartella dove salvare il DB",
+        mustexist=False,
+    )
     if not selected:
         ui.notify("Selezione cartella annullata.", color="warning")
         return

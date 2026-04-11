@@ -85,6 +85,14 @@ def _normalize_policy_names(args: argparse.Namespace) -> list[str]:
     return deduped
 
 
+def _builder_filters(args: argparse.Namespace) -> dict[str, str | None]:
+    return {
+        "trader_id": args.trader_id,
+        "date_from": args.date_from.date().isoformat() if args.date_from else None,
+        "date_to": args.date_to.date().isoformat() if args.date_to else None,
+    }
+
+
 def _build_market_provider(market_dir: str, timeframe: str, price_basis: str):
     """Instantiate BybitParquetProvider.  Returns None if market-dir is empty or absent."""
     from src.signal_chain_lab.market.providers.bybit_parquet_provider import BybitParquetProvider
@@ -201,16 +209,19 @@ def main() -> int:
     loader = PolicyLoader()
     policies = [loader.load(name) for name in policy_names]
 
-    chains = SignalChainBuilder.build_all(db_path=args.db_path)
+    chains = SignalChainBuilder.build_all(
+        db_path=args.db_path,
+        **_builder_filters(args),
+    )
     canonical = [adapt_signal_chain(chain) for chain in chains]
     for chain in canonical:
         chain.metadata["timeframe"] = args.timeframe
 
     # Apply dataset filters
     if args.date_from is not None:
-        canonical = [chain for chain in canonical if chain.created_at >= args.date_from]
+        canonical = [chain for chain in canonical if chain.created_at.date() >= args.date_from.date()]
     if args.date_to is not None:
-        canonical = [chain for chain in canonical if chain.created_at <= args.date_to]
+        canonical = [chain for chain in canonical if chain.created_at.date() <= args.date_to.date()]
     if args.trader_id:
         canonical = [chain for chain in canonical if chain.trader_id == args.trader_id]
     if args.max_trades > 0:
