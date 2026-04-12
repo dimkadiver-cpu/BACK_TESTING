@@ -40,3 +40,31 @@ def test_preferred_symbol_side_uses_message_entities_when_joined_signal_row_is_w
 
     assert symbol == "WLFIUSDT"
     assert side == "BUY"
+
+
+def test_chain_builder_new_signal_entities_accept_entry_plan_entries_only() -> None:
+    message = ChainedMessage(
+        raw_message_id=1,
+        parse_result_id=1,
+        telegram_message_id=1,
+        message_ts=_utc("2026-01-01T00:00:00"),
+        message_type="NEW_SIGNAL",
+        entities=NewSignalEntities.model_validate(
+            {
+                "symbol": "BTCUSDT",
+                "direction": "LONG",
+                "entry_type": "LIMIT",
+                "entry_structure": "RANGE",
+                "entry_plan_entries": [
+                    {"role": "RANGE_LOW", "order_type": "LIMIT", "price": 100.0},
+                    {"role": "RANGE_HIGH", "order_type": "LIMIT", "price": 101.0},
+                ],
+                "stop_loss": {"price": {"raw": "99.0", "value": 99.0}},
+                "take_profits": [{"price": {"raw": "105.0", "value": 105.0}}],
+            }
+        ),
+    )
+
+    entities = message.entities
+    assert isinstance(entities, NewSignalEntities)
+    assert [entry.price.value for entry in (entities.entry_plan_entries or entities.entries) if entry.price is not None] == [100.0, 101.0]

@@ -1,0 +1,1108 @@
+﻿raw_message_id,parse_status,reply_to_message_id,raw_text,warning_text,warnings_summary,primary_intent,intents,action_types,actions_structured_summary,event_type,message_class,symbol,direction,market_type,status,confidence,parser_used,parser_mode,entry_plan_type,entry_structure,has_averaging_plan,entry_count,entries_summary,stop_loss_price,tp_prices,tp_count,signal_id,target_scope_kind,target_scope_scope,target_refs,target_refs_count,linking_strategy,new_sl_level,new_sl_price,new_sl_reference,new_stop_level,close_pct,close_scope,close_fraction,hit_target,fill_state,result_mode,cancel_scope,reported_results,reported_profit_percent,reported_leverage_hint,notes_summary,links_count,hashtags_count,validation_warning_count,diagnostics_summary
+1516,PARSED,,"[trader#d]
+
+Storjusdt SHORT вход с текущих
+
+рыночный— риск 0.5% депо
+
+
+Стоп 0.16134
+
+
+Тейки 
+• TP1: 0.1445
+TP2; 0,138",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.1445 | 0.138),,,STORJUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.16134,0.1445 | 0.138,2,1516,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1515,PARSED,1407,"[trader#d]
+Перевод в безубыток",,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE | U_REPORT_FINAL_RESULT,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,1407,signal,single,1407,1,,ENTRY,,BREAKEVEN,ENTRY,,,,,,,,,,,,0,0,0,
+1511,PARSED,,"https://t.me/c/3171748254/1408
+[trader#d] позиция ушла в бу",,,U_EXIT_BE,U_EXIT_BE,,,,,,,,,0.68,,,,,False,0,,,,0,1408,signal,single,1408,1,,,,,,,,,,,,,,,,,0,0,0,
+1494,PARSED,,"[trader#d]
+
+Brev SHORT вход с текущих
+
+рыночный— риск 0.5% депо
+
+
+Стоп 0.5358
+
+
+Тейки 
+• TP1: 0.4283
+• TP2:0.3485",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.4283 | 0.3485),,,BREVUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.5358,0.4283 | 0.3485,2,1494,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1490,PARSED,,"[trader#d]
+
+Btc Long  вход с текущих
+
+рыночный— риск 0.5% депо
+
+
+Стоп 90939
+
+
+Тейки 
+• TP1: 92265
+• TP2:93704",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=LONG; take_profits=92265 | 93704),,,BTCUSDT,LONG,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,90939,92265 | 93704,2,1490,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1489,PARSED,1439,"Trader#d
+Перевод в бу",,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,1439,signal,single,1439,1,,ENTRY,,BREAKEVEN,ENTRY,,,,,,,,,,,,0,0,0,
+1487,PARSED,1443,"Trader#d
+Стоп.
+-0.5%",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,1443,signal,single,1443,1,,,,,,,FULL,,STOP,,,,,-0.5,,,0,0,0,
+1486,PARSED,1439,"Trader#d
+Стоп сдвигаю в +
+0.4671",,,U_MOVE_STOP,U_MOVE_STOP,MOVE_STOP,MOVE_STOP(new_stop_level=0.4671),,,,,,,0.68,,,,,False,0,,,,0,1439,signal,single,1439,1,,0.4671,0.4671,,0.4671,,,,,,,,,,,,0,0,0,
+1480,PARSED,1448,"Trader#d
+Ушли по стопу в + 0.1%
+ обидно)",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,1448,signal,single,1448,1,,,,,,,FULL,,STOP,,,,,0.1,,,0,0,0,
+1477,PARSED,,"Trader#d
+Btc long
+рыночный
+стоп 89586
+тп1 91332
+тп2 94371",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=LONG; take_profits=91332 | 94371),,,BTCUSDT,LONG,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,89586,91332 | 94371,2,1477,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1476,PARSED,1461,"trader#d
+upd кину в бу",,,,,,,,,,,,,0.68,,,,,False,0,,,,0,1461,signal,single,1461,1,,,,,,,,,,,,,,,,,0,0,0,
+1475,PARSED,1462,"trader#d
+upd#бу",,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,1462,signal,single,1462,1,,ENTRY,,BREAKEVEN,ENTRY,,,,,,,,,,,,0,0,0,
+1469,PARSED,,"[trader#d]
+
+Iotx SHORT вход с текущих
+
+рыночный— риск 0.5% депо
+
+
+Стоп 0.009023
+
+
+Тейки 
+• TP1: 0.008629
+• TP2: 0.008498",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.008629 | 0.008498),,,IOTXUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.009023,0.008629 | 0.008498,2,1469,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1468,PARSED,1476,"[Trader#d]
+tp1+
+Перевод в бу",,,U_TP_HIT,U_TP_HIT | U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,1476,signal,single,1476,1,,ENTRY,,BREAKEVEN,ENTRY,,,,TP1,,,,,,,,0,0,0,
+1466,PARSED,1477,"[trader#d]
+ТП2
+позиция закрыта +0,75",,,U_CLOSE_FULL,U_CLOSE_FULL | U_REPORT_FINAL_RESULT | U_TP_HIT,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,1477,signal,single,1477,1,,,,,,,FULL,,TP2,,,,,0.75,,,0,0,0,
+1464,PARSED,,"[trader#d]
+
+GUNUSDT SHORT вход с текущих
+
+рыночный— риск 0.5% депо
+
+
+Стоп 0.027288
+
+
+Тейки 
+• TP1: 0.024756
+• TP2: 0.021756",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.024756 | 0.021756),,,GUNUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.027288,0.024756 | 0.021756,2,1464,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1462,PARSED,1481,"[Trader#d] 
+стоп
+ -0,5",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,1481,signal,single,1481,1,,,,,,,FULL,,STOP,,,,,,,,0,0,0,
+1461,PARSED,1481,"Trader#d
+GUNUSDT SHORT вход с текущих
+
+рыночный— риск 0.5% депо
+
+
+Стоп 0.027848
+
+
+Тейки 
+• TP1: 0.0245
+• TP2: 0.021758",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.0245 | 0.021758),,,GUNUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.027848,0.0245 | 0.021758,2,1461,signal,single,1481,1,,,,,,,,,,,,,,,,,0,0,0,
+1460,PARSED,,"[trader#d]
+
+GMT SHORT вход с текущих
+
+рыночный— риск 0.5% депо
+
+
+Стоп 0.020705
+
+
+Тейки 
+• TP1: 0.018264
+• TP2:0.017349",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.018264 | 0.017349),,,GMTUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.020705,0.018264 | 0.017349,2,1460,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1458,PARSED,1486,"Trader#d
+Sl -0.5",,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,1486,signal,single,1486,1,,,,,,,FULL,,,,,,,,,,0,0,0,
+1457,PARSED,1487,"Trader#d
+Перевел в бу",,,,,,,,,,,,,0.68,,,,,False,0,,,,0,1487,signal,single,1487,1,,,,,,,,,,,,,,,,,0,0,0,
+1456,PARSED,1489,"Попробую перезаход
+Sl 0.02902
+Tp 0.024482
+Tp2 0.021766",,,U_TP_HIT,U_TP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,1489,signal,single,1489,1,,,,,,,FULL,,TP,,,,,,,,0,0,0,
+1455,PARSED,1491,Upd: сразу кину в бу,,,,,,,,,,,,,0.68,,,,,False,0,,,,0,1491,signal,single,1491,1,,,,,,,,,,,,,,,,,0,0,0,
+1453,PARSED,1491,Фикс 50% чтоб погасить частично стоп,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION | CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,1491,signal,single,1491,1,,,,,,50,PARTIAL,50,STOP,,,,,50,,,0,0,0,
+1452,PARSED,1487,"Тут тоже фикс 50%
+Для полного погашения стопа",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION | CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,1487,signal,single,1487,1,,,,,,50,PARTIAL,50,STOP,,,,,50,,,0,0,0,
+1451,PARSED,1496,"Trader#d
+Gmt остаток ушел в бу
++0.15%",,,U_EXIT_BE,U_EXIT_BE,,,,,GMTUSDT,,,,0.68,,,,,False,0,,,,0,1496,signal,single,1496,1,,,,,,,,,,,,,,0.15,,,0,0,0,
+1450,PARSED,1491,"Trader#d
+Gun Полный фикс,не нравится.
++0.5%",,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,GUNUSDT,,,,0.68,,,,,False,0,,,,0,1491,signal,single,1491,1,,,,,,,FULL,,,,,,,0.5,,,0,0,0,
+1428,PARSED,,"[trader#d]
+
+ALCH SHORT вход с текущих
+
+рыночный— риск 0.5% депо
+
+
+Стоп 0.14893
+
+
+Тейки 
+• TP1: 0.13983
+• TP2: 0.12775",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.13983 | 0.12775),,,ALCHUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.14893,0.13983 | 0.12775,2,1428,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1427,PARSED,1536,upd:Перевод в бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,1536,signal,single,1536,1,,ENTRY,,BREAKEVEN,ENTRY,,,,,,,,,,,,0,0,0,
+1426,PARSED,1537,upd:позиция ушла в бу,,,U_EXIT_BE,U_EXIT_BE,,,,,,,,,0.68,,,,,False,0,,,,0,1537,signal,single,1537,1,,,,,,,,,,,,,,,,,0,0,0,
+1423,PARSED,,"[trader#d]
+
+BTC Long вход с текущих
+
+рыночный— риск 0.5% депо
+
+
+Стоп 90071
+
+
+Тейки 
+• TP1: 92488
+• TP2: 94763",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=LONG; take_profits=92488 | 94763),,,BTCUSDT,LONG,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,90071,92488 | 94763,2,1423,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1421,PARSED,,"[trader#d]
+
+ZIL LONG вход с текущих
+
+рыночный— риск 0.5% депо
+
+
+Стоп 0.005080
+
+
+Тейки 
+• TP1:  0.00654",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=LONG; take_profits=0.00654),,,ZILUSDT,LONG,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.00508,0.00654,1,1421,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1420,PARSED,,"[trader#d]
+
+Link LONG вход с текущих
+
+рыночный— риск 0.5% депо
+
+
+Стоп 12.916
+
+
+Тейки 
+• TP1:  13.517
+Tp2; 14.226",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=LONG; take_profits=13.517 | 14.226),,,LINKUSDT,LONG,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,12.916,13.517 | 14.226,2,1420,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1419,PARSED,1541,"trader#d
+btc в бу перевел",,,,,,,,,BTCUSDT,,,,0.68,,,,,False,0,,,,0,1541,signal,single,1541,1,,,,,,,,,,,,,,,,,0,0,0,
+1417,PARSED,1541,"Trader#d
+upd
+btc первый фикс сделаем на снятии Лондона 91591",,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,1541,signal,single,1541,1,,,,,,,,,,,,,,,,,0,0,0,
+1416,PARSED,1548,"фикс +0,25",,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,1548,signal,single,1548,1,,,,,,,,,,,,,,,,,0,0,0,
+1415,PARSED,1545,"trader#d
+Link перевод в бу",,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,LINKUSDT,,,,0.68,,,,,False,0,,,,0,1545,signal,single,1545,1,,ENTRY,,BREAKEVEN,ENTRY,,,,,,,,,,,,0,0,0,
+1413,PARSED,,"Trader#d
+Parti Шорт
+лимт 0,09287
+стоп 0,09494
+тп1 0,08977
+тп2 0,08584
+если достигнем тп1 то лимитку убираем",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.08977 | 0.08584; entries=0.09287),,,PARTIUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:LIMIT:0.09287,0.09494,0.08977 | 0.08584,2,1413,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1412,PARSED,1552,"Upd : лимитку убрал
+Сделка не актуальна",,,U_CANCEL_PENDING_ORDERS,U_CANCEL_PENDING_ORDERS,CANCEL_PENDING,CANCEL_PENDING,,,,,,,0.68,,,,,False,0,,,,0,1552,signal,single,1552,1,,,,,,,,,,,,TARGETED,,,,,0,0,0,
+1411,PARSED,1550,"Trader#d 
+Link ушел по бу",,,,,,,,,LINKUSDT,,,,0.2,,,,,False,0,,,,0,1550,signal,single,1550,1,,,,,,,,,,,,,,,,,0,0,0,
+1410,PARSED,,"Trader#d
+Dolousdt Short 
+Вход по рынку риск 0.5%
+Стоп 0.07560
+Тп1 0.062
+Тп2 0.05562",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.062 | 0.05562),,,DOLOUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.0756,0.062 | 0.05562,2,1410,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1409,PARSED,1556,"Trader#d
+Upd.Стоп в бу на ночь 🤝",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,1556,signal,single,1556,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,STOP,,,,,,,,0,0,0,
+1408,PARSED,1557,Upd:бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,1557,signal,single,1557,1,,ENTRY,,BREAKEVEN,ENTRY,,,,,,,,,,,,0,0,0,
+1407,PARSED,1541,Upd:Btc остатки закрываю,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,1541,signal,single,1541,1,,,,,,,FULL,,,,,,,,,,0,0,0,
+1405,PARSED,,"[trader#d]
+
+MTL SHORT вход с текущих
+
+рыночный— риск 0.5% депо
+
+
+Стоп 0.4382
+
+
+Тейки 
+• TP1: 0.4176
+• TP2:0.4054
+TP3; 0.3875",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.4176 | 0.4054 | 0.3875),,,MTLUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.4382,0.4176 | 0.4054 | 0.3875,3,1405,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1404,PARSED,1564,upd перевод в бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,1564,signal,single,1564,1,,ENTRY,,BREAKEVEN,ENTRY,,,,,,,,,,,,0,0,0,
+1403,PARSED,1566,ушли в бу,,,,,,,,,,,,,0.68,,,,,False,0,,,,0,1566,signal,single,1566,1,,,,,,,,,,,,,,,,,0,0,0,
+1402,PARSED,1544,"trader#D
+Zil перевожу в бу",,,,,,,,,ZILUSDT,,,,0.68,,,,,False,0,,,,0,1544,signal,single,1544,1,,,,,,,,,,,,,,,,,0,0,0,
+1400,PARSED,1570,"Trader#d
+Zil закрываю позицию полностью +0,35%",,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,ZILUSDT,,,,0.68,,,,,False,0,,,,0,1570,signal,single,1570,1,,,,,,,FULL,,,,,,,0.35,,,0,0,0,
+1395,PARSED,,"[trader#d]
+
+Dash SHORT вход с текущих
+
+рыночный— риск 0.5% депо
+
+
+Стоп 62.74
+
+
+Тейки 
+• TP1: 52.39",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=52.39),,,DASHUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,62.74,52.39,1,1395,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1392,PARSED,,"[trader#d]
+
+AXS SHORT вход лимит 1,0573
+
+рыночный— риск 0.5% депо
+
+
+Стоп  1,1085
+
+
+Тейки 
+• TP1: 1,0049
+• TP2:0,9283",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=1.0049 | 0.9283; entries=1.0573),,,AXSUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:LIMIT:1.0573,1.1085,1.0049 | 0.9283,2,1392,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1391,PARSED,1579,upd:Перевод в бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,1579,signal,single,1579,1,,ENTRY,,BREAKEVEN,ENTRY,,,,,,,,,,,,0,0,0,
+1390,PARSED,1579,upd;срезал 50% +0.15%,,,,,,,,,,,,,0.2,,,,,False,0,,,,0,1579,signal,single,1579,1,,,,,,,,,,,,,,,,,0,0,0,
+1380,PARSED,,"[trader#d]
+
+Pixel SHORT вход с текущих
+
+рыночный— риск 0.5% депо
+
+
+Стоп 0.009648
+
+
+Тейки 
+• TP1: 0.009
+• TP2: 0.008685",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.009 | 0.008685),,,PIXELUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.009648,0.009 | 0.008685,2,1380,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1375,PARSED,,"[trader#d]
+
+Aevo SHORT вход с текущих
+
+рыночный— риск 0.5% депо
+
+
+Стоп 0.04946
+
+
+Тейки 
+• TP1: 0.04146",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.04146),,,AEVOUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.04946,0.04146,1,1375,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1373,PARSED,1601,Upd:перевод в бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,1601,signal,single,1601,1,,ENTRY,,BREAKEVEN,ENTRY,,,,,,,,,,,,0,0,0,
+1372,PARSED,1582,"Upd:лимитку снимаем.
+Сделка не актуальна",,,U_CANCEL_PENDING_ORDERS,U_CANCEL_PENDING_ORDERS,CANCEL_PENDING,CANCEL_PENDING,,,,,,,0.68,,,,,False,0,,,,0,1582,signal,single,1582,1,,,,,,,,,,,,TARGETED,,,,,0,0,0,
+1371,PARSED,1603,Upd:позиция ушла в бу,,,U_EXIT_BE,U_EXIT_BE,,,,,,,,,0.68,,,,,False,0,,,,0,1603,signal,single,1603,1,,,,,,,,,,,,,,,,,0,0,0,
+1370,PARSED,1585,"Trader#d
+Dash остаток ушел в бу",,,U_EXIT_BE,U_EXIT_BE,,,,,DASHUSDT,,,,0.68,,,,,False,0,,,,0,1585,signal,single,1585,1,,,,,,,,,,,,,,,,,0,0,0,
+1369,PARSED,1595,"Sl.-0,5%",,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,1595,signal,single,1595,1,,,,,,,FULL,,,,,,,-0.5,,,0,0,0,
+1363,PARSED,,"Trader#d
+среднесрок
+Ltc Long с текущих
+риск 0,5
+sl:75.16
+tp:93.49",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=LONG; take_profits=93.49),,,LTCUSDT,LONG,,,0.55,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,75.16,93.49,1,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1362,PARSED,,"[trader#d]
+
+AXS SHORT вход с текущих
+
+рыночный— риск 0.5% депо
+
+
+Стоп 1.3301
+
+
+Тейки 
+• TP1: 1.1337",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=1.1337),,,AXSUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,1.3301,1.1337,1,1362,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1358,PARSED,1616,Upd;стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,1616,signal,single,1616,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,STOP,,,,,,,,0,0,0,
+1357,PARSED,1621,бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,1621,signal,single,1621,1,,ENTRY,,BREAKEVEN,ENTRY,,,,,,,,,,,,0,0,0,
+1356,PARSED,1622,"перезаход
+стоп 1,3085
+тп 1,1341",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_TP_HIT,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,1622,signal,single,1622,1,,,,,,,FULL,,TP1,,,,,,,,0,0,0,
+1355,PARSED,1624,стоп -0.5,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,1624,signal,single,1624,1,,,,,,,FULL,,STOP,,,,,,,,0,0,0,
+1351,PARSED,,"[trader#d]
+
+Bera SHORT вход с текущих
+
+рыночный— риск 0.5% депо
+
+
+Стоп 0.8872
+
+
+Тейки 
+• TP1:  0.772
+• TP2: 0.676",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.772 | 0.676),,,BERAUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.8872,0.772 | 0.676,2,1351,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1349,PARSED,1630,перевел в бу,,,,,,,,,,,,,0.68,,,,,False,0,,,,0,1630,signal,single,1630,1,,,,,,,,,,,,,,,,,0,0,0,
+1345,PARSED,1632,Тп1 +0.3,,,U_TP_HIT,U_TP_HIT,,,,,,,,,0.68,,,,,False,0,,,,0,1632,signal,single,1632,1,,,,,,,,,TP1,,,,,,,,0,0,0,
+1338,PARSED,1639,Остаток ушел в бу,,,U_EXIT_BE,U_EXIT_BE,,,,,,,,,0.68,,,,,False,0,,,,0,1639,signal,single,1639,1,,,,,,,,,,,,,,,,,0,0,0,
+1336,PARSED,1615,Upd: sl- 0.5,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,1615,signal,single,1615,1,,,,,,,FULL,,,,,,,,,,0,0,0,
+1335,PARSED,,"trader#d
+dolo short
+вход по рынку риск 0,5
+sl 0.08116
+tp 0.05645",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.05645),,,DOLOUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.08116,0.05645,1,1335,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1332,PARSED,1652,sl -0.5,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,1652,signal,single,1652,1,,,,,,,FULL,,,,,,,,,,0,0,0,
+1330,PARSED,,"[trader#d]
+
+BTC SHORT вход с текущих
+
+рыночный— риск 0.5% депо
+
+
+Стоп 97968
+
+
+Тейки 
+• TP1: 94515
+• TP2:93530",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=94515 | 93530),,,BTCUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,97968,94515 | 93530,2,1330,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1326,PARSED,1658,upd;стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,1658,signal,single,1658,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,STOP,,,,,,,,0,0,0,
+1324,PARSED,1664,стоп сдвигаем в + на 96408,,,U_MOVE_STOP,U_MOVE_STOP,MOVE_STOP,MOVE_STOP(new_stop_level=96408),,,,,,,0.68,,,,,False,0,,,,0,1664,signal,single,1664,1,,96408,96408,,96408,,,,,,,,,,,,0,0,0,
+1323,PARSED,1666,"стоп +0,1%",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,1666,signal,single,1666,1,,,,,,,FULL,,STOP,,,,,0.1,,,0,0,0,
+1322,PARSED,,"trader#d 
+long btc
+sl 95347
+tp1 97955
+tp2 99900
+tp3 107505",trader_d_update_missing_target,trader_d_update_missing_target,U_TP_HIT,U_TP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,,signal,unknown,,0,,,,,,,FULL,,TP,,,,,,,,0,0,0,
+1321,PARSED,,"Trader#d
+XRP Long
+риск 0,5
+sl 2.0673
+tp1 2.2
+tp2 2.3184
+tp3 2.415",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=LONG; take_profits=2.2 | 2.3184 | 2.415),,,XRPUSDT,LONG,,,0.55,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,2.0673,2.2 | 2.3184 | 2.415,3,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1320,PARSED,,"trader#d
+Usual short
+риск 0,5
+sl 0.03143
+tp 0.03013
+tp2 0.02987
+tp3 0.02918",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.03013 | 0.02987 | 0.02918),,,USUALUSDT,SHORT,,,0.55,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.03143,0.03013 | 0.02987 | 0.02918,3,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1319,PARSED,1670,upd перевод в бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,1670,signal,single,1670,1,,ENTRY,,BREAKEVEN,ENTRY,,,,,,,,,,,,0,0,0,
+1318,PARSED,1671,бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,1671,signal,single,1671,1,,ENTRY,,BREAKEVEN,ENTRY,,,,,,,,,,,,0,0,0,
+1317,PARSED,,"Trader#d
+Sol Long
+риск 0,5 
+sl 141.67
+tp1 145.95
+tp2 148.93
+tp3 151",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=LONG; take_profits=145.95 | 148.93 | 151),,,SOLUSDT,LONG,,,0.55,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,141.67,145.95 | 148.93 | 151,3,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1315,PARSED,1669,Sl -0.5,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,1669,signal,single,1669,1,,,,,,,FULL,,,,,,,,,,0,0,0,
+1314,PARSED,1673,Sl -0.5,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,1673,signal,single,1673,1,,,,,,,FULL,,,,,,,,,,0,0,0,
+1312,PARSED,1668,Sl -0.5,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,1668,signal,single,1668,1,,,,,,,FULL,,,,,,,,,,0,0,0,
+1303,PARSED,,"Trader#d
+Dash Short 
+рыночный риск 0,5
+sl 96.69
+tp1 75.32",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=75.32),,,DASHUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,96.69,75.32,1,1303,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1302,PARSED,1692,upd стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,1692,signal,single,1692,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,STOP,,,,,,,,0,0,0,
+1300,PARSED,1693,позиция ушла в бу,,,U_EXIT_BE,U_EXIT_BE,,,,,,,,,0.68,,,,,False,0,,,,0,1693,signal,single,1693,1,,,,,,,,,,,,,,,,,0,0,0,
+1293,PARSED,1692,"перезаход
+Trader#d
+Dash Short 
+рыночный риск 0,5
+sl 96.69
+tp1 75.32",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=75.32),,,DASHUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,96.69,75.32,1,1293,signal,single,1692,1,,,,,,,,,,,,,,,,,0,0,0,
+1290,PARSED,1703,стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,1703,signal,single,1703,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,STOP,,,,,,,,0,0,0,
+1289,PARSED,1707,позиция ушла в бу,,,U_EXIT_BE,U_EXIT_BE,,,,,,,,,0.68,,,,,False,0,,,,0,1707,signal,single,1707,1,,,,,,,,,,,,,,,,,0,0,0,
+1287,PARSED,,"Trader#d
+scrt short
+риск 0,5
+сл 0,13764
+тп1 0,12522
+тп2 0,11886",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.12522 | 0.11886),,,SCRTUSDT,SHORT,,,0.55,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.13764,0.12522 | 0.11886,2,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1282,PARSED,1710,Sl -0.5,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,1710,signal,single,1710,1,,,,,,,FULL,,,,,,,,,,0,0,0,
+1254,PARSED,,"Trader#d
+Axs short
+рыночный,риск 0,5
+sl 2.0839
+tp1  1.9775
+tp2 1.8968",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=1.9775 | 1.8968),,,AXSUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,2.0839,1.9775 | 1.8968,2,1254,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1253,PARSED,1771,upd перевод в бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,1771,signal,single,1771,1,,ENTRY,,BREAKEVEN,ENTRY,,,,,,,,,,,,0,0,0,
+1252,PARSED,1772,позиция ушла в бу,,,U_EXIT_BE,U_EXIT_BE,,,,,,,,,0.68,,,,,False,0,,,,0,1772,signal,single,1772,1,,,,,,,,,,,,,,,,,0,0,0,
+1247,PARSED,,"Trader#d
+ xrp long
+sl 1.9052
+tp1 2.0294",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=LONG; take_profits=2.0294),,,XRPUSDT,LONG,,,0.55,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,1.9052,2.0294,1,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1245,PARSED,,"trader#d
+Dusk Short 0.5
+sl 0.24914
+tp1 0.18268",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.18268),,,DUSKUSDT,SHORT,,,0.55,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.24914,0.18268,1,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1244,PARSED,1782,перевод в бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,1782,signal,single,1782,1,,ENTRY,,BREAKEVEN,ENTRY,,,,,,,,,,,,0,0,0,
+1243,PARSED,1784,бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,1784,signal,single,1784,1,,ENTRY,,BREAKEVEN,ENTRY,,,,,,,,,,,,0,0,0,
+1242,PARSED,1780,"Sl -0,5",,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,1780,signal,single,1780,1,,,,,,,FULL,,,,,,,,,,0,0,0,
+1224,PARSED,,"trader#d
+Sxt short 0.5
+tp1 0.03549
+tp2 0.03281",,,U_TP_HIT,U_TP_HIT,,,,,SXTUSDT,,,,0.68,,,,,False,0,,,,0,,signal,unknown,,0,,,,,,,,,TP,,,,,,,,0,0,0,
+1223,PARSED,,"Trader#d
+Pha Short 0.5
+sl 0.04743
+tp1 0.03952
+tp2  0.03636",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.03952 | 0.03636),,,PHAUSDT,SHORT,,,0.55,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.04743,0.03952 | 0.03636,2,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1221,PARSED,,"Trader#d
+Axs Short 0.5
+sl 2.56
+tp1 1.6367",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=1.6367),,,AXSUSDT,SHORT,,,0.55,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,2.56,1.6367,1,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1220,PARSED,1810,sl -0.5,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,1810,signal,single,1810,1,,,,,,,FULL,,,,,,,,,,0,0,0,
+1209,PARSED,1813,"Trader#d
+Фикс 70%
+Стоп в бу",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_CLOSE_PARTIAL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,1813,signal,single,1813,1,,ENTRY,,BREAKEVEN,ENTRY,70,PARTIAL,70,STOP,,,,,70,,,0,0,0,
+1204,PARSED,1811,Закрываю в бу,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,1811,signal,single,1811,1,,,,,,,FULL,,,,,,,,,,0,0,0,
+1203,PARSED,1828,Остаток в бу,,,,,,,,,,,,,0.68,,,,,False,0,,,,0,1828,signal,single,1828,1,,,,,,,,,,,,,,,,,0,0,0,
+1190,PARSED,,"Trader#d
+Stg short
+риск 0,5
+sl 0.20339
+tp1 0.17713
+tp2  0.16060",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.17713 | 0.1606),,,STGUSDT,SHORT,,,0.55,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.20339,0.17713 | 0.1606,2,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1189,PARSED,,"Trader#d
+Zro Short
+риск 0,,5
+sl 2.3656
+tp1 2.1225
+tp2 1.7373",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=2.1225 | 1.7373),,,ZROUSDT,SHORT,,,0.55,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,2.3656,2.1225 | 1.7373,2,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1188,PARSED,1861,upd стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,1861,signal,single,1861,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,STOP,,,,,,,,0,0,0,
+1187,PARSED,1860,Upd стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,1860,signal,single,1860,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,STOP,,,,,,,,0,0,0,
+1184,PARSED,,"https://t.me/c/3171748254/1864
+https://t.me/c/3171748254/1863
+Бу
+Trader#d",,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,,signal_group,multiple,1864 | 1863,2,,ENTRY,,BREAKEVEN,ENTRY,,,,,,,,,,,,0,0,0,
+1147,PARSED,,"[trader #D]
+Sent short риск 0,5
+sl 0.034094
+tp 0.027789
+tp2 0.026276",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.027789 | 0.026276),,,SENTUSDT,SHORT,,,0.55,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.034094,0.027789 | 0.026276,2,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1143,PARSED,1949,"[trader #D]
+upd:50% срежем rr 1;1 стоп в бу",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_CLOSE_PARTIAL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,1949,signal,single,1949,1,,ENTRY,,BREAKEVEN,ENTRY,50,PARTIAL,50,STOP,,,,,50,,,0,0,0,
+1141,PARSED,1954,"[trader #D]
+Upd.остаток ушел в бу",,,U_EXIT_BE,U_EXIT_BE,,,,,,,,,0.68,,,,,False,0,,,,0,1954,signal,single,1954,1,,,,,,,,,,,,,,,,,0,0,0,
+1129,PARSED,,"[trader #D]
+Enj шорт риск 0,5
+sl 0.02832
+тп1 0,02751
+тп 2 0,0270
+тп3 0,02669",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.02751 | 0.027 | 0.02669),,,ENJUSDT,SHORT,,,0.55,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.02832,0.02751 | 0.027 | 0.02669,3,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1128,PARSED,,"[trader #D]
+Nmr шорт риск 0,5
+sl 10.294
+tp1 9.637
+tp2 9.307
+tp3 8.909",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=9.637 | 9.307 | 8.909),,,NMRUSDT,SHORT,,,0.55,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,10.294,9.637 | 9.307 | 8.909,3,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1127,PARSED,1976,"[trader #D]
+тп1 фикс 50% +0,35%
+стоп в бу",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_TP_HIT | U_CLOSE_PARTIAL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,1976,signal,single,1976,1,,ENTRY,,BREAKEVEN,ENTRY,50,PARTIAL,50,TP1,,,,,50,,,0,0,0,
+1126,PARSED,1976,"[trader #D]
+Tp2 срезал ещё 25% +0.36%
+Остаток 25% позиции
+Стоп находится в бу",,,U_MOVE_STOP,U_MOVE_STOP | U_STOP_HIT | U_CLOSE_FULL | U_TP_HIT | U_CLOSE_PARTIAL,MOVE_STOP | CLOSE_POSITION,MOVE_STOP | CLOSE_POSITION | CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,1976,signal,single,1976,1,,,,,,25,PARTIAL,25,TP2,,,,,25,,,0,0,0,
+1124,PARSED,1977,"[trader #D]
+Tp1 срезал 50% +0.25
+Стоп в бу",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_TP_HIT | U_CLOSE_PARTIAL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,1977,signal,single,1977,1,,ENTRY,,BREAKEVEN,ENTRY,50,PARTIAL,50,TP1,,,,,50,,,0,0,0,
+1122,PARSED,1976,"[trader #D]
+Tp3 общий профит +1.18%",,,U_REPORT_FINAL_RESULT,U_REPORT_FINAL_RESULT | U_TP_HIT,,,,,,,,,0.68,,,,,False,0,,,,0,1976,signal,single,1976,1,,,,,,,,,TP3,,,,,1.18,,,0,0,0,
+1121,PARSED,1985,"[trader #D]
+Остаток позиции ушел по бу.
+Профит по сделке +0.25",,,U_REPORT_FINAL_RESULT,U_REPORT_FINAL_RESULT,,,,,,,,,0.2,,,,,False,0,,,,0,1985,signal,single,1985,1,,,,,,,,,,,,,,,,,0,0,0,
+1091,PARSED,,"[trader #D]
+PAXG Long 
+Вход по рынку 4678 - риск 0,5
+Sl: 4457.3
+Tp1: 4895
+TP2: 4971
+TP3: 5282
+TP4: 5631",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=LONG; take_profits=4895 | 4971 | 5282 | 5631; entries=4678),,,PAXGUSDT,LONG,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:4678,4457.3,4895 | 4971 | 5282 | 5631,4,1091,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1088,PARSED,2070,"[trader #D]
+Tp 1 срезал 50% +0,245 
+стоп в бу",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_TP_HIT | U_CLOSE_PARTIAL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,2070,signal,single,2070,1,,ENTRY,,BREAKEVEN,ENTRY,50,PARTIAL,50,TP1,,,,,50,,,0,0,0,
+1087,PARSED,,"[trader #D]
+ZILUSDT Short
+вход по рынку 0,006807
+SL : 0.007371
+Tp1:0.006241
+Tp2: 0.005524
+Tp3: 0.004666",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.006241 | 0.005524 | 0.004666; entries=0.006807),,,ZILUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:0.006807,0.007371,0.006241 | 0.005524 | 0.004666,3,1087,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1086,PARSED,2078,sl -0.5,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,2078,signal,single,2078,1,,,,,,,FULL,,,,,,,,,,0,0,0,
+1085,PARSED,,"[trader #D]
+ANKRUSDT Short
+вход по рынку 0,005723
+SL : 0.006233
+Tp1:0.00522
+Tp2: 0.005018
+Tp3: 0.004611",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.00522 | 0.005018 | 0.004611; entries=0.005723),,,ANKRUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:0.005723,0.006233,0.00522 | 0.005018 | 0.004611,3,1085,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1084,PARSED,2081,sl -0.5,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,2081,signal,single,2081,1,,,,,,,FULL,,,,,,,,,,0,0,0,
+1081,PARSED,2070,"[trader #D]
+TP2 срезал еще 25%
+Остаток 25%",,,U_TP_HIT,U_TP_HIT | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,2070,signal,single,2070,1,,,,,,25,PARTIAL,25,TP2,,,,,25,,,0,0,0,
+1057,PARSED,,"[trader #D]
+BTCUSDT Long риск 0,5
+вход по рынку 75265
+SL : 72900
+Tp1: 79400
+Tp2: 81500
+Tp3: 86000",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=LONG; take_profits=79400 | 81500 | 86000; entries=75265),,,BTCUSDT,LONG,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:75265,72900,79400 | 81500 | 86000,3,1057,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1054,PARSED,2123,Sl:-0.5r,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,2123,signal,single,2123,1,,,,,,,FULL,,,,,,,,,,0,0,0,
+1006,PARSED,2086,"[trader #D]
+остаток ушел в бу.",,,U_EXIT_BE,U_EXIT_BE,,,,,,,,,0.68,,,,,False,0,,,,0,2086,signal,single,2086,1,,,,,,,,,,,,,,,,,0,0,0,
+994,PARSED,,"[trader #D]
+PROVEUSDT SHORT риск 0,5
+вход по рынку 0.3653
+SL : 0.3946
+Tp1: 0.3388
+Tp2: 0.327
+Tp3: 0.2783",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.3388 | 0.327 | 0.2783; entries=0.3653),,,PROVEUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:0.3653,0.3946,0.3388 | 0.327 | 0.2783,3,994,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+988,PARSED,2206,стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,2206,signal,single,2206,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,STOP,,,,,,,,0,0,0,
+986,PARSED,2206,Upd:Бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,2206,signal,single,2206,1,,ENTRY,,BREAKEVEN,ENTRY,,,,,,,,,,,,0,0,0,
+958,PARSED,,"[trader #D]
+VANAUSDT Short риск 0,5
+вход по рынку 1.7931
+SL : 1.9204
+Tp1: 1.66
+Tp2: 1.4933
+Tp3: 1.4224",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=1.66 | 1.4933 | 1.4224; entries=1.7931),,,VANAUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:1.7931,1.9204,1.66 | 1.4933 | 1.4224,3,958,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+957,PARSED,,"[trader #D]
+GPSUSDT Short риск 0,5
+вход по рынку 0.013671
+SL : 0.014454
+Tp1: 0.012891
+Tp2: 0.012061
+Tp3: 0.010137",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.012891 | 0.012061 | 0.010137; entries=0.013671),,,GPSUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:0.013671,0.014454,0.012891 | 0.012061 | 0.010137,3,957,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+956,PARSED,2263,"ТП1 фикс 50% +0.24
+стоп в бу",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_TP_HIT | U_CLOSE_PARTIAL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,2263,signal,single,2263,1,,ENTRY,,BREAKEVEN,ENTRY,50,PARTIAL,50,TP1,,,,,50,,,0,0,0,
+955,PARSED,2264,Тп2 фикс 25% + 0.25,,,U_TP_HIT,U_TP_HIT | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,2264,signal,single,2264,1,,,,,,25,PARTIAL,25,TP2,,,,,25,,,0,0,0,
+953,PARSED,2262,"Закрою полностью по текущим.
+Не очень нравится 
+Р +0.4%",,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,2262,signal,single,2262,1,,,,,,,FULL,,,,,,,0.4,,,0,0,0,
+951,PARSED,2265,Остаток ушел в бу,,,U_EXIT_BE,U_EXIT_BE,,,,,,,,,0.68,,,,,False,0,,,,0,2265,signal,single,2265,1,,,,,,,,,,,,,,,,,0,0,0,
+948,PARSED,,"[trader #D]
+SOLUSDT LONG риск 0,5
+вход по рынку 84.43
+SL : 82.82
+Tp1: 86.2
+Tp2: 89.78
+TP3: 106.6",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=LONG; take_profits=86.2 | 89.78 | 106.6; entries=84.43),,,SOLUSDT,LONG,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:84.43,82.82,86.2 | 89.78 | 106.6,3,948,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+942,PARSED,2277,"закрываю в бу.
+не нравится",,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,2277,signal,single,2277,1,,,,,,,FULL,,,,,,,,,,0,0,0,
+933,PARSED,,"[trader #D]
+NILUSDT Short риск 0,5
+вход по рынку 0.06293
+SL : 0.0654
+Tp1: 0.05783
+TP2: 0.05623
+Tp3: 0.05226",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.05783 | 0.05623 | 0.05226; entries=0.06293),,,NILUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:0.06293,0.0654,0.05783 | 0.05623 | 0.05226,3,933,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+931,PARSED,2299,Upd : Стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,2299,signal,single,2299,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,STOP,,,,,,,,0,0,0,
+929,PARSED,2299,"фикс 50% +0,25
+тяжело идет",,,U_CLOSE_PARTIAL,U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,2299,signal,single,2299,1,,,,,,50,PARTIAL,50,,,,,,50,,,0,0,0,
+928,PARSED,2299,"стоп передвигаю в + 0,0614",,,U_MOVE_STOP,U_MOVE_STOP,MOVE_STOP,MOVE_STOP,,,,,,,0.68,,,,,False,0,,,,0,2299,signal,single,2299,1,,,,IN_PROFIT,,,,,,,,,,,,,0,0,0,
+927,PARSED,2299,тп 1: срезал еще 25%,,,U_TP_HIT,U_TP_HIT | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,2299,signal,single,2299,1,,,,,,25,PARTIAL,25,TP1,,,,,25,,,0,0,0,
+924,PARSED,2299,TP2 срезал 12.5%,,,U_TP_HIT,U_TP_HIT | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,2299,signal,single,2299,1,,,,,,12.5,PARTIAL,12.5,TP2,,,,,12.5,,,0,0,0,
+923,PARSED,,"[trader #D]
+STGUSDT Short риск 0,5
+вход по рынку 0.21256
+SL : 0.21808
+TP1: 0.19023
+TP2: 0.18384
+TP3: 0.165",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.19023 | 0.18384 | 0.165; entries=0.21256),,,STGUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:0.21256,0.21808,0.19023 | 0.18384 | 0.165,3,923,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+921,PARSED,2310,sl -0.5 поторопился.Буду искать перезаход,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,2310,signal,single,2310,1,,,,,,,FULL,,,,,,,,,,0,0,0,
+913,PARSED,,"[trader #D]
+STGUSDT Short риск 0,5
+вход по рынку 0.21714
+SL : 0.22575
+TP1: 0.19023
+TP2: 0.18384
+TP3: 0.165",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.19023 | 0.18384 | 0.165; entries=0.21714),,,STGUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:0.21714,0.22575,0.19023 | 0.18384 | 0.165,3,913,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+895,PARSED,2320,Стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,2320,signal,single,2320,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,STOP,,,,,,,,0,0,0,
+888,PARSED,2320,"Trader#D
+Стоп в бу
+Срежем тут 60% чтобы отбить предидущий стоп)+0,59р",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_CLOSE_PARTIAL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,2320,signal,single,2320,1,,ENTRY,,BREAKEVEN,ENTRY,60,PARTIAL,60,STOP,,,,,60,,,0,0,0,
+873,PARSED,2320,"Tp 1 
+Tp2
+Закрываем полностью",,,U_CLOSE_FULL,U_CLOSE_FULL | U_TP_HIT,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,2320,signal,single,2320,1,,,,,,,FULL,,TP,,,,,,,,0,0,0,
+871,PARSED,2299,Tp3. Сделка закрыта,,,U_TP_HIT,U_TP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,2299,signal,single,2299,1,,,,,,,,,TP3,,,,,,,,0,0,0,
+863,PARSED,,"[trader #D]
+CVXUSDT Short риск 0,5
+вход по рынку 1.992
+SL : 2.0364
+Tp1: 1.9457
+TP2: 1.8936
+Tp3: 1.7608",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=1.9457 | 1.8936 | 1.7608; entries=1.992),,,CVXUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:1.992,2.0364,1.9457 | 1.8936 | 1.7608,3,863,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+856,PARSED,2376,[trader #D] Стоп переставим в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,2376,signal,single,2376,1,,,,,,,FULL,,STOP,,,,,,,,0,0,0,
+854,PARSED,2376,"[trader #D] 
+Tp1 фикс 50% R+0,26
+стоп в бу
+Остальные 2 цели по 25%",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_TP_HIT | U_CLOSE_PARTIAL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,2376,signal,single,2376,1,,ENTRY,,BREAKEVEN,ENTRY,50,PARTIAL,50,TP1,,,,,50,,,0,0,0,
+849,PARSED,2376,"[trader #D] 
+Tp2 фикс 25% R+0,27
+остаток 25 %",,,U_TP_HIT,U_TP_HIT | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,2376,signal,single,2376,1,,,,,,25,PARTIAL,25,TP2,,,,,25,,,0,0,0,
+844,PARSED,,"Trader [ #D]
+CAKEUSDT LONG  РИСК 0,5
+Вход по рынку 1,2518
+Sl: 1.2324
+Tp1: 1.2985
+Tp2: 1.4185
+tp3; 1.6",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=LONG; take_profits=1.2985 | 1.4185 | 1.6; entries=1.2518),,,CAKEUSDT,LONG,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:1.2518,1.2324,1.2985 | 1.4185 | 1.6,3,844,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+835,PARSED,2403,"Tp1 фикс 50%
+Стоп в бу",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_TP_HIT | U_CLOSE_PARTIAL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,2403,signal,single,2403,1,,ENTRY,,BREAKEVEN,ENTRY,50,PARTIAL,50,TP1,,,,,50,,,0,0,0,
+822,PARSED,2395,"[ trader #D]
+Остаток ушел в бу.",,,U_EXIT_BE,U_EXIT_BE,,,,,,,,,0.68,,,,,False,0,,,,0,2395,signal,single,2395,1,,,,,,,,,,,,,,,,,0,0,0,
+804,PARSED,,"[trader #D]
+UMAUSDT Short риск 0,5
+вход по рынку 0.5912
+SL : 0.6221
+Tp1: 0.5608
+TP2: 0.546
+Tp3: 0.525",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.5608 | 0.546 | 0.525; entries=0.5912),,,UMAUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:0.5912,0.6221,0.5608 | 0.546 | 0.525,3,804,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+803,PARSED,2462,Sl:-0.5,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,2462,signal,single,2462,1,,,,,,,FULL,,,,,,,,,,0,0,0,
+796,PARSED,,"[trader #D]
+ORCAUSDT Short риск 0,5
+вход по рынку 1.2628
+Sl: 1.3284
+Tp1: 1.1845
+Tp2: 1.1331
+Tp3: 1.0147",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=1.1845 | 1.1331 | 1.0147; entries=1.2628),,,ORCAUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:1.2628,1.3284,1.1845 | 1.1331 | 1.0147,3,796,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+795,PARSED,2475,"Стоп в б.у
+есть опасение что дадут пересвип как вчера c uma",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,2475,signal,single,2475,1,,,,,,,FULL,,STOP,,,,,,,,0,0,0,
+794,PARSED,2475,"[trader #D]
+тп1 фикс 50% +0,29",,,U_TP_HIT,U_TP_HIT | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,2475,signal,single,2475,1,,,,,,50,PARTIAL,50,TP1,,,,,50,,,0,0,0,
+790,PARSED,2479,"[trader #D]
+стоп переставляем в + на 1,2453",,,U_MOVE_STOP,U_MOVE_STOP,MOVE_STOP,MOVE_STOP(new_stop_level=1.2453),,,,,,,0.68,,,,,False,0,,,,0,2479,signal,single,2479,1,,1.2453,1.2453,+ на 1,1.2453,,,,,,,,,,,,0,0,0,
+789,PARSED,,"[trader #D]
+JTOUSDT Short риск 0,5
+вход по рынку 0.3459
+Sl: 0.3614
+Tp1: 0.3166
+TP2: 0.2878",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.3166 | 0.2878; entries=0.3459),,,JTOUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:0.3459,0.3614,0.3166 | 0.2878,2,789,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+788,PARSED,2484,"[trader #D]
+Стоп в бу",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,2484,signal,single,2484,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,STOP,,,,,,,,0,0,0,
+787,PARSED,2475,"[trader #D]
+Tp 2😑",,,U_TP_HIT,U_TP_HIT,,,,,,,,,0.68,,,,,False,0,,,,0,2475,signal,single,2475,1,,,,,,,,,TP2,,,,,,,,0,0,0,
+786,PARSED,2484,"[trader #D]
+Срежем тут 50% +0,42р
+Первый тейк убираем",,,U_CLOSE_PARTIAL,U_CLOSE_PARTIAL | U_UPDATE_TAKE_PROFITS,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,2484,signal,single,2484,1,,,,,,50,PARTIAL,50,,,,,,50,,,0,0,0,
+784,PARSED,2488,[trader #D] остаток ушел в бу+,,,U_EXIT_BE,U_EXIT_BE,,,,,,,,,0.68,,,,,False,0,,,,0,2488,signal,single,2488,1,,,,,,,,,,,,,,,,,0,0,0,
+782,PARSED,,"[trader #D]
+CyberUSDT Short риск 0,5
+вход по рынку 0.7346
+Sl: 0.7594
+Tp1: 0.6878
+TP2: 0.6506",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.6878 | 0.6506; entries=0.7346),,,CYBERUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:0.7346,0.7594,0.6878 | 0.6506,2,782,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+781,PARSED,2497,[trader #D] стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,2497,signal,single,2497,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,STOP,,,,,,,,0,0,0,
+780,PARSED,2498,бу.поищем перезаход,,,,,,,,,,,,,0.2,,,,,False,0,,,,0,2498,signal,single,2498,1,,,,,,,,,,,,,,,,,0,0,0,
+779,PARSED,,"[trader #D]
+ETHUSDT Short риск 0,5
+вход по рынку 2019.58
+Sl: 2038.35
+Tp1: 1991
+TP2: 1936",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=1991 | 1936; entries=2019.58),,,ETHUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:2019.58,2038.35,1991 | 1936,2,779,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+778,PARSED,2484,"[trader #D]
+JTO закрываем полностью 0,307
++1р",,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,JTOUSDT,,,,0.68,,,,,False,0,,,,0,2484,signal,single,2484,1,,,,,,,FULL,,,,,,,,,,0,0,0,
+775,PARSED,2501,[trader #D] стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,2501,signal,single,2501,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,STOP,,,,,,,,0,0,0,
+774,PARSED,2501,"[trader #D]
+Tp1 фикс 50% +0.38r😑",,,U_TP_HIT,U_TP_HIT | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,2501,signal,single,2501,1,,,,,,50,PARTIAL,50,TP1,,,,,50,,,0,0,0,
+746,PARSED,2501,"[trader #D]
+Tp2 сделка закрыта
+Общий профит +1.49р🔫",,,U_TP_HIT,U_TP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,2501,signal,single,2501,1,,,,,,,,,TP2,,,,,1.49,,,0,0,0,
+737,PARSED,2403,"Trader [ #D]
+Остаток ушел в бу
++0.6r по позиции",,,U_EXIT_BE,U_EXIT_BE,,,,,,,,,0.68,,,,,False,0,,,,0,2403,signal,single,2403,1,,,,,,,,,,,,,,,,,0,0,0,
+720,PARSED,,"Trader [ #D]
+BIOUSDT Short  РИСК 0,5
+Вход по рынку 0.0324
+Sl: 0.03413
+Tp1: 0.03064
+Tp2: 0.02777",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.03064 | 0.02777; entries=0.0324),,,BIOUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:0.0324,0.03413,0.03064 | 0.02777,2,720,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+718,PARSED,2576,"Trader [ #D]
+Стоп в бу",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,2576,signal,single,2576,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,STOP,,,,,,,,0,0,0,
+717,PARSED,2578,"Б.у 
+поищем перезаход",,,,,,,,,,,,,0.2,,,,,False,0,,,,0,2578,signal,single,2578,1,,,,,,,,,,,,,,,,,0,0,0,
+716,PARSED,2578,Перезаход,,,,,,,,,,,,,0.2,,,,,False,0,,,,0,2578,signal,single,2578,1,,,,,,,,,,,,,,,,,0,0,0,
+715,PARSED,,"Trader [ #D]
+BIOUSDT Short  РИСК 0,5
+Вход по рынку 0.0331
+Sl: 0.03413
+Tp1: 0.03064
+Tp2: 0.02777",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.03064 | 0.02777; entries=0.0331),,,BIOUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:0.0331,0.03413,0.03064 | 0.02777,2,715,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+714,PARSED,2581,ставим в бу),,,,,,,,,,,,,0.68,,,,,False,0,,,,0,2581,signal,single,2581,1,,,,,,,,,,,,,,,,,0,0,0,
+707,PARSED,2581,"Trader [ #D]
+срежем тут 50% 0.03157
++0.37r",,,,,,,,,,,,,0.2,,,,,False,0,,,,0,2581,signal,single,2581,1,,,,,,,,,,,,,,,,,0,0,0,
+706,PARSED,2581,"Trader [ #D]
+tp фикс еще 25 %
+Остаток 25%",,,,,,,,,,,,,0.2,,,,,False,0,,,,0,2581,signal,single,2581,1,,,,,,,,,,,,,,,,,0,0,0,
+692,PARSED,,"Trader [ #D]
+ENSOUSDT Short  РИСК 0,5
+Вход по рынку 1.9193
+Sl: 2.1574
+Tp1: 1.67
+Tp2: 1.4454",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=1.67 | 1.4454; entries=1.9193),,,ENSOUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:1.9193,2.1574,1.67 | 1.4454,2,692,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+686,PARSED,2608,"[trader #D ]
+Стоп в бу.",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,2608,signal,single,2608,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,STOP,,,,,,,,0,0,0,
+684,PARSED,2593,"[trader #D ]
+Остаток ушел в бу",,,U_EXIT_BE,U_EXIT_BE,,,,,,,,,0.68,,,,,False,0,,,,0,2593,signal,single,2593,1,,,,,,,,,,,,,,,,,0,0,0,
+683,PARSED,2616,Тут тоже бу 🫡,,,,,,,,,,,,,0.2,,,,,False,0,,,,0,2616,signal,single,2616,1,,,,,,,,,,,,,,,,,0,0,0,
+665,PARSED,,"Trader [ #D]
+DashUSDT Short  РИСК 0,5
+Вход по рынку 33.34
+Sl: 33.78
+Tp1: 32.87
+Tp2: 32.05
+tp3; 31.03",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=32.87 | 32.05 | 31.03; entries=33.34),,,DASHUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:33.34,33.78,32.87 | 32.05 | 31.03,3,665,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+663,PARSED,2659,"Tp1 фикс 50%
+Стоп в бу",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_TP_HIT | U_CLOSE_PARTIAL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,2659,signal,single,2659,1,,ENTRY,,BREAKEVEN,ENTRY,50,PARTIAL,50,TP1,,,,,50,,,0,0,0,
+660,PARSED,2661,"[trader #D ]
+Tp2 фикс 25%",,,U_TP_HIT,U_TP_HIT | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,2661,signal,single,2661,1,,,,,,25,PARTIAL,25,TP2,,,,,25,,,0,0,0,
+652,PARSED,2664,"[trader #D ]
+Остаток позиции закрываем по текущим 31.57",,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,2664,signal,single,2664,1,,,,,,,FULL,,,,,,,,,,0,0,0,
+651,PARSED,,"Trader [ #D]
+ESPUSDT Short  РИСК 0,5
+Вход по рынку 0.18105
+Sl: 0.19
+Tp1: 0.16618
+Tp2: 0.1335
+tp3; 0.11548",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.16618 | 0.1335 | 0.11548; entries=0.18105),,,ESPUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:0.18105,0.19,0.16618 | 0.1335 | 0.11548,3,651,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+650,PARSED,2678,Стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,2678,signal,single,2678,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,STOP,,,,,,,,0,0,0,
+649,PARSED,2679,бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,2679,signal,single,2679,1,,ENTRY,,BREAKEVEN,ENTRY,,,,,,,,,,,,0,0,0,
+645,PARSED,,"Trader [ #D]
+перезаход
+ESPUSDT Short  РИСК 0,5
+Вход по рынку 0.177
+Sl: 0.197
+Tp1: 0.15011
+Tp2: 0.13595
+tp3; 0.12435",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.15011 | 0.13595 | 0.12435; entries=0.177),,,ESPUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:0.177,0.197,0.15011 | 0.13595 | 0.12435,3,645,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+642,PARSED,,"Trader [ #D]
+
+ZKUSDT Long  РИСК 0,5
+Вход по рынку 0.0192
+Sl: 0.01783
+Tp1: 0.02082
+Tp2: 0.02477",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=LONG; take_profits=0.02082 | 0.02477; entries=0.0192),,,ZKUSDT,LONG,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:0.0192,0.01783,0.02082 | 0.02477,2,642,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+633,PARSED,2686,"Trader [ #D]
+закрываю по текущим 0,1664",,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,2686,signal,single,2686,1,,,,,,,FULL,,,,,,,,,,0,0,0,
+631,PARSED,,"Trader [ #D]
+
+PHAUSDT Short  РИСК 0,5
+Вход по рынку 0.02402
+Sl: 0.025
+Tp1: 0.02281
+Tp2: 0.02195
+tp3; 0.0214",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.02281 | 0.02195 | 0.0214; entries=0.02402),,,PHAUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:0.02402,0.025,0.02281 | 0.02195 | 0.0214,3,631,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+590,PARSED,2705,Стоп  - 0.5,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,2705,signal,single,2705,1,,,,,,,FULL,,STOP,,,,,,,,0,0,0,
+588,PARSED,2689,"[trader #D ]
+Срезаем тут 50% +0.25R ,
+тп 1 убираем
+Стоп в бу.",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_TP_HIT | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,2689,signal,single,2689,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,TP1,,,,,50,,,0,0,0,
+572,PARSED,2752,"[trader #D]
+Остаток ушел в бу",,,U_EXIT_BE,U_EXIT_BE,,,,,,,,,0.68,,,,,False,0,,,,0,2752,signal,single,2752,1,,,,,,,,,,,,,,,,,0,0,0,
+568,PARSED,,"Trader [ #D]
+
+ARBUSDT Short  РИСК 0,5
+Вход по рынку 0.11083
+Sl: 0.11294
+Tp1: 0.1082
+Tp2: 0.10375",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.1082 | 0.10375; entries=0.11083),,,ARBUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:0.11083,0.11294,0.1082 | 0.10375,2,568,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+564,PARSED,2784,стоп в бу.,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,2784,signal,single,2784,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,STOP,,,,,,,,0,0,0,
+563,PARSED,2784,"[trader #D]
+TP1 +031R
+Фикс 50%
+ стоп все так же в бу",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_TP_HIT | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION | CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,2784,signal,single,2784,1,,,,,,50,PARTIAL,50,TP1,,,,,50,,,0,0,0,
+562,PARSED,2784,"[trader #D]
+Tp2 
+сделка закрыта
+профит +1,15R",,,U_TP_HIT,U_TP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,2784,signal,single,2784,1,,,,,,,,,TP2,,,,,1.15,,,0,0,0,
+489,PARSED,,"Trader [ #D]
+
+PHAUSDT Short  РИСК 0,5
+Вход по рынку  0,03645
+Sl: 0.039
+Tp1: 0.03344
+Tp2: 0.02868",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.03344 | 0.02868; entries=0.03645),,,PHAUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:0.03645,0.039,0.03344 | 0.02868,2,489,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+486,PARSED,2899,стоп  в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,2899,signal,single,2899,1,,,,,,,FULL,,STOP,,,,,,,,0,0,0,
+484,PARSED,2902,Бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,2902,signal,single,2902,1,,ENTRY,,BREAKEVEN,ENTRY,,,,,,,,,,,,0,0,0,
+483,PARSED,,"Trader [ #D]
+
+MUBARAKUSDT Short  РИСК 0,5
+Вход по рынку  0.015245
+Sl: 0.015531
+Tp1: 0.014923
+Tp2: 0.013575",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.014923 | 0.013575; entries=0.015245),,,MUBARAKUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:0.015245,0.015531,0.014923 | 0.013575,2,483,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+482,PARSED,2906,Стоп в бу🤝,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,2906,signal,single,2906,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,STOP,,,,,,,,0,0,0,
+481,PARSED,2908,"День бу)
+Бу не минус,завтра глянем что нового дадут 🤝",,,,,,,,,,,,,0.2,,,,,False,0,,,,0,2908,signal,single,2908,1,,,,,,,,,,,,,,,,,0,0,0,
+459,PARSED,,"Trader [ #D]
+
+AAVEUSDT Short  РИСК 0,5
+Вход по рынку  115.04
+Sl: 116.24
+Tp1: 112.9
+Tp2: 104.68",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=112.9 | 104.68; entries=115.04),,,AAVEUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:115.04,116.24,112.9 | 104.68,2,459,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+452,PARSED,2935,Sl -0.5,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,2935,signal,single,2935,1,,,,,,,FULL,,,,,,,,,,0,0,0,
+412,PARSED,,"Trader [ #D]
+
+Kiteusdt Short  РИСК 0,5
+Вход по рынку 
+Sl: 0.28281
+Tp1:0.26261
+Tp 2:0.2242
+Tp3: 0.18147",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.26261 | 0.2242 | 0.18147),,,KITEUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.28281,0.26261 | 0.2242 | 0.18147,3,412,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+411,PARSED,2992,Стоп в бу.,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,2992,signal,single,2992,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,STOP,,,,,,,,0,0,0,
+410,PARSED,2993,Бу🤝,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,2993,signal,single,2993,1,,ENTRY,,BREAKEVEN,ENTRY,,,,,,,,,,,,0,0,0,
+404,PARSED,,"Trader [ #D]
+
+CVXUSDT Short  РИСК 0,5
+Вход по рынку 
+Sl: 2.099
+Tp1: 2.023
+Tp 2: 1.988",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=2.023 | 1.988),,,CVXUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,2.099,2.023 | 1.988,2,404,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+403,PARSED,3003,быстро однако)стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,3003,signal,single,3003,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,STOP,,,,,,,,0,0,0,
+402,PARSED,3003,бу😂,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,3003,signal,single,3003,1,,ENTRY,,BREAKEVEN,ENTRY,,,,,,,,,,,,0,0,0,
+352,PARSED,,"Trader [ #D]
+
+KERNELUSDT Short  РИСК 0,5
+Вход по рынку 0.09459
+Sl: 0.09818
+Tp1: 0.09046
+Tp2: 0.07308
+Tp3: 0.05697",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.09046 | 0.07308 | 0.05697; entries=0.09459),,,KERNELUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:0.09459,0.09818,0.09046 | 0.07308 | 0.05697,3,352,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+351,PARSED,3078,Стоп можно перенести в бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE | U_STOP_HIT | U_CLOSE_FULL,MOVE_STOP | CLOSE_POSITION,MOVE_STOP(new_stop_level=ENTRY) | CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,3078,signal,single,3078,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,STOP,,,,,,,,0,0,0,
+343,PARSED,3079,бу,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,3079,signal,single,3079,1,,ENTRY,,BREAKEVEN,ENTRY,,,,,,,,,,,,0,0,0,
+340,PARSED,,"Trader [ #D]
+
+KERNELUSDT Short  РИСК 0,5
+Вход по рынку 
+Sl: 0.09859
+Tp1: 0.09508
+Tp2: 0.09271",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.09508 | 0.09271),,,KERNELUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.09859,0.09508 | 0.09271,2,340,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+339,PARSED,3095,"давайте закроем в микро +
+не нравится па
+глянем на ню",,,,,,,,,,,,,0.2,,,,,False,0,,,,0,3095,signal,single,3095,1,,,,,,,,,,,,,,,,,0,0,0,
+328,PARSED,,"Trader [ #D]
+
+PIXELUSDT Short  РИСК 0,5
+Вход по рынку 0.006453
+Sl: 0.00666
+TP1 : 0.006126
+TP2 : 0.005671",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.006126 | 0.005671; entries=0.006453),,,PIXELUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:0.006453,0.00666,0.006126 | 0.005671,2,328,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+327,PARSED,3112,R 1-1 можно срезать 50% стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,3112,signal,single,3112,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,STOP,,,,,50,,,0,0,0,
+326,PARSED,3112,tp1 срезал еще 25%,,,U_TP_HIT,U_TP_HIT | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,3112,signal,single,3112,1,,,,,,25,PARTIAL,25,TP1,,,,,25,,,0,0,0,
+324,PARSED,3114,Остаток 25% ушел в бу.,,,,,,,,,,,,,0.68,,,,,False,0,,,,0,3114,signal,single,3114,1,,,,,,,,,,,,,,25,,,0,0,0,
+316,PARSED,,"Trader [ #D]
+
+PIXELUSDT Short  РИСК 0,5
+Вход по рынку 0.015719
+Sl: 0.017962
+Tp1;0.013257
+Tp2: 0.009563",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.013257 | 0.009563; entries=0.015719),,,PIXELUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:0.015719,0.017962,0.013257 | 0.009563,2,316,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+313,PARSED,3131,"[Trader #D]
+Upd;перевел в бу",,,,,,,,,,,,,0.68,,,,,False,0,,,,0,3131,signal,single,3131,1,,,,,,,,,,,,,,,,,0,0,0,
+312,PARSED,3131,"[Trader #D]
+Tp1 фикс 50%",,,U_TP_HIT,U_TP_HIT | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,3131,signal,single,3131,1,,,,,,50,PARTIAL,50,TP1,,,,,50,,,0,0,0,
+311,PARSED,,"Trader [ #D]
+
+COMPUSDT Short  РИСК 0,5
+Вход по рынку 18,458
+SL: 18.950
+TP1: 17.944
+TP2: 17.290",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=17.944 | 17.29; entries=18.458),,,COMPUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:18.458,18.95,17.944 | 17.29,2,311,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+310,PARSED,3137,кину в бу.Топчемся на месте,,,,,,,,,,,,,0.68,,,,,False,0,,,,0,3137,signal,single,3137,1,,,,,,,,,,,,,,,,,0,0,0,
+309,PARSED,3138,Бу.моментально),,,,,,,,,,,,,0.2,,,,,False,0,,,,0,3138,signal,single,3138,1,,,,,,,,,,,,,,,,,0,0,0,
+308,PARSED,3131,"Trader [ #D]
+стоп двигаем в + на  0,015534",,,U_MOVE_STOP,U_MOVE_STOP,MOVE_STOP,MOVE_STOP(new_stop_level=0.015534),,,,,,,0.68,,,,,False,0,,,,0,3131,signal,single,3131,1,,0.015534,0.015534,,0.015534,,,,,,,,,,,,0,0,0,
+307,PARSED,3140,"Sl
+Сделка закрыта + 0.295 R",,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,3140,signal,single,3140,1,,,,,,,,,,,,,,,,,0,0,0,
+300,PARSED,,"Trader [ #D]
+
+OGNUSDT Short  РИСК 0,5
+Вход по рынку  : 0.030398
+Sl : 0.033454
+TP1: 0.0245
+TP2: 0.02024",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.0245 | 0.02024),,,OGNUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.033454,0.0245 | 0.02024,2,300,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+298,PARSED,3153,стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,3153,signal,single,3153,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,STOP,,,,,,,,0,0,0,
+296,PARSED,3153,"Trader [ #D] 
+бу.поищем перезаход",,,,,,,,,,,,,0.2,,,,,False,0,,,,0,3153,signal,single,3153,1,,,,,,,,,,,,,,,,,0,0,0,
+280,PARSED,,"Trader [ #D]
+
+PIXELUSDT Short  РИСК 0,5
+Вход по рынку 0.015637
+Sl: 0.017968
+Tp1;0.013324
+Tp2: 0.009695",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.013324 | 0.009695; entries=0.015637),,,PIXELUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:0.015637,0.017968,0.013324 | 0.009695,2,280,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+278,PARSED,3179,"срежем тут 30 %  0,014219
+стоп в бу",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_CLOSE_PARTIAL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,3179,signal,single,3179,1,,ENTRY,,BREAKEVEN,ENTRY,30,PARTIAL,30,STOP,,,,,30,,,0,0,0,
+273,PARSED,3182,остаток позиции ушел в бу,,,U_EXIT_BE,U_EXIT_BE,,,,,,,,,0.68,,,,,False,0,,,,0,3182,signal,single,3182,1,,,,,,,,,,,,,,,,,0,0,0,
+272,PARSED,,"Trader [ #D]
+
+VVVUSDT Short  РИСК 0,5
+Вход по рынку 7.1508
+SL : 7.4
+TP1: 6.8322
+Tp2: 6.1168
+TP3: 5.0368",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=6.8322 | 6.1168 | 5.0368; entries=7.1508),,,VVVUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:7.1508,7.4,6.8322 | 6.1168 | 5.0368,3,272,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+271,PARSED,,"Trader [ #D]
+
+RENDERUSDT Short  РИСК 0,5
+Вход по рынку 
+SL : 1,948
+TP1: 1,7626
+Tp2: 1,5486",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=1.7626 | 1.5486),,,RENDERUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,1.948,1.7626 | 1.5486,2,271,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+270,PARSED,,"Trader [ #D]
+
+LSKUSDT Short  РИСК 0,5
+Вход по рынку 0,13297
+SL: 0.13427
+TP1: 0.1315
+TP2: 0.13014",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.1315 | 0.13014; entries=0.13297),,,LSKUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:0.13297,0.13427,0.1315 | 0.13014,2,270,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+268,PARSED,3189,тут стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,3189,signal,single,3189,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,STOP,,,,,,,,0,0,0,
+267,PARSED,3189,Tp1 фикс 50%,,,U_TP_HIT,U_TP_HIT | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,3189,signal,single,3189,1,,,,,,50,PARTIAL,50,TP1,,,,,50,,,0,0,0,
+264,PARSED,3191,стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,3191,signal,single,3191,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,STOP,,,,,,,,0,0,0,
+263,PARSED,3190,стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,3190,signal,single,3190,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,STOP,,,,,,,,0,0,0,
+261,PARSED,3197,Позиция закрылась по бу,,,,,,,,,,,,,0.2,,,,,False,0,,,,0,3197,signal,single,3197,1,,,,,,,,,,,,,,,,,0,0,0,
+258,PARSED,3198,Бу🤝,,,U_MOVE_STOP_TO_BE,U_MOVE_STOP_TO_BE,MOVE_STOP,MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,3198,signal,single,3198,1,,ENTRY,,BREAKEVEN,ENTRY,,,,,,,,,,,,0,0,0,
+256,PARSED,3194,"[Trader #D]
+Стоп сдвигаем на 1 тейк",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,3194,signal,single,3194,1,,,,,,,FULL,,STOP,,,,,,,,0,0,0,
+254,PARSED,3189,Сделка закрыта +0.64R,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,3189,signal,single,3189,1,,,,,,,,,,,,,,0.64,,,0,0,0,
+226,PARSED,,"Trader [ #D]
+
+TAOUSDT Short  РИСК 0,5
+Вход по рынку 
+Sl: 300,76
+TP1:278,85
+TP2:245,30",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=278.85 | 245.3),,,TAOUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,300.76,278.85 | 245.3,2,226,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+225,PARSED,,"Trader [ #D]
+
+CFXUSDT Short  РИСК 0,5
+Вход по рынку
+Sl:0.0669
+TP1:0.06285
+Tp2:0.05948",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.06285 | 0.05948),,,CFXUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.0669,0.06285 | 0.05948,2,225,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+224,PARSED,3254,Перевожу в бу,,,,,,,,,,,,,0.68,,,,,False,0,,,,0,3254,signal,single,3254,1,,,,,,,,,,,,,,,,,0,0,0,
+222,PARSED,3255,Стоп -0.5,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,3255,signal,single,3255,1,,,,,,,FULL,,STOP,,,,,,,,0,0,0,
+221,PARSED,3254,"Tp1,фикс 50%",,,U_TP_HIT,U_TP_HIT | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,3254,signal,single,3254,1,,,,,,50,PARTIAL,50,TP1,,,,,50,,,0,0,0,
+216,PARSED,3261,"Закрываем тут полностью,перекроем стоп 🤝",,,U_CLOSE_FULL,U_CLOSE_FULL | U_STOP_HIT,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,3261,signal,single,3261,1,,,,,,,FULL,,STOP,,,,,,,,0,0,0,
+200,PARSED,,"Trader [ #D]
+BTCUSDT Short  РИСК 0,5
+Вход по рынку 
+Sl: 74837
+TP1: 72777
+TP2: 68974",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=72777 | 68974),,,BTCUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,74837,72777 | 68974,2,200,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+199,PARSED,3286,перевожу в бу.,,,,,,,,,,,,,0.68,,,,,False,0,,,,0,3286,signal,single,3286,1,,,,,,,,,,,,,,,,,0,0,0,
+198,PARSED,3286,Позиция ушла по бу🤝,,,,,,,,,,,,,0.2,,,,,False,0,,,,0,3286,signal,single,3286,1,,,,,,,,,,,,,,,,,0,0,0,
+197,PARSED,,"Trader [ #D]
+VANRYUSDT Short  РИСК 0,5
+Вход по рынку
+Sl: 0.007383
+Tp1: 0.006583
+Tp2: 0.005613",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.006583 | 0.005613),,,VANRYUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.007383,0.006583 | 0.005613,2,197,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+196,PARSED,,"Trader [ #D]
+ANKRUSDT Short  РИСК 0,5
+Вход по рынку
+Sl:0.004989
+Tp1:0.004719
+Tp2:0.0044",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.004719 | 0.0044),,,ANKRUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.004989,0.004719 | 0.0044,2,196,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+195,PARSED,3289,Sl -0.5,,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,3289,signal,single,3289,1,,,,,,,FULL,,,,,,,,,,0,0,0,
+194,PARSED,3290,"Закрою руками в бу
+Не нравится рынок перед фрс",,,,,,,,,,,,,0.68,,,,,False,0,,,,0,3290,signal,single,3290,1,,,,,,,,,,,,,,,,,0,0,0,
+172,PARSED,,"Trader [ #D]
+THEUSDT Short  РИСК 0,5
+Вход по рынку:0.16805
+Sl: 0.17867
+Tp1: 0.15714
+Tp2: 0.13538",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.15714 | 0.13538),,,THEUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.17867,0.15714 | 0.13538,2,172,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+171,PARSED,3317,Стоп переводим в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,3317,signal,single,3317,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,STOP,,,,,,,,0,0,0,
+170,PARSED,3317,Tp1 фикс 50%,,,U_TP_HIT,U_TP_HIT | U_CLOSE_PARTIAL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,3317,signal,single,3317,1,,,,,,50,PARTIAL,50,TP1,,,,,50,,,0,0,0,
+169,PARSED,3319,остаток ушел в бу.,,,U_EXIT_BE,U_EXIT_BE,,,,,,,,,0.68,,,,,False,0,,,,0,3319,signal,single,3319,1,,,,,,,,,,,,,,,,,0,0,0,
+136,PARSED,,"Trader [ #D]
+
+CVXUSDT Short  РИСК 0,5
+Вход по рынку 
+Sl: 1.8703
+TP1: 1.8315
+TP2: 1.7802",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=1.8315 | 1.7802),,,CVXUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,1.8703,1.8315 | 1.7802,2,136,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+135,PARSED,3378,"быстро однако.
+tp1
+стоп в бу",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_TP_HIT | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,3378,signal,single,3378,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,TP1,,,,,,,,0,0,0,
+134,PARSED,3379,"остаток отлетел в бу.
+ликвидности мало кидает со стороны в сторону",,,,,,,,,,,,,0.68,,,,,False,0,,,,0,3379,signal,single,3379,1,,,,,,,,,,,,,,,,,0,0,0,
+129,PARSED,,"Trader [ #D]
+
+CETUSUSDT Short  РИСК 0,5
+Вход по рынку 0.0248
+Sl: 0.025356
+TP1: 0.02399
+TP2: 0.021467",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.02399 | 0.021467; entries=0.0248),,,CETUSUSDT,SHORT,,,0.82,,,SINGLE,ONE_SHOT,False,1,ENTRY:MARKET:0.0248,0.025356,0.02399 | 0.021467,2,129,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+127,PARSED,3385,"Перевожу в бу.
+Не очень нравится топтание",,,,,,,,,,,,,0.68,,,,,False,0,,,,0,3385,signal,single,3385,1,,,,,,,,,,,,,,,,,0,0,0,
+126,PARSED,3387,Позиция ушла по бу.,,,,,,,,,,,,,0.2,,,,,False,0,,,,0,3387,signal,single,3387,1,,,,,,,,,,,,,,,,,0,0,0,
+125,PARSED,,"Trader [ #D]
+
+FILUSDT Short  РИСК 0,5
+Вход по рынку 
+Sl: 0.9124
+TP1: 0.8808
+TP2: 0.8736
+TP3: 0.8365",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.8808 | 0.8736 | 0.8365),,,FILUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.9124,0.8808 | 0.8736 | 0.8365,3,125,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+124,PARSED,3389,Тут стоп -0.5r,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,3389,signal,single,3389,1,,,,,,,FULL,,STOP,,,,,,,,0,0,0,
+118,PARSED,,"Trader [ #D]
+
+ZBTUSDT LONG  РИСК 0,5
+Вход по рынку 
+Sl: 0.06772
+TP1: 0.06938
+TP2: 0,07215",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=LONG; take_profits=0.06938 | 0.07215),,,ZBTUSDT,LONG,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.06772,0.06938 | 0.07215,2,118,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+117,PARSED,3396,"TP1
+стоп в бу",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_TP_HIT | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,3396,signal,single,3396,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,TP1,,,,,,,,0,0,0,
+116,PARSED,3397,остаток ушел в бу,,,U_EXIT_BE,U_EXIT_BE,,,,,,,,,0.68,,,,,False,0,,,,0,3397,signal,single,3397,1,,,,,,,,,,,,,,,,,0,0,0,
+114,PARSED,,"Trader [ #D]
+
+ONTUSDT Short  РИСК 0,5
+Вход по рынку 
+Sl: 0.6985
+TP1: 0.05992
+TP2: 0.05247",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.05992 | 0.05247),,,ONTUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.6985,0.05992 | 0.05247,2,114,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+112,PARSED,3400,стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,3400,signal,single,3400,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,STOP,,,,,,,,0,0,0,
+106,PARSED,3400,"Trader [ #D]
+
+стоп сдвигаем 0,065",,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,3400,signal,single,3400,1,,,,,,,FULL,,STOP,,,,,,,,0,0,0,
+105,PARSED,3408,"Trader [ #D]
+Закрываю по текущим.",,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,3408,signal,single,3408,1,,,,,,,FULL,,,,,,,,,,0,0,0,
+58,PARSED,,"Trader [ #D]
+
+CUSDT Short  РИСК 0,5
+Вход по рынку 
+Sl: 0.090087
+TP1: 0.08333
+TP2: 0.07504",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.08333 | 0.07504),,,CUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.090087,0.08333 | 0.07504,2,58,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+57,PARSED,3456,стоп в бу,,,U_STOP_HIT,U_STOP_HIT | U_CLOSE_FULL | U_MOVE_STOP_TO_BE,CLOSE_POSITION | MOVE_STOP,CLOSE_POSITION | MOVE_STOP(new_stop_level=ENTRY),,,,,,,0.68,,,,,False,0,,,,0,3456,signal,single,3456,1,,ENTRY,,BREAKEVEN,ENTRY,,FULL,,STOP,,,,,,,,0,0,0,
+56,PARSED,3457,ушла по бу,,,,,,,,,,,,,0.2,,,,,False,0,,,,0,3457,signal,single,3457,1,,,,,,,,,,,,,,,,,0,0,0,
+27,PARSED,,"Trader [ #D]
+
+CVXUSDT Short  РИСК 0,5
+Вход по рынку 
+Sl: 1.775
+TP1: 1.7345
+TP2: 1.684",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=1.7345 | 1.684),,,CVXUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,1.775,1.7345 | 1.684,2,27,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+26,PARSED,3487,"Trader [ #D]
+
+сделка не актуальна.
+Дошли до 1 тп за 4 минуты",,,U_CANCEL_PENDING_ORDERS,U_CANCEL_PENDING_ORDERS,CANCEL_PENDING,CANCEL_PENDING,,,,,,,0.68,,,,,False,0,,,,0,3487,signal,single,3487,1,,,,,,,,,,,,TARGETED,,,,,0,0,0,
+15,PARSED,,"Trader [ #D]
+KERNELUSDT Short  РИСК 0,5
+Вход по рынку 
+Sl: 0.09258
+TP1: 0.08169
+TP2: 0.0696",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.08169 | 0.0696),,,KERNELUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.09258,0.08169 | 0.0696,2,15,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+14,PARSED,3499,"Trader [ #D]
+sl -0.5",,,U_CLOSE_FULL,U_CLOSE_FULL,CLOSE_POSITION,CLOSE_POSITION,,,,,,,0.68,,,,,False,0,,,,0,3499,signal,single,3499,1,,,,,,,FULL,,,,,,,,,,0,0,0,
+4,PARSED,,"Trader [ #D]
+QTUMUSDT Short  РИСК 0,5
+Вход по рынку 
+Sl: 0.8827
+TP1: 0.843",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,CREATE_SIGNAL,CREATE_SIGNAL(side=SHORT; take_profits=0.843),,,QTUMUSDT,SHORT,,,0.82,,,SINGLE_MARKET,ONE_SHOT,False,1,ENTRY:MARKET,0.8827,0.843,1,4,,,,0,,,,,,,,,,,,,,,,,0,0,0,

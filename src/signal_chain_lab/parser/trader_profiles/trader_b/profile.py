@@ -381,7 +381,7 @@ class TraderBProfileParser:
             entities.update(
                 {
                     "symbol": _extract_symbol(raw_text),
-                    "side": _extract_side(
+                    "direction": _extract_side(
                         normalized,
                         long_markers=_merge_markers(self._as_markers("side_markers", "long"), _DEFAULT_SIDE_LONG_MARKERS),
                         short_markers=_merge_markers(self._as_markers("side_markers", "short"), _DEFAULT_SIDE_SHORT_MARKERS),
@@ -393,7 +393,8 @@ class TraderBProfileParser:
                     "potential_profit_percent": _extract_percent_from_regex(_POTENTIAL_RE, raw_text),
                     "market_context": market_context,
                     "entry_order_type": order_type,
-                    "entry_plan_type": "SINGLE",
+                    "entry_type": order_type if order_type in {"MARKET", "LIMIT"} else "LIMIT",
+                    "entry_plan_type": "SINGLE",  # metadata only
                     "entry_structure": "ONE_SHOT",
                     "has_averaging_plan": False,
                     "entry_plan_entries": [

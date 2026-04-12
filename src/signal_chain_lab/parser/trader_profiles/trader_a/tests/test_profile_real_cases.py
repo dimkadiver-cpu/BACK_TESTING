@@ -110,7 +110,7 @@ class TraderAProfileRealCasesTests(unittest.TestCase):
         self.assertEqual(result.message_type, "NEW_SIGNAL")
         self.assertEqual(result.intents, ["NS_CREATE_SIGNAL"])
         self.assertEqual(result.entities.get("symbol"), "ARBUSDT")
-        self.assertEqual(result.entities.get("side"), "SHORT")
+        self.assertEqual(result.entities.get("direction"), "SHORT")
         self.assertEqual(result.entities.get("entry"), [0.1038])
         self.assertEqual(result.entities.get("stop_loss"), 0.10612)
         self.assertEqual(result.entities.get("take_profits"), [0.1016, 0.1005, 0.0991])
@@ -452,7 +452,8 @@ class TraderAProfileRealCasesTests(unittest.TestCase):
         self.assertEqual(entries[0]["role"], "PRIMARY")
         self.assertEqual(entries[0]["order_type"], "MARKET")
         self.assertEqual(result.entities.get("entry_plan_type"), "SINGLE_MARKET")
-        self.assertEqual(result.entities.get("entry_structure"), "SINGLE")
+        self.assertEqual(result.entities.get("entry_type"), "MARKET")
+        self.assertEqual(result.entities.get("entry_structure"), "ONE_SHOT")
         self.assertFalse(result.entities.get("has_averaging_plan"))
 
     def test_entry_plan_single_limit_is_canonical(self) -> None:
@@ -469,7 +470,8 @@ class TraderAProfileRealCasesTests(unittest.TestCase):
         self.assertEqual(entries[0]["role"], "PRIMARY")
         self.assertEqual(entries[0]["order_type"], "LIMIT")
         self.assertEqual(result.entities.get("entry_plan_type"), "SINGLE_LIMIT")
-        self.assertEqual(result.entities.get("entry_structure"), "SINGLE")
+        self.assertEqual(result.entities.get("entry_type"), "LIMIT")
+        self.assertEqual(result.entities.get("entry_structure"), "ONE_SHOT")
         self.assertFalse(result.entities.get("has_averaging_plan"))
 
     def test_entry_plan_ab_limit_converges_to_two_step(self) -> None:

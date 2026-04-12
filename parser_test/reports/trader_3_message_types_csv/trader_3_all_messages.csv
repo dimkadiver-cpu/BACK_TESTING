@@ -1,0 +1,3489 @@
+﻿raw_message_id,parse_status,reply_to_message_id,raw_text,warning_text,warnings_summary,primary_intent,intents,action_types,actions_structured_summary,event_type,message_class,symbol,direction,market_type,status,confidence,parser_used,parser_mode,entry_plan_type,entry_structure,has_averaging_plan,entry_count,entries_summary,stop_loss_price,tp_prices,tp_count,signal_id,target_scope_kind,target_scope_scope,target_refs,target_refs_count,linking_strategy,new_sl_level,new_sl_price,new_sl_reference,new_stop_level,close_pct,close_scope,close_fraction,hit_target,fill_state,result_mode,cancel_scope,reported_results,reported_profit_percent,reported_leverage_hint,notes_summary,links_count,hashtags_count,validation_warning_count,diagnostics_summary
+2468,PARSED,,"[trader#3] VIP MARKET UPDATE: $BTC
+➖➖➖➖➖➖➖
+Bitcoin got rejected from the key horizontal resistance zone near $116,000 after multiple failed breakout attempts. The price has now broken below the ascending trendline support, signaling a potential shift in short-term momentum.
+
+As long as BTC trades below the broken trendline, bearish pressure may continue, with the next support area seen around $108,000. A reclaim and retest above the trendline would be the first sign of recovery and potential bullish continuation.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2466,PARSED,,"[trader#3] VIP MARKET UPDATE: $BTC 🔥
+➖➖➖➖➖➖➖
+BTC pulled back and then perfectly bounced from the $108K level as predicted. 
+
+However, it is still trading below the triangle, indicating short-term indecision in the market.
+
+Once BTC breaks above this structure, we can expect bullish momentum to return soon.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2464,PARSED,,"[trader#3] 📍SIGNAL ID: #1997📍
+COIN: $BTC/USDT (3-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+ENTRY: 105200 - 107878
+
+TARGETS: 109600 - 111500 - 114000 - 116000 - 120000 - 126000
+
+STOP LOSS: 104103
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=109600 | 111500 | 114000 | 116000 | 120000 | 126000),,,BTCUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:105200 | RANGE_HIGH:LIMIT:107878,104103,109600 | 111500 | 114000 | 116000 | 120000 | 126000,6,1997,signal,single,1997,1,,,,,,,,,,,,,,,,,0,0,0,
+2463,PARSED,,"[trader#3] 📍SIGNAL ID: #1998📍
+COIN: $ETH/USDT (2–5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+ENTRY: 3,840 – 3,870
+
+TARGETS: 3,900 – 3,950 – 4,000 – 4,150 – 4,220 – 4,300 – 4,400 – 4,480 – 4,550 – 4,625
+
+STOP LOSS: 3,600
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=3900 | 3950 | 4000 | 4150 | 4220 | 4300 | 4400 | 4480 | 4550 | 4625),,,ETHUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:3840 | RANGE_HIGH:LIMIT:3870,3600,3900 | 3950 | 4000 | 4150 | 4220 | 4300 | 4400 | 4480 | 4550 | 4625,10,1998,signal,single,1998,1,,,,,,,,,,,,,,,,,0,0,0,
+2462,PARSED,,"[trader#3] 📍SIGNAL ID: #1999📍
+COIN: $BNB/USDT (2–5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+ENTRY: 1,040 – 1,070
+
+TARGETS: 1,110 – 1,150 – 1,200 – 1,240 – 1,280 – 1,320 – 1,340 – 1,360 – 1,372 – 1,380
+
+STOP LOSS: 1,000
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=1110 | 1150 | 1200 | 1240 | 1280 | 1320 | 1340 | 1360 | 1372 | 1380),,,BNBUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:1040 | RANGE_HIGH:LIMIT:1070,1000,1110 | 1150 | 1200 | 1240 | 1280 | 1320 | 1340 | 1360 | 1372 | 1380,10,1999,signal,single,1999,1,,,,,,,,,,,,,,,,,0,0,0,
+2456,PARSED,,"[trader#3] 📍SIGNAL ID: #1997📍
+COIN: $BTC/USDT (3-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 109600✅
+
+🔥15% Profit (5x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,BTCUSDT,,,,0.82,,,,,False,0,,,,0,1997,signal,single,1997,1,,,,,,,,,,,,,,15,5,,0,0,0,
+2455,PARSED,,"[trader#3] 📍SIGNAL ID: #1998📍
+COIN: $ETH/USDT (3-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 3900✅
+
+🔥21.4% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,ETHUSDT,,,,0.82,,,,,False,0,,,,0,1998,signal,single,1998,1,,,,,,,,,,,,,,21.4,5,,0,0,0,
+2454,PARSED,,"[trader#3] 📍SIGNAL ID: #1996📍
+COIN: $TAO/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 430✅
+Target 2: 440✅
+Target 3: 450✅
+Target 4: 460✅
+Target 5: 470✅
+Target 6: 485✅
+Target 7: 500✅
+
+🔥111.85% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,TAOUSDT,,,,0.82,,,,,False,0,,,,0,1996,signal,single,1996,1,,,,,,,,,,,,,,111.85,5,,0,0,0,
+2453,PARSED,,"[trader#3] 📍SIGNAL ID: #1996📍
+COIN: $TAO/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 430✅
+Target 2: 440✅
+Target 3: 450✅
+Target 4: 460✅
+Target 5: 470✅
+Target 6: 485✅
+Target 7: 500✅
+Target 8: 520✅
+
+🔥125% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,TAOUSDT,,,,0.82,,,,,False,0,,,,0,1996,signal,single,1996,1,,,,,,,,,,,,,,125,5,,0,0,0,
+2452,PARSED,,"[trader#3] 📍SIGNAL ID: #2000📍
+COIN: $NEAR/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+ENTRY: 2.08 – 2.12
+
+TARGETS: 2.17 – 2.27 – 2.35– 2.45 – 2.65 – 2.8  – 3.0 – 3.15– 3.28 – 3.37
+
+STOP LOSS: 1.85
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=2.17 | 2.27 | 2.35 | 2.45 | 2.65 | 2.8 | 3 | 3.15 | 3.28 | 3.37),,,NEARUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:2.08 | RANGE_HIGH:LIMIT:2.12,1.85,2.17 | 2.27 | 2.35 | 2.45 | 2.65 | 2.8 | 3 | 3.15 | 3.28 | 3.37,10,2000,signal,single,2000,1,,,,,,,,,,,,,,,,,0,0,0,
+2451,PARSED,,"[trader#3] 📍SIGNAL ID: #2000📍
+COIN: $NEAR/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 2.170✅
+
+🔥21.85% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,NEARUSDT,,,,0.82,,,,,False,0,,,,0,2000,signal,single,2000,1,,,,,,,,,,,,,,21.85,5,,0,0,0,
+2446,PARSED,,"[trader#3] VIP MARKET UPDATE: $ETC
+➖➖➖➖➖➖➖
+ETC has broken out of the descending triangle and is currently pulling back for a retest. 
+
+A successful retest would confirm bullish momentum and signal continued upside potential.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2445,PARSED,,"[trader#3] VIP MARKET UPDATE: $4
+➖➖➖➖➖➖➖
+$4 has confirmed a breakout from the descending trendline, now consolidating near $0.094 expecting bullish momentum. 
+
+If price sustains above $0.088–$0.090, continuation toward $0.120–$0.140 looks likely. However, a short-term retest toward $0.085 may occur before the next impulsive move higher.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2443,PARSED,,"[trader#3] VIP MARKET UPDATE: $BTC
+➖➖➖➖➖➖➖
+Bitcoin is consolidating below the descending trendline, showing seller pressure at lower highs. Price bounced from the support but hasn’t confirmed strength yet.
+
+A breakout and retest above the trendline would signal bullish momentum, while rejection may send BTC back toward 108,900 or even the 106,000 demand zone.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2442,PARSED,,"[trader#3] VIP MARKET UPDATE: $BTC
+➖➖➖➖➖➖➖
+BTC has lost momentum and is currently moving toward the $106K horizontal support, a key zone for bulls to step in and regain strength. 
+
+In case of a confirmed breakdown and retest of this support could open the door for further correction in the market.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2441,PARSED,,"[trader#3] VIP MARKET UPDATE: $BTC
+➖➖➖➖➖➖➖
+
+BTC regaining momentum from the horizontal support.
+
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2440,PARSED,,"[trader#3] 📍SIGNAL ID: #2001📍
+COIN: $SOL/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 172 - 176.40
+
+TARGETS: 179 - 185 - 195 - 210 - 237
+
+STOP LOSS: 170.23
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=179 | 185 | 195 | 210 | 237),,,SOLUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:172 | RANGE_HIGH:LIMIT:176.4,170.23,179 | 185 | 195 | 210 | 237,5,2001,signal,single,2001,1,,,,,,,,,,,,,,,,,0,0,0,
+2439,PARSED,,"[trader#3] 📍SIGNAL ID: #2001📍
+COIN: $SOL/USDT (2-5X)
+Direction: LONG
+➖➖➖➖➖➖➖
+STOP LOSS: 170.23
+
+🚫4.55% Loss (2x)🚫
+
+➖➖➖➖➖➖➖",,,U_STOP_HIT,U_STOP_HIT,REPORT_LOSS,REPORT_LOSS,,,SOLUSDT,,,,0.82,,,,,False,0,,,,0,2001,signal,single,2001,1,,,,,,,,,,,,,,,2,,0,0,0,
+2438,PARSED,,"[trader#3] VIP MARKET UPDATE: $BTC
+➖➖➖➖➖➖➖
+Bitcoin is currently trading near a key support zone after a sharp pullback, holding around the $106K area. Price has been consistently making lower highs under the descending trendline, showing persistent seller presence and a lack of bullish strength on attempts to push higher.
+
+A rebound from this support could bring a short-term relief bounce, but bulls need a breakout above the descending trendline to shift momentum. If this support fails and price breaks below the zone with strong volume, further downside toward lower levels may follow.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2435,PARSED,,"[trader#3] VIP MARKET UPDATE: $BTC
+➖➖➖➖➖➖➖
+BTC is losing the key support/resistance level and attempting to break below the trendline support. 
+
+A candle close beneath both the trendline and the S/R level would confirm bearish momentum. 
+
+However, if price reclaims the S/R level, the breakdown may turn out to be a bearish trap.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2434,PARSED,,"[trader#3] VIP MARKET UPDATE: $BTC
+➖➖➖➖➖➖➖
+$BTC is currently trading around $101,900 and testing the $99,000–$101,000 demand zone, where buyers have stepped in several times in the past.
+
+If price holds above this zone, a bounce toward $106,000–$110,000 could follow. However, if it breaks below $98,000, we can expect the price drops towards $92,000 - $95,000.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2433,PARSED,,"[trader#3] VIP MARKET UPDATE: $AVAX
+➖➖➖➖➖➖➖
+$AVAX is currently trading around $16.50, testing the $15–$16 major support zone.
+
+If buyers hold this level, a rebound toward $18–$20 could follow. However, a breakdown below $15 may trigger a deeper correction toward $12–$13.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2431,PARSED,,"[trader#3] VIP MARKET UPDATE: $BTC
+➖➖➖➖➖➖➖
+$BTC has reacted strongly from the $99,000–$101,000 demand zone, now trading around $103,900, up +4.9%🔥
+
+If momentum holds, price could revisit $106,000–$108,000 next. However, failure to sustain above $102,000 might lead to another retest of the $100,000 zone.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2400,PARSED,,"[trader#3] VIP MARKET UPDATE: $BTC DOMINANCE 🔥
+➖➖➖➖➖➖➖
+BTC.D perfectly moved as predicted, and we've seen a nice bullish rally in Alts.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2396,PARSED,,"[trader#3] VIP MARKET UPDATE: $ETH
+➖➖➖➖➖➖➖
+ETH is forming an ascending triangle on the 1H timeframe. It was recently rejected from the horizontal resistance and is now moving toward the trendline support. 
+
+A bounce from the trendline support is expected, and a breakout with a successful retest of the triangle would confirm a bullish move.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2394,PARSED,,"[trader#3] VIP MARKET UPDATE: $ICP
+➖➖➖➖➖➖➖
+$ICP is currently trading around $9.16, breaking out of a long-term descending wedge pattern. The price breakout with strong volume, signaling bullish momentum.
+
+If price holds above $8.5–$9, continuation toward $11–$13 remains likely. However, a weekly close below $7.00 could invalidate the breakout and trigger a retest toward $6.5–$5. before any further upside.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2393,PARSED,,"[trader#3] 📍SIGNAL ID: #2002📍
+COIN: $TAO/USDT (2-5x)
+DIRECTION: LONG
+➖➖➖➖➖➖➖
+ENTRY: 345 – 360
+
+TARGETS: 380 – 400 – 420 – 440 – 460 – 480 – 500 – 520 – 540
+
+STOP LOSS: 320
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=380 | 400 | 420 | 440 | 460 | 480 | 500 | 520 | 540),,,TAOUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:345 | RANGE_HIGH:LIMIT:360,320,380 | 400 | 420 | 440 | 460 | 480 | 500 | 520 | 540,9,2002,signal,single,2002,1,,,,,,,,,,,,,,,,,0,0,0,
+2380,PARSED,,"[trader#3] VIP MARKET UPDATE: $BTC
+➖➖➖➖➖➖➖
+BTC is forming a falling wedge on the 30M chart after a strong bullish rally, a potential continuation pattern. A breakout above the wedge could spark another upward move.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2378,PARSED,,"[trader#3] 
+➖➖➖➖➖➖➖
+
+LINK is trading above a strong trendline support. As long as it holds above this level, an upward move is expected👀
+
+➖➖➖➖➖➖➖",,,,,,,,,,,,,0.25,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2374,PARSED,,"[trader#3] 📍SIGNAL ID: #2003📍
+COIN: $LINK/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 14.5 - 15.165
+
+TARGETS: 15.34 - 15.6 - 16 - 18 - 22 - 28
+
+STOP LOSS: 14.2
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=15.34 | 15.6 | 16 | 18 | 22 | 28),,,LINKUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:14.5 | RANGE_HIGH:LIMIT:15.165,14.2,15.34 | 15.6 | 16 | 18 | 22 | 28,6,2003,signal,single,2003,1,,,,,,,,,,,,,,,,,0,0,0,
+2373,PARSED,,"[trader#3] VIP MARKET UPDATE: $MYX
+➖➖➖➖➖➖➖
+$MYX has broken out of the falling wedge pattern, showing a clear shift in momentum after a prolonged downtrend. 
+
+If price holds above $2.2, continuation toward $2.8 - $3.5 looks likely in the coming days. However, a dip back below $2 could invalidate the setup.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2370,PARSED,,"[trader#3] 📍SIGNAL ID: #2003📍
+COIN: $LINK/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+
+Target 1: 15.34✅
+
+🔥15% Profit (5x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,LINKUSDT,,,,0.82,,,,,False,0,,,,0,2003,signal,single,2003,1,,,,,,,,,,,,,,15,5,,0,0,0,
+2364,PARSED,,[trader#3] $BTC 🔥,,,,,,,,,,,,,0.25,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2361,PARSED,,"[trader#3] 📍SIGNAL ID: #2002📍
+COIN: $TAO/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 380✅
+
+🔥40% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,TAOUSDT,,,,0.82,,,,,False,0,,,,0,2002,signal,single,2002,1,,,,,,,,,,,,,,40,5,,0,0,0,
+2355,PARSED,,"[trader#3] 📍SIGNAL ID: #2003📍
+COIN: $WLFI/USDT (2–5x)
+DIRECTION: LONG
+➖➖➖➖➖➖➖
+ENTRY: 0.12 – 0.124
+
+TARGETS: 0.130 – 0.140 – 0.150 – 0.160 – 0.170 – 0.180 – 0.190 – 0.205 – 0.223
+
+STOP LOSS: 0.11
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.13 | 0.14 | 0.15 | 0.16 | 0.17 | 0.18 | 0.19 | 0.205 | 0.223),,,WLFIUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.12 | RANGE_HIGH:LIMIT:0.124,0.11,0.13 | 0.14 | 0.15 | 0.16 | 0.17 | 0.18 | 0.19 | 0.205 | 0.223,9,2003,signal,single,2003,1,,,,,,,,,,,,,,,,,0,0,0,
+2352,PARSED,,"[trader#3] 📍SIGNAL ID: #2005📍
+COIN: $XVG/USDT (3-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+Extremely rare setup, expecting an easy 2-3x from $XVG
+Buying / Longing here (Binance / Binance Futures)
+
+ENTRY: Below 0.0082
+
+TARGETS: 0.0084 - 0.0087 - 0.0093 - 0.0102 - 0.0129 - 0.0149 - 0.0184 - 0.023 - OPEN
+
+STOP LOSS: 0.00655
+➖➖➖➖➖➖➖",,,,,,,,,XVGUSDT,,,,0.25,,,,,False,0,,,,0,2005,signal,single,2005,1,,,,,,,,,,,,,,,,,0,0,0,
+2351,PARSED,,[trader#3] Adding more $XVG here,,,,,,,,,,,,,0.25,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2350,PARSED,,"[trader#3] VIP MARKET UPDATE: $BNB
+➖➖➖➖➖➖➖
+$BNB is  consolidating just below the  resistance zone, forming higher lows along an ascending trendline. Structure shows steady accumulation and building bullish momentum.
+
+A breakout and sustained move above $1000 could trigger continuation toward $1040–$1080, while holding above $980 keeps the bias bullish. A drop below $960 would weaken the structure.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2348,PARSED,,"[trader#3] 📍SIGNAL ID: #2004📍
+COIN: $WLFI/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 0.1300✅
+
+🔥35.4% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,WLFIUSDT,,,,0.82,,,,,False,0,,,,0,2004,signal,single,2004,1,,,,,,,,,,,,,,35.4,5,,0,0,0,
+2347,PARSED,,"[trader#3] 📍SIGNAL ID: #2005📍
+COIN: $AVAX/USDT (2–5x)
+DIRECTION: LONG
+➖➖➖➖➖➖➖
+ENTRY: 17.40 – 18.00
+
+TARGETS: 18.6 – 19.6 – 21.5 – 23.50 – 25.00 – 26.50 – 28.00 – 29.00 – 31.60
+
+STOP LOSS: 15.95
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=18.6 | 19.6 | 21.5 | 23.5 | 25 | 26.5 | 28 | 29 | 31.6),,,AVAXUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:17.4 | RANGE_HIGH:LIMIT:18,15.95,18.6 | 19.6 | 21.5 | 23.5 | 25 | 26.5 | 28 | 29 | 31.6,9,2005,signal,single,2005,1,,,,,,,,,,,,,,,,,0,0,0,
+2346,PARSED,,"[trader#3] 📍SIGNAL ID: #2004📍
+COIN: $WLFI/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 0.1300✅
+Target 2: 0.1400✅
+Target 3: 0.1500✅
+
+🔥114.6% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,WLFIUSDT,,,,0.82,,,,,False,0,,,,0,2004,signal,single,2004,1,,,,,,,,,,,,,,114.6,5,,0,0,0,
+2345,PARSED,,"[trader#3] 📍SIGNAL ID: #2004📍
+COIN: $WLFI/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 0.1300✅
+Target 2: 0.1400✅
+Target 3: 0.1500✅
+Target 4: 0.1600✅
+
+🔥182.45% Profit (5x)🔥
+
+Trail your SL at Target 1.
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,WLFIUSDT,,,,0.82,,,,,False,0,,,,0,2004,signal,single,2004,1,,,,,,,,,,,,,,182.45,5,,0,0,0,
+2341,PARSED,,"[trader#3] 📍SIGNAL ID: #2003📍
+COIN: $LINK/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+
+Target 1: 15.34✅
+Target 2: 15.6✅
+Target 3: 16✅
+
+🔥50% Profit (5x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,LINKUSDT,,,,0.82,,,,,False,0,,,,0,2003,signal,single,2003,1,,,,,,,,,,,,,,50,5,,0,0,0,
+2294,PARSED,,"[trader#3] VIP MARKET UPDATE: $ETH
+➖➖➖➖➖➖➖
+ETH is forming a potential bullish harmonic pattern on ETH (1H timeframe). The price is approaching the D point, near the completion zone around $3,390, which could act as a strong reversal area.
+
+As long as ETH holds above the invalidation point near $3,353, a bounce toward the $3,520-$3650 zone is likely. A breakdown below that invalidation level, however, would invalidate the bullish setup.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2287,PARSED,,"[trader#3] VIP MARKET UPDATE: $BTC DOMINANCE 🔥
+➖➖➖➖➖➖➖
+BTC.D has perfectly broken down from the triangle and is currently retesting below it. 
+
+A successful retest would confirm a bearish move, which is typically a bullish signal for altcoins, as they usually move in the opposite direction.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2275,PARSED,,"[trader#3] 📍SIGNAL ID: #2006📍
+COIN: $BTC/USDT (2–5x)
+DIRECTION: LONG
+➖➖➖➖➖➖➖
+ENTRY: 100,000– 101,600
+
+TARGETS: 102,000 – 103,000 – 105,000 – 106,530 – 109,400 – 112,586  – 114,900 – 117,000 – 119,800 – 121,500 – 123,000 – 125,800
+
+STOP LOSS: 97,000
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=102000 | 103000 | 105000 | 106530 | 109400 | 112586 | 114900 | 117000 | 119800 | 121500 | 123000 | 125800),,,BTCUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:100000 | RANGE_HIGH:LIMIT:101600,97000,102000 | 103000 | 105000 | 106530 | 109400 | 112586 | 114900 | 117000 | 119800 | 121500 | 123000 | 125800,12,2006,signal,single,2006,1,,,,,,,,,,,,,,,,,0,0,0,
+2269,PARSED,,"[trader#3] VIP MARKET UPDATE: $ETH 🔥
+➖➖➖➖➖➖➖
+ETH perfectly bounced after touching the reversal zone, just as predicted.
+
+It’s now facing the descending trendline, a breakout and retest above it would confirm further bullish momentum.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2267,PARSED,,"[trader#3] 📍SIGNAL ID: #2006📍
+COIN: $BTC/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 102,000✅
+Target 2 :103,000✅
+
+🔥15% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,BTCUSDT,,,,0.82,,,,,False,0,,,,0,2006,signal,single,2006,1,,,,,,,,,,,,,,15,5,,0,0,0,
+2264,PARSED,,"[trader#3] 📍SIGNAL ID: #2007📍
+COIN: $SUI/USDT (2-5x)
+DIRECTION: LONG
+➖➖➖➖➖➖➖
+ENTRY: 1.95 – 2.01
+
+TARGETS: 2.06 – 2.11 – 2.20 – 2.28 – 2.35 – 2.42 – 2.50 – 2.65 – 2.78– 2.89
+
+STOP LOSS: 1.83
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=2.06 | 2.11 | 2.2 | 2.28 | 2.35 | 2.42 | 2.5 | 2.65 | 2.78 | 2.89),,,SUIUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:1.95 | RANGE_HIGH:LIMIT:2.01,1.83,2.06 | 2.11 | 2.2 | 2.28 | 2.35 | 2.42 | 2.5 | 2.65 | 2.78 | 2.89,10,2007,signal,single,2007,1,,,,,,,,,,,,,,,,,0,0,0,
+2263,PARSED,,"[trader#3] 📍SIGNAL ID: #2008📍
+COIN: $ETH/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 3368 - 3333
+
+TARGETS: 3410 - 3500 - 3650 - 3800
+
+STOP LOSS: 3298
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=3410 | 3500 | 3650 | 3800),,,ETHUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:3368 | RANGE_HIGH:LIMIT:3333,3298,3410 | 3500 | 3650 | 3800,4,2008,signal,single,2008,1,,,,,,,,,,,,,,,,,0,0,0,
+2261,PARSED,,"[trader#3] 📍SIGNAL ID: #2009📍
+COIN: $SOL/USDT (2-5x)
+DIRECTION: LONG
+➖➖➖➖➖➖➖
+ENTRY: 147.7 – 151
+
+TARGETS: 153 – 157 – 160 – 165 – 170 – 177 – 185 – 197 – 207 – 215 – 222 – 230
+
+STOP LOSS: 139
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=153 | 157 | 160 | 165 | 170 | 177 | 185 | 197 | 207 | 215 | 222 | 230),,,SOLUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:147.7 | RANGE_HIGH:LIMIT:151,139,153 | 157 | 160 | 165 | 170 | 177 | 185 | 197 | 207 | 215 | 222 | 230,12,2009,signal,single,2009,1,,,,,,,,,,,,,,,,,0,0,0,
+2260,PARSED,,"[trader#3] VIP MARKET UPDATE
+➖➖➖➖➖➖➖
+The market appears to be quite volatile. It may be wise to consider slightly reducing position sizes in long trades to manage risk more effectively.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2259,PARSED,,"[trader#3] 📍SIGNAL ID: #2008📍
+COIN: $ETH/USDT (2-5X)
+Direction: LONG
+➖➖➖➖➖➖➖
+Unfortunately, it broke down the S/R level.
+
+STOP LOSS: 3298
+
+🚫3.13% Loss (2x)🚫
+
+➖➖➖➖➖➖➖",,,U_STOP_HIT,U_STOP_HIT,REPORT_LOSS,REPORT_LOSS,,,ETHUSDT,,,,0.82,,,,,False,0,,,,0,2008,signal,single,2008,1,,,,,,,,,,,,,,,2,,0,0,0,
+2255,PARSED,,"[trader#3] VIP MARKET UPDATE
+➖➖➖➖➖➖➖
+The market remains highly volatile. As shared earlier, it's important to stick tightly to your stop losses. Consider closing half of your positions on SUI, AVAX & SOL to reduce exposure and protect capital. Risk management is key in these conditions.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2239,PARSED,,"[trader#3] 📍SIGNAL ID: #2007📍
+COIN: $SUI/USDT (2-5X)
+Direction: LONG
+➖➖➖➖➖➖➖
+
+STOP LOSS: 1.83
+
+🚫15.1% Loss (2x)🚫
+
+➖➖➖➖➖➖➖",,,U_STOP_HIT,U_STOP_HIT,REPORT_LOSS,REPORT_LOSS,,,SUIUSDT,,,,0.82,,,,,False,0,,,,0,2007,signal,single,2007,1,,,,,,,,,,,,,,,2,,0,0,0,
+2238,PARSED,,"[trader#3] VIP MARKET UPDATE: $BTC
+➖➖➖➖➖➖➖
+$BTC faced rejection and struggling under the descending trendline, and price has now slipped back into the DEMAND ZONE, The repeated rejection near $103,000–$104,000 confirms that bulls are losing momentum for now.
+
+For strength to return, $BTC must break and reclaim $104,000–$106,000, which would open the door toward $108,000–$110,000. However, failure to bounce soon from the demand zone could expose price to a deeper move toward $96,000 –$93,000.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2235,PARSED,,"[trader#3] VIP MARKET UPDATE
+➖➖➖➖➖➖➖
+Over $1,030,000,000 (1.03 BILLION) worth of crypto longs have been liquidated in the past 24 hours.
+
+This sharp flush signals aggressive selling pressure, shaking out leveraged positions. Volatility may remain elevated across the market in the short term.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2230,PARSED,,"[trader#3] VIP MARKET UPDATE: $ETH
+➖➖➖➖➖➖➖
+ETH is currently trying to hold above the trendline support while trading below the horizontal resistance. 
+
+Bulls need to reclaim the horizontal resistance for bullish confirmation, whereas a candle close below the trendline support would signal further bearish continuation.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2229,PARSED,,"[trader#3] 📍SIGNAL ID: #2009📍
+COIN: $SOL/USDT (2-5X)
+Direction: LONG
+➖➖➖➖➖➖➖
+
+STOP LOSS: 139
+
+🚫13% Loss (2x)🚫
+
+➖➖➖➖➖➖➖",,,U_STOP_HIT,U_STOP_HIT,REPORT_LOSS,REPORT_LOSS,,,SOLUSDT,,,,0.82,,,,,False,0,,,,0,2009,signal,single,2009,1,,,,,,,,,,,,,,,2,,0,0,0,
+2224,PARSED,,"[trader#3] VIP MARKET UPDATE: $ETH
+➖➖➖➖➖➖➖
+ETH has broken below the mid-range demand zone (~$3,350–$3,250), turning it into resistance. Sellers are currently in control, and the price is heading toward the next major demand zone around $3,050–$2,880, which is the strongest near-term support.
+
+If ETH holds and reacts bullishly from this lower demand zone, a bounce toward the previous breakdown zone (~$3,300) is likely. But a clean breakdown below $2,880 would open the door for a deeper drop toward the next major demand area around $2,480–$2,430.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2215,PARSED,,"[trader#3] VIP MARKET UPDATE: $IMX
+➖➖➖➖➖➖➖
+IMX is currently trading above the horizontal support. A bounce from this level followed by a breakout and retest of the descending trendline would confirm a bullish move.
+
+However, a breakdown and retest of the horizontal support would signal potential downside momentum.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2212,PARSED,,"[trader#3] VIP MARKET UPDATE
+➖➖➖➖➖➖➖
+The market is currently in a state of extreme fear, and a bounce is likely soon.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2203,PARSED,,"[trader#3] VIP MARKET UPDATE: $ENA
+➖➖➖➖➖➖➖
+$ENA is currently holding above the $0.25–$0.28 SUPPORT zone, where buyers have reacted multiple times previously. This area continues to act as a strong DEMAND region after the pullback.
+
+If $ENA maintains SUPPORT and builds momentum, a bounce toward $0.32 - $0.42 looks likely. However, a breakdown below $0.23 may trigger deeper correction.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2198,PARSED,,"[trader#3] 📍SIGNAL ID: #2010📍
+COIN: $AVAX/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 15.129 - 15.685
+
+TARGETS: 15.95 - 16.2 - 17 - 20 - 23  -28
+
+STOP LOSS: 14.814
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=15.95 | 16.2 | 17 | 20 | 23 | 28),,,AVAXUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:15.129 | RANGE_HIGH:LIMIT:15.685,14.814,15.95 | 16.2 | 17 | 20 | 23 | 28,6,2010,signal,single,2010,1,,,,,,,,,,,,,,,,,0,0,0,
+2186,PARSED,,"[trader#3] 📍SIGNAL ID: #2011📍
+COIN: $LINK/USDT (2–5x)
+DIRECTION: LONG
+➖➖➖➖➖➖➖
+ENTRY: 13.40 – 13.95
+
+TARGETS: 14.50 – 15.20 – 16.00 – 17.20 – 18.50 – 19.80 – 21.00 – 22.30 – 23.50 – 24.47
+
+STOP LOSS: 12.5
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=14.5 | 15.2 | 16 | 17.2 | 18.5 | 19.8 | 21 | 22.3 | 23.5 | 24.47),,,LINKUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:13.4 | RANGE_HIGH:LIMIT:13.95,12.5,14.5 | 15.2 | 16 | 17.2 | 18.5 | 19.8 | 21 | 22.3 | 23.5 | 24.47,10,2011,signal,single,2011,1,,,,,,,,,,,,,,,,,0,0,0,
+2176,PARSED,,"[trader#3] 📍SIGNAL ID: #2012📍
+COIN: $SOL/USDT (2-4x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+Back above the horizontal support. Chances of a rebound.
+
+ENTRY: 126 - 130.20
+
+TARGETS: 132 - 135 - 140 - 150 - 175 - 200
+
+STOP LOSS: 124.74
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=132 | 135 | 140 | 150 | 175 | 200),,,SOLUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:126 | RANGE_HIGH:LIMIT:130.2,124.74,132 | 135 | 140 | 150 | 175 | 200,6,2012,signal,single,2012,1,,,,,,,,,,,,,,,,,0,0,0,
+2172,PARSED,,"[trader#3] 📍SIGNAL ID: #2012📍
+COIN: $SOL/USDT (2-4x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 132✅
+Target 2: 135✅
+
+🔥22% Profit (4x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,SOLUSDT,,,,0.82,,,,,False,0,,,,0,2012,signal,single,2012,1,,,,,,,,,,,,,,22,4,,0,0,0,
+2171,PARSED,,"[trader#3] 📍SIGNAL ID: #2005📍
+COIN: $XVG/USDT (3-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+Target 1: 0.0084✅
+Target 2: 0.0087✅
+Target 3: 0.0093✅
+
+🔥201% Profit (5x)🔥
+
+For those who held one, not a bad payday.
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,XVGUSDT,,,,0.82,,,,,False,0,,,,0,2005,signal,single,2005,1,,,,,,,,,,,,,,201,5,,0,0,0,
+2158,PARSED,,"[trader#3] 📍SIGNAL ID: #2013📍
+COIN: $XRP/USDT (2–5x)
+DIRECTION: LONG
+➖➖➖➖➖➖➖
+ENTRY: 2.15 – 2.188
+
+TARGETS: 2.225 – 2.25 – 2.35 – 2.46 – 2.54 – 2.62 – 2.70 – 2.78 – 2.86 – 3.00
+
+STOP LOSS: 2.02
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=2.225 | 2.25 | 2.35 | 2.46 | 2.54 | 2.62 | 2.7 | 2.78 | 2.86 | 3),,,XRPUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:2.15 | RANGE_HIGH:LIMIT:2.188,2.02,2.225 | 2.25 | 2.35 | 2.46 | 2.54 | 2.62 | 2.7 | 2.78 | 2.86 | 3,10,2013,signal,single,2013,1,,,,,,,,,,,,,,,,,0,0,0,
+2156,PARSED,,"[trader#3] 📍SIGNAL ID: #2013📍
+COIN: $XRP/USDT (2-4x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 2.225✅
+
+🔥20% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,XRPUSDT,,,,0.82,,,,,False,0,,,,0,2013,signal,single,2013,1,,,,,,,,,,,,,,20,5,,0,0,0,
+2154,PARSED,,"[trader#3] VIP MARKET UPDATE: $ETH
+➖➖➖➖➖➖➖
+$ETH has perfectly followed our previous analysis, price broke above $3,150 and reclaimed $3,170. $ETH up +5.6% from yesterday’s lows, showing buyers stepping back in.🔥
+
+If $ETH holds above $3,100, continuation toward $3,300–$3,400 becomes likely as bullish momentum builds.
+However, a drop back below $3,000 may signal weakness and another retest of the $2,900–$2,850 region is possible.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+2150,PARSED,,"[trader#3] 📍SIGNAL ID: #2012📍
+COIN: $SOL/USDT (2-4x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 132✅
+Target 2: 135✅
+Target 3: 140✅
+
+🔥38.8% Profit (4x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,SOLUSDT,,,,0.82,,,,,False,0,,,,0,2012,signal,single,2012,1,,,,,,,,,,,,,,38.8,4,,0,0,0,
+2148,PARSED,,"[trader#3] 📍SIGNAL ID: #2011📍
+COIN: $LINK/USDT (2-4x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+
+Closed Manually
+
+🚫12% Loss (2x)🚫
+
+➖➖➖➖➖➖➖",,,U_CLOSE_FULL,U_CLOSE_FULL,REPORT_LOSS | CLOSE_POSITION,REPORT_LOSS | CLOSE_POSITION,,,LINKUSDT,,,,0.82,,,,,False,0,,,,0,2011,signal,single,2011,1,,,,,,,,,,,,,,,2,,0,0,0,
+2147,PARSED,,"[trader#3] 📍SIGNAL ID: #2014📍
+COIN: $ETH/USDT (2-4x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+Reached the S/R level. Chances of a bounce from this support.
+
+ENTRY: 2800 - 2880
+
+TARGETS: 2920 - 3000 - 3180 - 3500 - 3843
+
+STOP LOSS: 2753
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=2920 | 3000 | 3180 | 3500 | 3843),,,ETHUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:2800 | RANGE_HIGH:LIMIT:2880,2753,2920 | 3000 | 3180 | 3500 | 3843,5,2014,signal,single,2014,1,,,,,,,,,,,,,,,,,0,0,0,
+2144,PARSED,,"[trader#3] 📍SIGNAL ID: #2011📍
+COIN: $LINK/USDT (2–5x)
+DIRECTION: LONG
+➖➖➖➖➖➖➖
+
+Re-Enter.
+Same Entry level ,Targets & SL
+
+➖➖➖➖➖➖➖",,,U_REENTER,U_REENTER,REENTER_POSITION,REENTER_POSITION,,,LINKUSDT,,,,0.82,,,,,False,0,,,,0,2011,signal,single,2011,1,,,,,,,,,,,,,,,,,0,0,0,
+2141,PARSED,,"[trader#3] 📍SIGNAL ID: #2014📍
+COIN: $ETH/USDT (2-4x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 2920✅
+Target 2: 3000✅
+
+🔥25.8% Profit (4x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,ETHUSDT,,,,0.82,,,,,False,0,,,,0,2014,signal,single,2014,1,,,,,,,,,,,,,,25.8,4,,0,0,0,
+2127,PARSED,,"[trader#3] 📍SIGNAL ID: #2015📍
+COIN: $BTC/USDT (2-4x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+Reached the order block zone.
+
+ENTRY: 83700 - 86300
+
+TARGETS: 88000 - 90000 - 93000 - 97000 - 102000 - 107482
+
+STOP LOSS: 82846
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=88000 | 90000 | 93000 | 97000 | 102000 | 107482),,,BTCUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:83700 | RANGE_HIGH:LIMIT:86300,82846,88000 | 90000 | 93000 | 97000 | 102000 | 107482,6,2015,signal,single,2015,1,,,,,,,,,,,,,,,,,0,0,0,
+2123,PARSED,,"[trader#3] 📍SIGNAL ID: #2016📍
+COIN: $SOL/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 120 - 127.28
+
+TARGETS: 129.5 - 132 - 139 - 148 - 180 - 200 - 220
+
+STOP LOSS: 117.87
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=129.5 | 132 | 139 | 148 | 180 | 200 | 220),,,SOLUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:120 | RANGE_HIGH:LIMIT:127.28,117.87,129.5 | 132 | 139 | 148 | 180 | 200 | 220,7,2016,signal,single,2016,1,,,,,,,,,,,,,,,,,0,0,0,
+2112,PARSED,,"[trader#3] 📍SIGNAL ID: #2017📍
+COIN: $LINK/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 11.45 - 11.79
+
+TARGETS: 12 - 12.3 - 12.8 - 13.5 - 15 - 17 - 19
+
+STOP LOSS: 11.281
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=12 | 12.3 | 12.8 | 13.5 | 15 | 17 | 19),,,LINKUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:11.45 | RANGE_HIGH:LIMIT:11.79,11.281,12 | 12.3 | 12.8 | 13.5 | 15 | 17 | 19,7,2017,signal,single,2017,1,,,,,,,,,,,,,,,,,0,0,0,
+2108,PARSED,,"[trader#3] 📍SIGNAL ID: #2018📍
+COIN: $LTC/USDT (2-5x)
+DIRECTION: LONG
+➖➖➖➖➖➖➖
+
+Use 1-2% of Margin, Stick to Stop-Loss.
+
+ENTRY: 80.5 – 82
+
+TARGETS: 82.73 – 84 – 88 – 92 – 97.7 – 101.5 – 105.4 – 109.1 – 113.0 – 116.7
+
+STOP LOSS: 75.1
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=82.73 | 84 | 88 | 92 | 97.7 | 101.5 | 105.4 | 109.1 | 113 | 116.7),,,LTCUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:80.5 | RANGE_HIGH:LIMIT:82,75.1,82.73 | 84 | 88 | 92 | 97.7 | 101.5 | 105.4 | 109.1 | 113 | 116.7,10,2018,signal,single,2018,1,,,,,,,,,,,,,,,,,0,0,0,
+2104,PARSED,,"[trader#3] 📍SIGNAL ID: #2017📍
+COIN: $LINK/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 12✅
+Target 2: 12.3✅
+
+🔥34.75% Profit (5x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,LINKUSDT,,,,0.82,,,,,False,0,,,,0,2017,signal,single,2017,1,,,,,,,,,,,,,,34.75,5,,0,0,0,
+2103,PARSED,,"[trader#3] 📍SIGNAL ID: #2016📍
+COIN: $SOL/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 129.5✅
+
+🔥25.7% Profit (5x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,SOLUSDT,,,,0.82,,,,,False,0,,,,0,2016,signal,single,2016,1,,,,,,,,,,,,,,25.7,5,,0,0,0,
+2101,PARSED,,"[trader#3] 📍SIGNAL ID: #2018📍
+COIN: $LTC/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 82.73✅
+Target 2: 84.00✅
+
+🔥13% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,LTCUSDT,,,,0.82,,,,,False,0,,,,0,2018,signal,single,2018,1,,,,,,,,,,,,,,13,5,,0,0,0,
+2095,PARSED,,"[trader#3] 📍SIGNAL ID: #2016📍
+COIN: $SOL/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 129.5✅
+Target 2: 132✅
+
+🔥32.6% Profit (5x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,SOLUSDT,,,,0.82,,,,,False,0,,,,0,2016,signal,single,2016,1,,,,,,,,,,,,,,32.6,5,,0,0,0,
+2092,PARSED,,"[trader#3] 📍SIGNAL ID: #2017📍
+COIN: $LINK/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 12✅
+Target 2: 12.3✅
+Target 3: 12.8✅
+
+🔥45.6% Profit (5x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,LINKUSDT,,,,0.82,,,,,False,0,,,,0,2017,signal,single,2017,1,,,,,,,,,,,,,,45.6,5,,0,0,0,
+2062,PARSED,,"[trader#3] 📍SIGNAL ID: #2004📍
+COIN: $WLFI/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 0.1300✅
+Target 2: 0.1400✅
+Target 3: 0.1500✅
+Target 4: 0.1600✅
+Target 5: 0.1700✅
+
+🔥200% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,WLFIUSDT,,,,0.82,,,,,False,0,,,,0,2004,signal,single,2004,1,,,,,,,,,,,,,,200,5,,0,0,0,
+2061,PARSED,,"[trader#3] 📍SIGNAL ID: #2016📍
+COIN: $SOL/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 129.5✅
+Target 2: 132✅
+Target 3: 139✅
+
+🔥68.15% Profit (5x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,SOLUSDT,,,,0.82,,,,,False,0,,,,0,2016,signal,single,2016,1,,,,,,,,,,,,,,68.15,5,,0,0,0,
+2058,PARSED,,"[trader#3] 📍SIGNAL ID: #2019📍
+COIN: $NEAR/USDT (2–5x)
+DIRECTION: LONG
+➖➖➖➖➖➖➖
+Use 1-2% of Margin, Stick to Stop-Loss.
+
+ENTRY: 1.86 – 1.94
+
+TARGETS: 2.00 – 2.10 – 2.24 – 2.36 – 2.48 – 2.60 – 2.72 – 2.84 – 2.96 – 3.10
+
+STOP LOSS: 1.71
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=2 | 2.1 | 2.24 | 2.36 | 2.48 | 2.6 | 2.72 | 2.84 | 2.96 | 3.1),,,NEARUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:1.86 | RANGE_HIGH:LIMIT:1.94,1.71,2 | 2.1 | 2.24 | 2.36 | 2.48 | 2.6 | 2.72 | 2.84 | 2.96 | 3.1,10,2019,signal,single,2019,1,,,,,,,,,,,,,,,,,0,0,0,
+2056,PARSED,,"[trader#3] 📍SIGNAL ID: #2020📍
+COIN: $BNB/USDT (2–5x)
+DIRECTION: LONG
+➖➖➖➖➖➖➖
+Use 1-2% of Margin, Stick to Stop-Loss.
+
+ENTRY: 875 – 893
+
+TARGETS: 910 – 940 – 978 – 1,000 – 1,030 – 1,070 – 1,100– 1,150 – 1,220 – 1,275
+
+STOP LOSS: 810
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=910 | 940 | 978 | 1000 | 1030 | 1070 | 1100 | 1150 | 1220 | 1275),,,BNBUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:875 | RANGE_HIGH:LIMIT:893,810,910 | 940 | 978 | 1000 | 1030 | 1070 | 1100 | 1150 | 1220 | 1275,10,2020,signal,single,2020,1,,,,,,,,,,,,,,,,,0,0,0,
+2049,PARSED,,"[trader#3] 📍SIGNAL ID: #2020📍
+COIN: $BNB/USDT (2–5x)
+DIRECTION: LONG
+➖➖➖➖➖➖➖
+Use 1-2% of Margin, Stick to Stop-Loss.
+
+ENTRY: 875 – 890
+
+TARGETS: 910 – 940 – 978 – 1,000 – 1,030 – 1,070 – 1,100– 1,150 – 1,220 – 1,275
+
+STOP LOSS: 810
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=910 | 940 | 978 | 1000 | 1030 | 1070 | 1100 | 1150 | 1220 | 1275),,,BNBUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:875 | RANGE_HIGH:LIMIT:890,810,910 | 940 | 978 | 1000 | 1030 | 1070 | 1100 | 1150 | 1220 | 1275,10,2020,signal,single,2020,1,,,,,,,,,,,,,,,,,0,0,0,
+2048,PARSED,,"[trader#3] 📍SIGNAL ID: #2017📍
+COIN: $LINK/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 12✅
+Target 2: 12.3✅
+Target 3: 12.8✅
+Target 4: 13.5✅
+
+🔥75.3% Profit (5x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,LINKUSDT,,,,0.82,,,,,False,0,,,,0,2017,signal,single,2017,1,,,,,,,,,,,,,,75.3,5,,0,0,0,
+2046,PARSED,,"[trader#3] 📍SIGNAL ID: #2016📍
+COIN: $SOL/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 129.5✅
+Target 2: 132✅
+Target 3: 139✅
+
+🔥84.7% Profit (5x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,SOLUSDT,,,,0.82,,,,,False,0,,,,0,2016,signal,single,2016,1,,,,,,,,,,,,,,84.7,5,,0,0,0,
+2033,PARSED,,"[trader#3] 📍SIGNAL ID: #2021📍
+COIN: $UNI/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 5.97 - 6.15
+
+TARGETS: 6.27 - 6.4 - 6.8 - 7.5 - 8.3 - 9.3 - 10.3
+
+STOP LOSS: 5.84
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=6.27 | 6.4 | 6.8 | 7.5 | 8.3 | 9.3 | 10.3),,,UNIUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:5.97 | RANGE_HIGH:LIMIT:6.15,5.84,6.27 | 6.4 | 6.8 | 7.5 | 8.3 | 9.3 | 10.3,7,2021,signal,single,2021,1,,,,,,,,,,,,,,,,,0,0,0,
+2021,PARSED,,"[trader#3] 📍SIGNAL ID: #2021📍
+COIN: $UNI/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+
+Target 1: 6.27✅
+
+🔥25% Profit (5x)🔥
+
+Perfectly bounced after tapping the demand zone 🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,UNIUSDT,,,,0.82,,,,,False,0,,,,0,2021,signal,single,2021,1,,,,,,,,,,,,,,25,5,,0,0,0,
+2018,PARSED,,"[trader#3] IMPORTANT
+
+Market conditions currently not ideal, we will update once they look better for our next Mega Signal
+➖➖➖➖➖➖➖",,,,,,,,,,,,,0.25,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1999,PARSED,,"[trader#3] 🚨MEGA SIGNAL: $CHESS🚨
+
+Exchange: Binance (Futures and Spot)
+
+Entry: Below $0.052
+
+Targets: 0.054 - 0.057 - 0.060 - 0.065 - 0.073 - 0.087 - 0.132 - 0.176 - 0.242 - OPEN
+
+Longing $CHESS now. Breakout confirmed and extremely undervalued. Easiest Mega Signal we’ve ever had
+➖➖➖➖➖➖➖",,,,,,,,,,,,,0.25,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1998,PARSED,,[trader#3] #CHESS is at its perfect bottom,,,,,,,,,,,,,0.25,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1996,PARSED,,"[trader#3] #CHESS (Binance Futures and Spot)
+
+✅Sub $10 million market cap coin
+✅Fully bottomed 
+✅Loking exactly like MYX at $1, before making a 1800% move to $18
+
+CHESS is an easy 10x move, grabbing a big bag here below $0.05",,,,,,,,,,,,,0.25,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1993,PARSED,,"[trader#3] 🚨MEGA SIGNAL: $CHESS🚨
+
+Still in entry and ready to blow up
+
+Buying more here
+➖➖➖➖➖➖➖",,,,,,,,,,,,,0.25,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1985,PARSED,,"[trader#3] 📍SIGNAL ID: #2022📍
+COIN: $ETH/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Reaching the support zone, where a potential double-bottom formation is expected.
+
+ENTRY: 2600 - 2725
+
+TARGETS: 2780 - 2850 - 2950 - 3150 - 3300 - 3660
+
+STOP LOSS: 2598
+➖➖➖➖➖➖➖
+This message cannot be forwarded or replicated",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=2780 | 2850 | 2950 | 3150 | 3300 | 3660),,,ETHUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:2600 | RANGE_HIGH:LIMIT:2725,2598,2780 | 2850 | 2950 | 3150 | 3300 | 3660,6,2022,signal,single,2022,1,,,,,,,,,,,,,,,,,0,0,0,
+1984,PARSED,,"[trader#3] 📍SIGNAL ID: #2020📍
+COIN: $BNB/USDT (2-5X)
+Direction: LONG
+➖➖➖➖➖➖➖
+
+STOP LOSS: 810
+
+🚫16% Loss (2x)🚫
+
+➖➖➖➖➖➖➖",,,U_STOP_HIT,U_STOP_HIT,REPORT_LOSS,REPORT_LOSS,,,BNBUSDT,,,,0.82,,,,,False,0,,,,0,2020,signal,single,2020,1,,,,,,,,,,,,,,,2,,0,0,0,
+1983,PARSED,,"[trader#3] VIP MARKET UPDATE: $BTC
+➖➖➖➖➖➖➖
+BTC is attempting to regain momentum from the horizontal support. The RSI is in the oversold region and showing hidden bullish divergence, suggesting strengthening buyer interest. 
+
+A bounce is expected from the current support. However, if a breakdown and retest occur, the price may find its next rebound from the lower marked horizontal support.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1980,PARSED,,"[trader#3] 📍SIGNAL ID: #2022📍
+COIN: $ETH/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 2780✅
+
+🔥13.75% Profit (5x)🔥
+
+Perfect entry 🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,ETHUSDT,,,,0.82,,,,,False,0,,,,0,2022,signal,single,2022,1,,,,,,,,,,,,,,13.75,5,,0,0,0,
+1979,PARSED,,"[trader#3] VIP MARKET UPDATE: $BTC 🔥
+➖➖➖➖➖➖➖
+BTC perfectly bounced from the horizontal support after creating a hidden bullish divergence just as predicted.
+
+Holding above this support keeps the short-term outlook bullish.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1972,PARSED,,"[trader#3] 📍SIGNAL ID: #2022📍
+COIN: $ETH/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 2780✅
+Target 2: 2850✅
+
+🔥26.65% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,ETHUSDT,,,,0.82,,,,,False,0,,,,0,2022,signal,single,2022,1,,,,,,,,,,,,,,26.65,5,,0,0,0,
+1969,PARSED,,"[trader#3] VIP MARKET UPDATE: $BTC 🔥
+➖➖➖➖➖➖➖
+We identified the perfect oversold region, and BTC pumped exactly from our marked reversal zone, right on target.
+➖➖➖➖➖➖➖",,,,,MARKET_COMMENTARY,MARKET_COMMENTARY,,,,,,,0.75,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1968,PARSED,,"[trader#3] 📍SIGNAL ID: #2022📍
+COIN: $ETH/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 2780✅
+Target 2: 2850✅
+Target 3: 2950✅
+
+🔥47.1% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,ETHUSDT,,,,0.82,,,,,False,0,,,,0,2022,signal,single,2022,1,,,,,,,,,,,,,,47.1,5,,0,0,0,
+1962,PARSED,,"Часть 2. 
+Разбор трейдеров #1, #2, #3 и #4
+
+Здесь у нас - четыре трейдера, чьи сигналы проверены, просмотрены, разобраны и… всё же местами очень сложно восстановить реальные результаты.🤯
+
+⚠️ Дисклеймер
+Дальнейшая статистика по трейдерам #1–#4 собрана по сигналам из закрытых Telegram-чатов.
+У нас нет доступа к их реальным сделкам на бирже, только к тому, что публикуется: вход, стоп, апдейты, тейки.
+Поэтому оценка - консервативная, на основании доступных данных.
+Этого достаточно, чтобы понять стиль и качество работы каждого трейдера.
+
+Общая проблема группы:
+Сигналы менее структурированы, чем у A/B.
+Входы - есть (иногда, правда, формате ""Buy here"" или ""This is it!""🤦‍♂️).
+Стопы - тоже имеются, но о них говорят вскользь.
+Тейки - иногда их слишком много, иногда они завышены.
+
+И очень много апдейтов с аналитикой, которую теперь будем регулярно вычищать из канала, ибо за хорошей аналитикой - вы знаете куда можно заглянуть!😉
+
+Исходя из всего вышеперечисленного, обзор этой четвёрки будет основан скорее на общих наблюдениях:
+
+🟡Trader #1 
+
+Плюсы:
+логичные уровни,
+часть сделок реально отрабатывает.
+Минусы:
+Встречаются как крупные тейки, вроде +61% на BATUSDT, так и стопы, типа –45% на AAVE.
+Тут вы сами делаете выбор: кататься на этих качелях или постоять посмотреть со стороны.
+
+Вердикт:
+остается в наблюдении на ещё один месяц.
+Потенциал есть, прозрачности - мало.
+
+🟡Trader #2 
+
+Плюсы:
+входы и уровни чаще внятные,
+тейки обозначены, стопы чаще указаны.
+
+Минусы:
+Много апдейтов c шумом из аналитики,
+Сами стопы фиксирует на бумаге не всегда.
+
+Вердикт:
+Даём ещё месяц. Убираем ненужную аналитику. Только сетапы.
+
+🟠Trader #3 
+
+Плюсы:
+Рабочие идеи и сетапы.
+
+Минусы:
+Всё те же. Широкий разброс по тейкам и стопам, который, хоть и положительный на дистанции, но требует хорошего навыка управления депозитом.
+
+Вердикт:
+Тоже отправляем в комнату особого надзора. Но оставляем.
+
+🔴Trader #4 
+Чистый red flag, как если бы Лариса Долина запустила свои сигналы под влиянием ""мошенников"".😂
+
+Из особенностей:
+обилие низколиквидных монет,
+тейки x10/x20/x50,
+если сделка улетела - хайп-парад,
+если ушла в минус - тишина,
+много мусорных сетапов (на ""инсайде""),
+отсутствие системности...
+
+Вердикт: 
+исключаем.
+Это про лотерею и кликбейт.
+Фу таким быть!
+
+Что будет дальше:
+#1, #2 и #3 продолжают работать в канале, но под усиленным контролем.
+#4 - будет удалён в ближайшее время.
+A и B - пока выглядят, как хорошее пособие для новичков по тому, как должен выглядеть трейдинг с точки зрения стратегии.
+
+Продолжаем работу и следим, как изменится статистика в декабре 😉",,,,,,,,,,,,,0.25,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1942,PARSED,764,,,,,,,,,,,,,,0.25,,,,,False,0,,,,0,764,signal,single,764,1,,,,,,,,,,,,,,,,,0,0,0,
+1941,PARSED,,"[trader#3] 📍SIGNAL ID: #2023📍
+COIN: $TRX/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+Completed the bullish bat pattern.
+
+ENTRY: 0.272 - 0.28
+
+TARGETS: 0.283 - 0.288 - 0.295 - 0.31 - 0.33 - 0.37
+
+STOP LOSS: 0.268
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.283 | 0.288 | 0.295 | 0.31 | 0.33 | 0.37),,,TRXUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.272 | RANGE_HIGH:LIMIT:0.28,0.268,0.283 | 0.288 | 0.295 | 0.31 | 0.33 | 0.37,6,2023,signal,single,2023,1,,,,,,,,,,,,,,,,,0,0,0,
+1936,PARSED,,"[trader#3] 📍SIGNAL ID: #2022📍
+COIN: $ETH/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 2780✅
+Target 2: 2850✅
+Target 3: 2950✅
+
+🔥77.95% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,ETHUSDT,,,,0.82,,,,,False,0,,,,0,2022,signal,single,2022,1,,,,,,,,,,,,,,77.95,5,,0,0,0,
+1931,PARSED,,"[trader#3] 📍SIGNAL ID: #2022📍
+COIN: $ETH/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 2780✅
+Target 2: 2850✅
+Target 3: 2950✅
+Target 4: 3150✅
+
+🔥95% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,ETHUSDT,,,,0.82,,,,,False,0,,,,0,2022,signal,single,2022,1,,,,,,,,,,,,,,95,5,,0,0,0,
+1929,PARSED,,"[trader#3] 📍SIGNAL ID: #2023📍
+COIN: $TRX/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 0.283✅
+
+🔥15% Profit (5x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,TRXUSDT,,,,0.82,,,,,False,0,,,,0,2023,signal,single,2023,1,,,,,,,,,,,,,,15,5,,0,0,0,
+1917,PARSED,,"[trader#3] 📍SIGNAL ID: #2024📍
+COIN: $BDXN/USDT (3-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Completed bottomed out and getting ready for a massive bullish rally 🚀
+
+Entry: Below 0.027
+
+Targets: 0.029 - 0.033 - 0.039 - 0.043 - 0.050 - 0.069 - 0.084 - 0.15 - 0.30 - 0.45 - 0.75
+
+SL: 0.019
+
+You can also buy on spot in exchanges like bybit, bitget, mexc and gate.
+➖➖➖➖➖➖➖
+This message cannot be forwarded or replicated",,,,,,,,,BDXNUSDT,,,,0.25,,,,,False,0,,,,0,2024,signal,single,2024,1,,,,,,,,,,,,,,,,,0,0,0,
+1909,PARSED,,"[trader#3] 📍SIGNAL ID: #2025📍
+COIN: $CRV/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.369 - 0.38
+
+TARGETS: 0.386 - 0.393 - 0.40 - 0.42 - 0.45 - 0.50 - 0.55
+
+STOP LOSS: 0.361
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.386 | 0.393 | 0.4 | 0.42 | 0.45 | 0.5 | 0.55),,,CRVUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.369 | RANGE_HIGH:LIMIT:0.38,0.361,0.386 | 0.393 | 0.4 | 0.42 | 0.45 | 0.5 | 0.55,7,2025,signal,single,2025,1,,,,,,,,,,,,,,,,,0,0,0,
+1908,PARSED,,"[trader#3] 📍SIGNAL ID: #2025📍
+COIN: $CRV/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 14.55✅
+
+🔥14.55% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,CRVUSDT,,,,0.82,,,,,False,0,,,,0,2025,signal,single,2025,1,,,,,,,,,,,,,,14.55,5,,0,0,0,
+1907,PARSED,,"[trader#3] 📍SIGNAL ID: #2023📍
+COIN: $TRX/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 0.283✅
+Target 2: 0.288✅
+
+🔥18.25% Profit (5x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,TRXUSDT,,,,0.82,,,,,False,0,,,,0,2023,signal,single,2023,1,,,,,,,,,,,,,,18.25,5,,0,0,0,
+1905,PARSED,,"[trader#3] 📍SIGNAL ID: #2017📍
+COIN: $LINK/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 12✅
+Target 2: 12.3✅
+Target 3: 12.8✅
+Target 4: 13.5✅
+
+🔥132.55% Profit (5x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,LINKUSDT,,,,0.82,,,,,False,0,,,,0,2017,signal,single,2017,1,,,,,,,,,,,,,,132.55,5,,0,0,0,
+1904,PARSED,,"[trader#3] 📍SIGNAL ID: #2026📍
+COIN: $XRP/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY:  1.996 - 2.032
+
+TARGETS: 2.064 - 2.1 - 2.2 - 2.35 - 2.45 - 2.60
+
+STOP LOSS: 1.9623
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=2.064 | 2.1 | 2.2 | 2.35 | 2.45 | 2.6),,,XRPUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:1.996 | RANGE_HIGH:LIMIT:2.032,1.9623,2.064 | 2.1 | 2.2 | 2.35 | 2.45 | 2.6,6,2026,signal,single,2026,1,,,,,,,,,,,,,,,,,0,0,0,
+1899,PARSED,,"[trader#3] 📍SIGNAL ID: #2025📍
+COIN: $CRV/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 0.386✅
+Target 2: 0.393✅
+
+🔥34.8% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,CRVUSDT,,,,0.82,,,,,False,0,,,,0,2025,signal,single,2025,1,,,,,,,,,,,,,,34.8,5,,0,0,0,
+1896,PARSED,,"[trader#3] 📍SIGNAL ID: #2025📍
+COIN: $CRV/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 0.386✅
+Target 2: 0.393✅
+Target 3: 0.40✅
+
+🔥35.3% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,CRVUSDT,,,,0.82,,,,,False,0,,,,0,2025,signal,single,2025,1,,,,,,,,,,,,,,35.3,5,,0,0,0,
+1895,PARSED,,"[trader#3] 📍SIGNAL ID: #2026📍
+COIN: $XRP/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 2.064✅
+Target 2: 2.1✅
+
+🔥23.45% Profit (5x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,XRPUSDT,,,,0.82,,,,,False,0,,,,0,2026,signal,single,2026,1,,,,,,,,,,,,,,23.45,5,,0,0,0,
+1876,PARSED,,"[trader#3] 📍SIGNAL ID: #2023📍
+COIN: $TRX/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 0.283✅
+Target 2: 0.288✅
+
+🔥21.45% Profit (5x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,TRXUSDT,,,,0.82,,,,,False,0,,,,0,2023,signal,single,2023,1,,,,,,,,,,,,,,21.45,5,,0,0,0,
+1874,PARSED,,"[trader#3] 📍SIGNAL ID: #2022📍
+COIN: $ETH/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 2780✅
+Target 2: 2850✅
+Target 3: 2950✅
+Target 4: 3150✅
+Target 5: 3300✅
+
+🔥106.9% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,ETHUSDT,,,,0.82,,,,,False,0,,,,0,2022,signal,single,2022,1,,,,,,,,,,,,,,106.9,5,,0,0,0,
+1873,PARSED,,"[trader#3] 📍SIGNAL ID: #2016📍
+COIN: $SOL/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 129.5✅
+Target 2: 132✅
+Target 3: 139✅
+
+🔥94.85% Profit (5x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,SOLUSDT,,,,0.82,,,,,False,0,,,,0,2016,signal,single,2016,1,,,,,,,,,,,,,,94.85,5,,0,0,0,
+1867,PARSED,,"[trader#3] 📍SIGNAL ID: #2027📍
+COIN: $JUP/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.2244 - 0.2318
+
+TARGETS: 0.235 - 0.238 - 0.243 - 0.252 - 0.26 - 0.28 - 0.30
+
+STOP LOSS: 0.2211
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.235 | 0.238 | 0.243 | 0.252 | 0.26 | 0.28 | 0.3),,,JUPUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.2244 | RANGE_HIGH:LIMIT:0.2318,0.2211,0.235 | 0.238 | 0.243 | 0.252 | 0.26 | 0.28 | 0.3,7,2027,signal,single,2027,1,,,,,,,,,,,,,,,,,0,0,0,
+1866,PARSED,,"[trader#3] 📍SIGNAL ID: #2025📍
+COIN: $CRV/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 0.386✅
+Target 2: 0.393✅
+Target 3: 0.40✅
+Target 4: 0.42✅
+
+🔥71.4% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,CRVUSDT,,,,0.82,,,,,False,0,,,,0,2025,signal,single,2025,1,,,,,,,,,,,,,,71.4,5,,0,0,0,
+1857,PARSED,,"[trader#3] 📍SIGNAL ID: #2028📍
+COIN: $IMX/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.27 - 0.2747
+
+TARGETS: 0.279 - 0.29 - 0.30 - 0.315 - 0.33 - 0.36
+
+STOP LOSS: 0.2665
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.279 | 0.29 | 0.3 | 0.315 | 0.33 | 0.36),,,IMXUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.27 | RANGE_HIGH:LIMIT:0.2747,0.2665,0.279 | 0.29 | 0.3 | 0.315 | 0.33 | 0.36,6,2028,signal,single,2028,1,,,,,,,,,,,,,,,,,0,0,0,
+1856,PARSED,,"[trader#3] 📍SIGNAL ID: #2027📍
+COIN: $JUP/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 0.235✅
+Target 2: 0.238✅
+
+🔥25.1% Profit (5x)🔥
+
+Closed at SL after hitting 2 targets.
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,JUPUSDT,,,,0.82,,,,,False,0,,,,0,2027,signal,single,2027,1,,,,,,,,,,,,,,25.1,5,,0,0,0,
+1855,PARSED,,"[trader#3] 📍SIGNAL ID: #2022📍
+COIN: $ETH/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 2780✅
+Target 2: 2850✅
+Target 3: 2950✅
+Target 4: 3150✅
+Target 5: 3300✅
+
+🔥132.9% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,ETHUSDT,,,,0.82,,,,,False,0,,,,0,2022,signal,single,2022,1,,,,,,,,,,,,,,132.9,5,,0,0,0,
+1852,PARSED,,"[trader#3] 📍SIGNAL ID: #2028📍
+COIN: $IMX/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 0.279✅
+
+🔥31.95% Profit (5x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,IMXUSDT,,,,0.82,,,,,False,0,,,,0,2028,signal,single,2028,1,,,,,,,,,,,,,,31.95,5,,0,0,0,
+1851,PARSED,,"[trader#3] 📍SIGNAL ID: #2026📍
+COIN: $XRP/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 2.064✅
+Target 2: 2.1✅
+
+🔥40.1% Profit (5x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,XRPUSDT,,,,0.82,,,,,False,0,,,,0,2026,signal,single,2026,1,,,,,,,,,,,,,,40.1,5,,0,0,0,
+1849,PARSED,,"[trader#3] 📍SIGNAL ID: #2017📍
+COIN: $LINK/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 12✅
+Target 2: 12.3✅
+Target 3: 12.8✅
+Target 4: 13.5✅
+Target 5: 15✅
+
+🔥137.2% Profit (5x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,LINKUSDT,,,,0.82,,,,,False,0,,,,0,2017,signal,single,2017,1,,,,,,,,,,,,,,137.2,5,,0,0,0,
+1847,PARSED,,"[trader#3] 📍SIGNAL ID: #2029📍
+COIN: $ENA/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.2422 - 0.247
+
+TARGETS: 0.251 - 0.256 - 0.265 - 0.280 - 0.2934
+
+STOP LOSS: 0.239
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.251 | 0.256 | 0.265 | 0.28 | 0.2934),,,ENAUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.2422 | RANGE_HIGH:LIMIT:0.247,0.239,0.251 | 0.256 | 0.265 | 0.28 | 0.2934,5,2029,signal,single,2029,1,,,,,,,,,,,,,,,,,0,0,0,
+1844,PARSED,,"[trader#3] 📍SIGNAL ID: #2029📍
+COIN: $ENA/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 0.251✅
+
+🔥14% Profit (5x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,ENAUSDT,,,,0.82,,,,,False,0,,,,0,2029,signal,single,2029,1,,,,,,,,,,,,,,14,5,,0,0,0,
+1838,PARSED,,"[trader#3] 📍SIGNAL ID: #2030📍
+COIN: $DOGE/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+ENTRY: 0.13362 - 0.13651
+
+TARGETS: 0.139 - 0.142 - 0.147 - 0.155 - 0.165 - 0.186
+
+STOP LOSS: 0.13128
+➖➖➖➖➖➖➖
+This message cannot be forwarded or replicated",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.139 | 0.142 | 0.147 | 0.155 | 0.165 | 0.186),,,DOGEUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.13362 | RANGE_HIGH:LIMIT:0.13651,0.13128,0.139 | 0.142 | 0.147 | 0.155 | 0.165 | 0.186,6,2030,signal,single,2030,1,,,,,,,,,,,,,,,,,0,0,0,
+1819,PARSED,,"[trader#3] 📍SIGNAL ID: #2031📍
+COIN: $XRP/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+ENTRY: 1.88 - 1.913
+
+TARGETS: 1.94 - 1.98 - 2 - 2.1 - 2.32
+
+STOP LOSS: 1.86
+➖➖➖➖➖➖➖
+This message cannot be forwarded or replicated",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=1.94 | 1.98 | 2 | 2.1 | 2.32),,,XRPUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:1.88 | RANGE_HIGH:LIMIT:1.913,1.86,1.94 | 1.98 | 2 | 2.1 | 2.32,5,2031,signal,single,2031,1,,,,,,,,,,,,,,,,,0,0,0,
+1803,PARSED,,"[trader#3] 📍SIGNAL ID: #2031📍
+COIN: $XRP/USDT (2-5X)
+Direction: LONG
+➖➖➖➖➖➖➖
+Unfortunately, it broke down the reversal zone as market is very volatile.
+
+STOP LOSS: 1.86
+
+🚫3.85% Loss (2x)🚫
+
+➖➖➖➖➖➖➖",,,U_STOP_HIT,U_STOP_HIT,REPORT_LOSS,REPORT_LOSS,,,XRPUSDT,,,,0.82,,,,,False,0,,,,0,2031,signal,single,2031,1,,,,,,,,,,,,,,,2,,0,0,0,
+1783,PARSED,,"[trader#3] 📍SIGNAL ID: #2032📍
+COIN: $LTC/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+ENTRY:  74.63 - 76.2
+
+TARGETS: 77.2 - 78.5 - 82 - 88 - 100 - 113
+
+STOP LOSS: 73.05
+➖➖➖➖➖➖➖
+This message cannot be forwarded or replicated",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=77.2 | 78.5 | 82 | 88 | 100 | 113),,,LTCUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:74.63 | RANGE_HIGH:LIMIT:76.2,73.05,77.2 | 78.5 | 82 | 88 | 100 | 113,6,2032,signal,single,2032,1,,,,,,,,,,,,,,,,,0,0,0,
+1772,PARSED,,"[trader#3] 📍SIGNAL ID: #2032📍
+COIN: $LTC/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 77.2✅
+Target 2: 78.5✅
+
+🔥20.04% Profit (5x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,LTCUSDT,,,,0.82,,,,,False,0,,,,0,2032,signal,single,2032,1,,,,,,,,,,,,,,20.04,5,,0,0,0,
+1751,PARSED,,"[trader#3] 📍SIGNAL ID: #2033📍
+COIN: $SUI/USDT (2-5x)
+Direction: SHORT
+➖➖➖➖➖➖➖
+ENTRY: 1.4675 - 1.43
+
+TARGETS: 1.4072 - 1.38 - 1.34 - 1.29 - 1.22
+
+STOP LOSS: 1.4954
+➖➖➖➖➖➖➖
+This message cannot be forwarded or replicated",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=SHORT; take_profits=1.4072 | 1.38 | 1.34 | 1.29 | 1.22),,,SUIUSDT,SHORT,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:1.4675 | RANGE_HIGH:LIMIT:1.43,1.4954,1.4072 | 1.38 | 1.34 | 1.29 | 1.22,5,2033,signal,single,2033,1,,,,,,,,,,,,,,,,,0,0,0,
+1749,PARSED,,"[trader#3] 📍SIGNAL ID: #2034📍
+COIN: $ENA/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+ENTRY: 0.196 - 0.203
+
+TARGETS: 0.206 - 0.21 - 0.22 - 0.23 - 0.245 - 0.264
+
+STOP LOSS: 0.1903
+➖➖➖➖➖➖➖
+This message cannot be forwarded or replicated",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.206 | 0.21 | 0.22 | 0.23 | 0.245 | 0.264),,,ENAUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.196 | RANGE_HIGH:LIMIT:0.203,0.1903,0.206 | 0.21 | 0.22 | 0.23 | 0.245 | 0.264,6,2034,signal,single,2034,1,,,,,,,,,,,,,,,,,0,0,0,
+1744,PARSED,,"[trader#3] 📍SIGNAL ID: #2034📍
+COIN: $ENA/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 0.206✅
+Target 2: 0.21✅
+
+🔥19% Profit (5x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,ENAUSDT,,,,0.82,,,,,False,0,,,,0,2034,signal,single,2034,1,,,,,,,,,,,,,,19,5,,0,0,0,
+1697,PARSED,,"[trader#3] 📍SIGNAL ID: #2034📍
+COIN: $ENA/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 0.206✅
+Target 2: 0.21✅
+
+🔥35% Profit (5x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,ENAUSDT,,,,0.82,,,,,False,0,,,,0,2034,signal,single,2034,1,,,,,,,,,,,,,,35,5,,0,0,0,
+1695,PARSED,,"[trader#3] 📍SIGNAL ID: #2035📍
+COIN: $LTC/USDT (2-5x)
+Direction: SHORT
+➖➖➖➖➖➖➖
+Facing horizontal and the EMA 200 resistance. Risky scalp take it with low leverage.
+
+ENTRY: 79.3 - 77.73
+
+TARGETS: 76.5 - 75 - 73 - 70 - 67
+
+STOP LOSS: 80.46
+➖➖➖➖➖➖➖
+This message cannot be forwarded or replicated",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=SHORT; take_profits=76.5 | 75 | 73 | 70 | 67),,,LTCUSDT,SHORT,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:79.3 | RANGE_HIGH:LIMIT:77.73,80.46,76.5 | 75 | 73 | 70 | 67,5,2035,signal,single,2035,1,,,,,,,,,,,,,,,,,0,0,0,
+1674,PARSED,,"[trader#3] 📍SIGNAL ID: #2036📍
+COIN: $IMX/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.218 - 0.223
+
+TARGETS: 0.2266 - 0.23 - 0.24 - 0.26 - 0.28 - 0.31
+
+STOP LOSS: 0.2134
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.2266 | 0.23 | 0.24 | 0.26 | 0.28 | 0.31),,,IMXUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.218 | RANGE_HIGH:LIMIT:0.223,0.2134,0.2266 | 0.23 | 0.24 | 0.26 | 0.28 | 0.31,6,2036,signal,single,2036,1,,,,,,,,,,,,,,,,,0,0,0,
+1668,PARSED,,"[trader#3] 📍SIGNAL ID: #2036📍
+COIN: $IMX/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 0.2266✅
+
+🔥21.5% Profit (5x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,IMXUSDT,,,,0.82,,,,,False,0,,,,0,2036,signal,single,2036,1,,,,,,,,,,,,,,21.5,5,,0,0,0,
+1663,PARSED,,"[trader#3] 📍SIGNAL ID: #2036📍
+COIN: $IMX/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 0.2266✅
+Target 2: 0.23✅
+
+🔥35.85% Profit (5x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,IMXUSDT,,,,0.82,,,,,False,0,,,,0,2036,signal,single,2036,1,,,,,,,,,,,,,,35.85,5,,0,0,0,
+1659,PARSED,,"[trader#3] 📍SIGNAL ID: #2037 📍
+COIN: $WLD/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.4735 - 0.4750
+
+TARGETS: 0.49 - 0.51 - 0.535 - 0.56 - 0.58 - 0.61 - 0 .65  
+
+STOP LOSS: 0.46
+➖➖➖➖➖➖➖  
+This message cannot be forwarded or replicated",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.49 | 0.51 | 0.535 | 0.56 | 0.58 | 0.61 | 0 | 65),,,WLDUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.4735 | RANGE_HIGH:LIMIT:0.475,0.46,0.49 | 0.51 | 0.535 | 0.56 | 0.58 | 0.61 | 0 | 65,8,2037,signal,single,2037,1,,,,,,,,,,,,,,,,,0,0,0,
+1654,PARSED,,"[trader#3] 📍SIGNAL ID: #2036📍
+COIN: $IMX/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 0.2266✅
+Target 2: 0.23✅
+Target 3: 0.24✅
+
+🔥48.1% Profit (5x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,IMXUSDT,,,,0.82,,,,,False,0,,,,0,2036,signal,single,2036,1,,,,,,,,,,,,,,48.1,5,,0,0,0,
+1650,PARSED,,"[trader#3] 📍SIGNAL ID: #2038📍
+COIN: $ADA/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.3470 - 0.3480
+
+TARGETS: 0.35 - 0.352 - 0.355 - 0.36 - 0.37 - 0.38 - 0.40  
+
+STOP LOSS: 0.3430
+➖➖➖➖➖➖➖  
+This message cannot be forwarded or replicated",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.35 | 0.352 | 0.355 | 0.36 | 0.37 | 0.38 | 0.4),,,ADAUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.347 | RANGE_HIGH:LIMIT:0.348,0.343,0.35 | 0.352 | 0.355 | 0.36 | 0.37 | 0.38 | 0.4,7,2038,signal,single,2038,1,,,,,,,,,,,,,,,,,0,0,0,
+1642,PARSED,,"[trader#3] 📍SIGNAL ID: #2039📍
+COIN: $ARB/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+Breakout the triangle after a good consolidation.
+
+ENTRY: 0.1877 - 0.1913
+
+TARGETS: 0.1942 - 0.198 - 0.205 - 0.22 - 0.23
+
+STOP LOSS: 0.1854
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.1942 | 0.198 | 0.205 | 0.22 | 0.23),,,ARBUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.1877 | RANGE_HIGH:LIMIT:0.1913,0.1854,0.1942 | 0.198 | 0.205 | 0.22 | 0.23,5,2039,signal,single,2039,1,,,,,,,,,,,,,,,,,0,0,0,
+1640,PARSED,,"[trader#3] 📍SIGNAL ID: #2039📍
+COIN: $ARB/USDT (2-5X)
+Direction: LONG
+➖➖➖➖➖➖➖
+It grabbed liquidity by doing a fake out.
+
+STOP LOSS: 0.1854
+
+🚫4.37% Loss (2x)🚫
+
+➖➖➖➖➖➖➖",,,U_STOP_HIT,U_STOP_HIT,REPORT_LOSS,REPORT_LOSS,,,ARBUSDT,,,,0.82,,,,,False,0,,,,0,2039,signal,single,2039,1,,,,,,,,,,,,,,,2,,0,0,0,
+1633,PARSED,,"[trader#3] 📍SIGNAL ID: #2040📍
+COIN: $XLM/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+Key reaction zone.
+
+ENTRY: 0.2100 - 0.2110
+
+TARGETS: 0.2130 - 0.2160 - 0.2200 - 0.2260 - 0.2325 - 0.2400
+
+STOP LOSS: 0.2060
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.213 | 0.216 | 0.22 | 0.226 | 0.2325 | 0.24),,,XLMUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.21 | RANGE_HIGH:LIMIT:0.211,0.206,0.213 | 0.216 | 0.22 | 0.226 | 0.2325 | 0.24,6,2040,signal,single,2040,1,,,,,,,,,,,,,,,,,0,0,0,
+1614,PARSED,,"[trader#3] 📍SIGNAL ID: #2036📍
+COIN: $IMX/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 0.2266✅
+Target 2: 0.23✅
+Target 3: 0.24✅
+
+🔥56.34% Profit (5x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,IMXUSDT,,,,0.82,,,,,False,0,,,,0,2036,signal,single,2036,1,,,,,,,,,,,,,,56.34,5,,0,0,0,
+1613,PARSED,,"[trader#3] 📍SIGNAL ID: #2041📍
+COIN: $DOT/USDT (2-5x)  
+Direction: SHORT
+➖➖➖➖➖➖➖  
+Getting rejected from the S/R level.
+
+ENTRY: 1.94 - 1.887
+
+TARGETS: 1.86 - 1.83 - 1.80 - 1.75 - 1.70 - 1.54
+
+STOP LOSS: 1.983
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=SHORT; take_profits=1.86 | 1.83 | 1.8 | 1.75 | 1.7 | 1.54),,,DOTUSDT,SHORT,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:1.94 | RANGE_HIGH:LIMIT:1.887,1.983,1.86 | 1.83 | 1.8 | 1.75 | 1.7 | 1.54,6,2041,signal,single,2041,1,,,,,,,,,,,,,,,,,0,0,0,
+1597,PARSED,,"[trader#3] 📍SIGNAL ID: #2041📍
+COIN: $DOT/USDT (2-5x)
+Direction: SHORT
+➖➖➖➖➖➖➖
+Target 1: 1.86✅
+Target 2: 1.83✅
+
+🔥17.15% Profit (5x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,DOTUSDT,,,,0.82,,,,,False,0,,,,0,2041,signal,single,2041,1,,,,,,,,,,,,,,17.15,5,,0,0,0,
+1594,PARSED,,"[trader#3] 📍SIGNAL ID: #2042📍
+COIN: $AVAX/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 12.3 - 12.71
+
+TARGETS: 12.9 - 13.1 - 13.5 - 14 - 15 - 16
+
+STOP LOSS: 12.109
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=12.9 | 13.1 | 13.5 | 14 | 15 | 16),,,AVAXUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:12.3 | RANGE_HIGH:LIMIT:12.71,12.109,12.9 | 13.1 | 13.5 | 14 | 15 | 16,6,2042,signal,single,2042,1,,,,,,,,,,,,,,,,,0,0,0,
+1591,PARSED,,"[trader#3] 📍SIGNAL ID: #2034📍
+COIN: $ENA/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 0.206✅
+Target 2: 0.21✅
+
+🔥65.85% Profit (5x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,ENAUSDT,,,,0.82,,,,,False,0,,,,0,2034,signal,single,2034,1,,,,,,,,,,,,,,65.85,5,,0,0,0,
+1585,PARSED,,"[trader#3] 📍SIGNAL ID: #2041📍
+COIN: $DOT/USDT (2-5x)
+Direction: SHORT
+➖➖➖➖➖➖➖
+Target 1: 1.86✅
+Target 2: 1.83✅
+Target 3: 1.80✅
+
+🔥29.43% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,DOTUSDT,,,,0.82,,,,,False,0,,,,0,2041,signal,single,2041,1,,,,,,,,,,,,,,29.43,5,,0,0,0,
+1584,PARSED,,"Всем привет, это #админ ! 👋
+
+Декабрь пролетел, год заканчивается - время подводить черту, собирать камни и смотреть правде в...калькулятор. 😉
+Сразу предупреждаю: пассажей об итогах года в духе «мы смогли», «мы выросли», «мы осознали» здесь не будет.
+Мы трейдеры, скучные люди - видим мир в числах и циферках. 
+Так что надевайте очки, представляйте себя Нео и давайте надаем по щщам агенту Смиту разберёмся, что там наторговали трейдеры #1, #2, #3 и A, B, C. 😎
+────────────────────────────
+Часть 1. Зарубежные сигнальные каналы (TRADER#1 / #2 / #3)
+🔥Важно🔥 (дисклеймер для всех)
+Сигналы TRADER#1-#3 берутся со сторонних ресурсов и почти не сопровождаются авторами. 
+Обычно там нет:
+- объёма на сделку
+- распределения по тейкам
+- своевременных уведомлений о переводе в БУ
+- иногда и адекватного риск-менеджмента (зато есть широкие плечи и красивые “+200%”🤪)
+
+Поэтому результаты ниже посчитаны по нашей модели:
+- риск фиксированный: 1% депозита на сделку
+- фиксация по тейкам равными долями
+- результат считаем в % к депозиту, а не “по плечу”
+
+В другом режиме (агрессивный объём/плечо) цифры могут выглядеть красивее, но и риск потерь становится несопоставимо выше.
+
+Итог по “цифровым” трейдерам на момент 30.12 00:00:
+TRADER#1: +1.385% (10 сделок)
+TRADER#2: +1.595% (22 сделки)
+TRADER#3: +2.41% (20 сделок)
+Суммарно TRADER#1-#3: +5.39% по модели 1% риск + равные тейки
+
+Если у вас вышло больше - супер! Мы реально рады. 👍
+Но важно понимать: эти сигналы дают идею и уровни, а вот самого главного не дают:
+сколько денег выделить на сделку и как распределить фиксацию по тейкам.
+Для новичков это всё равно что получить маршрут без указания скорости и тормозов.
+Используйте с умом!
+
+Ну и коротко по каждому:
+TRADER#1
+10 сделок: стабильный умеренный плюс, часть сделок с частичной фиксацией и переводом в БУ (а они не всегда это пишут😏).
+
+TRADER#2
+22 сделки: высокая активность, много сделок в работе, были серии стопов(мы в команде называем их ""хлопки"" или ""отрицательный профит""😂), но отдельные сильные выстрелы (например AXL +3.15%) компенсируют.
+
+TRADER#3
+20 сделок: самый высокий итоговый результат среди “цифровых”. 
+При этом есть показательные минуса с завышенным RR и короткими стопами - типичная проблема сторонних сигналов без сопровождения.
+
+Вывод простой: 
+сетапы у TRADER#1-#3 часто годные, иногда даже очень.
+Но когда сигнал заканчивается на слове “Entry” - дальше начинается народное творчество: 
+кто-то фиксирует, кто-то не фиксирует, кто-то вообще забывает, что в позиции.🤦‍♂️
+В 2026 будем решать, что делать с этими тремя, потому что по уровню внимания и сопровождения они заметно проигрывают нашим трейдерам.
+А сопровождение - это не “сервис”, это часть прибыли. 😌
+Переходим к позитивной части и это...",,,,,,,,,,,,,0.25,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1580,PARSED,,"[trader#3] 📍SIGNAL ID: #2037  📍
+COIN: $WLD/USDT (3-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.49✅
+
+🔥15.8% Profit (5x)🔥
+
+Our VIPs know exactly what to do to maximize profits. Book your seat now and never miss another move!
+Message: t.me/BKCEO
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,WLDUSDT,,,,0.82,,,,,False,0,,,,0,2037,signal,single,2037,1,,,,,,,,,,,,,,15.8,5,,0,0,0,
+1579,PARSED,,[trader#3] $ICP 🔥,,,,,,,,,,,,,0.25,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1578,PARSED,,"[trader#3] 📍SIGNAL ID: #2037  📍
+COIN: $WLD/USDT (3-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.49✅
+Target 2: 0.51✅
+
+🔥36.8% Profit (5x)🔥
+
+Our VIPs know exactly what to do to maximize profits. Book your seat now and never miss another move!
+Message: t.me/BKCEO
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,WLDUSDT,,,,0.82,,,,,False,0,,,,0,2037,signal,single,2037,1,,,,,,,,,,,,,,36.8,5,,0,0,0,
+1573,PARSED,,"[trader#3] 📍SIGNAL ID: #2042📍
+COIN: $AVAX/USDT (2-5x)
+Direction: LONG📈
+➖➖➖➖➖➖➖
+Target 1: 12.9✅
+Target 2: 13.1✅
+Target 3: 13.5✅
+
+🔥52.7% Profit (5x)🔥
+
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,AVAXUSDT,,,,0.82,,,,,False,0,,,,0,2042,signal,single,2042,1,,,,,,,,,,,,,,52.7,5,,0,0,0,
+1569,PARSED,,"[trader#3] 📍SIGNAL ID: #2037  📍
+COIN: $WLD/USDT (3-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.49✅
+Target 2: 0.51✅
+Target 3: 0.535✅
+
+🔥63.1% Profit (5x)🔥
+
+Our VIPs know exactly what to do to maximize profits. Book your seat now and never miss another move!",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,WLDUSDT,,,,0.82,,,,,False,0,,,,0,2037,signal,single,2037,1,,,,,,,,,,,,,,63.1,5,,0,0,0,
+1568,PARSED,1329,"Что то как стоп так он молчит, а тут смайликов аж на книгу хватит
+
+Одного меня бесят эти зарубежные сигнальщики?",,,,,,,,,,,,,0.25,,,,,False,0,,,,0,1329,signal,single,1329,1,,,,,,,,,,,,,,,,,0,0,0,
+1555,PARSED,,"[trader#3] 📍SIGNAL ID: #2037  📍
+COIN: $WLD/USDT (3-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.49✅
+Target 2: 0.51✅
+Target 3: 0.535✅
+Target 4: 0.56✅
+
+🔥89.5% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,WLDUSDT,,,,0.82,,,,,False,0,,,,0,2037,signal,single,2037,1,,,,,,,,,,,,,,89.5,5,,0,0,0,
+1553,PARSED,,"[trader#3] 📍SIGNAL ID: #2037  📍
+COIN: $WLD/USDT (3-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.49✅
+Target 2: 0.51✅
+Target 3: 0.535✅
+Target 4: 0.56✅
+Target 5: 0.58✅
+
+🔥110.5% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,WLDUSDT,,,,0.82,,,,,False,0,,,,0,2037,signal,single,2037,1,,,,,,,,,,,,,,110.5,5,,0,0,0,
+1544,PARSED,,"[trader#3] 📍SIGNAL ID: #2043📍
+COIN: $LTC/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 80 - 80.20
+
+TARGETS: 84 - 89 - 95 - 102 - 108 - 115
+
+STOP LOSS: 75
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=84 | 89 | 95 | 102 | 108 | 115),,,LTCUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:80 | RANGE_HIGH:LIMIT:80.2,75,84 | 89 | 95 | 102 | 108 | 115,6,2043,signal,single,2043,1,,,,,,,,,,,,,,,,,0,0,0,
+1532,PARSED,,"[trader#3] 📍SIGNAL ID: #2044📍
+COIN: $XLM/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.2280 - 0.23
+
+TARGETS: 0.235 - 0.245 - 0.26 - 0.28 - 0.30 - 0.32 - 0.34
+
+STOP LOSS: 0.22
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.235 | 0.245 | 0.26 | 0.28 | 0.3 | 0.32 | 0.34),,,XLMUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.228 | RANGE_HIGH:LIMIT:0.23,0.22,0.235 | 0.245 | 0.26 | 0.28 | 0.3 | 0.32 | 0.34,7,2044,signal,single,2044,1,,,,,,,,,,,,,,,,,0,0,0,
+1531,PARSED,,"[trader#3] 📍SIGNAL ID: #2044📍
+COIN: $XLM/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+Orders set at the 0.228 - 0.23 key level, expecting a short term retest before heading up to our targets. 
+
+Invalidation below 0.22
+➖➖➖➖➖➖➖",,,,,,,,,XLMUSDT,,,,0.25,,,,,False,0,,,,0,2044,signal,single,2044,1,,,,,,,,,,,,,,,,,0,0,0,
+1530,PARSED,,"[trader#3] 📍SIGNAL ID: #2045📍
+COIN: $UNI/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 5.58 - 5.605
+
+TARGETS: 5.75 - 6.00 - 6.50 - 7.00 - 7.50 - 8.00
+
+STOP LOSS: 5.30
+
+Previous resistance is now acting as support.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=5.75 | 6 | 6.5 | 7 | 7.5 | 8),,,UNIUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:5.58 | RANGE_HIGH:LIMIT:5.605,5.3,5.75 | 6 | 6.5 | 7 | 7.5 | 8,6,2045,signal,single,2045,1,,,,,,,,,,,,,,,,,0,0,0,
+1529,PARSED,,"[trader#3] 📍SIGNAL ID: #2044 📍
+COIN: $XLM/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.235✅
+
+🔥10.9% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,XLMUSDT,,,,0.82,,,,,False,0,,,,0,2044,signal,single,2044,1,,,,,,,,,,,,,,10.9,5,,0,0,0,
+1526,PARSED,,"[trader#3] 📍SIGNAL ID: #2044 📍
+COIN: $XLM/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.235✅
+
+🔥10.9% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,XLMUSDT,,,,0.82,,,,,False,0,,,,0,2044,signal,single,2044,1,,,,,,,,,,,,,,10.9,5,,0,0,0,
+1522,PARSED,,"Друзья, #админ на связи 👋
+
+Итоги голосования подведены.
+Победил [trader#3] - ему пока с нами по пути. 👌
+А остальных двух мы…высадили на трассе где-то между Ликвидашево и Многоплечинском (не дай вам Бог, посетить эти мрачные местечки)👹
+ 
+Да! Мне тут уже начали писать в личку вопросы в духе:
+«А почему вы так не любите западных трейдеров?»
+Чтобы окончательно закрыть тему:
+нам вообще всё-равно, где находится трейдер - в США, Европе или на Кирибати! 🤷‍♂️
+Мы смотрим только на две вещи:
+1) эффективность сигналов
+2) удобство работы для подписчиков
+
+Поэтому если трейдер работает из Европы и любит другого трейдера - это его личное дело. 😂
+Мы оцениваем PnL и сопровождение. Всё остальное - просто наши шутки.
+Если кого-то задело - сорри, не со зла, без негатива 😄
+
+Ещё напоминание: вся работа команды и все сигналы - полностью бесплатны для вас.
+И мы не только собираемся продолжать в том же духе, но и будем улучшать канал, вводить платные подписки, донаты. 😆
+Сейчас, например, тестируем новую систему автоматического сбора статистики - чтоб ну совсем прозрачно. 🫥
+Плюс, отдельно будем выпускать посты с обновлениями правил работы с сигналами каждого трейдера:
+Куда, Как и в Какие фазы луны лучше торговать TON, напимер…
+(поверьте, там у CEO фляга посвистывает - он и не такое внутрь проекта закладывал…😂)
+
+Теперь ещё пару слов про зарубежных трейдеров!
+Набор новых зарубежных источников мы пока ставим на стоп.
+Потому что большинство каналов имеют те же болячки, что и trader#1 и #2:
+А некоторые и вовсе… как trader#4 (мир его праху).
+Но если найдём «бриллиант» - не переживайте, сразу сообщим и добавим.👌
+А пока работаем с нашей командой.
+И, кстати…",,,,,,,,,,,,,0.25,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1520,PARSED,,"[trader#3] 📍SIGNAL ID: #2037  📍
+COIN: $WLD/USDT (3-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.49✅
+Target 2: 0.51✅
+Target 3: 0.535✅
+Target 4: 0.56✅
+Target 5: 0.58✅
+Target 6: 0.61✅
+
+🔥142.1% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,WLDUSDT,,,,0.82,,,,,False,0,,,,0,2037,signal,single,2037,1,,,,,,,,,,,,,,142.1,5,,0,0,0,
+1517,PARSED,,"[trader#3] 📍SIGNAL ID: #2046 📍
+COIN: $ZEC/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 470 - 480
+
+TARGETS: 500 - 530 - 570 - 625 - 680 - 750   
+
+STOP LOSS: 440
+
+Multiple resistance zones and a rising trend line from the lows.
+➖➖➖➖➖➖➖  
+This message cannot be forwarded or replicated",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=500 | 530 | 570 | 625 | 680 | 750),,,ZECUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:470 | RANGE_HIGH:LIMIT:480,440,500 | 530 | 570 | 625 | 680 | 750,6,2046,signal,single,2046,1,,,,,,,,,,,,,,,,,0,0,0,
+1510,PARSED,,"[trader#3] 📍SIGNAL ID: #2037  📍
+COIN: $WLD/USDT (3-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.49✅
+Target 2: 0.51✅
+Target 3: 0.535✅
+Target 4: 0.56✅
+Target 5: 0.58✅
+Target 6: 0.61✅
+Target 7: 0.65✅
+
+🔥184.2% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,WLDUSDT,,,,0.82,,,,,False,0,,,,0,2037,signal,single,2037,1,,,,,,,,,,,,,,184.2,5,,0,0,0,
+1508,PARSED,,"[trader#3] 📍SIGNAL ID: #2044 📍
+COIN: $XLM/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.235✅
+Target 2: 0.245✅
+
+🔥32.6% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,XLMUSDT,,,,0.82,,,,,False,0,,,,0,2044,signal,single,2044,1,,,,,,,,,,,,,,32.6,5,,0,0,0,
+1503,PARSED,,"[trader#3] 📍SIGNAL ID: #2047 📍
+COIN: $DOT/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 2.150 - 2.175
+
+TARGETS: 2.250 - 2.350 - 2.500 - 2.650 - 2.800 - 3.000   
+
+STOP LOSS: 2.050
+
+Strong confluence between support zones and order blocks. Buyers defended the area.
+➖➖➖➖➖➖➖  
+This message cannot be forwarded or replicated",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=2.25 | 2.35 | 2.5 | 2.65 | 2.8 | 3),,,DOTUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:2.15 | RANGE_HIGH:LIMIT:2.175,2.05,2.25 | 2.35 | 2.5 | 2.65 | 2.8 | 3,6,2047,signal,single,2047,1,,,,,,,,,,,,,,,,,0,0,0,
+1499,PARSED,,"[trader#3] 📍SIGNAL ID: #2048📍
+COIN: $BCH/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 605 - 610
+
+TARGETS: 625 - 640 - 665 -690 - 720 - 750 
+
+STOP LOSS: 585
+
+Strong confluence between support zones, ascending trend line and order blocks. Buyers defended the area.
+➖➖➖➖➖➖➖  
+This message cannot be forwarded or replicated",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=625 | 640 | 665 | 690 | 720 | 750),,,BCHUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:605 | RANGE_HIGH:LIMIT:610,585,625 | 640 | 665 | 690 | 720 | 750,6,2048,signal,single,2048,1,,,,,,,,,,,,,,,,,0,0,0,
+1498,PARSED,,"[trader#3] 📍SIGNAL ID: #2047  📍
+COIN: $DOT/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 2.250✅
+
+🔥20.8% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,DOTUSDT,,,,0.82,,,,,False,0,,,,0,2047,signal,single,2047,1,,,,,,,,,,,,,,20.8,5,,0,0,0,
+1497,PARSED,,"[trader#3] 📍SIGNAL ID: #2049📍
+COIN: $MNT/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 1.01 - 1.02
+
+TARGETS: 1.05 - 1.10 - 1.16 - 1.23 - 1.31 - 1.40 - 1.50 
+
+STOP LOSS: 0.95
+
+Strong confluence between support zones, ascending trend line and order blocks. Buyers defended the area.
+➖➖➖➖➖➖➖  
+This message cannot be forwarded or replicated",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=1.05 | 1.1 | 1.16 | 1.23 | 1.31 | 1.4 | 1.5),,,MNTUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:1.01 | RANGE_HIGH:LIMIT:1.02,0.95,1.05 | 1.1 | 1.16 | 1.23 | 1.31 | 1.4 | 1.5,7,2049,signal,single,2049,1,,,,,,,,,,,,,,,,,0,0,0,
+1474,PARSED,,"[trader#3] 📍SIGNAL ID: #2046📍
+COIN: $ZEC/USDT (2-5X)
+Direction: LONG
+➖➖➖➖➖➖➖
+
+STOP LOSS: 440
+
+🚫15% Loss (2x)🚫
+
+➖➖➖➖➖➖➖",,,U_STOP_HIT,U_STOP_HIT,REPORT_LOSS,REPORT_LOSS,,,ZECUSDT,,,,0.82,,,,,False,0,,,,0,2046,signal,single,2046,1,,,,,,,,,,,,,,,2,,0,0,0,
+1454,PARSED,,"[trader#3] 📍SIGNAL ID: #2050📍
+COIN: $XRP/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 2.04 - 2.05
+
+TARGETS: 2.10 - 2.25 - 2.40 - 2.60 - 2.80 - 3.00 
+
+STOP LOSS: 1.95
+
+Strong confluence between support zones and order blocks.
+➖➖➖➖➖➖➖  
+This message cannot be forwarded or replicated",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=2.1 | 2.25 | 2.4 | 2.6 | 2.8 | 3),,,XRPUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:2.04 | RANGE_HIGH:LIMIT:2.05,1.95,2.1 | 2.25 | 2.4 | 2.6 | 2.8 | 3,6,2050,signal,single,2050,1,,,,,,,,,,,,,,,,,0,0,0,
+1449,PARSED,,"[trader#3] 📍SIGNAL ID: #2051📍
+COIN: $HYPE/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 23.825 - 23.875
+
+TARGETS: 24.5 - 25.75 - 27 - 28.25 - 30 - 32 
+
+STOP LOSS: 22.2
+
+Strong confluence between support zones and order blocks.
+➖➖➖➖➖➖➖  
+This message cannot be forwarded or replicated",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=24.5 | 25.75 | 27 | 28.25 | 30 | 32),,,HYPEUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:23.825 | RANGE_HIGH:LIMIT:23.875,22.2,24.5 | 25.75 | 27 | 28.25 | 30 | 32,6,2051,signal,single,2051,1,,,,,,,,,,,,,,,,,0,0,0,
+1445,PARSED,,"Друзья, #админ на связи 👋
+
+У нас небольшое, но важное обновление по каналу.
+Мы наконец собрали единое руководство по сигналам - как читать, как входить, как фиксировать...чтобы ваш трейдинг не превращался в игру в Сапёра на Windows (лично я долгое время полагал, что эта игра про удачу, а цифры там только для красоты 💣😂)
+
+📌 С этого момента в закрепе будет лежать:
+- правила работы с сигнальным чатом
+- регламенты по каждому трейдеру (A / B / C / D + trader#3)
+- как считаем статистику
+- и базовые ответы на вопросы в духе “кто виноват?”,  “что делать?”, ""если я улыбаюсь в зеркало - это взаимно?"" и.т.д.
+
+Сделано это по одной простой причине:
+сигнал - штука полезная, но если читать его в режиме ""ФРИСТАЙЛО"", то не стоит удивляться, что в итоге получилось ""РАКАМАКАФО"" 😂
+
+⚙️ Руководство будет обновляться по мере необходимости:
+— ежемесячная статистика
+— уточнения по стратегиям и фиксациям
+Короче: закреп — это теперь ваша база и необходимый минимум. 
+Поэтому чтобы не писать потом админу: “я тут что-то нажал(а) и всё исчезло!” - загляните туда, там много полезного 👀
+#админ",,,,,,,,,,,,,0.25,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1442,PARSED,,"[trader#3] 📍SIGNAL ID: #2051  📍
+COIN: $HYPE/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 24.5✅
+
+🔥13% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,HYPEUSDT,,,,0.82,,,,,False,0,,,,0,2051,signal,single,2051,1,,,,,,,,,,,,,,13,5,,0,0,0,
+1438,PARSED,,"[trader#3] 📍SIGNAL ID: #2050  📍
+COIN: $XRP/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 2.10✅
+
+🔥12.2% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,XRPUSDT,,,,0.82,,,,,False,0,,,,0,2050,signal,single,2050,1,,,,,,,,,,,,,,12.2,5,,0,0,0,
+1437,PARSED,,"[trader#3] 📍SIGNAL ID: #2050  📍
+COIN: $XRP/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 2.10✅
+
+🔥12.2% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,XRPUSDT,,,,0.82,,,,,False,0,,,,0,2050,signal,single,2050,1,,,,,,,,,,,,,,12.2,5,,0,0,0,
+1430,PARSED,,"[trader#3] 📍SIGNAL ID: #2052📍
+COIN: $DOGE/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.1350 - 0.1355
+
+TARGETS: 0.139 - 0.144 - 0.150 - 0.157 - 0.165 - 0.174 - 0.185  
+
+STOP LOSS: 0.125
+
+Strong confluence between support zones and order blocks.
+➖➖➖➖➖➖➖  
+This message cannot be forwarded or replicated",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.139 | 0.144 | 0.15 | 0.157 | 0.165 | 0.174 | 0.185),,,DOGEUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.135 | RANGE_HIGH:LIMIT:0.1355,0.125,0.139 | 0.144 | 0.15 | 0.157 | 0.165 | 0.174 | 0.185,7,2052,signal,single,2052,1,,,,,,,,,,,,,,,,,0,0,0,
+1414,PARSED,,"[trader#3] 📍SIGNAL ID: #2052  📍
+COIN: $DOGE/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.139✅
+
+🔥12.2% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,DOGEUSDT,,,,0.82,,,,,False,0,,,,0,2052,signal,single,2052,1,,,,,,,,,,,,,,12.2,5,,0,0,0,
+1397,PARSED,,"[trader#3] 🔥GEM SIGNAL: $ZIG🔥
+➖➖➖➖➖➖➖
+Exchanges: ByBit, Bitget, MEXC, Gate
+
+$ZIG has proven to be extremely resilient while the rest of the market dumped, and it has also been in heavy whale accumulation for he last months. 
+
+This is an an easy play, buying a heavy bag here🚀
+
+ENTRY: Below 0.06
+
+TARGETS: 0.062 – 0.064 – 0.067 - 0.070 - 0.075 - 0.081 - 0.090 - 0.117 - 0.144 - 0.182 - OPEN
+
+SL: 0.0528
+➖➖➖➖➖➖➖",,,,,,,,,,,,,0.25,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1376,PARSED,,"[trader#3] 📍SIGNAL ID: #2052  📍
+COIN: $DOGE/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.139✅
+Target 2: 0.144✅
+
+🔥33.3% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,DOGEUSDT,,,,0.82,,,,,False,0,,,,0,2052,signal,single,2052,1,,,,,,,,,,,,,,33.3,5,,0,0,0,
+1368,PARSED,,"[trader#3] 📍SIGNAL ID: #2052  📍
+COIN: $DOGE/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.139✅
+Target 2: 0.144✅
+Target 3: 0.150✅
+
+🔥55.6% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,DOGEUSDT,,,,0.82,,,,,False,0,,,,0,2052,signal,single,2052,1,,,,,,,,,,,,,,55.6,5,,0,0,0,
+1367,PARSED,,"[trader#3] 📍SIGNAL ID: #2051  📍
+COIN: $HYPE/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 24.5✅
+Target 2: 25.75✅
+
+🔥39.8% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,HYPEUSDT,,,,0.82,,,,,False,0,,,,0,2051,signal,single,2051,1,,,,,,,,,,,,,,39.8,5,,0,0,0,
+1354,PARSED,,"[trader#3] 📍SIGNAL ID: #2053📍
+COIN: $AAVE/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 169 - 170
+
+TARGETS: 175 - 180 - 187 - 195 - 205 - 215 - 225
+
+STOP LOSS: 157.5
+
+Strong confluence between support zones.
+➖➖➖➖➖➖➖  
+This message cannot be forwarded or replicated",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=175 | 180 | 187 | 195 | 205 | 215 | 225),,,AAVEUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:169 | RANGE_HIGH:LIMIT:170,157.5,175 | 180 | 187 | 195 | 205 | 215 | 225,7,2053,signal,single,2053,1,,,,,,,,,,,,,,,,,0,0,0,
+1329,PARSED,,"[trader#3] 📍SIGNAL ID: #2048  📍
+COIN: $BCH/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 625✅
+
+🔥12.3% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,BCHUSDT,,,,0.82,,,,,False,0,,,,0,2048,signal,single,2048,1,,,,,,,,,,,,,,12.3,5,,0,0,0,
+1325,PARSED,,"[trader#3] 📍SIGNAL ID: #2054📍
+COIN: $UNI/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 5.3 - 5.325
+
+TARGETS: 5.5 - 5.75 - 6.15 - 6.75 - 7.5 - 8.5
+
+STOP LOSS: 4.85
+
+Multiple support zones plus an order block.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=5.5 | 5.75 | 6.15 | 6.75 | 7.5 | 8.5),,,UNIUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:5.3 | RANGE_HIGH:LIMIT:5.325,4.85,5.5 | 5.75 | 6.15 | 6.75 | 7.5 | 8.5,6,2054,signal,single,2054,1,,,,,,,,,,,,,,,,,0,0,0,
+1313,PARSED,,"[trader#3] 📍SIGNAL ID: #2055📍
+COIN: $ASTER/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.68 - 0.69
+
+TARGETS: 0.71 - 0.75 - 0.80 - 0.86 - 0.93 - 1.00
+
+STOP LOSS: 0.635
+
+Multiple support zones along the entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.71 | 0.75 | 0.8 | 0.86 | 0.93 | 1),,,ASTERUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.68 | RANGE_HIGH:LIMIT:0.69,0.635,0.71 | 0.75 | 0.8 | 0.86 | 0.93 | 1,6,2055,signal,single,2055,1,,,,,,,,,,,,,,,,,0,0,0,
+1286,PARSED,,"[trader#3] 📍SIGNAL ID: #2055 📍
+COIN: $AAVE/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 175✅
+
+🔥14.7% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,AAVEUSDT,,,,0.82,,,,,False,0,,,,0,2055,signal,single,2055,1,,,,,,,,,,,,,,14.7,5,,0,0,0,
+1273,PARSED,,[trader#3] WLDUSDT,,,,,,,,,,,,,0.25,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1267,PARSED,,"[trader#3] 📍SIGNAL ID: #2056📍
+COIN: $WLD/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.520 - 0.525
+
+TARGETS: 0.540 - 0.570 - 0.600 - 0.640 - 0.690 - 0.750
+
+STOP LOSS: 0.480
+
+Multiple support zones along the entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.54 | 0.57 | 0.6 | 0.64 | 0.69 | 0.75),,,WLDUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.52 | RANGE_HIGH:LIMIT:0.525,0.48,0.54 | 0.57 | 0.6 | 0.64 | 0.69 | 0.75,6,2056,signal,single,2056,1,,,,,,,,,,,,,,,,,0,0,0,
+1238,PARSED,,"[trader#3] 📍SIGNAL ID: #2057📍
+COIN: $ADA/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.348 - 0.350
+
+TARGETS: 0.362 - 0.375 - 0.390 - 0.410 - 0.435 - 0.465 - 0.500
+
+STOP LOSS: 0.325
+
+Support zones and a FVG along the entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.362 | 0.375 | 0.39 | 0.41 | 0.435 | 0.465 | 0.5),,,ADAUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.348 | RANGE_HIGH:LIMIT:0.35,0.325,0.362 | 0.375 | 0.39 | 0.41 | 0.435 | 0.465 | 0.5,7,2057,signal,single,2057,1,,,,,,,,,,,,,,,,,0,0,0,
+1237,PARSED,,"[trader#3] 📍SIGNAL ID: #2058📍
+COIN: $LINK/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 12.00 - 12.10
+
+TARGETS: 12.45 - 12.90 - 13.50 - 14.25 - 15.10 - 16.00
+
+STOP LOSS: 11.00
+
+Support zones along the entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=12.45 | 12.9 | 13.5 | 14.25 | 15.1 | 16),,,LINKUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:12 | RANGE_HIGH:LIMIT:12.1,11,12.45 | 12.9 | 13.5 | 14.25 | 15.1 | 16,6,2058,signal,single,2058,1,,,,,,,,,,,,,,,,,0,0,0,
+1219,PARSED,,"[trader#3] 📍SIGNAL ID: #2057 📍
+COIN: $ADA/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.362✅
+
+🔥17.1% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,ADAUSDT,,,,0.82,,,,,False,0,,,,0,2057,signal,single,2057,1,,,,,,,,,,,,,,17.1,5,,0,0,0,
+1218,PARSED,,"[trader#3] 📍SIGNAL ID: #2058 📍
+COIN: $LINK/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 12.45✅
+
+🔥14.5% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,LINKUSDT,,,,0.82,,,,,False,0,,,,0,2058,signal,single,2058,1,,,,,,,,,,,,,,14.5,5,,0,0,0,
+1195,PARSED,,"[trader#3] 📍SIGNAL ID: #2059📍
+COIN: $SUI/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 1.4750 - 1.4800
+
+TARGETS: 1.5400 - 1.6000 - 1.6800 - 1.7700 - 1.8800 - 2.0000 - 2.2500
+
+STOP LOSS: 1.3500
+
+Support zones and a FVG along the entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=1.54 | 1.6 | 1.68 | 1.77 | 1.88 | 2 | 2.25),,,SUIUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:1.475 | RANGE_HIGH:LIMIT:1.48,1.35,1.54 | 1.6 | 1.68 | 1.77 | 1.88 | 2 | 2.25,7,2059,signal,single,2059,1,,,,,,,,,,,,,,,,,0,0,0,
+1183,PARSED,,"[trader#3] 📍SIGNAL ID: #2060📍
+COIN: $POL/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.1240 - 0.1250
+
+TARGETS: 0.1300 - 0.1370 - 0.1450 - 0.1550 - 0.1680 - 0.1840 - 0.2000 
+
+STOP LOSS: 0.1150
+
+High-confluence support zones along the entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.13 | 0.137 | 0.145 | 0.155 | 0.168 | 0.184 | 0.2),,,POLUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.124 | RANGE_HIGH:LIMIT:0.125,0.115,0.13 | 0.137 | 0.145 | 0.155 | 0.168 | 0.184 | 0.2,7,2060,signal,single,2060,1,,,,,,,,,,,,,,,,,0,0,0,
+1171,PARSED,,"[trader#3] 📍SIGNAL ID: #2061📍
+COIN: $WLD/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.4530 - 0.4550
+
+TARGETS: 0.4600 - 0.4800 - 0.5000 - 0.5300 - 0.5600 - 0.6000
+
+STOP LOSS: 0.4300
+
+High-confluence support zones and a FVG along the entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.46 | 0.48 | 0.5 | 0.53 | 0.56 | 0.6),,,WLDUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.453 | RANGE_HIGH:LIMIT:0.455,0.43,0.46 | 0.48 | 0.5 | 0.53 | 0.56 | 0.6,6,2061,signal,single,2061,1,,,,,,,,,,,,,,,,,0,0,0,
+1167,PARSED,,"[trader#3] 📍SIGNAL ID: #2062📍
+COIN: $APT/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 1.510 - 1.520
+
+TARGETS: 1.550 - 1.590 - 1.650 - 1.720 - 1.800 - 1.890 - 2.000
+
+STOP LOSS: 1.420
+
+High-confluence support zones and FVGs along the entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=1.55 | 1.59 | 1.65 | 1.72 | 1.8 | 1.89 | 2),,,APTUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:1.51 | RANGE_HIGH:LIMIT:1.52,1.42,1.55 | 1.59 | 1.65 | 1.72 | 1.8 | 1.89 | 2,7,2062,signal,single,2062,1,,,,,,,,,,,,,,,,,0,0,0,
+1165,PARSED,,"[trader#3] 📍SIGNAL ID: #2061📍
+COIN: $WLD/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.4600✅
+
+🔥5.5% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,WLDUSDT,,,,0.82,,,,,False,0,,,,0,2061,signal,single,2061,1,,,,,,,,,,,,,,5.5,5,,0,0,0,
+1155,PARSED,,"[trader#3] 📍SIGNAL ID: #2063📍
+COIN: $XRP/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 1.895 - 1.900
+
+TARGETS: 1.960 - 2.050 - 2.150 - 2.250 - 2.360 - 2.480 - 2.600 
+
+STOP LOSS: 1.760
+
+Entry sits on a support cluster with an FVG backing it.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=1.96 | 2.05 | 2.15 | 2.25 | 2.36 | 2.48 | 2.6),,,XRPUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:1.895 | RANGE_HIGH:LIMIT:1.9,1.76,1.96 | 2.05 | 2.15 | 2.25 | 2.36 | 2.48 | 2.6,7,2063,signal,single,2063,1,,,,,,,,,,,,,,,,,0,0,0,
+1154,PARSED,,"[trader#3] 📍SIGNAL ID: #2061📍
+COIN: $WLD/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.4600✅
+Target 2: 0.4800✅
+Target 3: 0.5000✅
+Target 4: 0.5300✅
+Target 5: 0.5600✅
+
+🔥115.4% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,WLDUSDT,,,,0.82,,,,,False,0,,,,0,2061,signal,single,2061,1,,,,,,,,,,,,,,115.4,5,,0,0,0,
+1153,PARSED,,"[trader#3] 📍SIGNAL ID: #2061📍
+COIN: $WLD/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.4600✅
+Target 2: 0.4800✅
+Target 3: 0.5000✅
+Target 4: 0.5300✅
+Target 5: 0.5600✅
+Target 6: 0.6000✅
+
+🔥159.4% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,WLDUSDT,,,,0.82,,,,,False,0,,,,0,2061,signal,single,2061,1,,,,,,,,,,,,,,159.4,5,,0,0,0,
+1152,PARSED,,"[trader#3] 📍SIGNAL ID: #2064📍
+COIN: $DOGE/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.1195 - 0.1200
+
+TARGETS: 0.1235 - 0.1270 - 0.1320 -0.1380 - 0.1450 - 0.1525 - 0.1600  
+
+STOP LOSS: 0.1125
+
+High-confluence HTF support cluster influencing the current entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.1235 | 0.127 | 0.132 | 0.138 | 0.145 | 0.1525 | 0.16),,,DOGEUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.1195 | RANGE_HIGH:LIMIT:0.12,0.1125,0.1235 | 0.127 | 0.132 | 0.138 | 0.145 | 0.1525 | 0.16,7,2064,signal,single,2064,1,,,,,,,,,,,,,,,,,0,0,0,
+1138,PARSED,,"----------------------------------
+
+Наша команда закончилась. Теперь иностранный легионер!
+Пока один, но сейчас присматриваемся к ещё одному бразильцу...⚽️😂
+
+trader#3
+
+Формат расчёта: наша консервативная модель (1% риск, равные тейки)
+
+Статистика:
+Всего закрытых сделок: 20
+Плюсовые (полная отработка тейков): 4
+Частичный тейк + БУ: 6
+Стопы: 10
+Открытые: 2 (не учитываются в январской статистике)
+
+Результат:
+Итог по январю: +0.41%
+
+Коротко по сути:
+Идей много, как у знатного темщика
+Сопровождения мало, как у китайского сенсея, который говорит, что понять сигнал невозможно - нужно почувствовать! 😂
+При консервативном подсчёте результат выглядит скромно
+Но сами сетапы, по-прежнему, часто основаны на вменяемом ТА
+
+С учётом сложного месяца...Не чудо, но и не мусор. Использовать с головой. И с чувством. 😉
+
+----------------------------------
+
+Общий вывод
+
+Январь был месяцем дисциплины, защиты депозита и проверки систем на прочность.🛡
+Где-то получилось,
+Где-то нет,
+Но, в целом, такие месяцы тоже нужны, чтобы понять: трейдинг - это не спринт, а марафонский забег.
+Продолжаем...раз, два, три, четыре...(голосом Шуфутинского🧔🏻‍♂️)
+
+#админ",,,,,,,,,,,,,0.25,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+1116,PARSED,,"[trader#3] 📍SIGNAL ID: #2065📍
+COIN: $SOL/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 105 - 105.5
+
+TARGETS: 109 - 115 - 122 - 130 - 139 - 150  
+
+STOP LOSS: 97
+
+High-confluence support cluster and a descending channel structure along the entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=109 | 115 | 122 | 130 | 139 | 150),,,SOLUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:105 | RANGE_HIGH:LIMIT:105.5,97,109 | 115 | 122 | 130 | 139 | 150,6,2065,signal,single,2065,1,,,,,,,,,,,,,,,,,0,0,0,
+1102,PARSED,,"[trader#3] 📍SIGNAL ID: #2065📍
+COIN: $SOL/USDT (2-5X)
+Direction: LONG
+➖➖➖➖➖➖➖
+
+STOP LOSS: 97
+
+🚫15% Loss (2x)🚫
+
+➖➖➖➖➖➖➖",,,U_STOP_HIT,U_STOP_HIT,REPORT_LOSS,REPORT_LOSS,,,SOLUSDT,,,,0.82,,,,,False,0,,,,0,2065,signal,single,2065,1,,,,,,,,,,,,,,,2,,0,0,0,
+1096,PARSED,,"[trader#3] 📍SIGNAL ID: #2066📍
+COIN: $ADA/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.290 - 0.291
+
+TARGETS: 0.300 - 0.315 - 0.335 - 0.355 - 0.375 - 0.400 
+
+STOP LOSS: 0.265
+
+Strong support confluence reinforced by an adjacent FVG.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.3 | 0.315 | 0.335 | 0.355 | 0.375 | 0.4),,,ADAUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.29 | RANGE_HIGH:LIMIT:0.291,0.265,0.3 | 0.315 | 0.335 | 0.355 | 0.375 | 0.4,6,2066,signal,single,2066,1,,,,,,,,,,,,,,,,,0,0,0,
+1095,PARSED,,"[trader#3] 📍SIGNAL ID: #2067📍
+COIN: $ETH/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 2290 - 2300
+
+TARGETS: 2350 - 2425 - 2500 - 2600 - 2725 - 2850 - 3000 
+
+STOP LOSS: 2150
+
+Confluent support zone backed by a higher-timeframe FVG and OB.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=2350 | 2425 | 2500 | 2600 | 2725 | 2850 | 3000),,,ETHUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:2290 | RANGE_HIGH:LIMIT:2300,2150,2350 | 2425 | 2500 | 2600 | 2725 | 2850 | 3000,7,2067,signal,single,2067,1,,,,,,,,,,,,,,,,,0,0,0,
+1092,PARSED,,"[trader#3] 📍SIGNAL ID: #2067📍
+COIN: $ETH/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 2350✅
+
+🔥10.9% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,ETHUSDT,,,,0.82,,,,,False,0,,,,0,2067,signal,single,2067,1,,,,,,,,,,,,,,10.9,5,,0,0,0,
+1069,PARSED,,"[trader#3] 📍SIGNAL ID: #2066📍
+COIN: $ADA/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.300✅
+
+🔥17.2% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,ADAUSDT,,,,0.82,,,,,False,0,,,,0,2066,signal,single,2066,1,,,,,,,,,,,,,,17.2,5,,0,0,0,
+952,PARSED,,"[trader#3] 📍SIGNAL ID: #2068📍
+COIN: $LINK/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 8.40 - 8.50
+
+TARGETS: 8.80 - 9.35 - 10.00 - 10.70 - 11.45 - 12.20 - 13.00 
+
+STOP LOSS: 7.85
+
+Post sell-off consolidation below resistance favors a short-term reaction.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=8.8 | 9.35 | 10 | 10.7 | 11.45 | 12.2 | 13),,,LINKUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:8.4 | RANGE_HIGH:LIMIT:8.5,7.85,8.8 | 9.35 | 10 | 10.7 | 11.45 | 12.2 | 13,7,2068,signal,single,2068,1,,,,,,,,,,,,,,,,,0,0,0,
+947,PARSED,,"[trader#3] 📍SIGNAL ID: #2069📍
+COIN: $WLD/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.3680 - 0.3700
+
+TARGETS: 0.3850 - 0.4100 - 0.4450 - 0.4800 - 0.5150 - 0.5500
+
+STOP LOSS: 0.3375
+
+Support area strengthened by confluence and a surrounding FVG.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.385 | 0.41 | 0.445 | 0.48 | 0.515 | 0.55),,,WLDUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.368 | RANGE_HIGH:LIMIT:0.37,0.3375,0.385 | 0.41 | 0.445 | 0.48 | 0.515 | 0.55,6,2069,signal,single,2069,1,,,,,,,,,,,,,,,,,0,0,0,
+922,PARSED,,"[trader#3] 📍SIGNAL ID: #2070📍
+COIN: $WLFI/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.0990 - 0.1000
+
+TARGETS: 0.1035 - 0.1080 - 0.1150 - 0.1250 - 0.1375 - 0.1500
+
+STOP LOSS: 0.0925
+
+Support confluence and liquidity sweep favor a reaction bounce.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.1035 | 0.108 | 0.115 | 0.125 | 0.1375 | 0.15),,,WLFIUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.099 | RANGE_HIGH:LIMIT:0.1,0.0925,0.1035 | 0.108 | 0.115 | 0.125 | 0.1375 | 0.15,6,2070,signal,single,2070,1,,,,,,,,,,,,,,,,,0,0,0,
+920,PARSED,,"[trader#3] 📍SIGNAL ID: #2071📍
+COIN: $TAO/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 144 - 145
+
+TARGETS: 150 - 160 - 175 - 190 - 205 - 225 - 250
+
+STOP LOSS: 135
+
+Strong support zones and liquidity sweep along the entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=150 | 160 | 175 | 190 | 205 | 225 | 250),,,TAOUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:144 | RANGE_HIGH:LIMIT:145,135,150 | 160 | 175 | 190 | 205 | 225 | 250,7,2071,signal,single,2071,1,,,,,,,,,,,,,,,,,0,0,0,
+898,PARSED,,"[trader#3] 📍SIGNAL ID: #2070📍
+COIN: $WLFI/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.1035✅
+
+🔥17.5% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,WLFIUSDT,,,,0.82,,,,,False,0,,,,0,2070,signal,single,2070,1,,,,,,,,,,,,,,17.5,5,,0,0,0,
+878,PARSED,,"[trader#3] 📍SIGNAL ID: #2071📍
+COIN: $TAO/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 150✅
+
+🔥17.2% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,TAOUSDT,,,,0.82,,,,,False,0,,,,0,2071,signal,single,2071,1,,,,,,,,,,,,,,17.2,5,,0,0,0,
+867,PARSED,,"[trader#3] 📍SIGNAL ID: #2069📍
+COIN: $WLD/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.3850✅
+
+🔥20.3% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,WLDUSDT,,,,0.82,,,,,False,0,,,,0,2069,signal,single,2069,1,,,,,,,,,,,,,,20.3,5,,0,0,0,
+866,PARSED,,"[trader#3] 📍SIGNAL ID: #2071📍
+COIN: $TAO/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 150✅
+Target 2: 160✅
+
+🔥51.7% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,TAOUSDT,,,,0.82,,,,,False,0,,,,0,2071,signal,single,2071,1,,,,,,,,,,,,,,51.7,5,,0,0,0,
+865,PARSED,,"[trader#3] 📍SIGNAL ID: #2070📍
+COIN: $WLFI/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.1035✅
+Target 2: 0.1080✅
+
+🔥40.0% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,WLFIUSDT,,,,0.82,,,,,False,0,,,,0,2070,signal,single,2070,1,,,,,,,,,,,,,,40,5,,0,0,0,
+855,PARSED,,"[trader#3] 📍SIGNAL ID: #2072📍
+COIN: $TRX/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.2760 - 0.2770
+
+TARGETS: 0.2840 - 0.2940 - 0.3050 - 0.3180 - 0.3320 - 0.3500 - 0.3700
+
+STOP LOSS: 0.2600
+
+Strong support zones and a 4H FVG along the entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.284 | 0.294 | 0.305 | 0.318 | 0.332 | 0.35 | 0.37),,,TRXUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.276 | RANGE_HIGH:LIMIT:0.277,0.26,0.284 | 0.294 | 0.305 | 0.318 | 0.332 | 0.35 | 0.37,7,2072,signal,single,2072,1,,,,,,,,,,,,,,,,,0,0,0,
+839,PARSED,,"[trader#3] 📍SIGNAL ID: #2068📍
+COIN: $LINK/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 8.80✅
+
+🔥17.7% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,LINKUSDT,,,,0.82,,,,,False,0,,,,0,2068,signal,single,2068,1,,,,,,,,,,,,,,17.7,5,,0,0,0,
+833,PARSED,,"[trader#3] 📍SIGNAL ID: #2071📍
+COIN: $TAO/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 150✅
+Target 2: 160✅
+Target 3: 175✅
+
+🔥103.5% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,TAOUSDT,,,,0.82,,,,,False,0,,,,0,2071,signal,single,2071,1,,,,,,,,,,,,,,103.5,5,,0,0,0,
+832,PARSED,,"[trader#3] 📍SIGNAL ID: #2071📍
+COIN: $TAO/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 150✅
+Target 2: 160✅
+Target 3: 175✅
+Target 4: 190✅
+
+🔥155.2% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,TAOUSDT,,,,0.82,,,,,False,0,,,,0,2071,signal,single,2071,1,,,,,,,,,,,,,,155.2,5,,0,0,0,
+829,PARSED,,"[trader#3] 📍SIGNAL ID: #2071📍
+COIN: $TAO/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 150✅
+Target 2: 160✅
+Target 3: 175✅
+Target 4: 190✅
+Target 5: 205✅
+
+🔥206.9% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,TAOUSDT,,,,0.82,,,,,False,0,,,,0,2071,signal,single,2071,1,,,,,,,,,,,,,,206.9,5,,0,0,0,
+828,PARSED,,"[trader#3] 📍SIGNAL ID: #2069📍
+COIN: $WLD/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.3850✅
+Target 2: 0.4100✅
+
+🔥54.1% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,WLDUSDT,,,,0.82,,,,,False,0,,,,0,2069,signal,single,2069,1,,,,,,,,,,,,,,54.1,5,,0,0,0,
+798,PARSED,,"[trader#3] 📍SIGNAL ID: #2072📍
+COIN: $TRX/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.284✅
+
+🔥12.7% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,TRXUSDT,,,,0.82,,,,,False,0,,,,0,2072,signal,single,2072,1,,,,,,,,,,,,,,12.7,5,,0,0,0,
+783,PARSED,,"[trader#3] 📍SIGNAL ID: #2070📍
+COIN: $WLFI/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.1035✅
+Target 2: 0.1080✅
+Target 3: 0.1150✅
+
+🔥75.0% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,WLFIUSDT,,,,0.82,,,,,False,0,,,,0,2070,signal,single,2070,1,,,,,,,,,,,,,,75,5,,0,0,0,
+773,PARSED,,"[trader#3] 📍SIGNAL ID: #2070📍
+COIN: $WLFI/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.1035✅
+Target 2: 0.1080✅
+Target 3: 0.1150✅
+Target 3: 0.1250✅
+
+🔥125.0% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,WLFIUSDT,,,,0.82,,,,,False,0,,,,0,2070,signal,single,2070,1,,,,,,,,,,,,,,125,5,,0,0,0,
+735,PARSED,,"[trader#3] 📍SIGNAL ID: #2074📍
+COIN: $IMX/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.154 - 0.155
+
+TARGETS: 0.160 - 0.168 - 0.180 - 0.195 - 0.210 - 0.230 - 0.250
+
+STOP LOSS: 0.142
+
+Strong support zone and a 4H FVG along the entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.16 | 0.168 | 0.18 | 0.195 | 0.21 | 0.23 | 0.25),,,IMXUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.154 | RANGE_HIGH:LIMIT:0.155,0.142,0.16 | 0.168 | 0.18 | 0.195 | 0.21 | 0.23 | 0.25,7,2074,signal,single,2074,1,,,,,,,,,,,,,,,,,0,0,0,
+729,PARSED,,"[trader#3] 📍SIGNAL ID: #2074📍
+COIN: $IMX/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.160✅
+
+🔥16.2% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,IMXUSDT,,,,0.82,,,,,False,0,,,,0,2074,signal,single,2074,1,,,,,,,,,,,,,,16.2,5,,0,0,0,
+702,PARSED,,"[trader#3] 📍SIGNAL ID: #2073📍
+COIN: $DASH/USDT (2-5X)
+Direction: LONG
+➖➖➖➖➖➖➖
+
+STOP LOSS: 33
+
+🚫18% Loss (2x)🚫
+
+SL hit, but one doesn't define us. Risk managed. On to the next one!
+➖➖➖➖➖➖➖",,,U_STOP_HIT,U_STOP_HIT,REPORT_LOSS,REPORT_LOSS,,,DASHUSDT,,,,0.82,,,,,False,0,,,,0,2073,signal,single,2073,1,,,,,,,,,,,,,,,2,,0,0,0,
+691,PARSED,,"[trader#3] 📍SIGNAL ID: #2075📍
+COIN: $SKY/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.0620 - 0.0622
+
+TARGETS: 0.0640 - 0.0670 - 0.0720 - 0.0790 - 0.0880 - 0.1000
+
+STOP LOSS: 0.0575
+
+Strong support zone within the entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.064 | 0.067 | 0.072 | 0.079 | 0.088 | 0.1),,,SKYUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.062 | RANGE_HIGH:LIMIT:0.0622,0.0575,0.064 | 0.067 | 0.072 | 0.079 | 0.088 | 0.1,6,2075,signal,single,2075,1,,,,,,,,,,,,,,,,,0,0,0,
+682,PARSED,,"[trader#3] 📍SIGNAL ID: #2074📍
+COIN: $IMX/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.160✅
+Target 2: 0.168✅
+
+🔥42.0% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,IMXUSDT,,,,0.82,,,,,False,0,,,,0,2074,signal,single,2074,1,,,,,,,,,,,,,,42,5,,0,0,0,
+669,PARSED,,"[trader#3] 📍SIGNAL ID: #2076📍
+COIN: $ENA/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.0990 - 0.1000
+
+TARGETS: 0.1040 - 0.1100 - 0.1180 - 0.1280 - 0.1390 - 0.1500
+
+STOP LOSS: 0.0925
+
+Liquidity sweep into support favors a short-term reaction while structure holds.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.104 | 0.11 | 0.118 | 0.128 | 0.139 | 0.15),,,ENAUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.099 | RANGE_HIGH:LIMIT:0.1,0.0925,0.104 | 0.11 | 0.118 | 0.128 | 0.139 | 0.15,6,2076,signal,single,2076,1,,,,,,,,,,,,,,,,,0,0,0,
+664,PARSED,,"[trader#3] 📍SIGNAL ID: #2075📍
+COIN: $SKY/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.064✅
+
+🔥16.1% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,SKYUSDT,,,,0.82,,,,,False,0,,,,0,2075,signal,single,2075,1,,,,,,,,,,,,,,16.1,5,,0,0,0,
+639,PARSED,,"[trader#3] 📍SIGNAL ID: #2075📍
+COIN: $SKY/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.064✅
+Target 2: 0.067✅
+
+🔥40.3% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,SKYUSDT,,,,0.82,,,,,False,0,,,,0,2075,signal,single,2075,1,,,,,,,,,,,,,,40.3,5,,0,0,0,
+622,PARSED,,"[trader#3] 📍SIGNAL ID: #2076📍
+COIN: $ENA/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.1040✅
+
+🔥20% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,ENAUSDT,,,,0.82,,,,,False,0,,,,0,2076,signal,single,2076,1,,,,,,,,,,,,,,20,5,,0,0,0,
+604,PARSED,,"[trader#3] 📍SIGNAL ID: #2068📍
+COIN: $LINK/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 8.80✅
+Target 2: 9.35✅
+
+🔥50% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,LINKUSDT,,,,0.82,,,,,False,0,,,,0,2068,signal,single,2068,1,,,,,,,,,,,,,,50,5,,0,0,0,
+602,PARSED,,"[trader#3] 📍SIGNAL ID: #2074📍
+COIN: $IMX/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.160✅
+Target 2: 0.168✅
+Target 3: 0.180✅
+
+🔥80.7% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,IMXUSDT,,,,0.82,,,,,False,0,,,,0,2074,signal,single,2074,1,,,,,,,,,,,,,,80.7,5,,0,0,0,
+595,PARSED,,"[trader#3] 📍SIGNAL ID: #2076📍
+COIN: $ENA/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.1040✅
+Target 2: 0.1100✅
+
+🔥50% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,ENAUSDT,,,,0.82,,,,,False,0,,,,0,2076,signal,single,2076,1,,,,,,,,,,,,,,50,5,,0,0,0,
+586,PARSED,,"[trader#3] 📍SIGNAL ID: #2076📍
+COIN: $ENA/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.1040✅
+Target 2: 0.1100✅
+Target 3: 0.1180✅
+
+🔥90% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,ENAUSDT,,,,0.82,,,,,False,0,,,,0,2076,signal,single,2076,1,,,,,,,,,,,,,,90,5,,0,0,0,
+561,PARSED,,"[trader#3] 📍SIGNAL ID: #2077📍
+COIN: $BCH/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 450 - 455
+
+TARGETS: 470 - 490 - 520 - 560 - 620 - 700
+
+STOP LOSS: 420
+
+Multiple support zones along the entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=470 | 490 | 520 | 560 | 620 | 700),,,BCHUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:450 | RANGE_HIGH:LIMIT:455,420,470 | 490 | 520 | 560 | 620 | 700,6,2077,signal,single,2077,1,,,,,,,,,,,,,,,,,0,0,0,
+560,PARSED,,"[trader#3] 📍SIGNAL ID: #2078📍
+COIN: $CRO/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0. 0745 - 0.0750
+
+TARGETS: 0.0775 - 0.0800 - 0.0840 - 0.0890 - 0.0940 - 0.1000 - 0.1100
+
+STOP LOSS: 0.0700
+
+Confluence of high-interest zones around the entry area.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.0775 | 0.08 | 0.084 | 0.089 | 0.094 | 0.1 | 0.11),,,CROUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.0745 | RANGE_HIGH:LIMIT:0.075,0.07,0.0775 | 0.08 | 0.084 | 0.089 | 0.094 | 0.1 | 0.11,7,2078,signal,single,2078,1,,,,,,,,,,,,,,,,,0,0,0,
+559,PARSED,,"[trader#3] 📍SIGNAL ID: #2079📍
+COIN: $DOT/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 1.500 - 1.510
+
+TARGETS: 1.575 - 1.675 - 1.800 - 1.900 - 2.000 - 2.125 - 2.250
+
+STOP LOSS: 1.375
+
+Confluence between 4H FVG, support zones and an ascending trendline in the entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=1.575 | 1.675 | 1.8 | 1.9 | 2 | 2.125 | 2.25),,,DOTUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:1.5 | RANGE_HIGH:LIMIT:1.51,1.375,1.575 | 1.675 | 1.8 | 1.9 | 2 | 2.125 | 2.25,7,2079,signal,single,2079,1,,,,,,,,,,,,,,,,,0,0,0,
+547,PARSED,,"[trader#3] 📍SIGNAL ID: #2080📍
+COIN: $ETC/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 8.00 - 8.10
+
+TARGETS: 8.30 - 8.75 - 9.25 - 10.00 - 11.00 - 12.00
+
+STOP LOSS: 7.35
+
+Confluence between 4H FVG, support zones and an ascending trendline in the entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=8.3 | 8.75 | 9.25 | 10 | 11 | 12),,,ETCUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:8 | RANGE_HIGH:LIMIT:8.1,7.35,8.3 | 8.75 | 9.25 | 10 | 11 | 12,6,2080,signal,single,2080,1,,,,,,,,,,,,,,,,,0,0,0,
+541,PARSED,,"[trader#3] 📍SIGNAL ID: #2079📍
+COIN: $DOT/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 1.575✅
+
+🔥25% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,DOTUSDT,,,,0.82,,,,,False,0,,,,0,2079,signal,single,2079,1,,,,,,,,,,,,,,25,5,,0,0,0,
+538,PARSED,,"[trader#3] 📍SIGNAL ID: #2079📍
+COIN: $DOT/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 1.575✅
+Target 2: 1.675✅
+
+🔥58.3% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,DOTUSDT,,,,0.82,,,,,False,0,,,,0,2079,signal,single,2079,1,,,,,,,,,,,,,,58.3,5,,0,0,0,
+537,PARSED,,"[trader#3] 📍SIGNAL ID: #2078📍
+COIN: $CRO/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.0775✅
+
+🔥16.7% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,CROUSDT,,,,0.82,,,,,False,0,,,,0,2078,signal,single,2078,1,,,,,,,,,,,,,,16.7,5,,0,0,0,
+494,PARSED,,"[trader#3] 📍SIGNAL ID: #2081📍
+COIN: $DOGE/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.0895 - 0.0900
+
+TARGETS: 0.0940 - 0.0990 - 0.1050 - 0.1120 - 0.1200 - 0.1300
+
+STOP LOSS: 0.0825
+
+Confluence between support zones and an ascending trendline in the entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.094 | 0.099 | 0.105 | 0.112 | 0.12 | 0.13),,,DOGEUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.0895 | RANGE_HIGH:LIMIT:0.09,0.0825,0.094 | 0.099 | 0.105 | 0.112 | 0.12 | 0.13,6,2081,signal,single,2081,1,,,,,,,,,,,,,,,,,0,0,0,
+480,PARSED,,"[trader#3] 📍SIGNAL ID: #2082📍
+COIN: $HYPE/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 29.90 - 30.00
+
+TARGETS: 31.25 - 33.00 - 35.00 - 37.50 - 41.00 - 45.00 - 50.00
+
+STOP LOSS: 27.50
+
+Confluence between support zones and an ascending trendline in the entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=31.25 | 33 | 35 | 37.5 | 41 | 45 | 50),,,HYPEUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:29.9 | RANGE_HIGH:LIMIT:30,27.5,31.25 | 33 | 35 | 37.5 | 41 | 45 | 50,7,2082,signal,single,2082,1,,,,,,,,,,,,,,,,,0,0,0,
+455,PARSED,,"[trader#3] 📍SIGNAL ID: #2081📍
+COIN: $DOGE/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.0940✅
+
+🔥22.2% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,DOGEUSDT,,,,0.82,,,,,False,0,,,,0,2081,signal,single,2081,1,,,,,,,,,,,,,,22.2,5,,0,0,0,
+448,PARSED,,"[trader#3] 📍SIGNAL ID: #2077📍
+COIN: $BCH/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 470✅
+
+🔥16.5% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,BCHUSDT,,,,0.82,,,,,False,0,,,,0,2077,signal,single,2077,1,,,,,,,,,,,,,,16.5,5,,0,0,0,
+447,PARSED,,"[trader#3] 📍SIGNAL ID: #2081📍
+COIN: $DOGE/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.0940✅
+Target 2: 0.0990✅
+
+🔥50% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,DOGEUSDT,,,,0.82,,,,,False,0,,,,0,2081,signal,single,2081,1,,,,,,,,,,,,,,50,5,,0,0,0,
+429,PARSED,,"[trader#3] 📍SIGNAL ID: #2083📍
+COIN: $NEAR/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 1.240 - 1.250
+
+TARGETS: 1.300 - 1.375 - 1.475 - 1.600 - 1.750 - 1.900 - 50.00
+
+STOP LOSS: 1.150
+
+Confluence between support zones and an ascending trendline in the entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=1.3 | 1.375 | 1.475 | 1.6 | 1.75 | 1.9 | 50),,,NEARUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:1.24 | RANGE_HIGH:LIMIT:1.25,1.15,1.3 | 1.375 | 1.475 | 1.6 | 1.75 | 1.9 | 50,7,2083,signal,single,2083,1,,,,,,,,,,,,,,,,,0,0,0,
+421,PARSED,,"[trader#3] 📍SIGNAL ID: #2084📍
+COIN: $BNB/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 640 - 645
+
+TARGETS: 665 - 700 - 740 - 790 - 850 - 920 - 1000
+
+STOP LOSS: 585
+
+Strong support confluence reinforced by a 4H FVG and the retest of the upper trendline from a previously broken descending channel at entry.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=665 | 700 | 740 | 790 | 850 | 920 | 1000),,,BNBUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:640 | RANGE_HIGH:LIMIT:645,585,665 | 700 | 740 | 790 | 850 | 920 | 1000,7,2084,signal,single,2084,1,,,,,,,,,,,,,,,,,0,0,0,
+408,PARSED,,"[trader#3] 📍SIGNAL ID: #2083📍
+COIN: $NEAR/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 1.300✅
+
+🔥20% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,NEARUSDT,,,,0.82,,,,,False,0,,,,0,2083,signal,single,2083,1,,,,,,,,,,,,,,20,5,,0,0,0,
+398,PARSED,,"[trader#3] 📍SIGNAL ID: #2085📍
+COIN: $TON/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 1.290 - 1.300
+
+TARGETS: 1.350 - 1.420 - 1.500 - 1.600 - 1.720 - 1.850 - 2.000
+
+STOP LOSS: 1.200
+
+Strong support confluence reinforced by a daily FVG and an ascending trendline at entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=1.35 | 1.42 | 1.5 | 1.6 | 1.72 | 1.85 | 2),,,TONUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:1.29 | RANGE_HIGH:LIMIT:1.3,1.2,1.35 | 1.42 | 1.5 | 1.6 | 1.72 | 1.85 | 2,7,2085,signal,single,2085,1,,,,,,,,,,,,,,,,,0,0,0,
+378,PARSED,,"[trader#3] 📍SIGNAL ID: #2082📍
+COIN: $HYPE/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 31.25✅
+
+🔥20.8% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,HYPEUSDT,,,,0.82,,,,,False,0,,,,0,2082,signal,single,2082,1,,,,,,,,,,,,,,20.8,5,,0,0,0,
+363,PARSED,,"[trader#3] 📍SIGNAL ID: #2085📍
+COIN: $TON/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 1.350✅
+
+🔥19.2% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,TONUSDT,,,,0.82,,,,,False,0,,,,0,2085,signal,single,2085,1,,,,,,,,,,,,,,19.2,5,,0,0,0,
+354,PARSED,,"[trader#3] 📍SIGNAL ID: #2082📍
+COIN: $HYPE/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 31.25✅
+Target 2: 33.00✅
+
+🔥50% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,HYPEUSDT,,,,0.82,,,,,False,0,,,,0,2082,signal,single,2082,1,,,,,,,,,,,,,,50,5,,0,0,0,
+349,PARSED,,"[trader#3] 📍SIGNAL ID: #2086📍
+COIN: $JUP/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.1540 - 0.1550
+
+TARGETS: 0.1600 - 0.1675 - 0.1775 - 0.1900 - 0.2050 - 0.2250 - 0.2500
+
+STOP LOSS: 0.1425
+
+Strong support confluence reinforced by a 4h FVG and an ascending channel at entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.16 | 0.1675 | 0.1775 | 0.19 | 0.205 | 0.225 | 0.25),,,JUPUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.154 | RANGE_HIGH:LIMIT:0.155,0.1425,0.16 | 0.1675 | 0.1775 | 0.19 | 0.205 | 0.225 | 0.25,7,2086,signal,single,2086,1,,,,,,,,,,,,,,,,,0,0,0,
+348,PARSED,,"[trader#3] 📍SIGNAL ID: #2080📍
+COIN: $ETC/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 8.30✅
+
+🔥18.8% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,ETCUSDT,,,,0.82,,,,,False,0,,,,0,2080,signal,single,2080,1,,,,,,,,,,,,,,18.8,5,,0,0,0,
+347,PARSED,,"[trader#3] 📍SIGNAL ID: #2082📍
+COIN: $HYPE/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 31.25✅
+Target 2: 33.00✅
+Target 3: 35.00✅
+
+🔥83.3% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,HYPEUSDT,,,,0.82,,,,,False,0,,,,0,2082,signal,single,2082,1,,,,,,,,,,,,,,83.3,5,,0,0,0,
+338,PARSED,,"[trader#3] 📍SIGNAL ID: #2075📍
+COIN: $SKY/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.064✅
+Target 2: 0.067✅
+Target 3: 0.072✅
+Target 4: 0.079✅
+
+🔥137.1% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,SKYUSDT,,,,0.82,,,,,False,0,,,,0,2075,signal,single,2075,1,,,,,,,,,,,,,,137.1,5,,0,0,0,
+323,PARSED,,"[trader#3] 📍SIGNAL ID: #2087📍
+COIN: $SUI/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.9270 - 0.9300
+
+TARGETS: 0.9700 - 1.0300 - 1.1000 - 1.1750 - 1.2750 - 1.3850 - 1.5000
+
+STOP LOSS: 0.8500
+
+Strong support confluence reinforced by a 4h FVG and an ascending channel at entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.97 | 1.03 | 1.1 | 1.175 | 1.275 | 1.385 | 1.5),,,SUIUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.927 | RANGE_HIGH:LIMIT:0.93,0.85,0.97 | 1.03 | 1.1 | 1.175 | 1.275 | 1.385 | 1.5,7,2087,signal,single,2087,1,,,,,,,,,,,,,,,,,0,0,0,
+299,PARSED,,"[trader#3] 📍SIGNAL ID: #2082📍
+COIN: $HYPE/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 31.25✅
+Target 2: 33.00✅
+Target 3: 35.00✅
+Target 4: 37.50✅
+
+🔥125% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,HYPEUSDT,,,,0.82,,,,,False,0,,,,0,2082,signal,single,2082,1,,,,,,,,,,,,,,125,5,,0,0,0,
+290,PARSED,,"[trader#3] 📍SIGNAL ID: #2083📍
+COIN: $NEAR/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 1.300✅
+Target 2: 1.375✅
+
+🔥50% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,NEARUSDT,,,,0.82,,,,,False,0,,,,0,2083,signal,single,2083,1,,,,,,,,,,,,,,50,5,,0,0,0,
+289,PARSED,,"[trader#3] 📍SIGNAL ID: #2071📍
+COIN: $TAO/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 150✅
+Target 2: 160✅
+Target 3: 175✅
+Target 4: 190✅
+Target 5: 205✅
+Target 6: 225✅
+
+🔥275.9% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,TAOUSDT,,,,0.82,,,,,False,0,,,,0,2071,signal,single,2071,1,,,,,,,,,,,,,,275.9,5,,0,0,0,
+279,PARSED,,"[trader#3] 📍SIGNAL ID: #2084📍
+COIN: $BNB/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 665✅
+
+🔥15.5% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,BNBUSDT,,,,0.82,,,,,False,0,,,,0,2084,signal,single,2084,1,,,,,,,,,,,,,,15.5,5,,0,0,0,
+276,PARSED,,"[trader#3] 📍SIGNAL ID: #2080📍
+COIN: $ETC/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 8.30✅
+Target 2: 8.75✅
+
+🔥46.9% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,ETCUSDT,,,,0.82,,,,,False,0,,,,0,2080,signal,single,2080,1,,,,,,,,,,,,,,46.9,5,,0,0,0,
+274,PARSED,,"[trader#3] 📍SIGNAL ID: #2071📍
+COIN: $TAO/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 150✅
+Target 2: 160✅
+Target 3: 175✅
+Target 4: 190✅
+Target 5: 205✅
+Target 6: 225✅
+Target 7: 250✅
+
+ALL TARGETS SMASHED!!! 🚀
+
+🔥362% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,TAOUSDT,,,,0.82,,,,,False,0,,,,0,2071,signal,single,2071,1,,,,,,,,,,,,,,362,5,,0,0,0,
+259,PARSED,,"[trader#3] 📍SIGNAL ID: #2088📍
+COIN: $ICP/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 2.530 - 2.550
+
+TARGETS: 2.700 - 3.000 - 3.350 - 3.800 - 4.300 - 4.800
+
+STOP LOSS: 2.250
+
+Confluence between support zones and an ascending trendline in the entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=2.7 | 3 | 3.35 | 3.8 | 4.3 | 4.8),,,ICPUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:2.53 | RANGE_HIGH:LIMIT:2.55,2.25,2.7 | 3 | 3.35 | 3.8 | 4.3 | 4.8,6,2088,signal,single,2088,1,,,,,,,,,,,,,,,,,0,0,0,
+257,PARSED,,"[trader#3] 📍SIGNAL ID: #2089📍
+COIN: $ATOM/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 1.780 - 1.800
+
+TARGETS: 1.875 - 2.000 - 2.150 - 2.325 - 2.500 - 2.700
+
+STOP LOSS: 1.650
+
+Confluence between strong support zones in the entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=1.875 | 2 | 2.15 | 2.325 | 2.5 | 2.7),,,ATOMUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:1.78 | RANGE_HIGH:LIMIT:1.8,1.65,1.875 | 2 | 2.15 | 2.325 | 2.5 | 2.7,6,2089,signal,single,2089,1,,,,,,,,,,,,,,,,,0,0,0,
+252,PARSED,,"[trader#3] 📍SIGNAL ID: #2072📍
+COIN: $TRX/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.284✅
+Target 2: 0.294✅
+
+🔥30.7% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,TRXUSDT,,,,0.82,,,,,False,0,,,,0,2072,signal,single,2072,1,,,,,,,,,,,,,,30.7,5,,0,0,0,
+247,PARSED,,"[trader#3] 📍SIGNAL ID: #2090📍
+COIN: $MNT/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.768 - 0.770
+
+TARGETS: 0.800 - 0.850 - 0.920 - 1.000 - 1.080 - 1.170
+
+STOP LOSS: 0.700
+
+Confluence between strong support zones, a 4H FVG and an ascending trend line in the entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.8 | 0.85 | 0.92 | 1 | 1.08 | 1.17),,,MNTUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.768 | RANGE_HIGH:LIMIT:0.77,0.7,0.8 | 0.85 | 0.92 | 1 | 1.08 | 1.17,6,2090,signal,single,2090,1,,,,,,,,,,,,,,,,,0,0,0,
+244,PARSED,,"[trader#3] 📍SIGNAL ID: #2090📍
+COIN: $MNT/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.800✅
+
+🔥19.5% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,MNTUSDT,,,,0.82,,,,,False,0,,,,0,2090,signal,single,2090,1,,,,,,,,,,,,,,19.5,5,,0,0,0,
+233,PARSED,,"[trader#3] 📍SIGNAL ID: #2090📍
+COIN: $MNT/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.800✅
+Target 2: 0.850✅
+
+🔥52% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,MNTUSDT,,,,0.82,,,,,False,0,,,,0,2090,signal,single,2090,1,,,,,,,,,,,,,,52,5,,0,0,0,
+231,PARSED,,"[trader#3] 📍SIGNAL ID: #2091📍
+COIN: $POL/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.0990 - 0.1000
+
+TARGETS: 0.1040 - 0.1100 - 0.1170 - 0.1240 - 0.1320 - 0.1400 - 0.1500
+
+STOP LOSS: 0.0915
+
+Confluence between strong support zones, a 4H FVG and an ascending trend line in the entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.104 | 0.11 | 0.117 | 0.124 | 0.132 | 0.14 | 0.15),,,POLUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.099 | RANGE_HIGH:LIMIT:0.1,0.0915,0.104 | 0.11 | 0.117 | 0.124 | 0.132 | 0.14 | 0.15,7,2091,signal,single,2091,1,,,,,,,,,,,,,,,,,0,0,0,
+229,PARSED,,"[trader#3] 📍SIGNAL ID: #2078📍
+COIN: $CRO/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.0775✅
+Target 2: 0.0800✅
+
+🔥33.3% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,CROUSDT,,,,0.82,,,,,False,0,,,,0,2078,signal,single,2078,1,,,,,,,,,,,,,,33.3,5,,0,0,0,
+215,PARSED,,"[trader#3] 📍SIGNAL ID: #2083📍
+COIN: $NEAR/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 1.300✅
+Target 2: 1.375✅
+Target 3: 1.475✅
+
+🔥90% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,NEARUSDT,,,,0.82,,,,,False,0,,,,0,2083,signal,single,2083,1,,,,,,,,,,,,,,90,5,,0,0,0,
+214,PARSED,,"[trader#3] 📍SIGNAL ID: #2082📍
+COIN: $HYPE/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 31.25✅
+Target 2: 33.00✅
+Target 3: 35.00✅
+Target 4: 37.50✅
+Target 5: 41.00✅
+
+🔥183.3% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,HYPEUSDT,,,,0.82,,,,,False,0,,,,0,2082,signal,single,2082,1,,,,,,,,,,,,,,183.3,5,,0,0,0,
+213,PARSED,,"[trader#3] 📍SIGNAL ID: #2068📍
+COIN: $LINK/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 8.80✅
+Target 2: 9.35✅
+Target 3: 10.00✅
+
+🔥88.3% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,LINKUSDT,,,,0.82,,,,,False,0,,,,0,2068,signal,single,2068,1,,,,,,,,,,,,,,88.3,5,,0,0,0,
+207,PARSED,,"[trader#3] 📍SIGNAL ID: #2074📍
+COIN: $IMX/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.160✅
+Target 2: 0.168✅
+Target 3: 0.180✅
+Target 4: 0.195✅
+
+🔥129% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,IMXUSDT,,,,0.82,,,,,False,0,,,,0,2074,signal,single,2074,1,,,,,,,,,,,,,,129,5,,0,0,0,
+201,PARSED,,"[trader#3] 📍SIGNAL ID: #2072📍
+COIN: $TRX/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.284✅
+Target 2: 0.294✅
+Target 3: 0.305✅
+
+🔥50.6% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,TRXUSDT,,,,0.82,,,,,False,0,,,,0,2072,signal,single,2072,1,,,,,,,,,,,,,,50.6,5,,0,0,0,
+191,PARSED,,"[trader#3] 📍SIGNAL ID: #2092📍
+COIN: $ADA/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.2740 - 0.2750
+
+TARGETS: 0.2875 - 0.3000 - 0.3150 - 0.3300 - 0.3500 - 0.3750 - 0.4100 - 0.4500
+
+STOP LOSS: 0.2475
+
+Confluence between strong support zones, a 4h FVG and an ascending trend line in the entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.2875 | 0.3 | 0.315 | 0.33 | 0.35 | 0.375 | 0.41 | 0.45),,,ADAUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.274 | RANGE_HIGH:LIMIT:0.275,0.2475,0.2875 | 0.3 | 0.315 | 0.33 | 0.35 | 0.375 | 0.41 | 0.45,8,2092,signal,single,2092,1,,,,,,,,,,,,,,,,,0,0,0,
+188,PARSED,,"[trader#3] 📍SIGNAL ID: #2093📍
+COIN: $XTZ/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.3740 - 0.3750
+
+TARGETS: 0.3900 - 0.4100 - 0.4400 - 0.4750 - 0.5100 - 0.5500 - 0.6000
+
+STOP LOSS: 0.3400
+
+Support cluster at entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.39 | 0.41 | 0.44 | 0.475 | 0.51 | 0.55 | 0.6),,,XTZUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.374 | RANGE_HIGH:LIMIT:0.375,0.34,0.39 | 0.41 | 0.44 | 0.475 | 0.51 | 0.55 | 0.6,7,2093,signal,single,2093,1,,,,,,,,,,,,,,,,,0,0,0,
+166,PARSED,,"[trader#3] 📍SIGNAL ID: #2094📍
+COIN: $WLD/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.3180 - 0.3200
+
+TARGETS: 0.3300 - 0.3450 - 0.3650 - 0.3900 - 0.4200 - 0.4600 - 0.5000
+
+STOP LOSS: 0.2950
+
+Support cluster at entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.33 | 0.345 | 0.365 | 0.39 | 0.42 | 0.46 | 0.5),,,WLDUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.318 | RANGE_HIGH:LIMIT:0.32,0.295,0.33 | 0.345 | 0.365 | 0.39 | 0.42 | 0.46 | 0.5,7,2094,signal,single,2094,1,,,,,,,,,,,,,,,,,0,0,0,
+165,PARSED,,"[trader#3] 📍SIGNAL ID: #2094📍
+COIN: $WLD/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.3300✅
+Target 2: 0.3450✅
+
+🔥39.1% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,WLDUSDT,,,,0.82,,,,,False,0,,,,0,2094,signal,single,2094,1,,,,,,,,,,,,,,39.1,5,,0,0,0,
+160,PARSED,,"[trader#3] 📍SIGNAL ID: #2089📍
+COIN: $ATOM/USDT (2-5x)  
+Direction: LONG
+➖➖➖➖➖➖➖
+This signal is still running and under close watch. 
+
+Targets have not been reached yet, but the overall idea remains intact at this stage. Next target is at 1.875.
+➖➖➖➖➖➖➖",,,,,,,,,ATOMUSDT,,,,0.25,,,,,False,0,,,,0,2089,signal,single,2089,1,,,,,,,,,,,,,,,,,0,0,0,
+157,PARSED,,"[trader#3] 📍SIGNAL ID: #2092📍
+COIN: $ADA/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+No targets have been hit so far, but the signal is still in play. 
+
+As long as the structure holds, this setup remains valid.
+
+First target is at 0.2875.
+➖➖➖➖➖➖➖",,,,,,,,,ADAUSDT,,,,0.25,,,,,False,0,,,,0,2092,signal,single,2092,1,,,,,,,,,,,,,,,,,0,0,0,
+155,PARSED,,"[trader#3] 📍SIGNAL ID: #2087📍
+COIN: $SUI/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+This signal is still running and under close watch. 
+
+Targets have not been reached yet, but the overall idea remains intact at this stage. 
+
+First target is at 0.9700.
+➖➖➖➖➖➖➖",,,,,,,,,SUIUSDT,,,,0.25,,,,,False,0,,,,0,2087,signal,single,2087,1,,,,,,,,,,,,,,,,,0,0,0,
+152,PARSED,,"[trader#3] 📍SIGNAL ID: #2095📍
+COIN: $ALGO/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.0844 - 0.0850
+
+TARGETS: 0.0890 - 0.0950 - 0.1020 - 0.1100 - 0.1190 - 0.1300
+
+STOP LOSS: 0.0775
+
+Support cluster at entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.089 | 0.095 | 0.102 | 0.11 | 0.119 | 0.13),,,ALGOUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.0844 | RANGE_HIGH:LIMIT:0.085,0.0775,0.089 | 0.095 | 0.102 | 0.11 | 0.119 | 0.13,6,2095,signal,single,2095,1,,,,,,,,,,,,,,,,,0,0,0,
+151,PARSED,,"[trader#3] 📍SIGNAL ID: #2072📍
+COIN: $TRX/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.284✅
+Target 2: 0.294✅
+Target 3: 0.305✅
+Target 4: 0.318✅
+
+🔥74% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,TRXUSDT,,,,0.82,,,,,False,0,,,,0,2072,signal,single,2072,1,,,,,,,,,,,,,,74,5,,0,0,0,
+144,PARSED,,"[trader#3] 📍SIGNAL ID: #2093📍
+COIN: $XTZ/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+No targets have been hit so far, but the signal is still in play. 
+
+As long as the structure holds, this setup remains valid.
+
+The first target is located at 0.3900.
+➖➖➖➖➖➖➖",,,,,,,,,XTZUSDT,,,,0.25,,,,,False,0,,,,0,2093,signal,single,2093,1,,,,,,,,,,,,,,,,,0,0,0,
+138,PARSED,,"[trader#3] 📍SIGNAL ID: #2093📍
+COIN: $XTZ/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.3900✅
+
+🔥20% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,XTZUSDT,,,,0.82,,,,,False,0,,,,0,2093,signal,single,2093,1,,,,,,,,,,,,,,20,5,,0,0,0,
+137,PARSED,,"[trader#3] 📍SIGNAL ID: #2091📍
+COIN: $POL/USDT (2-5X)
+Direction: LONG
+➖➖➖➖➖➖➖
+
+STOP LOSS: 0.0915
+
+🚫17% Loss (2x)🚫
+
+SL hit, but one doesn't define us. Risk managed. On to the next one!
+➖➖➖➖➖➖➖",,,U_STOP_HIT,U_STOP_HIT,REPORT_LOSS,REPORT_LOSS,,,POLUSDT,,,,0.82,,,,,False,0,,,,0,2091,signal,single,2091,1,,,,,,,,,,,,,,,2,,0,0,0,
+133,PARSED,,"[trader#3] 📍SIGNAL ID: #2086📍
+COIN: $JUP/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.1600✅
+
+🔥16.2% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,JUPUSDT,,,,0.82,,,,,False,0,,,,0,2086,signal,single,2086,1,,,,,,,,,,,,,,16.2,5,,0,0,0,
+132,PARSED,,"[trader#3] 📍SIGNAL ID: #2092📍
+COIN: $ADA/USDT (2-5X)
+Direction: LONG
+➖➖➖➖➖➖➖
+
+STOP LOSS: 0.2475
+
+🚫20% Loss (2x)🚫
+
+SL hit, but one doesn't define us. Risk managed. On to the next one!
+➖➖➖➖➖➖➖",,,U_STOP_HIT,U_STOP_HIT,REPORT_LOSS,REPORT_LOSS,,,ADAUSDT,,,,0.82,,,,,False,0,,,,0,2092,signal,single,2092,1,,,,,,,,,,,,,,,2,,0,0,0,
+131,PARSED,,"[trader#3] 📍SIGNAL ID: #2095📍
+COIN: $ALGO/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.0890✅
+
+🔥23.6% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,ALGOUSDT,,,,0.82,,,,,False,0,,,,0,2095,signal,single,2095,1,,,,,,,,,,,,,,23.6,5,,0,0,0,
+128,PARSED,,"[trader#3] 📍SIGNAL ID: #2087📍
+COIN: $SUI/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.9700✅
+
+🔥21.6% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,SUIUSDT,,,,0.82,,,,,False,0,,,,0,2087,signal,single,2087,1,,,,,,,,,,,,,,21.6,5,,0,0,0,
+123,PARSED,,"[trader#3] 📍SIGNAL ID: #2096📍
+COIN: $AVAX/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 9.30 - 9.35
+
+TARGETS: 9.75 - 10.25 - 10.85 - 11.50 - 12.25 - 13.10 - 14.00 - 15.00
+
+STOP LOSS: 8.50
+
+Support cluster at entry zone plus an ascending trend line and a 6h FVG..
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=9.75 | 10.25 | 10.85 | 11.5 | 12.25 | 13.1 | 14 | 15),,,AVAXUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:9.3 | RANGE_HIGH:LIMIT:9.35,8.5,9.75 | 10.25 | 10.85 | 11.5 | 12.25 | 13.1 | 14 | 15,8,2096,signal,single,2096,1,,,,,,,,,,,,,,,,,0,0,0,
+115,PARSED,,"[trader#3] 📍SIGNAL ID: #2089📍
+COIN: $ATOM/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+No targets have been hit so far, but the signal is still in play. 
+
+As long as the structure holds, this setup remains valid.
+
+The first target is located at 1.875.
+➖➖➖➖➖➖➖",,,,,,,,,ATOMUSDT,,,,0.25,,,,,False,0,,,,0,2089,signal,single,2089,1,,,,,,,,,,,,,,,,,0,0,0,
+101,PARSED,,"[trader#3] 📍SIGNAL ID: #2097📍
+COIN: $ONDO/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.2440 - 0.2450
+
+TARGETS: 0.2550 - 0.2650 - 0.2775 - 0.2925 - 0.3100 - 0.3300 - 0.3600 - 0.4000
+
+STOP LOSS: 0.2250
+
+Support cluster at entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.255 | 0.265 | 0.2775 | 0.2925 | 0.31 | 0.33 | 0.36 | 0.4),,,ONDOUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.244 | RANGE_HIGH:LIMIT:0.245,0.225,0.255 | 0.265 | 0.2775 | 0.2925 | 0.31 | 0.33 | 0.36 | 0.4,8,2097,signal,single,2097,1,,,,,,,,,,,,,,,,,0,0,0,
+98,PARSED,,"[trader#3] 📍SIGNAL ID: #2096📍
+COIN: $AVAX/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+No targets have been hit so far, but the signal is still in play. 
+
+As long as the structure holds, this setup remains valid.
+
+Next target is at 9.75.
+➖➖➖➖➖➖➖",,,,,,,,,AVAXUSDT,,,,0.25,,,,,False,0,,,,0,2096,signal,single,2096,1,,,,,,,,,,,,,,,,,0,0,0,
+88,PARSED,,"[trader#3] 📍SIGNAL ID: #2096📍
+COIN: $AVAX/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 9.75✅
+
+🔥21.4% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,AVAXUSDT,,,,0.82,,,,,False,0,,,,0,2096,signal,single,2096,1,,,,,,,,,,,,,,21.4,5,,0,0,0,
+77,PARSED,,"[trader#3] 📍SIGNAL ID: #2098📍
+COIN: $DOT/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 1.340 - 1.350
+
+TARGETS: 1.400 - 1.475 - 1.550 - 1.650 - 1.800 - 1.950 - 2.150 - 2.350
+
+STOP LOSS: 1.215
+
+Support cluster at entry zone plus a 4h FVG.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=1.4 | 1.475 | 1.55 | 1.65 | 1.8 | 1.95 | 2.15 | 2.35),,,DOTUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:1.34 | RANGE_HIGH:LIMIT:1.35,1.215,1.4 | 1.475 | 1.55 | 1.65 | 1.8 | 1.95 | 2.15 | 2.35,8,2098,signal,single,2098,1,,,,,,,,,,,,,,,,,0,0,0,
+75,PARSED,,"[trader#3] 📍SIGNAL ID: #2099📍
+COIN: $ENA/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.0965 - 0.0975
+
+TARGETS: 0.1010 - 0.1050 - 0.1100 - 0.1175 - 0.1275 - 0.1375 - 0.1500
+
+STOP LOSS: 0.0900
+
+4H FVG reinforcing a strong support cluster at entry.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.101 | 0.105 | 0.11 | 0.1175 | 0.1275 | 0.1375 | 0.15),,,ENAUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.0965 | RANGE_HIGH:LIMIT:0.0975,0.09,0.101 | 0.105 | 0.11 | 0.1175 | 0.1275 | 0.1375 | 0.15,7,2099,signal,single,2099,1,,,,,,,,,,,,,,,,,0,0,0,
+72,PARSED,,"[trader#3] 📍SIGNAL ID: #2098📍
+COIN: $DOT/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+The signal remains active and structurally valid. 
+
+Price has not reached targets so far, though current conditions continue to support the setup.
+
+First target is lopcated at 1.400.
+➖➖➖➖➖➖➖",,,,,,,,,DOTUSDT,,,,0.25,,,,,False,0,,,,0,2098,signal,single,2098,1,,,,,,,,,,,,,,,,,0,0,0,
+63,PARSED,,"[trader#3] 📍SIGNAL ID: #2099📍
+COIN: $ENA/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+The trade is still active and moving within the expected zone. 
+
+Nothing has changed in the overall idea for now, so the setup remains valid.
+
+First target is at 0.1010.
+➖➖➖➖➖➖➖",,,,,,,,,ENAUSDT,,,,0.25,,,,,False,0,,,,0,2099,signal,single,2099,1,,,,,,,,,,,,,,,,,0,0,0,
+59,PARSED,,"[trader#3] 📍SIGNAL ID: #2088📍
+COIN: $ICP/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+No targets yet, but the setup remains alive. 
+
+Market structure continues to support the signal at this stage.
+
+Next target is at 2.700.
+➖➖➖➖➖➖➖",,,,,,,,,ICPUSDT,,,,0.25,,,,,False,0,,,,0,2088,signal,single,2088,1,,,,,,,,,,,,,,,,,0,0,0,
+51,PARSED,,"[trader#3] 📍SIGNAL ID: #2088📍
+COIN: $ICP/USDT (2-5X)
+Direction: LONG
+➖➖➖➖➖➖➖
+
+STOP LOSS: 2.250
+
+🚫23.5% Loss (2x)🚫
+
+SL hit, but one doesn't define us. Risk managed. On to the next one!
+➖➖➖➖➖➖➖",,,U_STOP_HIT,U_STOP_HIT,REPORT_LOSS,REPORT_LOSS,,,ICPUSDT,,,,0.82,,,,,False,0,,,,0,2088,signal,single,2088,1,,,,,,,,,,,,,,,2,,0,0,0,
+48,PARSED,,"[trader#3] 📍SIGNAL ID: #2099📍
+COIN: $ENA/USDT (2-5X)
+Direction: LONG
+➖➖➖➖➖➖➖
+
+STOP LOSS: 0.0900
+
+🚫13.5% Loss (2x)🚫
+
+Volatility across global markets took this one out. Risk contained. On to the next.
+➖➖➖➖➖➖➖",,,U_STOP_HIT,U_STOP_HIT,REPORT_LOSS,REPORT_LOSS,,,ENAUSDT,,,,0.82,,,,,False,0,,,,0,2099,signal,single,2099,1,,,,,,,,,,,,,,,2,,0,0,0,
+47,PARSED,,"[trader#3] 📍SIGNAL ID: #2100📍
+COIN: $APT/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.940 - 0.950
+
+TARGETS: 1.000 - 1.075 - 1.150 - 1.250 - 1.375 - 1.500 - 1.650
+
+STOP LOSS: 0.850
+
+An ascending trendline reinforcing a strong support cluster at entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=1 | 1.075 | 1.15 | 1.25 | 1.375 | 1.5 | 1.65),,,APTUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.94 | RANGE_HIGH:LIMIT:0.95,0.85,1 | 1.075 | 1.15 | 1.25 | 1.375 | 1.5 | 1.65,7,2100,signal,single,2100,1,,,,,,,,,,,,,,,,,0,0,0,
+45,PARSED,,"[trader#3] 📍SIGNAL ID: #2101📍
+COIN: $XLM/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 0.1625 - 0.1635
+
+TARGETS: 0.1700 - 0.1775 - 0.1875 - 0.2000 - 0.2150 - 0.2300 - 0.2500
+
+STOP LOSS: 0.1500
+
+An ascending trendline reinforcing a strong support cluster at entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=0.17 | 0.1775 | 0.1875 | 0.2 | 0.215 | 0.23 | 0.25),,,XLMUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:0.1625 | RANGE_HIGH:LIMIT:0.1635,0.15,0.17 | 0.1775 | 0.1875 | 0.2 | 0.215 | 0.23 | 0.25,7,2101,signal,single,2101,1,,,,,,,,,,,,,,,,,0,0,0,
+44,PARSED,,"[trader#3] 📍SIGNAL ID: #2100📍
+COIN: $APT/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+No targets yet, but the setup remains alive. 
+
+Market structure continues to support the signal at this stage.
+
+First target is at 1.000.
+➖➖➖➖➖➖➖",,,,,,,,,APTUSDT,,,,0.25,,,,,False,0,,,,0,2100,signal,single,2100,1,,,,,,,,,,,,,,,,,0,0,0,
+41,PARSED,,"[trader#3] 📍SIGNAL ID: #2098📍
+COIN: $DOT/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+The signal is still in play. 
+
+No targets have been reached yet, but the setup remains valid at this stage.
+
+First target is located at 1.400.
+➖➖➖➖➖➖➖",,,,,,,,,DOTUSDT,,,,0.25,,,,,False,0,,,,0,2098,signal,single,2098,1,,,,,,,,,,,,,,,,,0,0,0,
+39,PARSED,,"[trader#3] 📍SIGNAL ID: #2102📍
+COIN: $XRP/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 1.3200 - 1.3250
+
+TARGETS: 1.3750 - 1.4500 - 1.5500 - 1.6500 - 1.7500 - 1.8750 - 2.0000
+
+STOP LOSS: 1.2000
+
+Strong support cluster at entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=1.375 | 1.45 | 1.55 | 1.65 | 1.75 | 1.875 | 2),,,XRPUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:1.32 | RANGE_HIGH:LIMIT:1.325,1.2,1.375 | 1.45 | 1.55 | 1.65 | 1.75 | 1.875 | 2,7,2102,signal,single,2102,1,,,,,,,,,,,,,,,,,0,0,0,
+38,PARSED,,"[trader#3] 📍SIGNAL ID: #2089📍
+COIN: $ATOM/USDT (2-5X)
+Direction: LONG
+➖➖➖➖➖➖➖
+
+STOP LOSS: 1.650
+
+🚫16.7% Loss (2x)🚫
+
+Volatility across global markets took this one out. Risk contained. On to the next.
+➖➖➖➖➖➖➖",,,U_STOP_HIT,U_STOP_HIT,REPORT_LOSS,REPORT_LOSS,,,ATOMUSDT,,,,0.82,,,,,False,0,,,,0,2089,signal,single,2089,1,,,,,,,,,,,,,,,2,,0,0,0,
+34,PARSED,,"[trader#3] 📍SIGNAL ID: #2101📍
+COIN: $XLM/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+The trade is still active and moving within the expected zone. 
+
+Nothing has changed in the overall idea for now, so the setup remains valid.
+
+First target is at 0.1700.
+➖➖➖➖➖➖➖",,,,,,,,,XLMUSDT,,,,0.25,,,,,False,0,,,,0,2101,signal,single,2101,1,,,,,,,,,,,,,,,,,0,0,0,
+30,PARSED,,"Секция иностранных торговых связей 😉
+или
+trader #3
+Модель расчёта: консервативная (1% риск, равные тейки)
+
+Статистика:
+20 сделок
+5 стопов
+Остальное - частичные фиксации, БУ и сделки, которые ещё остаются в работе.
+Итог: +2.7%
+
+Комментарий:
+Месяц получился составным: часть прибыли доехала из февральских сигналов, часть мартовских сделок ещё продолжает отрабатываться.🤷‍♂️
+
+---
+Общий итог:
+Типичный март.
+Вроде уже весна, и ты ждёшь, что сейчас всё дружно зацветёт зелёным.🕯🔼
+А он, собака, всё морозит. 😏
+Ну а в апрель мы заходим уже с новым адресом и нормальным человеческим оптимизмом. 👌",,,,,,,,,,,,,0.25,,,,,False,0,,,,0,,,,,0,,,,,,,,,,,,,,,,,0,0,0,
+29,PARSED,,"[trader#3] 📍SIGNAL ID: #2101📍
+COIN: $XLM/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.1700✅
+
+🔥19.9% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,XLMUSDT,,,,0.82,,,,,False,0,,,,0,2101,signal,single,2101,1,,,,,,,,,,,,,,19.9,5,,0,0,0,
+21,PARSED,,"[trader#3] 📍SIGNAL ID: #2102📍
+COIN: $XRP/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+This setup remains active and valid for now. 
+
+Price continues to respect the main structure and we keep monitoring closely.
+
+Target is located at 1.3750.
+➖➖➖➖➖➖➖",,,,,,,,,XRPUSDT,,,,0.25,,,,,False,0,,,,0,2102,signal,single,2102,1,,,,,,,,,,,,,,,,,0,0,0,
+18,PARSED,,"[trader#3] 📍SIGNAL ID: #2100📍
+COIN: $APT/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+The trade is still active and moving within the expected zone. 
+
+Nothing has changed in the overall idea for now, so the setup remains valid.
+➖➖➖➖➖➖➖",,,,,,,,,APTUSDT,,,,0.25,,,,,False,0,,,,0,2100,signal,single,2100,1,,,,,,,,,,,,,,,,,0,0,0,
+9,PARSED,,"[trader#3] 📍SIGNAL ID: #2103📍
+COIN: $TON/USDT (2-5x)  
+Direction: LONG  
+➖➖➖➖➖➖➖  
+ENTRY: 1.190 - 1.200
+
+TARGETS: 1.250 - 1.300 - 1.375 - 1.500 - 1.650 - 1.800 - 2.000
+
+STOP LOSS: 1.100
+
+Strong support cluster at entry zone.
+➖➖➖➖➖➖➖",,,NS_CREATE_SIGNAL,NS_CREATE_SIGNAL,OPEN_POSITION,OPEN_POSITION(side=LONG; take_profits=1.25 | 1.3 | 1.375 | 1.5 | 1.65 | 1.8 | 2),,,TONUSDT,LONG,,,0.9,,,RANGE_LIMIT,RANGE,False,2,RANGE_LOW:LIMIT:1.19 | RANGE_HIGH:LIMIT:1.2,1.1,1.25 | 1.3 | 1.375 | 1.5 | 1.65 | 1.8 | 2,7,2103,signal,single,2103,1,,,,,,,,,,,,,,,,,0,0,0,
+2,PARSED,,"[trader#3] 📍SIGNAL ID: #2095📍
+COIN: $ALGO/USDT (2-5x)
+Direction: LONG
+➖➖➖➖➖➖➖
+Target 1: 0.0890✅
+Target 2: 0.0950✅
+Target 3: 0.1020✅
+
+🔥100% Profit (5x)🔥
+➖➖➖➖➖➖➖",,,U_TP_HIT,U_TP_HIT,REPORT_PROFIT,REPORT_PROFIT,,,ALGOUSDT,,,,0.82,,,,,False,0,,,,0,2095,signal,single,2095,1,,,,,,,,,,,,,,100,5,,0,0,0,

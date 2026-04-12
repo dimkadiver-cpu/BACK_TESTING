@@ -28,15 +28,21 @@ def test_load_extended_policy_template_supports_nested_contract() -> None:
     policy = PolicyLoader().load("policy_template_full")
 
     assert policy.entry.entry_split is not None
-    assert policy.entry.entry_split.ZONE is not None
-    assert policy.entry.entry_split.ZONE.split_mode == "endpoints"
 
-    assert not isinstance(policy.tp.tp_distribution, str)
-    assert policy.tp.tp_distribution.mode == "follow_all_signal_tps"
-    assert policy.tp.tp_distribution.max_tp_levels == 3
-    assert policy.tp.tp_distribution.tp_close_distribution[3] == [30, 30, 40]
+    # Canonical blocks — must be present
+    assert policy.entry.entry_split.LIMIT is not None
+    assert policy.entry.entry_split.LIMIT.range is not None
+    assert policy.entry.entry_split.LIMIT.range.split_mode == "endpoints"
+    assert policy.entry.entry_split.MARKET is not None
 
-    assert policy.pending.cancel_unfilled_if_tp1_reached_before_fill is False
-    assert policy.pending.cancel_unfilled_if_reached_before_fill is False
-    assert policy.pending.cancel_averaging_pending_after_tp1 is False
-    assert policy.pending.cancel_averaging_pending_after is False
+    # Deprecated blocks — must be absent in the canonical template
+    assert policy.entry.entry_split.ZONE is None, "ZONE block is deprecated and must not appear in policy_template_full"
+    assert policy.entry.entry_split.AVERAGING is None, "AVERAGING block is deprecated and must not appear in policy_template_full"
+
+    # close_distribution uses table mode with the values from policy_template_full
+    assert policy.tp.close_distribution.mode == "table"
+    assert policy.tp.close_distribution.table[3] == [30, 30, 40]
+
+    # pending: canonical fields
+    assert policy.pending.cancel_unfilled_pending_after is None
+    assert policy.pending.cancel_averaging_pending_after is None

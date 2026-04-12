@@ -7,8 +7,7 @@ def test_signal_only_disables_all_updates() -> None:
     policy = PolicyLoader().load("signal_only")
 
     assert policy.entry.allow_add_entry_updates is False
-    assert policy.sl.move_sl_with_trader is False
-
+    # move_sl_with_trader removed — apply_move_stop is the single control point
     assert policy.updates.apply_move_stop is False
     assert policy.updates.apply_close_partial is False
     assert policy.updates.apply_close_full is False

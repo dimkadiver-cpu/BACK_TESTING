@@ -81,7 +81,7 @@ Output del chain_adapter: `CanonicalChain` (vedi `domain/events.py`)
     "side": str,
     "symbol": str,
     # da NewSignalEntities se presente:
-    "entry_type": str,                # LIMIT / MARKET / AVERAGING / ZONE
+    "entry_type": str,                # LIMIT | MARKET (canonico); AVERAGING / ZONE deprecati
     "stop_loss": float,               # ridondante con sl_price
     "entries": list[{"price": float, "order_type": str}],
     "take_profits": list[{"price": float, "label": str|None}],

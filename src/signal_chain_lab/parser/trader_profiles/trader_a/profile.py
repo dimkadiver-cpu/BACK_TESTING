@@ -431,7 +431,7 @@ class TraderAProfileParser:
                 {
                     "action": "CREATE_SIGNAL",
                     "instrument": entities.get("symbol"),
-                    "side": entities.get("side"),
+                    "side": entities.get("direction") or entities.get("side"),
                     "entries": entities.get("entry", []),
                     "stop_loss": entities.get("stop_loss"),
                     "take_profits": entities.get("take_profits", []),
@@ -1149,7 +1149,7 @@ class TraderAProfileParser:
 
         if "NS_CREATE_SIGNAL" in intents:
             entities["symbol"] = _extract_signal_symbol(raw_text) or _extract_signal_symbol_from_bare_hashtag(raw_text)
-            entities["side"] = _extract_signal_side(normalized)
+            entities["direction"] = _extract_signal_side(normalized)
             entities["entry"] = _extract_signal_entry_levels(raw_text)
             entities["stop_loss"] = _extract_signal_stop_loss(raw_text)
             entities["take_profits"] = _extract_signal_take_profits(raw_text)
@@ -1158,6 +1158,7 @@ class TraderAProfileParser:
                 entities["averaging"] = averaging
             entry_plan = _extract_signal_entry_plan(raw_text)
             entities["entry_plan_entries"] = entry_plan["entries"]
+            entities["entry_type"] = entry_plan.get("entry_type", "LIMIT")
             entities["entry_plan_type"] = entry_plan["entry_plan_type"]
             entities["entry_structure"] = entry_plan["entry_structure"]
             entities["has_averaging_plan"] = entry_plan["has_averaging_plan"]
@@ -1802,11 +1803,15 @@ def _extract_signal_entry_plan(raw_text: str) -> dict[str, Any]:
             entry_plan_type = "SINGLE_LIMIT"
         else:
             entry_plan_type = "UNKNOWN"
-        entry_structure = "SINGLE"
+        entry_structure = "ONE_SHOT"  # canonical; was "SINGLE"
+
+    # Canonical entry_type: nature of the primary order leg
+    entry_type = primary_order_type if primary_order_type in {"MARKET", "LIMIT"} else "LIMIT"
 
     return {
         "entries": plan_entries,
-        "entry_plan_type": entry_plan_type,
+        "entry_type": entry_type,
+        "entry_plan_type": entry_plan_type,  # kept as metadata / diagnostics
         "entry_structure": entry_structure,
         "has_averaging_plan": has_averaging_plan,
     }

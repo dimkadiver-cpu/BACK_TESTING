@@ -8,16 +8,22 @@ from src.signal_chain_lab.market.data_models import Candle
 
 _ORDERED_TIMEFRAMES = ["1m", "5m", "15m", "1h", "4h", "1d"]
 
+# Maps raw event_type → normalised kind used by the chart JS for colouring
 _EVENT_KIND_MAP: dict[str, str] = {
     "OPEN_SIGNAL": "FILL",
     "FILL": "FILL",
-    "TP_HIT": "TP_HIT",
-    "SL_HIT": "SL_HIT",
-    "MOVE_STOP_TO_BE": "MOVE_SL_BE",
-    "MOVE_STOP": "MOVE_SL_BE",
+    "TP_HIT": "TP",
+    "SL_HIT": "SL",
+    "MOVE_STOP_TO_BE": "MOVE_SL",
+    "MOVE_STOP": "MOVE_SL",
+    "CLOSE_PARTIAL": "PARTIAL_CLOSE",
     "PARTIAL_CLOSE": "PARTIAL_CLOSE",
+    "CLOSE_FULL": "CLOSE",
     "CLOSE": "CLOSE",
+    "CANCEL_PENDING": "CANCEL",
     "CANCEL": "CANCEL",
+    "EXPIRED": "CANCEL",
+    "TIMEOUT": "CANCEL",
 }
 
 
@@ -67,7 +73,7 @@ def _build_levels(
     if trade.avg_entry_price is not None:
         entries.append({"label": "Avg Entry", "price": float(trade.avg_entry_price)})
 
-    # SL from each state to capture BE moves
+    # Collect SL changes to capture initial SL, BE moves, and final SL
     seen_sl: set[float] = set()
     be_added = False
     for entry in event_log:
@@ -86,6 +92,8 @@ def _build_levels(
             if not be_added:
                 sl.append({"label": "Break Even", "price": sl_price})
                 be_added = True
+            else:
+                sl.append({"label": "Moved SL", "price": sl_price})
 
     # TPs from last state
     last_state = event_log[-1].state_after or {}
@@ -94,7 +102,7 @@ def _build_levels(
         if isinstance(tp, int | float):
             tps.append({"label": f"TP{idx + 1}", "price": float(tp)})
 
-    # Exit price from final state keys
+    # Exit price
     for key in ("close_price", "market_price", "mark_price", "last_price"):
         val = last_state.get(key)
         if isinstance(val, int | float):
@@ -152,6 +160,34 @@ def _build_events(event_log: list[EventLogEntry]) -> list[dict[str, object]]:
     return events
 
 
+def _build_position_size_series(event_log: list[EventLogEntry]) -> list[list[object]]:
+    """Return [ts_ms, open_size] points for the position size step overlay."""
+    points: list[list[object]] = []
+    for entry in event_log:
+        ts = _to_epoch_ms(entry.timestamp)
+        if ts is None:
+            continue
+        state = entry.state_after or {}
+        size = state.get("open_size")
+        if isinstance(size, (int, float)):
+            points.append([ts, float(size)])
+    return points
+
+
+def _build_realized_pnl_series(event_log: list[EventLogEntry]) -> list[list[object]]:
+    """Return [ts_ms, realized_pnl] points for the PnL step overlay."""
+    points: list[list[object]] = []
+    for entry in event_log:
+        ts = _to_epoch_ms(entry.timestamp)
+        if ts is None:
+            continue
+        state = entry.state_after or {}
+        pnl = state.get("realized_pnl")
+        if isinstance(pnl, (int, float)):
+            points.append([ts, float(pnl)])
+    return points
+
+
 def _default_timeframe(candles_by_timeframe: dict[str, list[object]]) -> str | None:
     for tf in _ORDERED_TIMEFRAMES:
         if tf in candles_by_timeframe:
@@ -183,4 +219,6 @@ def build_trade_chart_payload(
         "candles_by_timeframe": candles_serialized,
         "levels": _build_levels(trade, event_log),
         "events": _build_events(event_log),
+        "position_size_series": _build_position_size_series(event_log),
+        "realized_pnl_series": _build_realized_pnl_series(event_log),
     }

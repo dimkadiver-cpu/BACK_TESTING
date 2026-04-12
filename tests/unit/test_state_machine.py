@@ -95,16 +95,22 @@ def test_open_signal_builds_market_plus_limit_averaging_from_payload_entries() -
     assert state.pending_size == 1.0
 
 
-def test_open_signal_builds_zone_endpoints_using_policy_weights() -> None:
+def test_open_signal_zone_payload_normalised_to_limit_range_canonical_weights() -> None:
+    """Legacy entry_type=ZONE payload is normalised to LIMIT+RANGE; dispatches via LIMIT.range."""
     state = _base_state()
     policy = PolicyConfig.model_validate(
         {
-            "name": "zone_policy",
+            "name": "range_policy",
             "entry": {
                 "entry_split": {
-                    "ZONE": {
-                        "split_mode": "endpoints",
-                        "weights": {"E1": 0.5, "E2": 0.5},
+                    "LIMIT": {
+                        "single": {"weights": {"E1": 1.0}},
+                        "range": {
+                            "split_mode": "endpoints",
+                            "weights": {"E1": 0.5, "E2": 0.5},
+                        },
+                        "averaging": {"weights": {"E1": 0.7, "E2": 0.3}},
+                        "ladder": {"weights": {"E1": 0.5, "E2": 0.5}},
                     }
                 }
             },
@@ -112,7 +118,7 @@ def test_open_signal_builds_zone_endpoints_using_policy_weights() -> None:
     )
 
     payload = {
-        "entry_type": "ZONE",
+        "entry_type": "ZONE",  # legacy — normalised to LIMIT + RANGE by normalize_entry_semantics
         "entry_prices": [100.0, 95.0],
         "sl_price": 90.0,
         "tp_levels": [110.0],

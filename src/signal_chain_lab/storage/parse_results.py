@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from copy import deepcopy
 import json
 import sqlite3
+
+from src.signal_chain_lab.engine.state_machine import normalize_alias_fields, normalize_entry_semantics
 
 
 @dataclass(slots=True)
@@ -62,6 +65,8 @@ class ParseResultStore:
         return None
 
     def upsert(self, record: ParseResultRecord) -> None:
+        normalized_json = _canonicalize_normalized_json(record.parse_result_normalized_json, message_type=record.message_type)
+        canonical_direction = _direction_from_payload(normalized_json) or record.direction
         query = """
             INSERT INTO parse_results(
               raw_message_id,
@@ -131,7 +136,7 @@ class ParseResultStore:
                     record.completeness,
                     1 if record.is_executable else 0,
                     record.symbol,
-                    record.direction,
+                    canonical_direction,
                     record.entry_raw,
                     record.stop_raw,
                     record.target_raw_list,
@@ -142,9 +147,119 @@ class ParseResultStore:
                     record.linkage_status,
                     record.warning_text,
                     record.notes,
-                    record.parse_result_normalized_json,
+                    normalized_json,
                     record.created_at,
                     record.updated_at,
                 ),
             )
             conn.commit()
+
+
+def _canonicalize_normalized_json(raw: str | None, *, message_type: str | None) -> str | None:
+    if not raw:
+        return raw
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError:
+        return raw
+    if not isinstance(payload, dict):
+        return raw
+    canonical = _canonicalize_payload(payload, message_type=message_type)
+    return json.dumps(canonical, ensure_ascii=False, default=str)
+
+
+def _canonicalize_payload(payload: dict, *, message_type: str | None) -> dict:
+    result = deepcopy(payload)
+    entities = result.get("entities")
+    if isinstance(entities, dict):
+        entities = normalize_alias_fields(entities)
+        if str(message_type or result.get("message_type") or "").upper() == "NEW_SIGNAL":
+            entities = normalize_entry_semantics(entities)
+            _ensure_entry_plan_entries(entities)
+            _ensure_entry_range(entities)
+        result["entities"] = entities
+
+    direction = _direction_from_entities(result.get("entities")) or result.get("direction")
+    if direction is not None:
+        result["direction"] = direction
+
+    symbol = _symbol_from_entities(result.get("entities")) or result.get("symbol")
+    if symbol is not None:
+        result["symbol"] = symbol
+
+    return result
+
+
+def _ensure_entry_plan_entries(entities: dict) -> None:
+    if entities.get("entry_plan_entries"):
+        return
+    if entities.get("entries"):
+        entities["entry_plan_entries"] = list(entities["entries"])
+        return
+
+    entry_range = entities.get("entry_range")
+    if isinstance(entry_range, list) and len(entry_range) >= 2:
+        prices = [value for value in entry_range[:2] if isinstance(value, (int, float))]
+        if len(prices) == 2:
+            entities["entry_plan_entries"] = [
+                {"role": "RANGE_LOW", "order_type": "LIMIT", "price": float(prices[0])},
+                {"role": "RANGE_HIGH", "order_type": "LIMIT", "price": float(prices[1])},
+            ]
+            return
+
+    low = entities.get("entry_range_low")
+    high = entities.get("entry_range_high")
+    if isinstance(low, (int, float)) and isinstance(high, (int, float)):
+        entities["entry_plan_entries"] = [
+            {"role": "RANGE_LOW", "order_type": "LIMIT", "price": float(low)},
+            {"role": "RANGE_HIGH", "order_type": "LIMIT", "price": float(high)},
+        ]
+        return
+
+    entry = entities.get("entry")
+    if isinstance(entry, list):
+        entries = []
+        for index, value in enumerate(entry):
+            if not isinstance(value, (int, float)):
+                continue
+            role = "PRIMARY" if index == 0 else "AVERAGING"
+            entries.append({"role": role, "order_type": "LIMIT", "price": float(value)})
+        if entries:
+            entities["entry_plan_entries"] = entries
+    elif isinstance(entry, (int, float)):
+        entities["entry_plan_entries"] = [{"role": "PRIMARY", "order_type": "LIMIT", "price": float(entry)}]
+
+
+def _ensure_entry_range(entities: dict) -> None:
+    if entities.get("entry_range"):
+        return
+    low = entities.get("entry_range_low")
+    high = entities.get("entry_range_high")
+    if isinstance(low, (int, float)) and isinstance(high, (int, float)):
+        entities["entry_range"] = [float(low), float(high)]
+
+
+def _direction_from_payload(raw: str | None) -> str | None:
+    if not raw:
+        return None
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError:
+        return None
+    if not isinstance(payload, dict):
+        return None
+    return _direction_from_entities(payload.get("entities")) or payload.get("direction")
+
+
+def _direction_from_entities(entities: object) -> str | None:
+    if not isinstance(entities, dict):
+        return None
+    direction = entities.get("direction") or entities.get("side")
+    return str(direction) if direction is not None else None
+
+
+def _symbol_from_entities(entities: object) -> str | None:
+    if not isinstance(entities, dict):
+        return None
+    symbol = entities.get("symbol")
+    return str(symbol) if symbol is not None else None

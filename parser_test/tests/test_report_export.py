@@ -214,6 +214,47 @@ class ReportingCsvExportTests(unittest.TestCase):
         self.assertNotIn('legacy_actions', row)
         self.assertNotIn('normalized_json_debug', row)
 
+    def test_build_report_row_prefers_canonical_direction_and_stop_fields(self) -> None:
+        row = build_report_row(
+            raw_message_id=5,
+            parse_status='PARSED',
+            reply_to_message_id=None,
+            raw_text='Move stop to tp1 and close 50%',
+            warning_text='',
+            normalized={
+                'message_type': 'UPDATE',
+                'direction': 'LONG',
+                'entities': {
+                    'side': 'SHORT',
+                    'new_sl_level': {'raw': '101.5', 'value': 101.5},
+                    'new_sl_price': {'raw': '101.5', 'value': 101.5},
+                    'new_sl_reference': 'TP1',
+                    'close_pct': 0.5,
+                },
+                'actions_structured': [
+                    {
+                        'action_type': 'MOVE_STOP',
+                        'new_sl_level': {'raw': '101.5', 'value': 101.5},
+                        'new_sl_price': {'raw': '101.5', 'value': 101.5},
+                        'new_sl_reference': 'TP1',
+                    },
+                    {
+                        'action_type': 'CLOSE_POSITION',
+                        'close_scope': 'PARTIAL',
+                        'close_pct': 0.5,
+                    },
+                ],
+            },
+            scope='UPDATE',
+        )
+        self.assertEqual(row['direction'], 'LONG')
+        self.assertEqual(row['new_sl_level'], '101.5')
+        self.assertEqual(row['new_sl_price'], '101.5')
+        self.assertEqual(row['new_sl_reference'], 'TP1')
+        self.assertEqual(row['new_stop_level'], '101.5')
+        self.assertEqual(row['close_pct'], '0.5')
+        self.assertEqual(row['close_fraction'], '0.5')
+
     def test_export_reports_csv_standard_excludes_legacy_and_json_debug(self) -> None:
         db_path = self._make_db()
         reports_dir = Path.cwd() / 'parser_test' / 'reports'
@@ -229,6 +270,9 @@ class ReportingCsvExportTests(unittest.TestCase):
                 rows = list(reader)
             self.assertIn('action_types', header)
             self.assertIn('actions_structured_summary', header)
+            self.assertIn('new_sl_level', header)
+            self.assertIn('new_sl_price', header)
+            self.assertIn('new_sl_reference', header)
             self.assertNotIn('actions', header)
             self.assertNotIn('legacy_actions', header)
             self.assertNotIn('normalized_json_debug', header)

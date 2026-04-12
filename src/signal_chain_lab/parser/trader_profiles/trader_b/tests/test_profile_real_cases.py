@@ -39,7 +39,7 @@ class TraderBProfileRealCasesTests(unittest.TestCase):
         result = self.parser.parse_message(text, _context(text=text))
         self.assertEqual(result.message_type, "NEW_SIGNAL")
         self.assertEqual(result.entities.get("symbol"), "ARBUSDT")
-        self.assertEqual(result.entities.get("side"), "LONG")
+        self.assertEqual(result.entities.get("direction"), "LONG")
         self.assertEqual(result.entities.get("entry"), [1.25])
         self.assertEqual(result.entities.get("stop_loss"), 1.1)
         self.assertEqual(result.entities.get("take_profits"), [1.4])

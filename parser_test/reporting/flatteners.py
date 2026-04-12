@@ -102,9 +102,33 @@ def _derive_fields(normalized: dict[str, Any], *, raw_message_id: int | str | No
         entities=entities,
     )
     target_scope_kind, target_scope_value = _derive_target_scope_summary(normalized=normalized, target_scope=target_scope, target_refs=target_refs)
-    new_stop_level = _first_action_field(normalized, "new_stop_level") or _scalar(entities.get("new_stop_level"))
+    new_sl_level_value = _first_non_empty(
+        _first_action_value(normalized, "new_sl_level"),
+        _first_action_value(normalized, "new_stop_level"),
+        entities.get("new_sl_level"),
+        entities.get("new_stop_level"),
+    )
+    new_sl_price_value = _first_non_empty(
+        _first_action_value(normalized, "new_sl_price"),
+        _first_action_value(normalized, "new_stop_price"),
+        entities.get("new_sl_price"),
+        entities.get("new_stop_price"),
+    )
+    new_sl_reference = _first_non_empty(
+        _first_action_field(normalized, "new_sl_reference"),
+        _first_action_field(normalized, "stop_basis"),
+        _first_action_field(normalized, "new_stop_reference_text"),
+        _scalar(entities.get("new_sl_reference")),
+        _scalar(entities.get("new_stop_reference_text")),
+    )
+    new_stop_level = _format_price_like(new_sl_level_value)
     close_scope = _first_action_field(normalized, "close_scope") or _scalar(entities.get("close_scope"))
-    close_fraction = _first_action_field(normalized, "close_fraction") or _format_float(entities.get("close_fraction"))
+    close_pct = _format_float(_first_non_empty(
+        _first_action_value(normalized, "close_pct"),
+        entities.get("close_pct"),
+        entities.get("partial_close_percent"),
+    ))
+    close_fraction = _first_action_field(normalized, "close_fraction") or close_pct or _format_float(entities.get("close_fraction"))
     hit_target = _first_action_field(normalized, "hit_target") or _scalar(entities.get("hit_target"))
     fill_state = _first_action_field(normalized, "fill_state") or _scalar(entities.get("fill_state"))
     result_mode = _first_action_field(normalized, "result_mode") or _scalar(entities.get("result_mode"))
@@ -132,7 +156,7 @@ def _derive_fields(normalized: dict[str, Any], *, raw_message_id: int | str | No
         "event_type": _scalar(normalized.get("event_type")),
         "message_class": _scalar(normalized.get("message_class")),
         "symbol": _scalar(normalized.get("symbol") or entities.get("symbol")),
-        "direction": _scalar(normalized.get("direction") or entities.get("side") or entities.get("direction")),
+        "direction": _scalar(normalized.get("direction") or entities.get("direction") or entities.get("side")),
         "market_type": _scalar(normalized.get("market_type")),
         "status": _scalar(normalized.get("status")),
         "confidence": _format_float(normalized.get("confidence")),
@@ -152,7 +176,11 @@ def _derive_fields(normalized: dict[str, Any], *, raw_message_id: int | str | No
         "target_refs": _join_number_list(target_refs),
         "target_refs_count": str(len(target_refs)),
         "linking_strategy": linking_strategy,
+        "new_sl_level": _format_price_like(new_sl_level_value),
+        "new_sl_price": _format_price_like(new_sl_price_value),
+        "new_sl_reference": _scalar(new_sl_reference),
         "new_stop_level": new_stop_level,
+        "close_pct": close_pct,
         "close_scope": close_scope,
         "close_fraction": close_fraction,
         "hit_target": hit_target,
@@ -304,6 +332,17 @@ def _first_action_field(normalized: dict[str, Any], key: str) -> str:
     return ""
 
 
+def _first_action_value(normalized: dict[str, Any], key: str) -> Any:
+    actions_structured = _as_list(normalized.get("actions_structured"))
+    for action in actions_structured:
+        if not isinstance(action, dict):
+            continue
+        value = action.get(key)
+        if value is not None and _render_action_value(value):
+            return value
+    return None
+
+
 def _reported_metric_from_results(results_v2: list[Any], *, key: str) -> Any:
     for item in results_v2:
         if not isinstance(item, dict):
@@ -339,7 +378,7 @@ def _coerce_entries(*values: Any) -> list[dict[str, Any]]:
 def _entries_from_entity_range(entities: dict[str, Any]) -> list[dict[str, Any]]:
     if not isinstance(entities, dict):
         return []
-    entry_range = entities.get("entry")
+    entry_range = entities.get("entry_range")
     if isinstance(entry_range, list):
         prices = [float(item) for item in entry_range if isinstance(item, (int, float))]
         if len(prices) >= 2:
@@ -354,6 +393,14 @@ def _entries_from_entity_range(entities: dict[str, Any]) -> list[dict[str, Any]]
             {"role": "RANGE_LOW", "order_type": "LIMIT", "price": float(low)},
             {"role": "RANGE_HIGH", "order_type": "LIMIT", "price": float(high)},
         ]
+    legacy_entry = entities.get("entry")
+    if isinstance(legacy_entry, list):
+        prices = [float(item) for item in legacy_entry if isinstance(item, (int, float))]
+        if len(prices) >= 2:
+            return [
+                {"role": "RANGE_LOW", "order_type": "LIMIT", "price": prices[0]},
+                {"role": "RANGE_HIGH", "order_type": "LIMIT", "price": prices[1]},
+            ]
     return []
 
 
@@ -522,8 +569,12 @@ def _summarize_actions_structured(actions_structured: list[Any]) -> str:
             "intent",
             "symbol",
             "side",
+            "new_sl_level",
+            "new_sl_price",
+            "new_sl_reference",
             "new_stop_level",
             "new_stop_price",
+            "close_pct",
             "close_scope",
             "close_fraction",
             "cancel_scope",
@@ -637,6 +688,26 @@ def _first_numeric_value(*values: Any) -> Any:
             except ValueError:
                 continue
     return None
+
+
+def _first_non_empty(*values: Any) -> Any:
+    for value in values:
+        if value is None:
+            continue
+        if isinstance(value, str) and not value.strip():
+            continue
+        return value
+    return None
+
+
+def _format_price_like(value: Any) -> str:
+    if isinstance(value, dict):
+        nested_price = value.get("price")
+        if isinstance(value.get("value"), (int, float)):
+            return _format_float(value.get("value"))
+        if isinstance(nested_price, dict):
+            return _format_price_like(nested_price)
+    return _format_float(value)
 
 
 def _bool_scalar(value: Any) -> str:

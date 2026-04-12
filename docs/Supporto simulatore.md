@@ -1,6 +1,6 @@
 # Supporto simulatore — stato corrente
 
-Documento tecnico aggiornato: 2026-04-10.
+Documento tecnico aggiornato: 2026-04-12 (rev 3 — tp_close_distribution, slippage_model, cancel_unfilled_if_tp1_reached_before_fill).
 
 ---
 
@@ -28,6 +28,18 @@ Documento tecnico aggiornato: 2026-04-10.
 | **Evento `tp_hit_final` (CLOSE_FULL engine)** | ✅ **Implementato** | `simulator.py:_build_engine_close_event()` |
 | **`sl.be_trigger` = `"tpN"`** | ✅ **Implementato** | `simulator.py:_handle_post_tp_partial_actions()` |
 | **`pending.cancel_averaging_pending_after_tp1`** | ✅ **Implementato** | `simulator.py:_handle_post_tp_partial_actions()` |
+| **`entry.max_entries_to_use`** | ✅ **Implementato** | `state_machine.py:_apply_open_signal()` |
+| **`entry.allow_add_entry_updates`** | ✅ **Implementato** | `state_machine.py:apply_event()` |
+| **`updates.apply_move_stop` / `sl.move_sl_with_trader`** | ✅ **Implementato** | `state_machine.py:apply_event()` |
+| **`updates.apply_close_partial`** | ✅ **Implementato** | `state_machine.py:apply_event()` |
+| **`updates.apply_close_full`** | ✅ **Implementato** | `state_machine.py:apply_event()` |
+| **`updates.apply_cancel_pending`** | ✅ **Implementato** | `state_machine.py:apply_event()` |
+| **`updates.apply_add_entry`** | ✅ **Implementato** | `state_machine.py:apply_event()` |
+| **`pending.cancel_pending_on_timeout`** | ✅ **Implementato** | `timeout_manager.py:check_pending_timeout()` |
+| **`tp.tp_distribution.tp_close_distribution`** | ✅ **Implementato** | `state_machine.py:_apply_open_signal()` — lettura tabella dal config |
+| **`execution.slippage_model` = `"fixed_bps"`** | ✅ **Implementato** | `fill_model.py:_apply_slippage()` — richiede `slippage_bps` |
+| **`execution.slippage_bps`** | ✅ **Implementato** | `policies/base.py` + `fill_model.py` |
+| **`pending.cancel_unfilled_if_tp1_reached_before_fill`** | ✅ **Implementato** | `simulator.py:_detect_tp1_before_fill()` |
 
 ---
 
@@ -89,63 +101,131 @@ Esempio per `tp_50_30_20` con 3 TP:
 
 ---
 
+## Semantica policy guards — update e entry
+
+### Guards su eventi trader-source
+
+Tutti i flag `updates.*`, `entry.allow_add_entry_updates` e `sl.move_sl_with_trader` agiscono
+**solo su eventi con `source = EventSource.TRADER`**.  
+Gli eventi generati dall'engine (SL/TP hit, timeout, break-even) ignorano queste impostazioni e
+vengono sempre applicati.
+
+Quando un evento trader viene bloccato da policy, lo stato `processing_status` diventa `ignored`
+e il `reason` indica la causa (es. `move_stop_disabled_by_policy`).
+
+### `entry.max_entries_to_use`
+
+Viene applicato in `_apply_open_signal()` dopo `_entry_specs_from_payload()`:
+- Tronca la lista agli N entry levels richiesti.
+- Re-normalizza i `size_ratio` residui in modo che la loro somma torni a 1.0.
+  Questo garantisce che `pending_size` sia coerente con il budget totale allocato.
+
+### `pending.cancel_pending_on_timeout`
+
+Se `False`, `check_pending_timeout()` ritorna `None` e i pending limit order rimangono attivi
+indefinitamente oltre la finestra `pending_timeout_hours`.  
+`chain_timeout_hours` non è influenzato da questo flag: la chain viene comunque chiusa al suo scadere.
+
+### `tp.tp_distribution.tp_close_distribution`
+
+Quando `tp_distribution` è un oggetto `TpDistributionConfig` con `tp_close_distribution` popolato,
+il campo ha **priorità** sulla tabella interna di `_get_tp_absolute_weights()`.
+
+Lookup: `tp_close_distribution[N]` dove `N = len(tp_levels)` dopo l'applicazione di `use_tp_count`.  
+I valori sono interi (percentuali); vengono normalizzati a somma 1.0 prima dell'uso.  
+Se la riga per `N` è assente o mal formata, si cade back sul `mode` (es. `follow_all_signal_tps`).
+
+### `execution.slippage_model = "fixed_bps"`
+
+Applicato **solo ai market order** (non ai limit order, che fillano sempre al prezzo esatto del limite).  
+Il `fill_price` viene sfasato di `slippage_bps / 10000` in direzione avversa:
+- LONG: `fill_price = reference_price × (1 + bps/10000)`
+- SHORT: `fill_price = reference_price × (1 - bps/10000)`
+
+`slippage_bps = 0` è equivalente a `slippage_model = "none"`.  
+Il parametro `slippage_bps` è un campo distinto in `ExecutionPolicy`.
+
+---
+
 ## Feature configurabili ma non ancora applicate nel core
 
 | Campo policy | Stato | Note |
 |-------------|-------|------|
+| `entry.use_original_entries` | ⚠️ Ignorato | L'engine usa sempre le entry presenti nel payload |
+| `entry.entry_allocation` | ⚠️ Ignorato | I pesi reali vengono letti da `entry_split`; questo campo non è consultato |
+| **`entry.max_entries_to_use`** | ✅ **Implementato** | `state_machine.py:_apply_open_signal()` — slicing + re-normalizzazione size_ratio |
+| **`entry.allow_add_entry_updates`** | ✅ **Implementato** | `state_machine.py:apply_event()` — ignora ADD_ENTRY da trader se False |
 | `tp.use_original_tp` | ⚠️ Ignorato | Il simulatore usa sempre i TP del segnale |
+| **`tp.tp_distribution.tp_close_distribution`** | ✅ **Implementato** | `state_machine.py:_apply_open_signal()` — priorità sulla tabella interna se la riga per N TPs è presente |
 | `sl.use_original_sl` | ⚠️ Ignorato | Il simulatore usa sempre l'SL del segnale |
-| `sl.move_sl_with_trader` | ⚠️ Ignorato | I MOVE_STOP del trader sono sempre applicati |
-| `updates.apply_move_stop` | ⚠️ Ignorato | Gli update MOVE_STOP sono sempre applicati |
-| `updates.apply_close_partial` | ⚠️ Ignorato | I CLOSE_PARTIAL del trader sono sempre applicati |
-| `updates.apply_close_full` | ⚠️ Ignorato | I CLOSE_FULL del trader sono sempre applicati |
-| `updates.apply_cancel_pending` | ⚠️ Ignorato | I CANCEL_PENDING del trader sono sempre applicati |
-| `updates.apply_add_entry` | ⚠️ Ignorato | Gli ADD_ENTRY del trader sono sempre applicati |
-| `pending.cancel_pending_on_timeout` | ⚠️ Ignorato (sempre True) | Il timeout cancella sempre i pending |
-| `pending.cancel_unfilled_if_tp1_reached_before_fill` | ❌ Non implementato | Richiederebbe detection di TP1 senza posizione aperta |
-| `execution.slippage_model` | ❌ Non implementato | Solo touch = fill senza slippage |
+| **`sl.move_sl_with_trader`** | ✅ **Implementato** | `state_machine.py:apply_event()` — ignora MOVE_STOP da trader se False |
+| **`updates.apply_move_stop`** | ✅ **Implementato** | `state_machine.py:apply_event()` — ignora MOVE_STOP da trader se False |
+| **`updates.apply_close_partial`** | ✅ **Implementato** | `state_machine.py:apply_event()` — ignora CLOSE_PARTIAL da trader se False |
+| **`updates.apply_close_full`** | ✅ **Implementato** | `state_machine.py:apply_event()` — ignora CLOSE_FULL da trader se False |
+| **`updates.apply_cancel_pending`** | ✅ **Implementato** | `state_machine.py:apply_event()` — ignora CANCEL_PENDING da trader se False |
+| **`updates.apply_add_entry`** | ✅ **Implementato** | `state_machine.py:apply_event()` — ignora ADD_ENTRY da trader se False |
+| **`pending.cancel_pending_on_timeout`** | ✅ **Implementato** | `timeout_manager.py:check_pending_timeout()` — se False non emette CANCEL_PENDING al timeout |
+| **`pending.cancel_unfilled_if_tp1_reached_before_fill`** | ✅ **Implementato** | `simulator.py:_detect_tp1_before_fill()` — detection TP1 senza posizione aperta |
+| **`execution.slippage_model` = `"fixed_bps"`** | ✅ **Implementato** | `fill_model.py:_apply_slippage()` — richiede `execution.slippage_bps` |
+| `execution.slippage_model` altri valori | ⚠️ Fallback a `"none"` | log warning, nessuno slippage applicato |
 | `execution.fill_touch_guaranteed` | ⚠️ Sempre True | Non c'è partial fill o mancato fill dopo touch |
 
 ### Nota su `cancel_unfilled_if_tp1_reached_before_fill`
 
-Il simulatore attuale detecta SL/TP solo quando `open_size > 0` (vedi `_detect_sl_tp_collision`).
-Se il prezzo raggiunge TP1 prima che le limit entry siano fillate (gap di prezzo verso l'alto),
-la situazione non viene rilevata. Implementare questa feature richiederebbe un
-loop separato di detection del prezzo TP senza posizione aperta.
+Implementato in `simulator.py:_detect_tp1_before_fill()`.
+
+La funzione verifica, ad ogni candela, se il prezzo ha raggiunto TP1 con `open_size == 0` e `pending_size > 0`.
+Se la condizione è vera e il flag è attivo, viene emesso `CANCEL_PENDING` con `reason = "tp1_reached_before_fill"`.
+
+**Semantica direzione:**
+- LONG: TP1 raggiunto se `candle.high >= tp_levels[0]`
+- SHORT: TP1 raggiunto se `candle.low <= tp_levels[0]`
+
+Il check avviene dopo `_try_fill_pending_entries()`, quindi se la stessa candela filla anche l'entry il cancel non scatta.
 
 ---
 
 ## Matrice definitiva
 
 ```
-Policy field                          | Supporto
---------------------------------------|----------
-tp.use_original_tp                    | ignorato
-tp.use_tp_count                       | ✅ supportato
-tp.tp_distribution (equal/original)  | ✅ supportato
-tp.tp_distribution (tp_50_30_20)      | ✅ supportato (2/3/4 TP)
-tp.tp_distribution (altro)            | fallback equal + warning
+Policy field                                   | Supporto
+-----------------------------------------------|----------
+entry.use_original_entries                     | ignorato
+entry.entry_allocation                         | ignorato
+entry.max_entries_to_use                       | ✅ supportato (slicing + re-norm size_ratio)
+entry.allow_add_entry_updates                  | ✅ supportato (guard su ADD_ENTRY trader)
+entry.entry_split (LIMIT/MARKET)               | ✅ supportato
 
-sl.use_original_sl                    | ignorato
-sl.break_even_mode                    | parziale: solo "none" vs non-none
-sl.be_trigger ("tpN")                 | ✅ supportato
-sl.move_sl_with_trader                | ignorato (sempre applicato)
+tp.use_original_tp                             | ignorato
+tp.use_tp_count                                | ✅ supportato
+tp.tp_distribution (equal/original)           | ✅ supportato
+tp.tp_distribution (follow_all_signal_tps)    | ✅ alias di equal (nessun warning)
+tp.tp_distribution (tp_50_30_20)               | ✅ supportato (2/3/4 TP)
+tp.tp_distribution (altro sconosciuto)         | fallback equal + warning log
+tp.tp_distribution.tp_close_distribution      | ✅ supportato (priorità sulla tabella interna per N TPs)
 
-updates.apply_move_stop               | ignorato (sempre applicato)
-updates.apply_close_partial           | ignorato (sempre applicato)
-updates.apply_close_full              | ignorato (sempre applicato)
-updates.apply_cancel_pending          | ignorato (sempre applicato)
-updates.apply_add_entry               | ignorato (sempre applicato)
+sl.use_original_sl                             | ignorato
+sl.break_even_mode                             | parziale: solo "none" vs non-none
+sl.be_trigger ("tpN")                          | ✅ supportato (richiede anche break_even_mode != "none")
+sl.move_sl_with_trader                         | ✅ supportato (guard su MOVE_STOP trader)
 
-pending.pending_timeout_hours         | ✅ supportato
-pending.chain_timeout_hours           | ✅ supportato
-pending.cancel_pending_on_timeout     | ignorato (sempre True)
-pending.cancel_averaging_after_tp1    | ✅ supportato
-pending.cancel_unfilled_if_tp1_*      | ❌ non implementato
+updates.apply_move_stop                        | ✅ supportato (guard su MOVE_STOP trader)
+updates.apply_close_partial                    | ✅ supportato (guard su CLOSE_PARTIAL trader)
+updates.apply_close_full                       | ✅ supportato (guard su CLOSE_FULL trader)
+updates.apply_cancel_pending                   | ✅ supportato (guard su CANCEL_PENDING trader)
+updates.apply_add_entry                        | ✅ supportato (guard su ADD_ENTRY trader)
 
-execution.latency_ms                  | ✅ supportato
-execution.slippage_model              | ❌ non implementato
-execution.fill_touch_guaranteed       | ignorato (sempre True)
+pending.pending_timeout_hours                  | ✅ supportato
+pending.chain_timeout_hours                    | ✅ supportato
+pending.cancel_pending_on_timeout              | ✅ supportato (se False non emette cancel su timeout)
+pending.cancel_averaging_pending_after_tp1     | ✅ supportato
+pending.cancel_unfilled_if_tp1_*               | ✅ supportato (detection su candle senza posizione aperta)
+
+execution.latency_ms                           | ✅ supportato
+execution.slippage_model (none)                | ✅ supportato (nessuno slippage)
+execution.slippage_model (fixed_bps)           | ✅ supportato (richiede slippage_bps > 0)
+execution.slippage_bps                         | ✅ supportato
+execution.fill_touch_guaranteed                | ignorato (sempre True)
 ```
 
 ---

@@ -298,7 +298,9 @@ def _base_action(
     symbol = payload.get("symbol") or payload.get("symbol_raw")
     if symbol is not None:
         action["symbol"] = symbol
-    side = payload.get("side") or payload.get("direction")
+    # Canonical field is `direction`; `side` is the legacy alias kept for the
+    # simulator contract. Read `direction` first, fall back to `side`.
+    side = payload.get("direction") or payload.get("side")
     if side is not None:
         action["side"] = side
     return action
@@ -324,9 +326,10 @@ def _apply_specific_fields(
         return
 
     if action["action_type"] == "MOVE_STOP":
-        action["new_stop_level"] = payload.get("new_stop_level")
-        action["new_stop_price"] = payload.get("new_stop_price")
-        action["stop_basis"] = payload.get("new_stop_reference_text")
+        # Read canonical new_sl_* fields first; fall back to legacy new_stop_* names.
+        action["new_stop_level"] = payload.get("new_sl_level") or payload.get("new_stop_level")
+        action["new_stop_price"] = payload.get("new_sl_price") or payload.get("new_stop_price")
+        action["stop_basis"] = payload.get("new_sl_reference") or payload.get("new_stop_reference_text")
         action["target_refs"] = list(target_refs)
         action["target_refs_count"] = len(target_refs)
         return
@@ -342,9 +345,14 @@ def _apply_specific_fields(
     if action["action_type"] == "CLOSE_POSITION":
         close_scope = normalize_close_scope(payload.get("close_scope"))
         if close_scope is None:
-            close_scope = "FULL"
+            # Infer PARTIAL from close_pct / partial_close_percent
+            if payload.get("close_pct") is not None or payload.get("partial_close_percent") is not None:
+                close_scope = "PARTIAL"
+            else:
+                close_scope = "FULL"
         action["close_scope"] = close_scope
-        action["close_fraction"] = payload.get("close_fraction")
+        # close_fraction: prefer close_pct (canonical) over partial_close_percent (legacy)
+        action["close_fraction"] = payload.get("close_fraction") or payload.get("close_pct") or payload.get("partial_close_percent")
         action["close_price"] = payload.get("close_price") or payload.get("reported_close_price")
         action["target_refs"] = list(target_refs)
         action["target_refs_count"] = len(target_refs)

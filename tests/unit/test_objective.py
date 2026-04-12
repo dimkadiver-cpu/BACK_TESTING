@@ -31,6 +31,8 @@ def test_build_policy_from_trial_generates_valid_policy_config() -> None:
     assert policy.name == "optuna_trial_7"
     assert policy.entry.entry_allocation == "equal"
     assert policy.tp.use_tp_count == 3
-    assert policy.tp.tp_distribution == "tp_50_30_20"
+    # tp_distribution "tp_50_30_20" migrates to close_distribution table
+    assert policy.tp.close_distribution.mode == "table"
+    assert policy.tp.close_distribution.table[3] == [50, 30, 20]
     assert policy.sl.be_trigger == "tp1"
     assert policy.pending.pending_timeout_hours == 12.0

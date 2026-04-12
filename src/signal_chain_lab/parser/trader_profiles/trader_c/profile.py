@@ -253,11 +253,18 @@ class TraderCProfileParser(TraderBProfileParser):
             entries, order_type, entry_text = _extract_entries(raw_text)
             risk_raw, risk_norm = _extract_risk(raw_text)
             is_range_entry = order_type == "RANGE"
+            # Build canonical entry_plan_entries from entries
+            _ot = "LIMIT" if order_type not in {"MARKET", "CURRENT"} else "MARKET"
+            entry_plan_entries = [
+                {"sequence": e.get("sequence", idx + 1), "order_type": _ot, "price": e.get("price")}
+                for idx, e in enumerate(entries)
+            ]
             entities.update(
                 {
-                    "side": side,
+                    "direction": side,
                     "entry_order_type": order_type,
                     "entries": entries,
+                    "entry_plan_entries": entry_plan_entries,
                     "entry": [item["price"] for item in entries] if is_range_entry else ([entries[0]["price"]] if entries else []),
                     "entry_text_raw": entry_text,
                     "stop_loss": stop,
@@ -266,7 +273,9 @@ class TraderCProfileParser(TraderBProfileParser):
                     "take_profits_text_raw": _extract_tp_text(raw_text),
                     "risk_value_raw": risk_raw,
                     "risk_value_normalized": risk_norm,
-                    "entry_plan_type": "SINGLE" if is_range_entry or len(entries) <= 1 else "MULTI",
+                    "risk_percent": risk_norm,
+                    "entry_type": "LIMIT",  # trader_c always uses limit-style orders
+                    "entry_plan_type": "SINGLE" if is_range_entry or len(entries) <= 1 else "MULTI",  # metadata
                     "entry_structure": "RANGE" if is_range_entry else ("LADDER" if len(entries) > 1 else "ONE_SHOT"),
                     "has_averaging_plan": len(entries) > 1 and not is_range_entry,
                 }
@@ -451,7 +460,7 @@ class TraderCProfileParser(TraderBProfileParser):
     @staticmethod
     def _build_actions_structured(*, message_type: str, intents: list[str], entities: dict[str, Any]) -> list[dict[str, Any]]:
         if message_type == "NEW_SIGNAL":
-            return [{"action": "CREATE_SIGNAL", "instrument": entities.get("symbol"), "side": entities.get("side"), "entries": entities.get("entries", []), "stop_loss": entities.get("stop_loss"), "take_profits": entities.get("take_profits", [])}]
+            return [{"action": "CREATE_SIGNAL", "instrument": entities.get("symbol"), "side": entities.get("direction") or entities.get("side"), "entries": entities.get("entries", []), "stop_loss": entities.get("stop_loss"), "take_profits": entities.get("take_profits", [])}]
         actions: list[dict[str, Any]] = []
         for intent in intents:
             actions.append({"action": intent})

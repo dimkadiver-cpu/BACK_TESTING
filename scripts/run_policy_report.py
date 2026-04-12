@@ -80,6 +80,13 @@ def parse_args() -> argparse.Namespace:
         default=True,
         help="Write per-trade drill-down artifacts under trades/<signal_id>/",
     )
+    parser.add_argument(
+        "--initial-capital",
+        type=float,
+        default=None,
+        help="Hypothetical capital for % metric calculation (e.g. 10000). "
+             "If omitted, % columns are left empty.",
+    )
     return parser.parse_args()
 
 
@@ -135,6 +142,7 @@ def main() -> int:
         },
         price_basis=args.price_basis,
         exchange_faithful=exchange_faithful,
+        initial_capital=getattr(args, "initial_capital", None),
     )
 
     print(f"policy={policy.name}")

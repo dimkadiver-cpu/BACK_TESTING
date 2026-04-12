@@ -30,6 +30,7 @@ from src.signal_chain_lab.parser.models.new_signal import (
     StopLoss,
     TakeProfit,
     compute_completeness,
+    normalize_symbol_value,
 )
 from src.signal_chain_lab.parser.models.update import UpdateEntities
 
@@ -353,6 +354,16 @@ class TestNewSignalEntities:
         e = self._make_complete()
         assert e.symbol == "BTCUSDT"
 
+    def test_symbol_perpetual_suffix_removed(self) -> None:
+        e = NewSignalEntities(symbol="WIFUSDT.P")
+        assert e.symbol == "WIFUSDT"
+
+    def test_symbol_common_perp_suffixes_removed(self) -> None:
+        assert normalize_symbol_value("wifusdt.p") == "WIFUSDT"
+        assert normalize_symbol_value("WIFUSDT-PERP") == "WIFUSDT"
+        assert normalize_symbol_value("WIFUSDT_PERP") == "WIFUSDT"
+        assert normalize_symbol_value("WIFUSDTPERP") == "WIFUSDT"
+
     def test_symbol_none_preserved(self) -> None:
         e = NewSignalEntities()
         assert e.symbol is None
@@ -407,7 +418,7 @@ class TestNewSignalEntities:
         )
         completeness, missing = compute_completeness(e)
         assert completeness == "INCOMPLETE"
-        assert "entries" in missing
+        assert "entry_plan_entries" in missing
 
     def test_compute_completeness_limit_with_entries(self) -> None:
         entry = EntryLevel(price=Price.from_float(1900.0), order_type="LIMIT")
@@ -475,6 +486,16 @@ class TestUpdateEntities:
         u = UpdateEntities(new_sl_level=None)
         assert u.new_sl_level is None
 
+    def test_legacy_move_stop_entry_marker_maps_to_reference(self) -> None:
+        u = UpdateEntities(new_sl_level="ENTRY")
+        assert u.new_sl_level is None
+        assert u.new_sl_reference == "ENTRY"
+
+    def test_legacy_move_stop_tp_marker_maps_to_reference(self) -> None:
+        u = UpdateEntities(new_sl_level="TP1")
+        assert u.new_sl_level is None
+        assert u.new_sl_reference == "TP1"
+
     def test_close_partial(self) -> None:
         u = UpdateEntities(close_pct=50.0)
         assert u.close_pct == 50.0
@@ -513,6 +534,34 @@ class TestEntryLevel:
             note="wait for candle close",
         )
         assert e.note == "wait for candle close"
+
+    def test_new_signal_accepts_legacy_single_entry_structure(self) -> None:
+        e = NewSignalEntities(entry_structure="SINGLE")
+        assert e.entry_structure == "ONE_SHOT"
+
+
+class TestLegacyNewSignalCompat:
+    def test_stop_loss_accepts_float(self) -> None:
+        sl = StopLoss(price=1800.0)
+        assert sl.price.value == 1800.0
+
+    def test_take_profit_accepts_float(self) -> None:
+        tp = TakeProfit(price=2000.0, label="TP1")
+        assert tp.price.value == 2000.0
+
+    def test_new_signal_accepts_legacy_float_stop_loss_and_take_profits(self) -> None:
+        e = NewSignalEntities(
+            stop_loss=1800.0,
+            take_profits=[2000.0, 2100.0],
+        )
+        assert e.stop_loss is not None
+        assert e.stop_loss.price.value == 1800.0
+        assert [tp.price.value for tp in e.take_profits] == [2000.0, 2100.0]
+        assert [tp.label for tp in e.take_profits] == ["TP1", "TP2"]
+
+    def test_new_signal_maps_legacy_side_to_direction(self) -> None:
+        e = NewSignalEntities(side="LONG")
+        assert e.direction == "LONG"
 
 
 class TestStopLoss:

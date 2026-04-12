@@ -4,17 +4,12 @@
 # - documentare il contratto YAML attuale
 # - restare caricabile dal PolicyLoader
 # - includere sia campi MVP sia estensioni gia' accettate dal modello
-#
-# Nota importante:
-# - il loader accetta piu' campi di quanti il simulatore usi oggi davvero
-# - alcuni blocchi sono "contratto/config" piu' che logica gia' attiva end-to-end
 
 name: policy_template_full
 
 entry:
-  # true  = usa la struttura entry originale della chain
+  # true  = usa la struttura entry originale della chain  
   # false = lascia spazio a regole future di override
-  #
   # Nota:
   # il motore ora puo' costruire piu' EntryPlan da OPEN_SIGNAL quando il payload
   # contiene abbastanza dettaglio su entries / entry_prices / entry_type.
@@ -34,22 +29,20 @@ entry:
   # null = nessun limite esplicito sul numero di entry utilizzabili
   max_entries_to_use: null
 
-  # Config estesa per definire il frazionamento in base alla struttura reale
-  # del piano di entry.
-  # Il motore usa soprattutto:
-  # - LIMIT.single
-  # - LIMIT.range
-  # - LIMIT.averaging
-  # - LIMIT.ladder
-  # - MARKET.single
-  # - MARKET.averaging
+  # Frazionamento entry per struttura canonica.
   #
-  # Nota DB-driven:
-  # nei dati reali compaiono spesso strutture RANGE / TWO_STEP / LADDER.
-  # Queste sono piu' affidabili di un vecchio distinguo teorico "ZONE vs LIMIT".
+  # Struttura canonica dispatch:
+  #   entry_structure = ONE_SHOT  + entry_type = MARKET  → MARKET.single
+  #   entry_structure = ONE_SHOT  + entry_type = LIMIT   → LIMIT.single
+  #   entry_structure = TWO_STEP  + primo leg market      → MARKET.averaging
+  #   entry_structure = TWO_STEP  + primo leg limit       → LIMIT.averaging
+  #   entry_structure = RANGE                             → LIMIT.range
+  #   entry_structure = LADDER                            → LIMIT.ladder
   #
-  # Resta comunque necessario che il payload della chain contenga abbastanza
-  # informazione per ricostruire il piano di entry.
+  # Valori legacy entry_type (AVERAGING, ZONE) e entry_structure (SINGLE) sono
+  # accettati in input ma generano DeprecationWarning e vengono normalizzati
+  # automaticamente dal motore.
+  # I blocchi policy AVERAGING e ZONE sono deprecati: non aggiungerli in nuove policy.
   entry_split:
 
     LIMIT:
@@ -57,11 +50,15 @@ entry:
         weights:
           E1: 1.0
       range:
-        # split_mode operativo:
-        # - endpoints: usa entrambe le entry del range
-        # - firstpoint: usa solo la prima entry del range
-        # - midpoint: crea una sola entry al prezzo medio
-        split_mode: endpoints # firstpoint | endpoints | midpoint
+        # split_mode: come trattare il range di prezzo (P1=basso, P2=alto).
+        #
+        # endpoints  → 2 ordini limit (P1 e P2). Size distribuita con E1/E2 (weights qui sotto).
+        # firstpoint → 1 ordine limit a P1 (piu' basso). Size 100%. Weights ignorati.
+        # lastpoint  → 1 ordine limit a P2 (piu' alto).  Size 100%. Weights ignorati.
+        # midpoint   → 1 ordine limit a (P1+P2)/2.       Size 100%. Weights ignorati.
+        #
+        # I weights E1/E2 si applicano SOLO con split_mode: endpoints.
+        split_mode: endpoints # endpoints | firstpoint | lastpoint | midpoint
         weights:
           E1: 0.50
           E2: 0.50
@@ -72,7 +69,8 @@ entry:
       ladder:
         weights:
           E1: 0.50
-          E2: 0.50
+          E2: 0.30
+          E3: 0.20
 
     MARKET:
       single:
@@ -83,43 +81,38 @@ entry:
           E1: 0.70
           E2: 0.30
 
-    AVERAGING:
-      distribution: equal # equal | decreasing
-      weights: {}
+    # AVERAGING: # DEPRECATO — usare LIMIT.averaging con entry_structure='TWO_STEP'
+    # ZONE:      # DEPRECATO — usare LIMIT.range   con entry_structure='RANGE'
 
-  # true = consenti update ADD_ENTRY del trader
-  allow_add_entry_updates: true
+
+  allow_add_entry_updates: true   # true = consenti update ADD_ENTRY del trader
+
 
 tp:
-  # true = usa i target originali della chain
-  use_original_tp: true
-
-  # Numero target TP da usare.
-  # null = usa il numero originale presente nella chain
-  #
-  # Regola di dominio:
-  # la chain valida deve avere gia' almeno 1 TP.
-  # Se il parser non trova almeno un TP, il segnale non deve essere generato.
-  # Quindi questa policy non gestisce "TP mancanti", ma solo quanti TP usare
-  # tra quelli gia' presenti nella chain.
+  # null = usa tutti i TP del segnale
+  # N    = usa solo i primi N TP (es: 2 = ignora TP3 e successivi)
   use_tp_count: null
 
-  # Formato legacy:
-  # tp_distribution: original
+  # Distribuzione della size sui livelli TP.
   #
-  # Formato esteso:
-  # - follow_all_signal_tps: segue tutti i TP del segnale
-  # - limit_to_max_levels: limita i TP usati al numero indicato
+  # mode: equal
+  #   Split uniforme tra N TP.
+  #   L'ultimo livello assorbe il resto floating-point → somma sempre 1.0.
+  #   Esempio con 3 TP: [33.3%, 33.3%, 33.4%]
   #
-  # Nota: il simulatore MVP non applica ancora tutta questa semantica.
-  tp_distribution:
-    tp_distribution: follow_all_signal_tps # follow_all_signal_tps | limit_to_max_levels
-    max_tp_levels: 3
-    tp_close_distribution:
+  # mode: table
+  #   Usa la tabella esplicita sotto per N TP.
+  #   I valori non devono sommare a 100 — vengono normalizzati.
+  #   Se la riga per N manca → warning + fallback equal.
+  close_distribution:
+    mode: table
+    table:
       1: [100]
       2: [50, 50]
       3: [30, 30, 40]
       4: [25, 25, 25, 25]
+      5: [20, 20, 20, 20, 20]
+      5: [20, 20, 20, 20, 20]
     # Questa tabella non crea TP mancanti.
     # Serve solo a distribuire la size di uscita sui TP gia' esistenti
     # nella chain, per esempio quando i TP usati sono 2, 3 o 4.
@@ -128,20 +121,16 @@ sl:
   # true = conserva lo SL iniziale/originale
   use_original_sl: true
 
-  # Valori oggi noti:
-  # - none
-  # - after_tp1
-  # - after_trigger
-  break_even_mode: none
-
-  # Trigger osservati/previsti:
-  # - null
-  # - tp1
-  # - tp2
+  # Engine auto-trigger break-even dopo hit di un TP specifico.
+  # null    = nessun BE automatico
+  # "tp1"   = muovi SL a BE dopo il primo TP parziale
+  # "tp2"   = muovi SL a BE dopo il secondo TP parziale
+  #
+  # Nota: il trader puo' sempre inviare MOVE_STOP con:
+  #   - prezzo esatto (es. 1234.56)
+  #   - None          → BE implicito (avg_entry_price)
+  #   - "tp1" / "tp2" → SL al livello del TP corrispondente
   be_trigger: null
-
-  # true = applica move stop trader-driven
-  move_sl_with_trader: true
 
 updates:
   # Bootstrap MVP: flag semplici per filtrare gli update del trader.
@@ -151,60 +140,94 @@ updates:
   apply_cancel_pending: true
   apply_add_entry: true
 
-  # fallback 50% se il partial close non specifica bene la quota
+  # Fallback 50% se il partial close non specifica bene la quota.
+  # Nota: questo campo e' parsed ma non ancora letto dall'engine.
+  # L'engine usa event.payload.get("close_pct", 0.5) come fallback interno.
   partial_close_fallback_pct: 0.5
 
 pending:
-  # Timeout di un ordine pending non fillato
+  # Timeout di un ordine pending non fillato.
   pending_timeout_hours: 24
 
-  # Timeout massimo dell'intera chain
+  # Timeout massimo dell'intera chain.
   chain_timeout_hours: 168
 
-  # true = allo scadere del timeout genera cancel engine-driven
+  # true = allo scadere del pending_timeout_hours emette CANCEL_PENDING engine-driven.
+  # false = i pending rimangono attivi; chain_timeout_hours li chiude comunque.
   cancel_pending_on_timeout: true
 
-  # Alias esteso supportato dal modello.
-  # Se true, cancella pending non fillati quando il prezzo ha gia' raggiunto
-  # un target prima dell'ingresso.
-  cancel_unfilled_if_reached_before_fill: false
+  # Master switch per tutte le logiche di cancel engine TP-triggered (sotto).
+  # false = disabilita cancel_averaging_pending_after e cancel_unfilled_pending_after
+  #         indipendentemente dai loro valori.
+  # Non influenza cancel_pending_on_timeout (ha il suo flag separato).
+  cancel_pending_by_engine: true
 
-  # Alias esteso supportato dal modello.
-  # Se true, cancella gli averaging pending residui dopo il trigger definito.
-  cancel_averaging_pending_after: false
+  # Cancella gli entry pending rimasti dopo il hit di un TP con open_size > 0.
+  # Scenario: E1 fillato, E2 averaging ancora pending → TP1 colpito → cancella E2.
+  # null  = mai
+  # "tp1" = dopo il primo TP parziale
+  # "tp2" = dopo il secondo TP parziale
+  cancel_averaging_pending_after: null
 
-  # Campi legacy ancora supportati e sincronizzati automaticamente:
-  # cancel_unfilled_if_tp1_reached_before_fill: false
-  # cancel_averaging_pending_after_tp1: false
-
-  # Estensioni PRD non ancora stabilizzate nel core:
-  # cancel_unfilled_if_tp2_reached_before_fill: false
-  # cancel_remaining_pending_after_first_fill: false
-  # cancel_all_pending_after_partial_close: false
+  # Cancella TUTTI i pending se il prezzo raggiunge un TP senza alcun fill (open_size == 0).
+  # Scenario: LIMIT a 100, prezzo sale a TP1 senza toccare 100 → cancella tutto.
+  # null  = mai
+  # "tp1" = se TP1 raggiunto prima di qualsiasi fill
+  # "tp2" = se TP2 raggiunto prima di qualsiasi fill
+  cancel_unfilled_pending_after: null
   # cancel_all_pending_after_break_even: false
 
+# risk: controlla il sizing e le metriche R/PnL% nel report.
+#
+# mode:
+#   none   → simulatore gira, metriche R/PnL% assenti nel report (default)
+#   fixed  → usa sempre risk_pct sotto, ignora risk_percent dal segnale
+#   signal → usa risk_percent dal segnale se presente, fallback a risk_pct
+#            se il segnale ha solo un hint qualitativo (U_RISK_NOTE senza valore),
+#            usa reduced_risk_pct invece di risk_pct
+#
+# risk_pct: obbligatorio se mode=fixed o mode=signal
+# reduced_risk_pct: opzionale, usato solo con mode=signal per hint qualitativi
 risk:
-  # Blocco opzionale.
-  # Oggi non ha campi obbligatori nel PolicyConfig.
-  #
-  # Esempi possibili:
-  # risk_percent: null
-  # fixed_notional: null
-  # max_leverage: null
+  mode: none
+  # risk_pct: 1.0
+  # reduced_risk_pct: 0.5
 
 execution:
-  # Usato oggi da latency_model.py / fill_model.py
+  # Usato da latency_model.py / fill_model.py
   latency_ms: 0
 
-  # Placeholder contrattuale.
-  # Oggi il fill_model MVP non applica ancora uno slippage reale.
+  # Modello slippage applicato ai market order.
+  # Valori supportati:
+  #   none      → nessuno slippage (default)
+  #   fixed_bps → sposta il fill price di slippage_bps basis points in direzione avversa
+  #               (LONG paga di più, SHORT riceve di meno)
+  # Nota: i limit order non sono soggetti a slippage (fill al prezzo esatto del limite).
   slippage_model: none
+
+  # Usato solo con slippage_model: fixed_bps
+  # 1 bps = 0.01%; es: 5 bps = 0.05% di slippage avverso sui market order
+  slippage_bps: 0
 
   # Placeholder contrattuale per il modello di fill touch-based.
   fill_touch_guaranteed: true
 
-  # Estensioni possibili:
-  # fee_model: none
-  # partial_fill_model: none
-  # spread_model: none
+  # Modello fee applicato a ogni fill (entry e close TP/SL).
+  # Valori supportati:
+  #   none      → nessuna fee (default)
+  #   fixed_bps → fee = price * qty * fee_bps / 10_000 per lato
+  #               Esempio: fee_bps=5 = 0.05% per lato (entry + exit separati)
+  fee_model: none
+
+  # Usato solo con fee_model: fixed_bps
+  fee_bps: 0.0
+
+  # Modello funding rate per futures perpetui.
+  # none       → nessun funding applicato (default)
+  # historical → usa i dati storici scaricati da Bybit (PRD: docs/PRD_funding_model.md)
   # funding_model: none
+  # funding_apply_to_pnl: true   # se false: calcola e logga ma non deduce dal PnL
+
+  # Estensioni possibili:
+  # partial_fill_model: none   # design: docs/DESIGN_partial_fill_model.md
+  # spread_model: none

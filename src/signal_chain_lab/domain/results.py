@@ -54,6 +54,23 @@ class TradeResult(BaseModel):
 
     mae: float | None = None
     mfe: float | None = None
+
+    # --- % metrics (require initial_capital at report level) ---
+    trade_impact_pct: float | None = None
+    cum_equity_after_trade_pct: float | None = None
+    mae_pct: float | None = None
+    mfe_pct: float | None = None
+    capture_ratio_pct: float | None = None
+
+    # --- execution detail ---
+    time_to_fill_seconds: float | None = None
+    bars_in_trade: int | None = None
+    first_fill_price: float | None = None
+    final_exit_price: float | None = None
+    updates_applied_count: int = 0
+    fills_count: int = 0
+    partial_closes_count: int = 0
+
     warnings_count: int = 0
     ignored_events_count: int = 0
 

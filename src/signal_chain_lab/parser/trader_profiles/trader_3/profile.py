@@ -121,18 +121,28 @@ class Trader3ProfileParser(TraderBProfileParser):
                 entities["entry_range_low"] = low
                 entities["entry_range_high"] = high
                 entities["entry"] = [low, high]
+            direction = _extract_side(raw_text)
+            entry_plan_entries: list[dict] = []
+            if entry_range is not None:
+                low, high = entry_range
+                entry_plan_entries = [
+                    {"sequence": 1, "order_type": "LIMIT", "price": low, "note": "range_low"},
+                    {"sequence": 2, "order_type": "LIMIT", "price": high, "note": "range_high"},
+                ]
             entities.update(
                 {
-                    "side": _extract_side(raw_text),
+                    "direction": direction,
                     "leverage_hint_raw": _extract_leverage_hint(raw_text),
                     "entry_text_raw": _extract_entry_line(raw_text),
                     "targets_text_raw": targets_raw,
                     "stop_loss_raw": stop_loss_raw,
                     "stop_loss": stop_loss,
                     "take_profits": take_profits,
-                    "entry_plan_type": "SINGLE",
+                    "entry_type": "LIMIT",  # trader_3 range entries are always limit
+                    "entry_plan_type": "RANGE_LIMIT",  # descriptive metadata; was "SINGLE" (misleading)
                     "entry_structure": "RANGE",
                     "has_averaging_plan": False,
+                    "entry_plan_entries": entry_plan_entries,
                 }
             )
 
@@ -284,7 +294,7 @@ class Trader3ProfileParser(TraderBProfileParser):
                     "action": "OPEN_POSITION",
                     "signal_id": entities.get("signal_id"),
                     "instrument": entities.get("symbol"),
-                    "side": entities.get("side"),
+                    "side": entities.get("direction") or entities.get("side"),
                     "entry_range": [entities.get("entry_range_low"), entities.get("entry_range_high")],
                     "stop_loss": entities.get("stop_loss"),
                     "take_profits": entities.get("take_profits", []),

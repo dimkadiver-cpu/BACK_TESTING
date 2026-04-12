@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
+import re
 
 from src.signal_chain_lab.adapters.chain_adapter import adapt_signal_chain
 from src.signal_chain_lab.adapters.chain_builder import SignalChainBuilder
@@ -49,7 +50,7 @@ def main() -> int:
     _ = Path(args.market_dir)  # reserved for market providers integration
     event_log, state = simulate_chain(canonical_chain, policy=policy, market_provider=None)
 
-    out_dir = Path("artifacts") / canonical_chain.signal_id / policy.name
+    out_dir = Path("artifacts") / _safe_path_component(canonical_chain.signal_id) / _safe_path_component(policy.name)
     event_log_path = write_event_log_jsonl(event_log, out_dir / "event_log.jsonl")
     trade_result = build_trade_result(state, event_log)
     trade_result_path = write_trade_result_parquet(trade_result, out_dir / "trade_result.parquet")
@@ -68,6 +69,12 @@ def main() -> int:
     print(f"equity_png={png_path}")
     print(f"equity_html={html_path}")
     return 0
+
+
+def _safe_path_component(value: str) -> str:
+    sanitized = re.sub(r'[<>:"/\\\\|?*]+', "_", value).strip()
+    sanitized = sanitized.rstrip(". ")
+    return sanitized or "unnamed"
 
 
 if __name__ == "__main__":

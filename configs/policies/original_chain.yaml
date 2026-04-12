@@ -7,15 +7,13 @@ entry:
   allow_add_entry_updates: true
 
 tp:
-  use_original_tp: true
   use_tp_count: null
-  tp_distribution: original
+  close_distribution:
+    mode: equal
 
 sl:
   use_original_sl: true
-  break_even_mode: none
   be_trigger: null
-  move_sl_with_trader: true
 
 updates:
   apply_move_stop: true
@@ -29,8 +27,9 @@ pending:
   pending_timeout_hours: 36
   chain_timeout_hours: 400
   cancel_pending_on_timeout: true
-  cancel_unfilled_if_tp1_reached_before_fill: false
-  cancel_averaging_pending_after_tp1: false
+  cancel_pending_by_engine: true
+  cancel_averaging_pending_after: null
+  cancel_unfilled_pending_after: null
 
 execution:
   latency_ms: 0

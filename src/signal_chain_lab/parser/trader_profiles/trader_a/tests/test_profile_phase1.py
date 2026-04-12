@@ -28,7 +28,7 @@ class TraderAProfilePhase1Tests(unittest.TestCase):
         self.assertEqual(result.message_type, "NEW_SIGNAL")
         self.assertIn("NS_CREATE_SIGNAL", result.intents)
         self.assertEqual(result.entities.get("symbol"), "BTCUSDT")
-        self.assertEqual(result.entities.get("side"), "LONG")
+        self.assertEqual(result.entities.get("direction"), "LONG")
         self.assertEqual(result.entities.get("entry"), [62000.0])
         self.assertEqual(result.entities.get("stop_loss"), 61000.0)
         self.assertEqual(result.entities.get("take_profits"), [63000.0, 64000.0])

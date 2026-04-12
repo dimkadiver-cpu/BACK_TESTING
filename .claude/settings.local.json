@@ -13,7 +13,10 @@
       "Bash(python:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git stash:*)",
+      "Bash(python3 -m json.tool)",
+      "Bash(grep -A5 \"tp_distribution\\\\|close_distribution\" configs/policies/*.yaml)"
     ]
   }
 }

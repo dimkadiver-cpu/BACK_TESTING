@@ -8,7 +8,7 @@ from src.signal_chain_lab.domain.enums import EventSource, EventType, TradeStatu
 from src.signal_chain_lab.domain.events import CanonicalChain, CanonicalEvent
 from src.signal_chain_lab.domain.results import EventLogEntry
 from src.signal_chain_lab.domain.trade_state import TradeState
-from src.signal_chain_lab.engine.fill_model import fill_market_order, try_fill_limit_order_touch
+from src.signal_chain_lab.engine.fill_model import compute_close_fee, fill_market_order, try_fill_limit_order_touch
 from src.signal_chain_lab.engine.state_machine import apply_event
 from src.signal_chain_lab.engine.timeout_manager import check_chain_timeout, check_pending_timeout
 from src.signal_chain_lab.market.data_models import Candle, MarketDataProvider
@@ -63,6 +63,44 @@ def simulate_chain(
         )
 
     return logs, state
+
+
+def _detect_tp_before_fill(state: TradeState, candle: Candle, tp_idx: int = 0) -> bool:
+    """Return True if the given TP level is reached while no position is open.
+
+    Covers the scenario where the price moves past a take-profit level before
+    any pending limit entry is filled — the trade opportunity has expired.
+
+    Args:
+        tp_idx: zero-based index into ``state.tp_levels`` (0 = TP1, 1 = TP2, …).
+    """
+    if state.open_size > 0 or state.pending_size <= 0:
+        return False
+    if not state.tp_levels or tp_idx >= len(state.tp_levels):
+        return False
+
+    tp_price = state.tp_levels[tp_idx]
+    normalized_side = state.side.upper()
+
+    if normalized_side in {"BUY", "LONG"}:
+        return candle.high >= tp_price
+    return candle.low <= tp_price
+
+
+def _tp_ref_to_index(ref: str | None) -> int | None:
+    """Parse a TP reference string to a zero-based index.
+
+    Examples: ``"tp1"`` → 0, ``"tp2"`` → 1. Returns ``None`` for invalid input.
+    """
+    if ref is None:
+        return None
+    s = str(ref).strip().lower()
+    if s.startswith("tp"):
+        try:
+            return int(s[2:]) - 1
+        except (ValueError, IndexError):
+            pass
+    return None
 
 
 def _detect_sl_tp_collision(state: TradeState, candle: Candle) -> tuple[bool, bool] | None:
@@ -213,7 +251,6 @@ def _handle_post_tp_partial_actions(
     be_trigger = policy.sl.be_trigger
     if (
         be_trigger is not None
-        and policy.sl.break_even_mode != "none"
         and state.avg_entry_price is not None
         and state.current_sl != state.avg_entry_price
     ):
@@ -240,12 +277,15 @@ def _handle_post_tp_partial_actions(
                 )
                 logs.append(apply_event(state, be_event, policy=policy))
 
-    # Cancel remaining averaging pending entries after TP1
+    # Cancel remaining averaging pending entries after tpN
+    cancel_after_idx = _tp_ref_to_index(policy.pending.cancel_averaging_pending_after)
     if (
-        state.pending_size > 0
-        and tp_idx_hit == 0
-        and policy.pending.cancel_averaging_pending_after_tp1
+        policy.pending.cancel_pending_by_engine
+        and cancel_after_idx is not None
+        and state.pending_size > 0
+        and tp_idx_hit == cancel_after_idx
     ):
+        tp_label = f"tp{cancel_after_idx + 1}"
         cancel_event = CanonicalEvent(
             signal_id=chain.signal_id,
             trader_id=chain.trader_id,
@@ -255,8 +295,8 @@ def _handle_post_tp_partial_actions(
             event_type=EventType.CANCEL_PENDING,
             source=EventSource.ENGINE,
             payload={
-                "reason": "cancel_averaging_after_tp1",
-                "raw_text": "Engine: cancel remaining pending entries after TP1.",
+                "reason": f"cancel_averaging_after_{tp_label}",
+                "raw_text": f"Engine: cancel remaining pending entries after {tp_label.upper()}.",
             },
             sequence=sequence_seed + 10_002,
         )
@@ -299,6 +339,37 @@ def _replay_market_segment(
 
         _try_fill_pending_entries(state=state, policy=policy, candle=candle)
 
+        # Cancel all pending if tpN reached before any entry filled
+        cancel_unfilled_idx = _tp_ref_to_index(policy.pending.cancel_unfilled_pending_after)
+        if (
+            policy.pending.cancel_pending_by_engine
+            and cancel_unfilled_idx is not None
+            and state.pending_size > 0
+            and state.open_size == 0
+            and _detect_tp_before_fill(state=state, candle=candle, tp_idx=cancel_unfilled_idx)
+        ):
+            tp_label = f"tp{cancel_unfilled_idx + 1}"
+            unfilled_cancel_event = CanonicalEvent(
+                signal_id=chain.signal_id,
+                trader_id=chain.trader_id,
+                symbol=chain.symbol,
+                side=chain.side,
+                timestamp=candle.timestamp,
+                event_type=EventType.CANCEL_PENDING,
+                source=EventSource.ENGINE,
+                payload={
+                    "reason": f"{tp_label}_reached_before_fill",
+                    "raw_text": f"Engine: {tp_label.upper()} reached before entry fill — cancel pending.",
+                },
+                sequence=sequence_seed + 20_010,
+            )
+            unfilled_cancel_log = apply_event(state, unfilled_cancel_event, policy=policy)
+            unfilled_cancel_log.reason = f"{tp_label}_reached_before_fill"
+            logs.append(unfilled_cancel_log)
+            last_replayed_candle_ts = candle.timestamp
+            if state.status in {TradeStatus.CLOSED, TradeStatus.CANCELLED, TradeStatus.EXPIRED, TradeStatus.INVALID}:
+                break
+
         timeout_event = check_pending_timeout(state, candle.timestamp, policy, sequence=sequence_seed + 20_000)
         if timeout_event is None:
             timeout_event = check_chain_timeout(state, candle.timestamp, policy, sequence=sequence_seed + 20_001)
@@ -333,7 +404,13 @@ def _replay_market_segment(
                 resolution.reason,
             )
 
-        is_full_close, close_fraction = _apply_close_resolution(state=state, resolution=resolution)
+        is_full_close, close_fraction, close_exit_price, close_qty = _apply_close_resolution(
+            state=state, resolution=resolution
+        )
+        if close_qty > 0 and close_exit_price > 0:
+            close_fee = compute_close_fee(close_exit_price, close_qty, policy)
+            state.realized_pnl -= close_fee
+            state.fees_paid += close_fee
         tp_idx_just_hit = state.next_tp_index - 1  # next_tp_index already incremented
         engine_event = _build_engine_close_event(
             chain=chain,
@@ -441,6 +518,7 @@ def _try_fill_pending_entries(state: TradeState, policy: PolicyConfig, candle: C
                 reference_price=reference_price,
                 event_timestamp=plan.activation_ts or candle.timestamp,
                 policy=policy,
+                side=state.side,
                 source_event_sequence=plan.sequence,
             )
         elif plan.order_type == "limit":
@@ -470,7 +548,7 @@ def _try_fill_pending_entries(state: TradeState, policy: PolicyConfig, candle: C
 
 def _apply_close_resolution(
     state: TradeState, resolution: IntrabarResolution
-) -> tuple[bool, float]:
+) -> tuple[bool, float, float, float]:
     """Realize PnL for an SL or TP resolution and update TP tracking state.
 
     For TP hits, closes only the policy-defined fraction of the position and
@@ -478,26 +556,29 @@ def _apply_close_resolution(
     the full remaining position.
 
     Returns:
-        (is_full_close, close_fraction)
-        ``is_full_close`` — True when the entire remaining position is being closed.
+        (is_full_close, close_fraction, exit_price, close_qty)
+        ``is_full_close``  — True when the entire remaining position is being closed.
         ``close_fraction`` — fraction of current ``open_size`` being closed (0.0–1.0).
+        ``exit_price``     — price at which the close was executed (0.0 if unavailable).
+        ``close_qty``      — quantity closed (0.0 if position was empty or price unavailable).
     """
     if state.open_size <= 0 or state.avg_entry_price is None:
-        return True, 1.0
+        return True, 1.0, 0.0, 0.0
 
     if resolution.outcome == "sl_hit":
         exit_price = state.current_sl
         if exit_price is None:
-            return True, 1.0
+            return True, 1.0, 0.0, 0.0
+        close_qty = state.open_size
         direction = 1.0 if state.side.upper() in {"BUY", "LONG"} else -1.0
-        state.realized_pnl += (float(exit_price) - state.avg_entry_price) * state.open_size * direction
+        state.realized_pnl += (float(exit_price) - state.avg_entry_price) * close_qty * direction
         state.unrealized_pnl = 0.0
-        return True, 1.0
+        return True, 1.0, float(exit_price), close_qty
 
     # TP hit
     n_tps = len(state.tp_levels)
     if n_tps == 0:
-        return True, 1.0
+        return True, 1.0, 0.0, 0.0
 
     tp_idx = state.next_tp_index
     tp_idx_clamped = min(tp_idx, n_tps - 1)
@@ -520,7 +601,7 @@ def _apply_close_resolution(
     # Advance TP index so the next check uses the subsequent level
     state.next_tp_index = min(tp_idx + 1, n_tps)
 
-    return is_full_close, close_fraction
+    return is_full_close, close_fraction, float(exit_price), close_qty
 
 
 def _normalize_fill_side(side: str) -> str:

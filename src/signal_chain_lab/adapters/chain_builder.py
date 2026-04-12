@@ -141,6 +141,9 @@ def _normalize_new_signal_entities(raw: dict) -> dict:
     """
     out = dict(raw)
 
+    if "entries" not in out and isinstance(out.get("entry_plan_entries"), list):
+        out["entries"] = list(out["entry_plan_entries"])
+
     # stop_loss: float → StopLoss dict
     sl = out.get("stop_loss")
     if isinstance(sl, (int, float)):
@@ -155,15 +158,45 @@ def _normalize_new_signal_entities(raw: dict) -> dict:
     entries = out.get("entries")
     if not entries:
         # legacy "entry" field: float or list of floats
+        entry_plan_entries = out.get("entry_plan_entries")
+        if isinstance(entry_plan_entries, list) and entry_plan_entries:
+            normalized_entries = []
+            for e in entry_plan_entries:
+                if isinstance(e, dict):
+                    entry_copy = dict(e)
+                    p = entry_copy.get("price")
+                    if isinstance(p, (int, float)):
+                        entry_copy["price"] = _price_obj(float(p))
+                    if "order_type" not in entry_copy:
+                        entry_copy["order_type"] = "LIMIT"
+                    normalized_entries.append(entry_copy)
+            if normalized_entries:
+                out["entries"] = normalized_entries
+                entries = normalized_entries
         entry_raw = out.get("entry")
-        if isinstance(entry_raw, (int, float)):
+        if not entries and isinstance(entry_raw, (int, float)):
             out["entries"] = [{"price": _price_obj(float(entry_raw)), "order_type": "LIMIT"}]
-        elif isinstance(entry_raw, list) and entry_raw:
+        elif not entries and isinstance(entry_raw, list) and entry_raw:
             out["entries"] = [
                 {"price": _price_obj(float(e)), "order_type": "LIMIT"}
                 for e in entry_raw
                 if isinstance(e, (int, float))
             ]
+        elif not entries and isinstance(out.get("entry_range"), list):
+            prices = [float(e) for e in out["entry_range"] if isinstance(e, (int, float))]
+            if len(prices) >= 2:
+                out["entries"] = [
+                    {"role": "RANGE_LOW", "price": _price_obj(prices[0]), "order_type": "LIMIT"},
+                    {"role": "RANGE_HIGH", "price": _price_obj(prices[1]), "order_type": "LIMIT"},
+                ]
+        elif not entries:
+            low = out.get("entry_range_low")
+            high = out.get("entry_range_high")
+            if isinstance(low, (int, float)) and isinstance(high, (int, float)):
+                out["entries"] = [
+                    {"role": "RANGE_LOW", "price": _price_obj(float(low)), "order_type": "LIMIT"},
+                    {"role": "RANGE_HIGH", "price": _price_obj(float(high)), "order_type": "LIMIT"},
+                ]
     elif isinstance(entries, list) and entries:
         normalized_entries = []
         for e in entries:
@@ -190,7 +223,7 @@ def _normalize_new_signal_entities(raw: dict) -> dict:
 def _normalize_update_entities(raw: dict) -> dict:
     """Normalize legacy flat-float Price fields in UPDATE entities."""
     out = dict(raw)
-    for field in ("new_sl_level", "close_price"):
+    for field in ("new_sl_level", "new_sl_price", "close_price", "partial_close_price", "stop_price", "new_entry_price", "old_entry_price", "modified_entry_price"):
         v = out.get(field)
         if isinstance(v, (int, float)):
             out[field] = _price_obj(float(v))
@@ -462,9 +495,11 @@ class SignalChainBuilder:
                 entities = cm.entities
                 entry_prices = [
                     e.price.value
-                    for e in entities.entries
+                    for e in (entities.entry_plan_entries or entities.entries)
                     if e.price is not None
                 ]
+                if not entry_prices and len(entities.entry_range) >= 2:
+                    entry_prices = [float(value) for value in entities.entry_range[:2]]
                 if entities.stop_loss is not None:
                     sl_price = entities.stop_loss.price.value
                 tp_prices = [tp.price.value for tp in entities.take_profits]

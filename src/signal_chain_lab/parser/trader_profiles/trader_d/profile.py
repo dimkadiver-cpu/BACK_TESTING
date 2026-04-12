@@ -180,7 +180,7 @@ class TraderDProfileParser(TraderBProfileParser):
                 {
                     "action": "CREATE_SIGNAL",
                     "instrument": entities.get("symbol"),
-                    "side": entities.get("side"),
+                    "side": entities.get("direction") or entities.get("side"),
                     "entries": entities.get("entry", []),
                     "stop_loss": entities.get("stop_loss"),
                     "take_profits": entities.get("take_profits", []),
@@ -287,7 +287,7 @@ class TraderDProfileParser(TraderBProfileParser):
         side_match = _SIDE_RE.search(raw_text)
         if side_match:
             side_token = side_match.group("side").lower()
-            out["side"] = "LONG" if side_token in {"long", "лонг"} else "SHORT"
+            out["direction"] = "LONG" if side_token in {"long", "лонг"} else "SHORT"
 
         limit_entry = _LIMIT_ENTRY_RE.search(raw_text) or _LIMIT_STANDALONE_RE.search(raw_text)
         market_price_match = _ENTRY_MARKET_PRICE_RE.search(raw_text)
@@ -330,11 +330,15 @@ class TraderDProfileParser(TraderBProfileParser):
 
         if not out.get("entry_plan_type"):
             if out.get("entry_order_type") == "MARKET" and not out.get("entry"):
-                out["entry_plan_type"] = "SINGLE_MARKET"
+                out["entry_plan_type"] = "SINGLE_MARKET"  # metadata only
             else:
-                out["entry_plan_type"] = "SINGLE"
+                out["entry_plan_type"] = "SINGLE"  # metadata only
         out.setdefault("entry_structure", "ONE_SHOT")
         out.setdefault("has_averaging_plan", False)
+        # Canonical entry_type: derive from entry_order_type
+        if not out.get("entry_type"):
+            raw_order_type = out.get("entry_order_type", "")
+            out["entry_type"] = "MARKET" if raw_order_type == "MARKET" else "LIMIT"
 
         return out
 

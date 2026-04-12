@@ -36,6 +36,8 @@ def check_pending_timeout(
 ) -> CanonicalEvent | None:
     if state.pending_size <= 0 or state.created_at is None:
         return None
+    if not policy.pending.cancel_pending_on_timeout:
+        return None
 
     timeout_at = state.created_at + timedelta(hours=policy.pending.pending_timeout_hours)
     if now < timeout_at:

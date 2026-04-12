@@ -56,10 +56,20 @@ def _new_signal_payload(chain: SignalChain) -> dict:
             {"price": tp.price.value, "label": tp.label}
             for tp in ents.take_profits
         ]
-        for extra_key in ("entry_plan_entries", "entry_plan_type", "entry_structure", "has_averaging_plan"):
+        # entry_plan_entries: serialize EntryLevel objects to dicts for downstream consumers
+        epe = ents.entry_plan_entries
+        if epe:
+            payload["entry_plan_entries"] = [
+                _serialize_entry_level(e)
+                for e in epe
+            ]
+        for extra_key in ("entry_plan_type", "entry_structure", "has_averaging_plan"):
             extra_value = getattr(ents, extra_key, None)
             if extra_value is not None:
                 payload[extra_key] = extra_value
+        # direction → keep as canonical in payload; simulator uses `side`
+        if ents.direction:
+            payload["direction"] = ents.direction
 
     return payload
 
@@ -73,13 +83,37 @@ def _update_payload(msg: ChainedMessage) -> dict:
 
     ents = msg.entities
     if ents.new_sl_level is not None:
+        payload["new_sl_level"] = ents.new_sl_level.value
+    if ents.new_sl_price is not None:
+        payload["new_sl_price"] = ents.new_sl_price.value
+    elif ents.new_sl_level is not None:
         payload["new_sl_price"] = ents.new_sl_level.value
+    if ents.new_sl_reference is not None:
+        payload["new_sl_reference"] = ents.new_sl_reference
     if ents.close_pct is not None:
         payload["close_pct"] = ents.close_pct
     if ents.close_price is not None:
         payload["close_price"] = ents.close_price.value
+    if ents.partial_close_price is not None:
+        payload["partial_close_price"] = ents.partial_close_price.value
+    if ents.cancel_scope is not None:
+        payload["cancel_scope"] = ents.cancel_scope
+    if ents.signal_id is not None:
+        payload["signal_id"] = ents.signal_id
+    if ents.manual_close:
+        payload["manual_close"] = True
+    if ents.stop_price is not None:
+        payload["stop_price"] = ents.stop_price.value
 
     return payload
+
+
+def _serialize_entry_level(entry: object) -> dict:
+    raw = entry.model_dump(mode="python", exclude_none=False) if hasattr(entry, "model_dump") else dict(entry)  # type: ignore[arg-type]
+    price = raw.get("price")
+    if isinstance(price, dict) and isinstance(price.get("value"), (int, float)):
+        raw["price"] = float(price["value"])
+    return raw
 
 
 # ---------------------------------------------------------------------------

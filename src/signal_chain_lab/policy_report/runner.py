@@ -5,7 +5,8 @@ import csv
 import json
 import re
 import shutil
-from collections import Counter
+import statistics
+from collections import Counter, defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -76,6 +77,21 @@ def _compute_max_drawdown(pnl_series: list[float]) -> float:
     return max_drawdown
 
 
+def _compute_max_drawdown_pct(pct_series: list[float]) -> float:
+    """Compute max drawdown from a % series (cumulative equity %)."""
+    if not pct_series:
+        return 0.0
+    peak = pct_series[0]
+    max_dd = 0.0
+    for val in pct_series:
+        if val > peak:
+            peak = val
+        dd = peak - val
+        if dd > max_dd:
+            max_dd = dd
+    return max_dd
+
+
 def _aggregate_policy_results(
     *,
     policy_name: str,
@@ -83,6 +99,7 @@ def _aggregate_policy_results(
     excluded: int,
     price_basis: str,
     exchange_faithful: bool,
+    initial_capital: float | None = None,
 ) -> dict[str, object]:
     trades_count = len(trade_results)
     realized = [item.realized_pnl for item in trade_results]
@@ -100,6 +117,57 @@ def _aggregate_policy_results(
         sum(item.warnings_count for item in trade_results) / trades_count if trades_count else 0.0
     )
 
+    # Status/close reason counts
+    closed_count = sum(1 for t in trade_results if (t.status or "").lower() == "closed")
+    expired_count = sum(1 for t in trade_results if (t.status or "").lower() == "expired")
+    cancelled_count = sum(1 for t in trade_results if (t.status or "").lower() in ("cancelled", "canceled"))
+
+    # Close reason distribution
+    close_reason_distribution: dict[str, int] = dict(
+        Counter((t.close_reason or "none") for t in trade_results)
+    )
+
+    # Symbol contribution
+    symbol_pnl: dict[str, float] = defaultdict(float)
+    symbol_count: dict[str, int] = defaultdict(int)
+    symbol_wins: dict[str, int] = defaultdict(int)
+    for t in trade_results:
+        sym = t.symbol or "unknown"
+        symbol_pnl[sym] += t.realized_pnl
+        symbol_count[sym] += 1
+        if t.realized_pnl > 0:
+            symbol_wins[sym] += 1
+
+    symbol_contribution: dict[str, object] = {
+        sym: {
+            "cumulative_pnl": round(symbol_pnl[sym], 8),
+            "trades_count": symbol_count[sym],
+            "win_rate": round(symbol_wins[sym] / symbol_count[sym] * 100, 1) if symbol_count[sym] else 0.0,
+        }
+        for sym in sorted(symbol_pnl, key=lambda s: symbol_pnl[s], reverse=True)
+    }
+
+    # % metrics
+    total_return_pct: float | None = None
+    max_drawdown_pct: float | None = None
+    expectancy_pct: float | None = None
+    avg_trade_impact_pct: float | None = None
+    median_trade_impact_pct: float | None = None
+    best_trade_pct: float | None = None
+    worst_trade_pct: float | None = None
+
+    impact_pcts = [t.trade_impact_pct for t in trade_results if t.trade_impact_pct is not None]
+
+    if initial_capital and initial_capital > 0:
+        total_return_pct = total_pnl / initial_capital * 100.0
+        max_drawdown_pct = _compute_max_drawdown(realized) / initial_capital * 100.0
+        expectancy_pct = expectancy / initial_capital * 100.0
+        if impact_pcts:
+            avg_trade_impact_pct = statistics.mean(impact_pcts)
+            median_trade_impact_pct = statistics.median(impact_pcts)
+            best_trade_pct = max(impact_pcts)
+            worst_trade_pct = min(impact_pcts)
+
     return {
         "policy_name": policy_name,
         "total_pnl": total_pnl,
@@ -116,6 +184,21 @@ def _aggregate_policy_results(
         "avg_warnings_per_trade": avg_warnings,
         "price_basis": price_basis,
         "exchange_faithful": exchange_faithful,
+        # status counts
+        "closed_trades_count": closed_count,
+        "expired_trades_count": expired_count,
+        "cancelled_trades_count": cancelled_count,
+        # distributions
+        "close_reason_distribution": close_reason_distribution,
+        "symbol_contribution": symbol_contribution,
+        # % metrics
+        "total_return_pct": total_return_pct,
+        "max_drawdown_pct": max_drawdown_pct,
+        "expectancy_pct": expectancy_pct,
+        "avg_trade_impact_pct": avg_trade_impact_pct,
+        "median_trade_impact_pct": median_trade_impact_pct,
+        "best_trade_pct": best_trade_pct,
+        "worst_trade_pct": worst_trade_pct,
     }
 
 
@@ -154,6 +237,7 @@ def _run_policy_dataset(
     chains: list[CanonicalChain],
     policy: PolicyConfig,
     market_provider: MarketDataProvider | None,
+    initial_capital: float | None = None,
 ) -> tuple[list[TradeResult], list[dict[str, str]], dict[str, list[EventLogEntry]]]:
     trade_results: list[TradeResult] = []
     excluded_chains: list[dict[str, str]] = []
@@ -167,9 +251,27 @@ def _run_policy_dataset(
 
         event_log, state = simulate_chain(chain, policy=policy, market_provider=market_provider)
         event_logs_by_signal_id[chain.signal_id] = event_log
-        trade_results.append(build_trade_result(state, event_log))
+        trade_results.append(build_trade_result(state, event_log, initial_capital=initial_capital))
 
     return trade_results, excluded_chains, event_logs_by_signal_id
+
+
+def _assign_cum_equity_pct(
+    trade_results: list[TradeResult],
+    initial_capital: float,
+) -> None:
+    """Set cum_equity_after_trade_pct on each trade in chronological order."""
+    if initial_capital <= 0:
+        return
+    # Sort by closed_at (trades without closed_at go last)
+    sorted_trades = sorted(
+        trade_results,
+        key=lambda t: t.closed_at or datetime.max.replace(tzinfo=timezone.utc),
+    )
+    cumulative = 0.0
+    for trade in sorted_trades:
+        cumulative += trade.realized_pnl
+        trade.cum_equity_after_trade_pct = cumulative / initial_capital * 100.0
 
 
 def _build_summary(
@@ -181,6 +283,7 @@ def _build_summary(
     excluded_chains: list[dict[str, str]],
     price_basis: str,
     exchange_faithful: bool,
+    initial_capital: float | None = None,
 ) -> dict[str, object]:
     aggregated = _aggregate_policy_results(
         policy_name=policy_name,
@@ -188,32 +291,69 @@ def _build_summary(
         excluded=len(excluded_chains),
         price_basis=price_basis,
         exchange_faithful=exchange_faithful,
+        initial_capital=initial_capital,
     )
     excluded_reasons = Counter(item["reason_code"] for item in excluded_chains)
     total_ignored_events = sum(item.ignored_events_count for item in trade_results)
 
+    # Build equity curve data for charts (sorted by closed_at)
+    equity_curve_pct: list[dict[str, object]] = []
+    drawdown_pct: list[dict[str, object]] = []
+    if initial_capital and initial_capital > 0:
+        sorted_trades = sorted(
+            trade_results,
+            key=lambda t: t.closed_at or datetime.max.replace(tzinfo=timezone.utc),
+        )
+        cumulative = 0.0
+        peak = 0.0
+        for t in sorted_trades:
+            cumulative += t.realized_pnl
+            eq_pct = cumulative / initial_capital * 100.0
+            if eq_pct > peak:
+                peak = eq_pct
+            dd_pct = peak - eq_pct
+            ts = t.closed_at.isoformat() if t.closed_at else ""
+            equity_curve_pct.append({"ts": ts, "signal_id": t.signal_id, "equity_pct": round(eq_pct, 4)})
+            drawdown_pct.append({"ts": ts, "signal_id": t.signal_id, "drawdown_pct": round(dd_pct, 4)})
+
     return {
         "policy_name": str(aggregated["policy_name"]),
+        "initial_capital": initial_capital,
         "chains_total": chains_total,
         "chains_selected": chains_selected,
         "chains_simulated": int(aggregated["simulated_chains_count"]),
         "chains_excluded": int(aggregated["excluded_chains_count"]),
         "excluded_reasons_summary": dict(sorted(excluded_reasons.items())),
         "trades_count": int(aggregated["trades_count"]),
+        "closed_trades_count": int(aggregated["closed_trades_count"]),
+        "expired_trades_count": int(aggregated["expired_trades_count"]),
+        "cancelled_trades_count": int(aggregated["cancelled_trades_count"]),
         "total_pnl": float(aggregated["total_pnl"]),
         "return_pct": float(aggregated["return_pct"]),
         "net_profit_pct": float(aggregated["total_pnl"]),
         "profit_pct": float(aggregated["gross_profit_pct"]),
         "loss_pct": float(aggregated["gross_loss_pct"]),
         "max_drawdown": float(aggregated["max_drawdown"]),
-        "max_drawdown_pct": float(aggregated["max_drawdown"]),
+        "max_drawdown_pct": float(aggregated["max_drawdown_pct"]) if aggregated["max_drawdown_pct"] is not None else None,
         "win_rate": float(aggregated["win_rate"]),
         "win_rate_pct": float(aggregated["win_rate"]) * 100.0,
         "profit_factor": float(aggregated["profit_factor"]),
         "expectancy": float(aggregated["expectancy"]),
-        "expectancy_pct": float(aggregated["expectancy"]),
+        "expectancy_pct": float(aggregated["expectancy_pct"]) if aggregated["expectancy_pct"] is not None else None,
         "avg_warnings_per_trade": float(aggregated["avg_warnings_per_trade"]),
         "total_ignored_events": total_ignored_events,
+        # % summary metrics
+        "total_return_pct": aggregated["total_return_pct"],
+        "avg_trade_impact_pct": aggregated["avg_trade_impact_pct"],
+        "median_trade_impact_pct": aggregated["median_trade_impact_pct"],
+        "best_trade_pct": aggregated["best_trade_pct"],
+        "worst_trade_pct": aggregated["worst_trade_pct"],
+        # distributions
+        "close_reason_distribution": aggregated["close_reason_distribution"],
+        "symbol_contribution": aggregated["symbol_contribution"],
+        # chart data
+        "equity_curve_pct": equity_curve_pct,
+        "drawdown_pct": drawdown_pct,
         "price_basis": price_basis,
         "exchange_faithful": exchange_faithful,
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -223,10 +363,12 @@ def _build_summary(
 def _write_single_row_csv(row: dict[str, object], output_path: str | Path) -> Path:
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
+    # Flatten nested objects for CSV
+    flat = {k: json.dumps(v) if isinstance(v, (dict, list)) else v for k, v in row.items()}
     with path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(row.keys()))
+        writer = csv.DictWriter(handle, fieldnames=list(flat.keys()))
         writer.writeheader()
-        writer.writerow(row)
+        writer.writerow(flat)
     return path
 
 
@@ -253,6 +395,23 @@ def _copy_chart_assets(output_dir: Path) -> None:
         shutil.copy2(_ECHARTS_SOURCE, dest)
 
 
+def _count_bars_in_trade(
+    candles_by_timeframe: dict[str, list[Candle]],
+    first_fill_at: datetime | None,
+    closed_at: datetime | None,
+) -> int | None:
+    """Count candles of the base timeframe that fall within the trade period."""
+    if not candles_by_timeframe or first_fill_at is None or closed_at is None:
+        return None
+    # Use the first (lowest) timeframe in the payload
+    candles = next(iter(candles_by_timeframe.values()))
+    count = sum(
+        1 for c in candles
+        if c.timestamp is not None and first_fill_at <= c.timestamp <= closed_at
+    )
+    return count or None
+
+
 def _write_trade_artifacts(
     *,
     output_dir: Path,
@@ -260,6 +419,7 @@ def _write_trade_artifacts(
     event_logs_by_signal_id: dict[str, list[EventLogEntry]],
     chains_by_signal_id: dict[str, CanonicalChain],
     market_provider: MarketDataProvider | None,
+    initial_capital: float | None = None,
 ) -> dict[str, str]:
     _copy_chart_assets(output_dir)
     trade_detail_links: dict[str, str] = {}
@@ -275,6 +435,13 @@ def _write_trade_artifacts(
             market_provider=market_provider,
             event_log=event_log,
         )
+        # Compute bars_in_trade now that we have the candles
+        if trade.bars_in_trade is None:
+            trade.bars_in_trade = _count_bars_in_trade(
+                chart_candles_by_timeframe,
+                trade.first_fill_at,
+                trade.closed_at,
+            )
         prev_link = f"../{dir_names[index - 1]}/detail.html" if index > 0 else None
         next_link = f"../{dir_names[index + 1]}/detail.html" if index < len(trade_results) - 1 else None
         write_event_log_jsonl(event_log, signal_dir / "event_log.jsonl")
@@ -295,6 +462,7 @@ def _write_trade_artifacts(
             next_link=next_link,
             trade_index=index + 1,
             trades_total=len(trade_results),
+            initial_capital=initial_capital,
         )
         trade_detail_links[trade.signal_id] = f"trades/{signal_dir.name}/detail.html"
     return trade_detail_links
@@ -364,13 +532,19 @@ def run_policy_report(
     dataset_metadata: dict[str, object] | None = None,
     price_basis: str = "last",
     exchange_faithful: bool = True,
+    initial_capital: float | None = None,
 ) -> PolicyReportArtifacts:
     selected_chains = filter_chains_by_date(chains, date_from=date_from, date_to=date_to)
     trade_results, excluded_chains, event_logs_by_signal_id = _run_policy_dataset(
         chains=selected_chains,
         policy=policy,
         market_provider=market_provider,
+        initial_capital=initial_capital,
     )
+
+    # Assign cum_equity_after_trade_pct in chronological order
+    if initial_capital and initial_capital > 0:
+        _assign_cum_equity_pct(trade_results, initial_capital)
 
     summary = _build_summary(
         policy_name=policy.name,
@@ -380,6 +554,7 @@ def run_policy_report(
         excluded_chains=excluded_chains,
         price_basis=price_basis,
         exchange_faithful=exchange_faithful,
+        initial_capital=initial_capital,
     )
 
     directory = Path(output_dir)
@@ -388,7 +563,6 @@ def run_policy_report(
     summary_json_path = directory / "policy_summary.json"
     summary_json_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
     summary_csv_path = _write_single_row_csv(summary, directory / "policy_summary.csv")
-    trade_results_csv_path = write_trade_results_csv(trade_results, directory / "trade_results.csv")
     excluded_chains_csv_path = _write_excluded_chains_csv(excluded_chains, directory / "excluded_chains.csv")
     policy_yaml_path = directory / "policy.yaml"
     policy_yaml_path.write_text(
@@ -408,6 +582,7 @@ def run_policy_report(
         "Market Provider": metadata.get("market_provider") or ("bybit" if market_provider is not None else "none"),
         "Timeframe": metadata.get("timeframe") or "-",
         "Price Basis": metadata.get("price_basis") or price_basis,
+        "Initial Capital": initial_capital if initial_capital is not None else "-",
         "Selected Chains": len(selected_chains),
         "Simulable Chains": len(trade_results),
         "Excluded Chains": len(excluded_chains),
@@ -424,7 +599,11 @@ def run_policy_report(
             event_logs_by_signal_id=event_logs_by_signal_id,
             chains_by_signal_id=chains_by_signal_id,
             market_provider=market_provider,
+            initial_capital=initial_capital,
         )
+
+    # Write trade_results.csv AFTER _write_trade_artifacts so bars_in_trade is populated
+    trade_results_csv_path = write_trade_results_csv(trade_results, directory / "trade_results.csv")
 
     html_report_path = write_policy_html_report(
         summary=summary,
