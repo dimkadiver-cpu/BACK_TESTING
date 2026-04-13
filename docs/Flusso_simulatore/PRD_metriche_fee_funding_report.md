@@ -12,6 +12,86 @@ Contestualmente, il report generale deve evolvere da una lettura “teorica” d
 
 ## 1. Problema da risolvere
 
+Problema 1:
+● Ora ho il quadro completo. Il problema del PnL è più profondo di quanto sembri.
+                                      
+  ---                                                                                     
+  Il PnL: né % né assoluto
+                                                                                                                                               
+  Formula effettiva (simulator.py + state_machine.py)
+                                                                                                                                               
+  realized_pnl += (exit_price - avg_entry_price) * close_qty * direction
+                                         
+  Dove close_qty = open_size * close_fraction e open_size è accumulato da size_ratio (somma = 1.0 per trade).
+
+  Unità reale: Δprezzo × fraction_dimensionless → es. BTC da 45000→45450 con close_qty=1.0 → PnL = 450
+
+  Non è dollari reali (manca la qty in asset), non è % (manca la divisione per il prezzo di entrata).
+
+  ---
+  Bug di naming nel runner (runner.py:114, 175, 333)
+
+  return_pct = (total_pnl / trades_count)   # ← è l'expectancy, non una %
+  "gross_profit_pct": gross_profit,          # ← è PnL assoluto, non %
+  "gross_loss_pct": -gross_loss_abs,         # ← idem
+  "net_profit_pct": float(aggregated["total_pnl"]),  # ← total_pnl rinominato _pct
+
+  Campi nominati _pct che contengono valori in Δprezzo × qty_fraction. Nessun errore di calcolo — ma chiunque legga il report li interpreta
+  come percentuali.
+
+  ---
+  trade_impact_pct — capital-relative, non trade-relative
+
+  # trade_report.py:78
+  trade_impact_pct = state.realized_pnl / initial_capital * 100.0
+
+  Misura quanto ogni trade sposta il capitale totale (es. "questo trade ha fatto +0.45% del capitale"), non il rendimento del trade in sé.
+  Richiede --initial-capital, altrimenti è None.
+
+  ---
+  Problema strutturale: aggregazione cross-symbol
+
+  BTC: entry=45,000 → exit=45,450 → move +1% → realized_pnl = 450
+  ETH: entry=2,500  → exit=2,525  → move +1% → realized_pnl = 25
+
+  total_pnl = 475  ← somma incomparabile
+
+  Stesso rendimento percentuale (1%), ma il BTC pesa 18× di più nell'aggregazione solo perché costa di più. Il total_pnl in ScenarioResult
+  somma questi valori eterogenei senza normalizzazione.
+
+  ---
+  Le uniche metriche % reali (runner.py:161-169)
+
+  if initial_capital and initial_capital > 0:
+      total_return_pct = total_pnl / initial_capital * 100.0
+      max_drawdown_pct = _compute_max_drawdown(realized) / initial_capital * 100.0
+      expectancy_pct = expectancy / initial_capital * 100.0
+
+  Queste sono corrette ma condizionate a --initial-capital. Senza quel parametro, tutti i valori _pct sono None o numeri mal-nominati.
+
+  ---
+  Riepilogo
+
+  ┌──────────────────┬───────────────────────────┬──────────────────────────────────────────────┐
+  │      Campo       │  Cosa contiene in realtà  │                  Corretto?                   │
+  ├──────────────────┼───────────────────────────┼──────────────────────────────────────────────┤
+  │ realized_pnl     │ Δprezzo × size_fraction   │ Calcolato correttamente, semantica implicita │
+  ├──────────────────┼───────────────────────────┼──────────────────────────────────────────────┤
+  │ return_pct       │ Stesso di expectancy      │ Nome sbagliato                               │
+  ├──────────────────┼───────────────────────────┼──────────────────────────────────────────────┤
+  │ gross_profit_pct │ Somma PnL grezzo          │ Nome sbagliato                               │
+  ├──────────────────┼───────────────────────────┼──────────────────────────────────────────────┤
+  │ net_profit_pct   │ total_pnl rinominato      │ Nome sbagliato                               │
+  ├──────────────────┼───────────────────────────┼──────────────────────────────────────────────┤
+  │ trade_impact_pct │ pnl / capital * 100       │ Corretto ma opzionale                        │
+  ├──────────────────┼───────────────────────────┼──────────────────────────────────────────────┤
+  │ total_return_pct │ total_pnl / capital * 100 │ Corretto ma opzionale                        │
+  └──────────────────┴───────────────────────────┴──────────────────────────────────────────────┘
+
+  Vuoi che sistemi i naming o aggiungiamo una metrica pnl_pct_from_entry vera per trade?
+
+
+
 ### 1.1 Ambiguità semantica del PnL attuale
 Il simulatore produce oggi una misura interna assimilabile a:
 
