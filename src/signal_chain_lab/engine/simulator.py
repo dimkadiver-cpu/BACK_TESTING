@@ -411,6 +411,7 @@ def _replay_market_segment(
             close_fee = compute_close_fee(close_exit_price, close_qty, policy)
             state.realized_pnl -= close_fee
             state.fees_paid += close_fee
+            state.close_fees_paid += close_fee
         tp_idx_just_hit = state.next_tp_index - 1  # next_tp_index already incremented
         engine_event = _build_engine_close_event(
             chain=chain,

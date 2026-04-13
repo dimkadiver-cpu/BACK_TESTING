@@ -54,6 +54,7 @@ class TradeState(BaseModel):
     realized_pnl: float = 0.0
     unrealized_pnl: float = 0.0
     fees_paid: float = 0.0
+    close_fees_paid: float = 0.0  # subset of fees_paid: fees paid on close events only
 
     warnings_count: int = 0
     ignored_events_count: int = 0

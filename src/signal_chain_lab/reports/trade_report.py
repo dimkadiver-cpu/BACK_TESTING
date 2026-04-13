@@ -69,21 +69,76 @@ def build_trade_result(
 
     mae, mfe = _extract_mae_mfe(event_log)
 
-    trade_impact_pct: float | None = None
+    # ── Notional investito ────────────────────────────────────────────────────
+    # Σ(fill_price * fill_qty) per tutti i fill di entrata effettivi
+    invested_notional: float | None = None
+    if state.fills:
+        invested_notional = sum(fill.price * fill.qty for fill in state.fills)
+        if invested_notional <= 0:
+            invested_notional = None
+
+    # ── PnL grezzo (nessuna fee) ──────────────────────────────────────────────
+    # realized_pnl = price_delta - close_fees_paid  (valore interno motore)
+    # pnl_gross_raw recupera il delta prezzo puro aggiungendo close_fees_paid
+    pnl_gross_raw: float | None = None
+    pnl_net_raw: float | None = None
+    fees_total_raw = state.fees_paid
+    funding_total_raw_net = 0.0  # funding non ancora implementato
+
+    if invested_notional is not None:
+        close_fees_paid = getattr(state, "close_fees_paid", 0.0)
+        pnl_gross_raw = state.realized_pnl + close_fees_paid
+        # pnl_net_raw = pnl_gross_raw - tutti i costi + funding netto
+        pnl_net_raw = pnl_gross_raw - fees_total_raw + funding_total_raw_net
+
+    # ── Rendimento % lordo e netto ────────────────────────────────────────────
+    trade_return_pct_gross: float | None = None
+    trade_return_pct_net: float | None = None
+    cost_drag_pct: float | None = None
+
+    if invested_notional is not None and invested_notional > 0:
+        if pnl_gross_raw is not None:
+            trade_return_pct_gross = pnl_gross_raw / invested_notional * 100.0
+        if pnl_net_raw is not None:
+            trade_return_pct_net = pnl_net_raw / invested_notional * 100.0
+        if trade_return_pct_gross is not None and trade_return_pct_net is not None:
+            cost_drag_pct = trade_return_pct_gross - trade_return_pct_net
+
+    # ── R-multiple ────────────────────────────────────────────────────────────
+    initial_r_pct: float | None = None
+    r_multiple: float | None = None
+
+    initial_sl = state.initial_sl
+    entry_ref = state.avg_entry_price
+    if (
+        initial_sl is not None
+        and entry_ref is not None
+        and entry_ref > 0
+        and trade_return_pct_net is not None
+    ):
+        initial_r_pct = abs(entry_ref - initial_sl) / entry_ref * 100.0
+        if initial_r_pct > 0:
+            r_multiple = trade_return_pct_net / initial_r_pct
+
+    # ── MAE / MFE normalizzati sul notional investito ─────────────────────────
     mae_pct: float | None = None
     mfe_pct: float | None = None
     capture_ratio_pct: float | None = None
 
+    if invested_notional is not None and invested_notional > 0:
+        if mae is not None:
+            mae_pct = mae / invested_notional * 100.0
+        if mfe is not None:
+            mfe_pct = mfe / invested_notional * 100.0
+
+    # capture_ratio: fraction of MFE captured as net PnL
+    if mfe is not None and mfe > 0 and pnl_net_raw is not None:
+        capture_ratio_pct = pnl_net_raw / mfe * 100.0
+
+    # ── trade_impact_pct (DEPRECATED — solo se initial_capital fornito) ───────
+    trade_impact_pct: float | None = None
     if initial_capital and initial_capital > 0:
         trade_impact_pct = state.realized_pnl / initial_capital * 100.0
-        if mae is not None:
-            mae_pct = mae / initial_capital * 100.0
-        if mfe is not None:
-            mfe_pct = mfe / initial_capital * 100.0
-
-    # capture_ratio: what fraction of MFE was captured as realized PnL
-    if mfe is not None and mfe > 0:
-        capture_ratio_pct = state.realized_pnl / mfe * 100.0
 
     return TradeResult(
         signal_id=state.signal_id,
@@ -102,9 +157,21 @@ def build_trade_result(
         avg_entry_price=state.avg_entry_price,
         max_position_size=state.max_position_size,
         final_position_size=state.open_size,
+        # raw
         realized_pnl=state.realized_pnl,
         unrealized_pnl=state.unrealized_pnl,
         fees_paid=state.fees_paid,
+        # canonical metrics
+        invested_notional=invested_notional,
+        pnl_gross_raw=pnl_gross_raw,
+        pnl_net_raw=pnl_net_raw,
+        fees_total_raw=fees_total_raw,
+        funding_total_raw_net=funding_total_raw_net,
+        trade_return_pct_gross=trade_return_pct_gross,
+        trade_return_pct_net=trade_return_pct_net,
+        cost_drag_pct=cost_drag_pct,
+        initial_r_pct=initial_r_pct,
+        r_multiple=r_multiple,
         mae=mae,
         mfe=mfe,
         trade_impact_pct=trade_impact_pct,
@@ -153,16 +220,31 @@ def write_trade_results_csv(results: list[TradeResult], output_path: str | Path)
         "avg_entry_price",
         "max_position_size",
         "final_position_size",
+        # canonical % metrics (primary)
+        "trade_return_pct_net",
+        "trade_return_pct_gross",
+        "cost_drag_pct",
+        "r_multiple",
+        "initial_r_pct",
+        # cost fields
+        "fees_total_raw",
+        "funding_total_raw_net",
+        # raw PnL (debug)
+        "invested_notional",
+        "pnl_net_raw",
+        "pnl_gross_raw",
         "realized_pnl",
         "unrealized_pnl",
         "fees_paid",
+        # excursion
         "mae",
         "mfe",
-        "trade_impact_pct",
-        "cum_equity_after_trade_pct",
         "mae_pct",
         "mfe_pct",
         "capture_ratio_pct",
+        # equity tracking
+        "cum_equity_after_trade_pct",
+        # execution
         "time_to_fill_seconds",
         "bars_in_trade",
         "fills_count",
@@ -174,7 +256,7 @@ def write_trade_results_csv(results: list[TradeResult], output_path: str | Path)
         "ignored_events_count",
     ]
     with path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer = csv.DictWriter(handle, fieldnames=fieldnames, extrasaction="ignore")
         writer.writeheader()
         for result in results:
             row = result.model_dump(mode="json")

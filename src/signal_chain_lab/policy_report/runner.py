@@ -102,103 +102,163 @@ def _aggregate_policy_results(
     initial_capital: float | None = None,
 ) -> dict[str, object]:
     trades_count = len(trade_results)
-    realized = [item.realized_pnl for item in trade_results]
-    wins = [pnl for pnl in realized if pnl > 0.0]
-    losses = [pnl for pnl in realized if pnl < 0.0]
-
-    total_pnl = sum(realized)
-    gross_profit = sum(wins)
-    gross_loss_abs = abs(sum(losses))
-    win_rate = (len(wins) / trades_count) if trades_count else 0.0
-    expectancy = (total_pnl / trades_count) if trades_count else 0.0
-    return_pct = (total_pnl / trades_count) if trades_count else 0.0
-    profit_factor = (gross_profit / gross_loss_abs) if gross_loss_abs > 0.0 else 0.0
     avg_warnings = (
         sum(item.warnings_count for item in trade_results) / trades_count if trades_count else 0.0
     )
 
-    # Status/close reason counts
+    # ── Raw PnL (debug / internal) ────────────────────────────────────────────
+    realized = [item.realized_pnl for item in trade_results]
+    total_pnl_raw = sum(realized)
+    raw_wins = [pnl for pnl in realized if pnl > 0.0]
+    raw_losses = [pnl for pnl in realized if pnl < 0.0]
+    gross_profit_raw = sum(raw_wins)
+    gross_loss_raw = abs(sum(raw_losses))
+
+    # ── Net % metrics (primary — always available when fills exist) ───────────
+    pct_net = [t.trade_return_pct_net for t in trade_results if t.trade_return_pct_net is not None]
+    pct_gross = [t.trade_return_pct_gross for t in trade_results if t.trade_return_pct_gross is not None]
+
+    wins_net = [p for p in pct_net if p > 0.0]
+    losses_net = [p for p in pct_net if p < 0.0]
+    wins_gross = [p for p in pct_gross if p > 0.0]
+    losses_gross = [p for p in pct_gross if p < 0.0]
+
+    win_rate_net = len(wins_net) / len(pct_net) if pct_net else 0.0
+    avg_trade_return_pct_net = statistics.mean(pct_net) if pct_net else 0.0
+    median_trade_return_pct_net = statistics.median(pct_net) if pct_net else 0.0
+    expectancy_pct_net = avg_trade_return_pct_net
+    profit_factor_net = (sum(wins_net) / abs(sum(losses_net))) if losses_net else 0.0
+
+    avg_trade_return_pct_gross = statistics.mean(pct_gross) if pct_gross else 0.0
+    median_trade_return_pct_gross = statistics.median(pct_gross) if pct_gross else 0.0
+    expectancy_pct_gross = avg_trade_return_pct_gross
+    profit_factor_gross = (sum(wins_gross) / abs(sum(losses_gross))) if losses_gross else 0.0
+
+    # Best / worst single trade (net)
+    best_trade_pct: float | None = max(pct_net) if pct_net else None
+    worst_trade_pct: float | None = min(pct_net) if pct_net else None
+
+    # ── R-multiple aggregates ─────────────────────────────────────────────────
+    r_multiples = [t.r_multiple for t in trade_results if t.r_multiple is not None]
+    avg_r_multiple: float | None = statistics.mean(r_multiples) if r_multiples else None
+    median_r_multiple: float | None = statistics.median(r_multiples) if r_multiples else None
+
+    # ── Cost diagnostics ──────────────────────────────────────────────────────
+    fees_total_raw = sum(t.fees_total_raw for t in trade_results)
+    fees_avg_raw = fees_total_raw / trades_count if trades_count else 0.0
+    funding_total_raw_net = sum(t.funding_total_raw_net for t in trade_results)
+    funding_avg_raw_net = funding_total_raw_net / trades_count if trades_count else 0.0
+
+    cost_drags = [t.cost_drag_pct for t in trade_results if t.cost_drag_pct is not None]
+    avg_cost_drag_pct: float | None = statistics.mean(cost_drags) if cost_drags else None
+
+    gross_pos_net_neg = [
+        t for t in trade_results
+        if t.trade_return_pct_gross is not None
+        and t.trade_return_pct_net is not None
+        and t.trade_return_pct_gross > 0
+        and t.trade_return_pct_net <= 0
+    ]
+    gross_positive_to_net_negative_count = len(gross_pos_net_neg)
+    gross_positive_to_net_negative_pct = (
+        gross_positive_to_net_negative_count / trades_count * 100.0 if trades_count else 0.0
+    )
+
+    trades_with_funding = [t for t in trade_results if t.funding_total_raw_net != 0.0]
+    trades_with_funding_count = len(trades_with_funding)
+    trades_with_funding_pct = (
+        trades_with_funding_count / trades_count * 100.0 if trades_count else 0.0
+    )
+
+    # ── Status / close reason counts ─────────────────────────────────────────
     closed_count = sum(1 for t in trade_results if (t.status or "").lower() == "closed")
     expired_count = sum(1 for t in trade_results if (t.status or "").lower() == "expired")
     cancelled_count = sum(1 for t in trade_results if (t.status or "").lower() in ("cancelled", "canceled"))
 
-    # Close reason distribution
     close_reason_distribution: dict[str, int] = dict(
         Counter((t.close_reason or "none") for t in trade_results)
     )
 
-    # Symbol contribution
-    symbol_pnl: dict[str, float] = defaultdict(float)
+    # ── Symbol contribution (using trade_return_pct_net) ─────────────────────
+    symbol_ret_net: dict[str, list[float]] = defaultdict(list)
     symbol_count: dict[str, int] = defaultdict(int)
-    symbol_wins: dict[str, int] = defaultdict(int)
     for t in trade_results:
         sym = t.symbol or "unknown"
-        symbol_pnl[sym] += t.realized_pnl
         symbol_count[sym] += 1
-        if t.realized_pnl > 0:
-            symbol_wins[sym] += 1
+        if t.trade_return_pct_net is not None:
+            symbol_ret_net[sym].append(t.trade_return_pct_net)
 
     symbol_contribution: dict[str, object] = {
         sym: {
-            "cumulative_pnl": round(symbol_pnl[sym], 8),
+            "avg_return_pct_net": round(statistics.mean(symbol_ret_net[sym]), 4) if symbol_ret_net[sym] else None,
             "trades_count": symbol_count[sym],
-            "win_rate": round(symbol_wins[sym] / symbol_count[sym] * 100, 1) if symbol_count[sym] else 0.0,
+            "win_rate": round(
+                sum(1 for r in symbol_ret_net[sym] if r > 0) / len(symbol_ret_net[sym]) * 100, 1
+            ) if symbol_ret_net[sym] else 0.0,
         }
-        for sym in sorted(symbol_pnl, key=lambda s: symbol_pnl[s], reverse=True)
+        for sym in sorted(symbol_ret_net, key=lambda s: statistics.mean(symbol_ret_net[s]) if symbol_ret_net[s] else 0.0, reverse=True)
     }
 
-    # % metrics
-    total_return_pct: float | None = None
+    # ── Raw max drawdown (from realized_pnl series) ───────────────────────────
+    max_drawdown_raw = _compute_max_drawdown(realized)
+
+    # ── Max drawdown % from cumulative net return % ───────────────────────────
     max_drawdown_pct: float | None = None
-    expectancy_pct: float | None = None
-    avg_trade_impact_pct: float | None = None
-    median_trade_impact_pct: float | None = None
-    best_trade_pct: float | None = None
-    worst_trade_pct: float | None = None
-
-    impact_pcts = [t.trade_impact_pct for t in trade_results if t.trade_impact_pct is not None]
-
-    if initial_capital and initial_capital > 0:
-        total_return_pct = total_pnl / initial_capital * 100.0
-        max_drawdown_pct = _compute_max_drawdown(realized) / initial_capital * 100.0
-        expectancy_pct = expectancy / initial_capital * 100.0
-        if impact_pcts:
-            avg_trade_impact_pct = statistics.mean(impact_pcts)
-            median_trade_impact_pct = statistics.median(impact_pcts)
-            best_trade_pct = max(impact_pcts)
-            worst_trade_pct = min(impact_pcts)
+    if pct_net:
+        cumulative_pct = []
+        cum = 0.0
+        for p in pct_net:
+            cum += p
+            cumulative_pct.append(cum)
+        max_drawdown_pct = _compute_max_drawdown_pct(cumulative_pct)
 
     return {
         "policy_name": policy_name,
-        "total_pnl": total_pnl,
-        "return_pct": return_pct,
-        "gross_profit_pct": gross_profit,
-        "gross_loss_pct": -gross_loss_abs,
-        "max_drawdown": _compute_max_drawdown(realized),
-        "win_rate": win_rate,
-        "profit_factor": profit_factor,
-        "expectancy": expectancy,
+        # ── raw / debug ───────────────────────────────────────────────────────
+        "total_pnl_raw": total_pnl_raw,
+        "gross_profit_raw": gross_profit_raw,
+        "gross_loss_raw": gross_loss_raw,
+        "max_drawdown_raw": max_drawdown_raw,
+        # ── net primary ───────────────────────────────────────────────────────
+        "win_rate_net": win_rate_net,
+        "avg_trade_return_pct_net": avg_trade_return_pct_net,
+        "median_trade_return_pct_net": median_trade_return_pct_net,
+        "expectancy_pct_net": expectancy_pct_net,
+        "profit_factor_net": profit_factor_net,
+        "best_trade_pct": best_trade_pct,
+        "worst_trade_pct": worst_trade_pct,
+        "avg_r_multiple": avg_r_multiple,
+        "median_r_multiple": median_r_multiple,
+        # ── gross secondary ───────────────────────────────────────────────────
+        "avg_trade_return_pct_gross": avg_trade_return_pct_gross,
+        "median_trade_return_pct_gross": median_trade_return_pct_gross,
+        "expectancy_pct_gross": expectancy_pct_gross,
+        "profit_factor_gross": profit_factor_gross,
+        # ── cost diagnostics ──────────────────────────────────────────────────
+        "fees_total_raw": fees_total_raw,
+        "fees_avg_raw": fees_avg_raw,
+        "funding_total_raw_net": funding_total_raw_net,
+        "funding_avg_raw_net": funding_avg_raw_net,
+        "avg_cost_drag_pct": avg_cost_drag_pct,
+        "gross_positive_to_net_negative_count": gross_positive_to_net_negative_count,
+        "gross_positive_to_net_negative_pct": gross_positive_to_net_negative_pct,
+        "trades_with_funding_count": trades_with_funding_count,
+        "trades_with_funding_pct": trades_with_funding_pct,
+        # ── drawdown ──────────────────────────────────────────────────────────
+        "max_drawdown_pct": max_drawdown_pct,
+        # ── counts ────────────────────────────────────────────────────────────
         "trades_count": trades_count,
         "simulated_chains_count": trades_count,
         "excluded_chains_count": excluded,
         "avg_warnings_per_trade": avg_warnings,
-        "price_basis": price_basis,
-        "exchange_faithful": exchange_faithful,
-        # status counts
         "closed_trades_count": closed_count,
         "expired_trades_count": expired_count,
         "cancelled_trades_count": cancelled_count,
-        # distributions
+        "price_basis": price_basis,
+        "exchange_faithful": exchange_faithful,
+        # ── distributions ────────────────────────────────────────────────────
         "close_reason_distribution": close_reason_distribution,
         "symbol_contribution": symbol_contribution,
-        # % metrics
-        "total_return_pct": total_return_pct,
-        "max_drawdown_pct": max_drawdown_pct,
-        "expectancy_pct": expectancy_pct,
-        "avg_trade_impact_pct": avg_trade_impact_pct,
-        "median_trade_impact_pct": median_trade_impact_pct,
-        "best_trade_pct": best_trade_pct,
-        "worst_trade_pct": worst_trade_pct,
     }
 
 
@@ -258,20 +318,22 @@ def _run_policy_dataset(
 
 def _assign_cum_equity_pct(
     trade_results: list[TradeResult],
-    initial_capital: float,
+    initial_capital: float | None = None,
 ) -> None:
-    """Set cum_equity_after_trade_pct on each trade in chronological order."""
-    if initial_capital <= 0:
-        return
-    # Sort by closed_at (trades without closed_at go last)
+    """Set cum_equity_after_trade_pct on each trade in chronological order.
+
+    Uses trade_return_pct_net (normalized, always available when fills exist).
+    Does NOT require initial_capital — the cumulative sum of % returns is already
+    a meaningful equity curve per-trade.
+    """
     sorted_trades = sorted(
         trade_results,
         key=lambda t: t.closed_at or datetime.max.replace(tzinfo=timezone.utc),
     )
     cumulative = 0.0
     for trade in sorted_trades:
-        cumulative += trade.realized_pnl
-        trade.cum_equity_after_trade_pct = cumulative / initial_capital * 100.0
+        cumulative += trade.trade_return_pct_net or 0.0
+        trade.cum_equity_after_trade_pct = round(cumulative, 4)
 
 
 def _build_summary(
@@ -296,25 +358,28 @@ def _build_summary(
     excluded_reasons = Counter(item["reason_code"] for item in excluded_chains)
     total_ignored_events = sum(item.ignored_events_count for item in trade_results)
 
-    # Build equity curve data for charts (sorted by closed_at)
+    # Build equity curve from cumulative trade_return_pct_net (sorted by closed_at)
     equity_curve_pct: list[dict[str, object]] = []
     drawdown_pct: list[dict[str, object]] = []
-    if initial_capital and initial_capital > 0:
-        sorted_trades = sorted(
-            trade_results,
-            key=lambda t: t.closed_at or datetime.max.replace(tzinfo=timezone.utc),
-        )
-        cumulative = 0.0
-        peak = 0.0
-        for t in sorted_trades:
-            cumulative += t.realized_pnl
-            eq_pct = cumulative / initial_capital * 100.0
-            if eq_pct > peak:
-                peak = eq_pct
-            dd_pct = peak - eq_pct
-            ts = t.closed_at.isoformat() if t.closed_at else ""
-            equity_curve_pct.append({"ts": ts, "signal_id": t.signal_id, "equity_pct": round(eq_pct, 4)})
-            drawdown_pct.append({"ts": ts, "signal_id": t.signal_id, "drawdown_pct": round(dd_pct, 4)})
+    sorted_trades = sorted(
+        trade_results,
+        key=lambda t: t.closed_at or datetime.max.replace(tzinfo=timezone.utc),
+    )
+    cumulative_net = 0.0
+    peak_net = 0.0
+    for t in sorted_trades:
+        cumulative_net += t.trade_return_pct_net or 0.0
+        eq_pct = round(cumulative_net, 4)
+        if eq_pct > peak_net:
+            peak_net = eq_pct
+        dd_pct = round(peak_net - eq_pct, 4)
+        ts = t.closed_at.isoformat() if t.closed_at else ""
+        equity_curve_pct.append({"ts": ts, "signal_id": t.signal_id, "equity_pct": eq_pct})
+        drawdown_pct.append({"ts": ts, "signal_id": t.signal_id, "drawdown_pct": dd_pct})
+
+    def _flt(key: str) -> float | None:
+        v = aggregated.get(key)
+        return float(v) if v is not None else None
 
     return {
         "policy_name": str(aggregated["policy_name"]),
@@ -328,30 +393,48 @@ def _build_summary(
         "closed_trades_count": int(aggregated["closed_trades_count"]),
         "expired_trades_count": int(aggregated["expired_trades_count"]),
         "cancelled_trades_count": int(aggregated["cancelled_trades_count"]),
-        "total_pnl": float(aggregated["total_pnl"]),
-        "return_pct": float(aggregated["return_pct"]),
-        "net_profit_pct": float(aggregated["total_pnl"]),
-        "profit_pct": float(aggregated["gross_profit_pct"]),
-        "loss_pct": float(aggregated["gross_loss_pct"]),
-        "max_drawdown": float(aggregated["max_drawdown"]),
-        "max_drawdown_pct": float(aggregated["max_drawdown_pct"]) if aggregated["max_drawdown_pct"] is not None else None,
-        "win_rate": float(aggregated["win_rate"]),
-        "win_rate_pct": float(aggregated["win_rate"]) * 100.0,
-        "profit_factor": float(aggregated["profit_factor"]),
-        "expectancy": float(aggregated["expectancy"]),
-        "expectancy_pct": float(aggregated["expectancy_pct"]) if aggregated["expectancy_pct"] is not None else None,
+        # ── net primary ───────────────────────────────────────────────────────
+        "win_rate_net": _flt("win_rate_net"),
+        "win_rate_pct": (_flt("win_rate_net") or 0.0) * 100.0,
+        "avg_trade_return_pct_net": _flt("avg_trade_return_pct_net"),
+        "median_trade_return_pct_net": _flt("median_trade_return_pct_net"),
+        "expectancy_pct_net": _flt("expectancy_pct_net"),
+        "profit_factor_net": _flt("profit_factor_net"),
+        "best_trade_pct": aggregated.get("best_trade_pct"),
+        "worst_trade_pct": aggregated.get("worst_trade_pct"),
+        "avg_r_multiple": aggregated.get("avg_r_multiple"),
+        "median_r_multiple": aggregated.get("median_r_multiple"),
+        # ── gross secondary ───────────────────────────────────────────────────
+        "avg_trade_return_pct_gross": _flt("avg_trade_return_pct_gross"),
+        "median_trade_return_pct_gross": _flt("median_trade_return_pct_gross"),
+        "expectancy_pct_gross": _flt("expectancy_pct_gross"),
+        "profit_factor_gross": _flt("profit_factor_gross"),
+        # ── cost diagnostics ──────────────────────────────────────────────────
+        "fees_total_raw": _flt("fees_total_raw"),
+        "fees_avg_raw": _flt("fees_avg_raw"),
+        "funding_total_raw_net": _flt("funding_total_raw_net"),
+        "funding_avg_raw_net": _flt("funding_avg_raw_net"),
+        "avg_cost_drag_pct": aggregated.get("avg_cost_drag_pct"),
+        "gross_positive_to_net_negative_count": int(aggregated.get("gross_positive_to_net_negative_count") or 0),
+        "gross_positive_to_net_negative_pct": _flt("gross_positive_to_net_negative_pct"),
+        "trades_with_funding_count": int(aggregated.get("trades_with_funding_count") or 0),
+        "trades_with_funding_pct": _flt("trades_with_funding_pct"),
+        # ── raw / debug ───────────────────────────────────────────────────────
+        "total_pnl_raw": _flt("total_pnl_raw"),
+        "gross_profit_raw": _flt("gross_profit_raw"),
+        "gross_loss_raw": _flt("gross_loss_raw"),
+        "max_drawdown_raw": _flt("max_drawdown_raw"),
+        # ── backward-compat aliases (deprecated, kept for downstream compat) ──
+        "net_profit_pct": _flt("total_pnl_raw"),
+        "profit_pct": _flt("gross_profit_raw"),
+        "loss_pct": -(_flt("gross_loss_raw") or 0.0),
+        "max_drawdown_pct": aggregated.get("max_drawdown_pct"),
         "avg_warnings_per_trade": float(aggregated["avg_warnings_per_trade"]),
         "total_ignored_events": total_ignored_events,
-        # % summary metrics
-        "total_return_pct": aggregated["total_return_pct"],
-        "avg_trade_impact_pct": aggregated["avg_trade_impact_pct"],
-        "median_trade_impact_pct": aggregated["median_trade_impact_pct"],
-        "best_trade_pct": aggregated["best_trade_pct"],
-        "worst_trade_pct": aggregated["worst_trade_pct"],
-        # distributions
+        # ── distributions ────────────────────────────────────────────────────
         "close_reason_distribution": aggregated["close_reason_distribution"],
         "symbol_contribution": aggregated["symbol_contribution"],
-        # chart data
+        # ── chart data ────────────────────────────────────────────────────────
         "equity_curve_pct": equity_curve_pct,
         "drawdown_pct": drawdown_pct,
         "price_basis": price_basis,
@@ -542,9 +625,8 @@ def run_policy_report(
         initial_capital=initial_capital,
     )
 
-    # Assign cum_equity_after_trade_pct in chronological order
-    if initial_capital and initial_capital > 0:
-        _assign_cum_equity_pct(trade_results, initial_capital)
+    # Assign cum_equity_after_trade_pct in chronological order (uses trade_return_pct_net)
+    _assign_cum_equity_pct(trade_results)
 
     summary = _build_summary(
         policy_name=policy.name,

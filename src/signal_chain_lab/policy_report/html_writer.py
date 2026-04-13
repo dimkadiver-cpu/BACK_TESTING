@@ -154,15 +154,17 @@ dialog::backdrop{background:rgba(15,23,42,.55)}
 .footer-nav{margin-top:20px}
 .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
 .charts-full{margin-bottom:18px}
-/* extended column toggles — columns 7,8,9,10 are cum_equity, mae, mfe, capture */
-#trade-results-table.hide-cumEq td:nth-child(7),
-#trade-results-table.hide-cumEq th:nth-child(7){display:none}
-#trade-results-table.hide-mae td:nth-child(8),
-#trade-results-table.hide-mae th:nth-child(8){display:none}
-#trade-results-table.hide-mfe td:nth-child(9),
-#trade-results-table.hide-mfe th:nth-child(9){display:none}
-#trade-results-table.hide-capture td:nth-child(10),
-#trade-results-table.hide-capture th:nth-child(10){display:none}
+/* extended column toggles
+   col 5=Net%  col6=Gross%  col7=CumEq%  col8=MAE%  col9=MFE%  col10=Capture%
+   col11=Fees  col12=R  col13=Warn  col14=Created  col15=Closed  col16=Detail
+   nth-child is 1-based so col5 → nth-child(6), col6 → nth-child(7), etc. */
+#trade-results-table.hide-gross   td:nth-child(7), #trade-results-table.hide-gross   th:nth-child(7){display:none}
+#trade-results-table.hide-cumEq   td:nth-child(8), #trade-results-table.hide-cumEq   th:nth-child(8){display:none}
+#trade-results-table.hide-mae     td:nth-child(9), #trade-results-table.hide-mae     th:nth-child(9){display:none}
+#trade-results-table.hide-mfe     td:nth-child(10),#trade-results-table.hide-mfe     th:nth-child(10){display:none}
+#trade-results-table.hide-capture td:nth-child(11),#trade-results-table.hide-capture th:nth-child(11){display:none}
+#trade-results-table.hide-fees    td:nth-child(12),#trade-results-table.hide-fees    th:nth-child(12){display:none}
+#trade-results-table.hide-r       td:nth-child(13),#trade-results-table.hide-r       th:nth-child(13){display:none}
 /* excluded chains filter */
 .excl-reason-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
 .excl-badge{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid transparent}
@@ -200,10 +202,10 @@ function __sortTradeRows(){
   const dir = __tradeSortState.dir === "asc" ? 1 : -1;
   const colByKey = {
     signal:0, symbol:1, side:2, status:3, close_reason:4,
-    impact:5, cum_equity:6, mae:7, mfe:8, capture:9,
-    warnings:10, created:11, closed:12
+    impact:5, gross:6, cum_equity:7, mae:8, mfe:9, capture:10,
+    fees:11, r:12, warnings:13, created:14, closed:15
   };
-  const numericKeys = new Set(["impact","cum_equity","mae","mfe","capture","warnings","created","closed"]);
+  const numericKeys = new Set(["impact","gross","cum_equity","mae","mfe","capture","fees","r","warnings","created","closed"]);
   const col = colByKey[key] ?? 11;
   rows.sort((a,b) => {
     const aCell = a.children[col];
@@ -313,39 +315,33 @@ def _metric_card(label: str, value: str, color_class: str = "") -> str:
 
 
 def _trade_summary_metrics(summary: dict[str, object]) -> str:
-    has_pct = summary.get("total_return_pct") is not None
+    # ── Sezione 1: metriche nette principali (sempre visibili) ────────────────
+    avg_net = summary.get("avg_trade_return_pct_net")
+    med_net = summary.get("median_trade_return_pct_net")
+    exp_net = summary.get("expectancy_pct_net")
+    pf_net  = summary.get("profit_factor_net")
+    wr_pct  = summary.get("win_rate_pct")
+    best    = summary.get("best_trade_pct")
+    worst   = summary.get("worst_trade_pct")
+    avg_r   = summary.get("avg_r_multiple")
+    med_r   = summary.get("median_r_multiple")
+    dd_pct  = summary.get("max_drawdown_pct")
 
-    # Primary % cards (only shown when initial_capital is configured)
-    primary: list[str] = []
-    if has_pct:
-        tr_pct = summary.get("total_return_pct")
-        dd_pct = summary.get("max_drawdown_pct")
-        exp_pct = summary.get("expectancy_pct")
-        avg_imp = summary.get("avg_trade_impact_pct")
-        med_imp = summary.get("median_trade_impact_pct")
-        best = summary.get("best_trade_pct")
-        worst = summary.get("worst_trade_pct")
-        primary = [
-            _metric_card("Total Return %", _fmt_percent(tr_pct), _badge_class_for_percent(tr_pct)),
-            _metric_card("Max Drawdown %", _fmt_percent(dd_pct, signed=False) if dd_pct is None else f"-{abs(float(dd_pct)):.2f}%", "bad" if dd_pct and float(dd_pct) > 0 else "muted"),
-            _metric_card("Expectancy %", _fmt_percent(exp_pct), _badge_class_for_percent(exp_pct)),
-            _metric_card("Win Rate %", _fmt_percent(summary.get("win_rate_pct"), signed=False), ""),
-            _metric_card("Profit Factor", _fmt_number(summary.get("profit_factor")), ""),
-            _metric_card("Avg Trade Impact %", _fmt_percent(avg_imp), _badge_class_for_percent(avg_imp)),
-            _metric_card("Median Trade Impact %", _fmt_percent(med_imp), _badge_class_for_percent(med_imp)),
-            _metric_card("Best Trade %", _fmt_percent(best), "ok"),
-            _metric_card("Worst Trade %", _fmt_percent(worst), "bad"),
-        ]
-    else:
-        primary = [
-            _metric_card("Net Profit", _fmt_number(summary.get("net_profit_pct")), _badge_class_for_number(summary.get("net_profit_pct"))),
-            _metric_card("Win Rate %", _fmt_percent(summary.get("win_rate_pct"), signed=False), ""),
-            _metric_card("Profit Factor", _fmt_number(summary.get("profit_factor")), ""),
-            _metric_card("Expectancy", _fmt_number(summary.get("expectancy")), _badge_class_for_number(summary.get("expectancy"))),
-            _metric_card("Max Drawdown", _fmt_number(summary.get("max_drawdown")), "bad" if summary.get("max_drawdown") else "muted"),
-        ]
+    primary: list[str] = [
+        _metric_card("Avg Return % Net", _fmt_percent(avg_net), _badge_class_for_percent(avg_net)),
+        _metric_card("Median Return % Net", _fmt_percent(med_net), _badge_class_for_percent(med_net)),
+        _metric_card("Expectancy % Net", _fmt_percent(exp_net), _badge_class_for_percent(exp_net)),
+        _metric_card("Win Rate %", _fmt_percent(wr_pct, signed=False), ""),
+        _metric_card("Profit Factor Net", _fmt_number(pf_net), ""),
+        _metric_card("Avg R-Multiple", _fmt_number(avg_r) if avg_r is not None else "-", _badge_class_for_number(avg_r)),
+        _metric_card("Median R-Multiple", _fmt_number(med_r) if med_r is not None else "-", _badge_class_for_number(med_r)),
+        _metric_card("Best Trade % Net", _fmt_percent(best), "ok"),
+        _metric_card("Worst Trade % Net", _fmt_percent(worst), "bad"),
+        _metric_card("Max Drawdown %", f"-{abs(float(dd_pct)):.2f}%" if dd_pct is not None else "-",
+                     "bad" if dd_pct and float(dd_pct) > 0 else "muted"),
+    ]
 
-    secondary = [
+    secondary: list[str] = [
         _metric_card("Total Trades", str(summary.get("trades_count", "-")), ""),
         _metric_card("Closed", str(summary.get("closed_trades_count", "-")), ""),
         _metric_card("Expired", str(summary.get("expired_trades_count", "-")), "muted" if summary.get("expired_trades_count") else ""),
@@ -354,9 +350,119 @@ def _trade_summary_metrics(summary: dict[str, object]) -> str:
         _metric_card("Avg Warnings", _fmt_number(summary.get("avg_warnings_per_trade")), ""),
     ]
 
-    primary_html = f"<div class='grid-4'>{''.join(primary)}</div>" if primary else ""
+    primary_html = f"<div class='grid-4'>{''.join(primary)}</div>"
     secondary_html = f"<div style='margin-top:12px'><div class='grid-4'>{''.join(secondary)}</div></div>"
     return primary_html + secondary_html
+
+
+# ---------------------------------------------------------------------------
+# Gross vs Net comparison table
+# ---------------------------------------------------------------------------
+
+def _gross_vs_net_table(summary: dict[str, object]) -> str:
+    """Sezione 2 PRD: tabella comparativa gross / net / delta costi."""
+    metrics = [
+        ("Avg Trade Return %",  "avg_trade_return_pct_gross",    "avg_trade_return_pct_net"),
+        ("Median Trade Return %","median_trade_return_pct_gross", "median_trade_return_pct_net"),
+        ("Expectancy %",        "expectancy_pct_gross",          "expectancy_pct_net"),
+        ("Profit Factor",       "profit_factor_gross",           "profit_factor_net"),
+    ]
+    rows: list[str] = []
+    for label, gross_key, net_key in metrics:
+        g = summary.get(gross_key)
+        n = summary.get(net_key)
+        delta: float | None = None
+        if g is not None and n is not None:
+            delta = float(n) - float(g)
+        g_str = _fmt_percent(g) if g is not None else "-"
+        n_str = _fmt_percent(n) if n is not None else "-"
+        d_str = _fmt_percent(delta) if delta is not None else "-"
+        d_cls = _badge_class_for_percent(delta)
+        rows.append(
+            f"<tr><td><strong>{_escape(label)}</strong></td>"
+            f"<td>{g_str}</td>"
+            f"<td>{n_str}</td>"
+            f"<td><span class='badge {d_cls}'>{d_str}</span></td>"
+            "</tr>"
+        )
+    return (
+        "<div class='card'>"
+        "<h2>Gross vs Net</h2>"
+        "<div style='overflow-x:auto'>"
+        "<table>"
+        "<thead><tr><th>Metric</th><th>Gross</th><th>Net</th><th>Delta (costi)</th></tr></thead>"
+        f"<tbody>{''.join(rows)}</tbody>"
+        "</table>"
+        "</div>"
+        "</div>"
+    )
+
+
+def _cost_breakdown_section(summary: dict[str, object]) -> str:
+    """Sezione 3 PRD: diagnostica costi (fee e funding)."""
+    fees_total  = summary.get("fees_total_raw")
+    fees_avg    = summary.get("fees_avg_raw")
+    fund_total  = summary.get("funding_total_raw_net")
+    fund_avg    = summary.get("funding_avg_raw_net")
+    drag        = summary.get("avg_cost_drag_pct")
+
+    cards = "".join([
+        _metric_card("Total Fees (raw)", _fmt_number(fees_total, 6) if fees_total is not None else "-", "bad" if fees_total and float(fees_total) != 0 else "muted"),
+        _metric_card("Avg Fees per Trade (raw)", _fmt_number(fees_avg, 6) if fees_avg is not None else "-", ""),
+        _metric_card("Total Funding Net (raw)", _fmt_number(fund_total, 6) if fund_total is not None else "-", _badge_class_for_number(fund_total)),
+        _metric_card("Avg Funding per Trade (raw)", _fmt_number(fund_avg, 6) if fund_avg is not None else "-", _badge_class_for_number(fund_avg)),
+        _metric_card("Avg Cost Drag %", _fmt_percent(drag) if drag is not None else "-", "bad" if drag and float(drag) > 0 else "muted"),
+    ])
+    return (
+        "<div class='card'>"
+        "<h2>Cost Breakdown</h2>"
+        f"<div class='grid-4'>{cards}</div>"
+        "</div>"
+    )
+
+
+def _cost_sensitivity_section(summary: dict[str, object]) -> str:
+    """Sezione 4 PRD: cost sensitivity — trade che cambiano segno gross→net."""
+    gp_nn_count = summary.get("gross_positive_to_net_negative_count", 0)
+    gp_nn_pct   = summary.get("gross_positive_to_net_negative_pct")
+    fw_count    = summary.get("trades_with_funding_count", 0)
+    fw_pct      = summary.get("trades_with_funding_pct")
+
+    cards = "".join([
+        _metric_card(
+            "Gross+ → Net− count",
+            str(gp_nn_count),
+            "bad" if gp_nn_count and int(gp_nn_count) > 0 else "muted",
+        ),
+        _metric_card(
+            "Gross+ → Net− %",
+            _fmt_percent(gp_nn_pct, signed=False) if gp_nn_pct is not None else "-",
+            "bad" if gp_nn_pct and float(gp_nn_pct) > 0 else "muted",
+        ),
+        _metric_card(
+            "Trades with Funding",
+            str(fw_count),
+            "muted",
+        ),
+        _metric_card(
+            "Trades with Funding %",
+            _fmt_percent(fw_pct, signed=False) if fw_pct is not None else "-",
+            "muted",
+        ),
+    ])
+    note = (
+        "<p class='note' style='margin-top:8px'>"
+        "Gross+→Net−: trade con rendimento lordo positivo diventato negativo dopo costi. "
+        "Identifica la fragilità reale della policy ai costi operativi."
+        "</p>"
+    )
+    return (
+        "<div class='card'>"
+        "<h2>Cost Sensitivity</h2>"
+        f"<div class='grid-4'>{cards}</div>"
+        f"{note}"
+        "</div>"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -652,26 +758,39 @@ def _trade_results_table(
             detail_href = trade_detail_links[trade.signal_id]
             detail_label = "Detail"
 
-        # Trade impact % — use if available, else PnL badge
-        if trade.trade_impact_pct is not None:
-            impact_val = trade.trade_impact_pct
-            impact_cell = (
-                f"<td data-sort='{impact_val:.8f}'>"
-                f"<span class='badge {_badge_class_for_percent(impact_val)}'>{_fmt_percent(impact_val)}</span>"
+        # col 5: Net Return % (primary)
+        net_v = trade.trade_return_pct_net
+        if net_v is not None:
+            net_cell = (
+                f"<td data-sort='{net_v:.8f}'>"
+                f"<span class='badge {_badge_class_for_percent(net_v)}'>{_fmt_percent(net_v)}</span>"
                 "</td>"
             )
         else:
-            impact_val = trade.realized_pnl
-            impact_cell = (
-                f"<td data-sort='{impact_val:.8f}'>"
-                f"<span class='badge {_badge_class_for_number(impact_val)}'>{_fmt_number(impact_val, 4)}</span>"
+            # fallback to raw realized_pnl when not yet filled
+            raw_v = trade.realized_pnl
+            net_cell = (
+                f"<td data-sort='{raw_v:.8f}'>"
+                f"<span class='badge {_badge_class_for_number(raw_v)}'>{_fmt_number(raw_v, 4)}</span>"
                 "</td>"
             )
 
+        # col 6: Gross Return % (toggle)
+        gross_v = trade.trade_return_pct_gross
+        gross_cell = (
+            f"<td data-sort='{gross_v:.8f}'>"
+            f"<span class='badge {_badge_class_for_percent(gross_v)}'>{_fmt_percent(gross_v)}</span>"
+            "</td>"
+            if gross_v is not None
+            else "<td data-sort='-9999'>-</td>"
+        )
+
         cum_eq = trade.cum_equity_after_trade_pct
-        mae_v = trade.mae_pct
-        mfe_v = trade.mfe_pct
-        cap_v = trade.capture_ratio_pct
+        mae_v  = trade.mae_pct
+        mfe_v  = trade.mfe_pct
+        cap_v  = trade.capture_ratio_pct
+        fees_v = trade.fees_total_raw
+        r_v    = trade.r_multiple
 
         rows.append(
             "<tr>"
@@ -680,11 +799,14 @@ def _trade_results_table(
             f"<td>{_escape(trade.side)}</td>"
             f"<td>{_escape(trade.status)}</td>"
             f"<td>{_escape(trade.close_reason or '-')}</td>"
-            + impact_cell +
+            + net_cell
+            + gross_cell +
             f"<td data-sort='{cum_eq if cum_eq is not None else -9999}'>{_fmt_percent(cum_eq) if cum_eq is not None else '-'}</td>"
             f"<td data-sort='{mae_v if mae_v is not None else 0}'>{_fmt_percent(mae_v) if mae_v is not None else '-'}</td>"
             f"<td data-sort='{mfe_v if mfe_v is not None else 0}'>{_fmt_percent(mfe_v) if mfe_v is not None else '-'}</td>"
             f"<td data-sort='{cap_v if cap_v is not None else -9999}'>{_fmt_percent(cap_v) if cap_v is not None else '-'}</td>"
+            f"<td data-sort='{fees_v:.8f}'>{_fmt_number(fees_v, 6) if fees_v else '-'}</td>"
+            f"<td data-sort='{r_v if r_v is not None else -9999}'>{_fmt_number(r_v) if r_v is not None else '-'}</td>"
             f"<td data-sort='{trade.warnings_count}'>{trade.warnings_count}</td>"
             f"<td data-sort='{trade.created_at or ''}'>{_escape(_fmt_timestamp(trade.created_at))}</td>"
             f"<td data-sort='{trade.closed_at or ''}'>{_escape(_fmt_timestamp(trade.closed_at))}</td>"
@@ -863,25 +985,48 @@ def write_single_trade_html_report(
     trades_total: int | None = None,
     initial_capital: float | None = None,
 ) -> Path:
-    has_pct = trade.trade_impact_pct is not None
+    # --- Group 1: Risultato (net/gross/cost) ---
+    net_v   = trade.trade_return_pct_net
+    gross_v = trade.trade_return_pct_gross
+    drag_v  = trade.cost_drag_pct
+    r_v     = trade.r_multiple
 
-    # --- Group 1: Performance ---
     perf_cards = "".join([
         _metric_card(
-            "Trade Impact %",
-            _fmt_percent(trade.trade_impact_pct) if has_pct else _fmt_number(trade.realized_pnl, 4),
-            _badge_class_for_percent(trade.trade_impact_pct) if has_pct else _badge_class_for_number(trade.realized_pnl),
+            "Return % Net",
+            _fmt_percent(net_v) if net_v is not None else _fmt_number(trade.realized_pnl, 4),
+            _badge_class_for_percent(net_v) if net_v is not None else _badge_class_for_number(trade.realized_pnl),
         ),
         _metric_card(
-            "Capture Ratio %",
-            _fmt_percent(trade.capture_ratio_pct) if trade.capture_ratio_pct is not None else "-",
-            _badge_class_for_percent(trade.capture_ratio_pct),
+            "Return % Gross",
+            _fmt_percent(gross_v) if gross_v is not None else "-",
+            _badge_class_for_percent(gross_v),
+        ),
+        _metric_card(
+            "Cost Drag %",
+            _fmt_percent(drag_v, signed=False) if drag_v is not None else "-",
+            "bad" if drag_v and float(drag_v) > 0 else "muted",
+        ),
+        _metric_card(
+            "R-Multiple",
+            _fmt_number(r_v) if r_v is not None else "-",
+            _badge_class_for_number(r_v),
         ),
         _metric_card("Close Reason", _escape(trade.close_reason or "-"), ""),
         _metric_card("Status", _escape(trade.status), ""),
     ])
 
-    # --- Group 2: Excursions ---
+    # --- Group 2: Costi ---
+    cost_cards = "".join([
+        _metric_card("Fees Total (raw)", _fmt_number(trade.fees_total_raw, 6), "bad" if trade.fees_total_raw > 0 else "muted"),
+        _metric_card("Funding Net (raw)", _fmt_number(trade.funding_total_raw_net, 6), _badge_class_for_number(trade.funding_total_raw_net)),
+        _metric_card("PnL Net (raw)", _fmt_number(trade.pnl_net_raw, 6) if trade.pnl_net_raw is not None else "-", _badge_class_for_number(trade.pnl_net_raw)),
+        _metric_card("PnL Gross (raw)", _fmt_number(trade.pnl_gross_raw, 6) if trade.pnl_gross_raw is not None else "-", _badge_class_for_number(trade.pnl_gross_raw)),
+        _metric_card("Invested Notional", _fmt_number(trade.invested_notional, 4) if trade.invested_notional is not None else "-", ""),
+        _metric_card("Initial R %", _fmt_percent(trade.initial_r_pct, signed=False) if trade.initial_r_pct is not None else "-", "muted"),
+    ])
+
+    # --- Group 3: Excursions ---
     excursion_cards = "".join([
         _metric_card(
             "MAE %",
@@ -893,10 +1038,15 @@ def write_single_trade_html_report(
             _fmt_percent(trade.mfe_pct) if trade.mfe_pct is not None else _fmt_number(trade.mfe, 4),
             "ok" if (trade.mfe_pct or trade.mfe or 0) > 0 else "muted",
         ),
+        _metric_card(
+            "Capture Ratio %",
+            _fmt_percent(trade.capture_ratio_pct) if trade.capture_ratio_pct is not None else "-",
+            _badge_class_for_percent(trade.capture_ratio_pct),
+        ),
         _metric_card("Cum. Equity % After", _fmt_percent(trade.cum_equity_after_trade_pct) if trade.cum_equity_after_trade_pct is not None else "-", _badge_class_for_percent(trade.cum_equity_after_trade_pct)),
     ])
 
-    # --- Group 3: Execution ---
+    # --- Group 4: Execution ---
     execution_cards = "".join([
         _metric_card("First Fill Price", _fmt_number(trade.first_fill_price, 4), ""),
         _metric_card("Final Exit Price", _fmt_number(trade.final_exit_price, 4), ""),
@@ -906,7 +1056,7 @@ def write_single_trade_html_report(
         _metric_card("Avg Entry", _fmt_number(trade.avg_entry_price, 4), ""),
     ])
 
-    # --- Group 4: Timing ---
+    # --- Group 5: Timing ---
     timing_cards = "".join([
         _metric_card("Time to Fill", _fmt_duration(trade.time_to_fill_seconds), ""),
         _metric_card("Total Duration", _fmt_duration(trade.duration_seconds), ""),
@@ -914,14 +1064,14 @@ def write_single_trade_html_report(
         _metric_card("Closed", _escape(_fmt_timestamp(trade.closed_at)), ""),
     ])
 
-    # --- Group 5: Trade Identity ---
+    # --- Group 6: Trade Identity ---
     identity_cards = "".join([
         _metric_card("Signal ID", _escape(trade.signal_id), ""),
         _metric_card("Symbol", _escape(trade.symbol), ""),
         _metric_card("Side", _escape(_display_side(trade.side)), ""),
         _metric_card("Warnings", str(trade.warnings_count), "bad" if trade.warnings_count else "muted"),
         _metric_card("Ignored Events", str(trade.ignored_events_count), ""),
-        _metric_card("Fees", _fmt_number(trade.fees_paid, 4), ""),
+        _metric_card("Fees (raw)", _fmt_number(trade.fees_paid, 6), ""),
     ])
 
     # --- Event Timeline ---
@@ -1005,14 +1155,19 @@ def write_single_trade_html_report(
   <h1>Single Trade — {_escape(trade.signal_id)}</h1>
 
   <div class="card">
-    <h2>Performance</h2>
+    <h2>Performance — Net / Gross</h2>
     <div class="grid-4">{perf_cards}</div>
+  </div>
+
+  <div class="card">
+    <h2>Costi e PnL raw</h2>
+    <div class="grid-4">{cost_cards}</div>
   </div>
 
   <div class="grid-2" style="margin-bottom:18px">
     <div class="card" style="margin:0">
       <h2>Excursions</h2>
-      <div class="grid-3">{excursion_cards}</div>
+      <div class="grid-2">{excursion_cards}</div>
     </div>
     <div class="card" style="margin:0">
       <h2>Timing</h2>
@@ -1074,6 +1229,9 @@ def write_policy_html_report(
 ) -> Path:
     excluded_reason_bar, excluded_rows, excluded_dialogs = _excluded_table(excluded_chains)
     charts_html = _render_policy_charts(summary)
+    gross_vs_net_html = _gross_vs_net_table(summary)
+    cost_breakdown_html = _cost_breakdown_section(summary)
+    cost_sensitivity_html = _cost_sensitivity_section(summary)
 
     html_doc = f"""<!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1106,6 +1264,10 @@ def write_policy_html_report(
   <script src="assets/echarts.min.js"></script>
   {charts_html}
 
+  {gross_vs_net_html}
+  {cost_breakdown_html}
+  {cost_sensitivity_html}
+
   <details class="card">
     <summary>Excluded chains ({len(excluded_chains)})</summary>
     <div style="margin-top:14px">
@@ -1119,13 +1281,16 @@ def write_policy_html_report(
 
   <div class="card">
     <h2>Trade Results</h2>
-    <div class="note" style="margin-bottom:12px">Click headers to sort. Extended columns (Cum.Equity%, MAE%, MFE%, Capture%) are hidden by default — use the toggles to show them.</div>
+    <div class="note" style="margin-bottom:12px">Click headers to sort. Colonne aggiuntive nascoste di default — usa i toggle per mostrarle.</div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
-      <span class="note" style="margin-right:2px">Columns:</span>
-      <button class="chart-toolbar-btn" onclick="toggleTradeCol('hide-cumEq',this)">Cum.Equity%</button>
-      <button class="chart-toolbar-btn" onclick="toggleTradeCol('hide-mae',this)">MAE%</button>
-      <button class="chart-toolbar-btn" onclick="toggleTradeCol('hide-mfe',this)">MFE%</button>
-      <button class="chart-toolbar-btn" onclick="toggleTradeCol('hide-capture',this)">Capture%</button>
+      <span class="note" style="margin-right:2px">Colonne:</span>
+      <button class="chart-toolbar-btn active" onclick="toggleTradeCol('hide-gross',this)">Gross%</button>
+      <button class="chart-toolbar-btn active" onclick="toggleTradeCol('hide-cumEq',this)">Cum.Equity%</button>
+      <button class="chart-toolbar-btn active" onclick="toggleTradeCol('hide-mae',this)">MAE%</button>
+      <button class="chart-toolbar-btn active" onclick="toggleTradeCol('hide-mfe',this)">MFE%</button>
+      <button class="chart-toolbar-btn active" onclick="toggleTradeCol('hide-capture',this)">Capture%</button>
+      <button class="chart-toolbar-btn active" onclick="toggleTradeCol('hide-fees',this)">Fees</button>
+      <button class="chart-toolbar-btn active" onclick="toggleTradeCol('hide-r',this)">R</button>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
       <input id="trade-filter-symbol" type="text" placeholder="Filter symbol" style="border:1px solid #e2e8f0;border-radius:10px;padding:7px 10px;min-width:180px" oninput="applyTradeFilters()">
@@ -1152,18 +1317,21 @@ def write_policy_html_report(
       </select>
     </div>
     <div style="overflow-x:auto">
-    <table id="trade-results-table" class="hide-cumEq hide-mae hide-mfe hide-capture">
+    <table id="trade-results-table" class="hide-gross hide-cumEq hide-mae hide-mfe hide-capture hide-fees hide-r">
       <thead><tr>
         <th class="th-sort" onclick="sortTradeTable('signal')">Signal ID</th>
         <th class="th-sort" onclick="sortTradeTable('symbol')">Symbol</th>
         <th class="th-sort" onclick="sortTradeTable('side')">Side</th>
         <th class="th-sort" onclick="sortTradeTable('status')">Status</th>
         <th class="th-sort" onclick="sortTradeTable('close_reason')">Close Reason</th>
-        <th class="th-sort" onclick="sortTradeTable('impact')">Impact %</th>
+        <th class="th-sort" onclick="sortTradeTable('impact')">Net %</th>
+        <th class="th-sort" onclick="sortTradeTable('gross')">Gross %</th>
         <th class="th-sort" onclick="sortTradeTable('cum_equity')">Cum. Equity %</th>
         <th class="th-sort" onclick="sortTradeTable('mae')">MAE %</th>
         <th class="th-sort" onclick="sortTradeTable('mfe')">MFE %</th>
         <th class="th-sort" onclick="sortTradeTable('capture')">Capture %</th>
+        <th class="th-sort" onclick="sortTradeTable('fees')">Fees</th>
+        <th class="th-sort" onclick="sortTradeTable('r')">R</th>
         <th class="th-sort" onclick="sortTradeTable('warnings')">Warn</th>
         <th class="th-sort" onclick="sortTradeTable('created')">Created</th>
         <th class="th-sort" onclick="sortTradeTable('closed')">Closed</th>
@@ -1214,15 +1382,16 @@ def flatten_policy_values(policy_values: dict[str, object]) -> dict[str, object]
 
 _COMPARISON_METRICS: list[tuple[str, str, bool]] = [
     # (key, label, higher_is_better)
-    ("total_return_pct",     "Total Return %",      True),
-    ("max_drawdown_pct",     "Max Drawdown %",      False),
-    ("expectancy_pct",       "Expectancy %",        True),
-    ("win_rate_pct",         "Win Rate %",          True),
-    ("profit_factor",        "Profit Factor",       True),
-    ("avg_trade_impact_pct", "Avg Trade Impact %",  True),
-    ("best_trade_pct",       "Best Trade %",        True),
-    ("worst_trade_pct",      "Worst Trade %",       True),
-    ("trades_count",         "Trades",              False),
+    ("avg_trade_return_pct_net",  "Avg Return % Net",     True),
+    ("expectancy_pct_net",        "Expectancy % Net",     True),
+    ("win_rate_pct",              "Win Rate %",           True),
+    ("profit_factor_net",         "Profit Factor Net",    True),
+    ("avg_r_multiple",            "Avg R-Multiple",       True),
+    ("max_drawdown_pct",          "Max Drawdown %",       False),
+    ("avg_cost_drag_pct",         "Avg Cost Drag %",      False),
+    ("best_trade_pct",            "Best Trade % Net",     True),
+    ("worst_trade_pct",           "Worst Trade % Net",    True),
+    ("trades_count",              "Trades",               False),
 ]
 
 
