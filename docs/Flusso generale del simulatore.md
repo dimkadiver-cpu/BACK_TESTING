@@ -243,23 +243,6 @@ Problema 1:
 
   Vuoi che sistemi i naming o aggiungiamo una metrica pnl_pct_from_entry vera per trade?
 
-Soluzione problema 2:
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   Problema 2: 
   ● Analizziamo il codice esatto del loop candele e tracciamo lo scenario problema.                                                              
