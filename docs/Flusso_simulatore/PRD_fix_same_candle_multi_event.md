@@ -55,6 +55,129 @@ Questo è scorretto quando **la stessa candela** contiene più eventi economicam
 L’architettura attuale del replay è di fatto **one-event-per-candle**.
 
 Manca un ciclo interno che, dopo ogni modifica di stato su una candela, ri-esamini **la stessa candela** per verificare se esistono ulteriori collisioni ancora valide sul nuovo stato aggiornato.
+ Problema 2: 
+  ● Analizziamo il codice esatto del loop candele e tracciamo lo scenario problema.                                                              
+                                                                
+  Read 1 file (ctrl+o to expand)                                                                                                               
+                                                                                                                                               
+● Ora ho tutti i pezzi. Tracciamo il bug con precisione.                                                                                       
+                                                                                                                                               
+  ---                                                                                                                                          
+  Problema 2: multi-TP su singola candela — analisi completa                                                                                   
+                                                                                                                                               
+  Struttura del loop (simulator.py:334–439)                                                                                                    
+                                                                                                                                               
+  for candle in candles:               # ← una iterazione = una candela
+      _try_fill_pending_entries(...)     
+      # ... timeout checks ...
+
+      collision = _detect_sl_tp_collision(state, candle)
+      if collision is None:
+          continue                     # ← candela pulita → avanti
+
+      resolution = _resolve_collision(...)
+      _apply_close_resolution(state, resolution)   # ← PnL + next_tp_index++
+      apply_event(state, engine_event, ...)        # ← open_size ridotto
+
+      _handle_post_tp_partial_actions(...)         # ← BE move, cancel pending
+
+      if state.status in {CLOSED, CANCELLED, ...}:
+          break
+      # ← se PARTIALLY_CLOSED: cade nel for → CANDELA SUCCESSIVA
+
+  _detect_sl_tp_collision controlla solo tp_levels[next_tp_index] — un livello alla volta, riga 115:
+
+  tp_price = state.tp_levels[min(state.next_tp_index, len(state.tp_levels) - 1)]
+
+  Dopo un TP parziale, next_tp_index viene incrementato ma la stessa candela non viene ri-esaminata.
+
+  ---
+  Scenario A — multi-TP nella stessa candela
+
+  Posizione LONG, 3 TP: TP1=44500, TP2=45000, TP3=45500
+  Candela: open=44000, low=43800, high=45600
+
+  ┌───────────────┬────────────────────────┬───────────┬───────────────────────────────┐
+  │  Iterazione   │        Candela         │ Controllo │           Risultato           │
+  ├───────────────┼────────────────────────┼───────────┼───────────────────────────────┤
+  │ t=100         │ high=45600 ≥ TP1=44500 │ TP1 hit   │ PnL parziale, next_tp_index=1 │
+  ├───────────────┼────────────────────────┼───────────┼───────────────────────────────┤
+  │ → loop avanza │                        │           │                               │
+  ├───────────────┼────────────────────────┼───────────┼───────────────────────────────┤
+  │ t=200         │ candela successiva...  │ TP2 check │ Solo se high ≥ 45000          │
+  └───────────────┴────────────────────────┴───────────┴───────────────────────────────┘
+
+  TP2 e TP3 che erano già nel range di t=100 vengono processati sulla candela t=200, t=300 — se mai arrivano a quei prezzi. Se il mercato
+  scende tra t=100 e t=200, vengono persi per sempre.
+
+  ---
+  Scenario B — SL hit post-BE nella stessa candela (più pericoloso)
+
+  Policy: be_trigger = "tp1"  → dopo TP1, sposta SL a avg_entry_price
+  Posizione LONG: entry=44000, SL=43000, TP1=44500, TP2=45000
+  Candela: open=44000, low=43200, high=45200
+
+  Cosa succede:
+  1. _detect_sl_tp_collision: high=45200 ≥ TP1=44500 → TP1 hit
+  2. _apply_close_resolution: chiude fraction a TP1, next_tp_index=1
+  3. _handle_post_tp_partial_actions: be_trigger TP1 → state.current_sl = 44000 (avg_entry)
+  4. Check terminal → PARTIALLY_CLOSED → loop avanza alla candela successiva
+
+  Cosa avrebbe dovuto succedere:
+  Stessa candela, low=43200 < new_sl=44000 → SL hit → chiusura del residuo a 44000.
+
+  Il simulatore non ri-verifica il nuovo SL sulla stessa candela. La posizione rimane aperta con un SL a 44000 che è stato già violato.
+
+  Impatto sul PnL: il residuo rimane aperto fino a quando una candela successiva tocca 44000, che potrebbe non accadere mai se il mercato
+  rimbalza — gonfiando artificialmente il profitto.
+
+  ---
+  Scenario C — TP1 non-finale + SL hit sulla stessa candela
+
+  Posizione SHORT: entry=45000, SL=45500, TP1=44500, TP2=44000
+  Candela: open=45000, low=43800, high=45600
+
+  1. _detect_sl_tp_collision: controlla tp_levels[0]=44500 e sl=45500
+    - tp_hit = low=43800 ≤ 44500 → True
+    - sl_hit = high=45600 ≥ 45500 → True
+  2. _resolve_collision: entrambi hit → intrabar resolution o fallback SL
+  3. Se intrabar dice SL prima → chiude tutto correttamente
+  4. Se intrabar dice TP1 prima → partial close, next_tp_index=1, loop avanza
+  5. Candela successiva: il SL potrebbe essere già nel passato, non rilevato
+
+  La logica intrabar per SL vs TP1 viene invocata. Ma dopo TP1 partial, il SL originale rimane nel payload — il codice non ri-controlla lo
+  stesso candle per SL vs TP2.
+
+  ---
+  Radice del problema
+
+  Il loop candele ha un'architettura one-event-per-candle. Processa al massimo una risoluzione (SL o TP) per iterazione, poi passa alla candela
+   successiva. Non esiste un inner loop che ri-esamini la stessa candela dopo una modifica di stato.
+
+  Fix minimo
+
+  Sostituire il singolo check con un ciclo interno sulla stessa candela:
+
+  # dopo _try_fill_pending_entries(...)
+
+  while state.status not in {TradeStatus.CLOSED, TradeStatus.CANCELLED, ...}:
+      collision = _detect_sl_tp_collision(state, candle)
+      if collision is None:
+          break
+
+      resolution = _resolve_collision(...)
+      _apply_close_resolution(state, resolution)
+      apply_event(state, engine_event, ...)
+
+      if resolution.outcome == "tp_hit" and not is_full_close:
+          _handle_post_tp_partial_actions(...)
+      else:
+          break  # SL o full close → esci
+
+  last_replayed_candle_ts = candle.timestamp
+
+  Questo risolverebbe A, B e C. L'unico rischio è un loop infinito se _detect_sl_tp_collision non converge — ma con next_tp_index che avanza o
+  open_size che si azzera ad ogni iterazione, è garantita la terminazione.
 
 ---
 
