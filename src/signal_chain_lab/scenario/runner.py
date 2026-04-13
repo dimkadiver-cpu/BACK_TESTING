@@ -41,31 +41,43 @@ def _aggregate_policy_results(
     price_basis: str = "last",
     exchange_faithful: bool = True,
 ) -> ScenarioResult:
+    import statistics as _stats
     trades_count = len(trade_results)
     realized = [item.realized_pnl for item in trade_results]
     wins = [pnl for pnl in realized if pnl > 0.0]
     losses = [pnl for pnl in realized if pnl < 0.0]
 
-    total_pnl = sum(realized)
-    gross_profit = sum(wins)
-    gross_loss_abs = abs(sum(losses))
+    total_pnl_raw = sum(realized)
+    gross_profit_raw = sum(wins)
+    gross_loss_raw = abs(sum(losses))
+    max_drawdown = _compute_max_drawdown(realized)
 
-    win_rate = (len(wins) / trades_count) if trades_count else 0.0
-    expectancy = (total_pnl / trades_count) if trades_count else 0.0
-    return_pct = (total_pnl / trades_count) if trades_count else 0.0
-    profit_factor = (gross_profit / gross_loss_abs) if gross_loss_abs > 0.0 else 0.0
+    # Net % metrics (use trade_return_pct_net where available)
+    pct_net = [t.trade_return_pct_net for t in trade_results if t.trade_return_pct_net is not None]
+    wins_net = [p for p in pct_net if p > 0.0]
+    losses_net = [p for p in pct_net if p < 0.0]
+
+    win_rate_net = len(wins_net) / len(pct_net) if pct_net else 0.0
+    avg_return_net = _stats.mean(pct_net) if pct_net else 0.0
+    profit_factor_net = (sum(wins_net) / abs(sum(losses_net))) if losses_net else 0.0
+    r_multiples = [t.r_multiple for t in trade_results if t.r_multiple is not None]
+    avg_r_multiple = _stats.mean(r_multiples) if r_multiples else None
+
     avg_warnings = (
         sum(item.warnings_count for item in trade_results) / trades_count if trades_count else 0.0
     )
 
     return ScenarioResult(
         policy_name=policy_name,
-        total_pnl=total_pnl,
-        return_pct=return_pct,
-        max_drawdown=_compute_max_drawdown(realized),
-        win_rate=win_rate,
-        profit_factor=profit_factor,
-        expectancy=expectancy,
+        win_rate_net=win_rate_net,
+        avg_trade_return_pct_net=avg_return_net,
+        expectancy_pct_net=avg_return_net,
+        profit_factor_net=profit_factor_net,
+        avg_r_multiple=avg_r_multiple,
+        total_pnl_raw=total_pnl_raw,
+        gross_profit_raw=gross_profit_raw,
+        gross_loss_raw=gross_loss_raw,
+        max_drawdown=max_drawdown,
         trades_count=trades_count,
         simulated_chains_count=trades_count,
         excluded_chains_count=excluded,

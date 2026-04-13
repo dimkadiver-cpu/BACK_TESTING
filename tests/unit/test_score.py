@@ -9,9 +9,9 @@ from src.signal_chain_lab.optimizer.objective import OptimizerScoringWeights, co
 def test_compute_score_from_known_metrics_returns_float() -> None:
     scenario_result = ScenarioResult(
         policy_name="candidate",
-        return_pct=0.20,
-        expectancy=0.04,
-        win_rate=0.60,
+        avg_trade_return_pct_net=0.20,   # maps to .return_pct property
+        expectancy_pct_net=0.04,          # maps to .expectancy property
+        win_rate_net=0.60,                # maps to .win_rate property
         max_drawdown=0.10,
         simulated_chains_count=90,
         excluded_chains_count=10,
