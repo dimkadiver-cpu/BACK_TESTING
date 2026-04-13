@@ -4,7 +4,7 @@ from __future__ import annotations
 import html
 import json
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from src.signal_chain_lab.domain.results import EventLogEntry, TradeResult
 from src.signal_chain_lab.market.data_models import Candle
@@ -140,12 +140,24 @@ dialog::backdrop{background:rgba(15,23,42,.55)}
 .dialog-head{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
 .dialog-body{padding:18px}
 .timeline{display:grid;gap:10px}
-.ti{border:1px solid var(--line);border-radius:14px;padding:14px}
-.ti-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
-.ti-meta{display:grid;grid-template-columns:160px 1fr;gap:6px 10px;font-size:13px}
+.timeline-item{border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden}
+.timeline-item[open]{box-shadow:0 6px 24px rgba(15,23,42,.06)}
+.timeline-item summary{list-style:none;cursor:pointer;padding:12px 14px}
+.timeline-item summary::-webkit-details-marker{display:none}
+.tl-row{display:grid;grid-template-columns:84px 1.2fr 132px 116px 1fr;gap:10px;align-items:center}
+.tl-time{font-size:12px;font-weight:700;color:var(--muted)}
+.tl-main{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
+.tl-event{font-size:14px;font-weight:800}
+.tl-requested,.tl-reason{font-size:12px;color:var(--muted);font-weight:600}
+.tl-pills{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.ti-body{border-top:1px solid var(--line);background:#fcfdff;padding:14px}
+.ti-body-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ti-panel{border:1px solid var(--line);border-radius:12px;background:#fff;padding:12px}
+.ti-panel h3{margin:0 0 10px;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.ti-meta{display:grid;grid-template-columns:140px 1fr;gap:6px 10px;font-size:13px}
 .ti-meta .lab{color:var(--muted)}
-.ti-delta{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
-.ti-delta-item{font-size:12px;background:#f1f5f9;border-radius:8px;padding:3px 8px}
+.ti-delta{display:flex;gap:6px;flex-wrap:wrap}
+.ti-delta-item{font-size:12px;background:#f1f5f9;border-radius:999px;padding:4px 9px}
 .ti-delta-item .dlab{color:var(--muted);margin-right:3px}
 .chart-wrap{border:1px solid var(--line);border-radius:14px;padding:10px;background:#fff}
 .chart-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
@@ -169,12 +181,18 @@ dialog::backdrop{background:rgba(15,23,42,.55)}
 .excl-reason-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
 .excl-badge{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid transparent}
 .excl-badge.active{border-color:var(--accent);outline:2px solid var(--accent)}
-/* event timeline source label */
-.ti-src-trader{display:inline-block;font-size:11px;font-weight:700;color:#166534;background:#dcfce7;border-radius:6px;padding:1px 6px;margin-left:6px}
-.ti-src-system{display:inline-block;font-size:11px;color:var(--muted);background:#f1f5f9;border-radius:6px;padding:1px 6px;margin-left:6px}
+/* event timeline source/status labels */
+.ti-src-trader{display:inline-block;font-size:11px;font-weight:700;color:#166534;background:#dcfce7;border-radius:999px;padding:3px 8px}
+.ti-src-system{display:inline-block;font-size:11px;color:#4338ca;background:#eef2ff;border-radius:999px;padding:3px 8px}
+.ti-status-applied{display:inline-block;font-size:11px;font-weight:700;color:#166534;background:#dcfce7;border-radius:999px;padding:3px 8px}
+.ti-status-generated{display:inline-block;font-size:11px;font-weight:700;color:#9a3412;background:#ffedd5;border-radius:999px;padding:3px 8px}
+.ti-status-ignored,.ti-status-rejected{display:inline-block;font-size:11px;font-weight:700;color:#991b1b;background:#fee2e2;border-radius:999px;padding:3px 8px}
 @media(max-width:900px){
   .grid-4{grid-template-columns:repeat(2,minmax(0,1fr))}
   .grid-3{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .tl-row{grid-template-columns:1fr}
+  .tl-pills{justify-content:flex-start}
+  .ti-body-grid{grid-template-columns:1fr}
   .ti-meta{grid-template-columns:1fr}
   .charts-grid{grid-template-columns:1fr}
 }
@@ -873,27 +891,102 @@ def _display_event_name(value: str | None) -> str:
     normalized = (value or "").upper()
     if normalized == "OPEN_SIGNAL":
         return "NEW_SIGNAL"
-    if normalized == "MOVE_STOP_TO_BE":
-        return "UPDATE"
-    if normalized == "MOVE_STOP":
-        return "UPDATE"
     return normalized or "-"
 
 
-def _event_outcome_labels(event_log: list[EventLogEntry]) -> set[str]:
-    labels: set[str] = set()
-    for entry in event_log:
-        name = (entry.event_type or "").upper()
-        if "TP" in name:
-            labels.add(name)
-        if "SL" in name:
-            labels.add(name)
-        executed = (entry.executed_action or "").upper()
-        if "TP" in executed:
-            labels.add(executed)
-        if "SL" in executed:
-            labels.add(executed)
-    return labels
+def _status_badge_class(entry: EventLogEntry) -> str:
+    return f"ti-status-{entry.processing_status.value.lower()}"
+
+
+def _fills_from_state(state: dict[str, Any]) -> list[dict[str, Any]]:
+    fills = state.get("fills") or []
+    return [item for item in fills if isinstance(item, dict)]
+
+
+def _fill_label(fill: dict[str, Any], *, index: int) -> str:
+    plan_id = str(fill.get("plan_id") or "")
+    if ":E" in plan_id:
+        return f"FILL {plan_id.split(':E')[-1]}"
+    return f"FILL {index + 1}"
+
+
+def _is_material_engine_event(entry: EventLogEntry) -> bool:
+    before = entry.state_before or {}
+    after = entry.state_after or {}
+    before_fills = len(_fills_from_state(before))
+    after_fills = len(_fills_from_state(after))
+    event_name = (entry.event_type or "").upper()
+    reason = (entry.reason or "").lower()
+    if (entry.source or "").lower() != "engine":
+        return False
+    if after_fills > before_fills:
+        return True
+    if entry.processing_status.value.lower() == "generated":
+        return True
+    if event_name in {"CLOSE_FULL", "CLOSE_PARTIAL", "CANCEL_PENDING"}:
+        return True
+    if "tp" in event_name.lower() or "sl" in event_name.lower():
+        return True
+    if "tp" in reason or "sl" in reason or "timeout" in reason or "filled" in reason:
+        return True
+    return False
+
+
+def _new_signal_details(entry: EventLogEntry) -> dict[str, str]:
+    state_after = entry.state_after or {}
+    entries = state_after.get("entries_planned") or []
+    fills = _fills_from_state(state_after)
+    entry_prices = [
+        _fmt_number(item.get("price"), 4)
+        for item in entries
+        if isinstance(item, dict) and isinstance(item.get("price"), (int, float))
+    ]
+    order_types = {
+        str(item.get("order_type")).upper()
+        for item in entries
+        if isinstance(item, dict) and item.get("order_type")
+    }
+    entry_type = ", ".join(sorted(order_types)) if order_types else "-"
+    if len(entries) <= 1:
+        entry_structure = "ONE_SHOT"
+    elif len(entries) == 2:
+        entry_structure = "TWO_STEP"
+    else:
+        entry_structure = "LADDER"
+    tp_count = len([value for value in (state_after.get("tp_levels") or []) if isinstance(value, (int, float))])
+    return {
+        "Entry type": entry_type,
+        "Entry structure": entry_structure,
+        "Planned entries": str(len(entries)),
+        "Filled entries": str(len(fills)),
+        "TP count": str(tp_count),
+        "Stop loss": _fmt_number(state_after.get("current_sl"), 4),
+        "Entry prices": ", ".join(entry_prices) if entry_prices else "-",
+    }
+
+
+def _timeline_fill_rows(entry: EventLogEntry) -> list[dict[str, str]]:
+    before_fills = _fills_from_state(entry.state_before or {})
+    after_fills = _fills_from_state(entry.state_after or {})
+    if len(after_fills) <= len(before_fills):
+        return []
+
+    rows: list[dict[str, str]] = []
+    for idx, fill in enumerate(after_fills[len(before_fills):], start=len(before_fills)):
+        fill_ts = fill.get("timestamp")
+        rows.append(
+            {
+                "timestamp": _fmt_timestamp(fill_ts or entry.timestamp),
+                "event_name": _fill_label(fill, index=idx),
+                "requested_action": "FILL",
+                "reason": str(fill.get("plan_id") or "order_filled"),
+                "status": "applied",
+                "event_price": _fmt_number(fill.get("price"), 6),
+                "qty": _fmt_number(fill.get("qty"), 4),
+                "source": "engine",
+            }
+        )
+    return rows
 
 
 def _state_delta_html(before: dict, after: dict, initial_capital: float | None) -> str:
@@ -918,6 +1011,16 @@ def _state_delta_html(before: dict, after: dict, initial_capital: float | None) 
     pb = before.get("open_size")
     pa = after.get("open_size")
     items.append(_delta_pill("size", pb, pa, lambda v: _fmt_number(v, 4)))
+
+    # avg entry
+    ab = before.get("avg_entry_price")
+    aa = after.get("avg_entry_price")
+    items.append(_delta_pill("avg", ab, aa, lambda v: _fmt_number(v, 4)))
+
+    # pending size
+    qpb = before.get("pending_size")
+    qpa = after.get("pending_size")
+    items.append(_delta_pill("pending", qpb, qpa, lambda v: _fmt_number(v, 4)))
 
     # realized PnL %
     if initial_capital and initial_capital > 0:
@@ -1097,17 +1200,10 @@ def write_single_trade_html_report(
             )
 
         event_name = _display_event_name(entry.event_type)
-        is_new_signal = event_name == "NEW_SIGNAL"
-        price_info = _event_extracted_signal_levels(entry) if is_new_signal else _event_price_reference(entry)
         state_delta = _state_delta_html(entry.state_before, entry.state_after, initial_capital)
-
-        # Price reference label
-        price_ref_label = "Extracted levels" if is_new_signal else "Price reference"
-        price_ref_val = price_info
 
         # Source badge
         src = (entry.source or "").lower()
-        src_color = "#f0fdf4" if src == "trader" else "#f8fafc"
         if src == "trader":
             src_badge = f"<span class='ti-src-trader'>trader</span>"
         elif src:
@@ -1115,34 +1211,111 @@ def write_single_trade_html_report(
         else:
             src_badge = ""
 
-        # reason_code row (shown when entry.reason is present)
-        reason_row = ""
-        if entry.reason:
-            reason_row = (
-                f"<div class='lab'>Reason code</div>"
-                f"<div><span class='badge muted' style='font-size:11px'>{_escape(entry.reason)}</span></div>"
+        open_attr = " open" if _is_material_engine_event(entry) else ""
+        body_sections: list[str] = []
+        event_meta = [
+            f"<div class='lab'>Requested action</div><div>{_escape(entry.requested_action or '-')}</div>",
+            f"<div class='lab'>Status</div><div>{_escape(entry.processing_status.value)}</div>",
+            f"<div class='lab'>Reason code</div><div>{_escape(entry.reason or '-')}</div>",
+            f"<div class='lab'>Event price</div><div>{_fmt_number(entry.price_reference, 6) if entry.price_reference is not None else '-'}</div>",
+        ]
+        if entry.raw_text and _is_telegram_event(entry) and event_name != "NEW_SIGNAL":
+            event_meta.append(f"<div class='lab'>Raw TEXT</div><div>{raw_button}</div>")
+
+        body_sections.append(
+            "<div class='ti-panel'><h3>Event details</h3>"
+            f"<div class='ti-meta'>{''.join(event_meta)}</div></div>"
+        )
+
+        if event_name == "NEW_SIGNAL":
+            signal_rows = []
+            for label, value in _new_signal_details(entry).items():
+                signal_rows.append(f"<div class='lab'>{_escape(label)}</div><div>{_escape(value)}</div>")
+            signal_rows.append(
+                f"<div class='lab'>Extracted levels</div><div>{_escape(_event_extracted_signal_levels(entry))}</div>"
+            )
+            body_sections.append(
+                "<div class='ti-panel'><h3>Signal extracted</h3>"
+                f"<div class='ti-meta'>{''.join(signal_rows)}</div>"
+                f"{raw_button if entry.raw_text and _is_telegram_event(entry) else ''}"
+                "</div>"
+            )
+        else:
+            body_sections.append(
+                "<div class='ti-panel'><h3>Reference snapshot</h3>"
+                f"<div class='ti-meta'>"
+                f"<div class='lab'>Price reference</div><div>{_escape(_event_price_reference(entry))}</div>"
+                f"<div class='lab'>Executed action</div><div>{_escape(entry.executed_action or '-')}</div>"
+                f"</div></div>"
             )
 
         timeline_blocks.append(
             f"""
-        <div class="ti" style="background:{src_color}">
-          <div class="ti-head">
-            <div><strong>{_escape(event_name)}</strong>{src_badge}</div>
-            <div class="note">{_escape(_fmt_timestamp(entry.timestamp))}</div>
+        <details class="timeline-item"{open_attr}>
+          <summary>
+            <div class="tl-row">
+              <div class="tl-time">{_escape(_fmt_timestamp(entry.timestamp))}</div>
+              <div class="tl-main"><span class="tl-event">{_escape(event_name)}</span>{src_badge}</div>
+              <div class="tl-requested">{_escape(entry.requested_action or '-')}</div>
+              <div><span class="{_escape(_status_badge_class(entry))}">{_escape(entry.processing_status.value.upper())}</span></div>
+              <div class="tl-pills">{state_delta}</div>
+            </div>
+            <div class="tl-row" style="margin-top:8px;grid-template-columns:84px 1.2fr 132px 116px 1fr">
+              <div></div>
+              <div class="tl-reason">reason: {_escape(entry.reason or '-')}</div>
+              <div class="tl-requested">source: {_escape(entry.source or '-')}</div>
+              <div class="tl-requested">exec: {_escape(entry.executed_action or '-')}</div>
+              <div></div>
+            </div>
+          </summary>
+          <div class="ti-body">
+            <div class="ti-body-grid">
+              {''.join(body_sections)}
+            </div>
           </div>
-          <div class="ti-meta">
-            <div class="lab">Requested action</div><div>{_escape(entry.requested_action or '-')}</div>
-            <div class="lab">Executed action</div><div>{_escape(entry.executed_action or '-')}</div>
-            <div class="lab">Status</div><div>{_escape(entry.processing_status.value)}</div>
-            <div class="lab">{_escape(price_ref_label)}</div><div>{_escape(price_ref_val)}</div>
-            <div class="lab">Event price</div><div>{_fmt_number(entry.price_reference, 6) if entry.price_reference is not None else '-'}</div>
-            {reason_row}
-            <div class="lab">Raw TEXT</div><div>{raw_button}</div>
-          </div>
-          {state_delta}
-        </div>
+        </details>
 """
         )
+
+        for fill_index, fill_row in enumerate(_timeline_fill_rows(entry)):
+            timeline_blocks.append(
+                f"""
+        <details class="timeline-item" open>
+          <summary>
+            <div class="tl-row">
+              <div class="tl-time">{_escape(fill_row["timestamp"])}</div>
+              <div class="tl-main"><span class="tl-event">{_escape(fill_row["event_name"])}</span><span class='ti-src-system'>engine</span></div>
+              <div class="tl-requested">FILL</div>
+              <div><span class="ti-status-applied">APPLIED</span></div>
+              <div class="tl-pills">
+                <span class="ti-delta-item"><span class="dlab">qty</span>{_escape(fill_row["qty"])}</span>
+                <span class="ti-delta-item"><span class="dlab">price</span>{_escape(fill_row["event_price"])}</span>
+              </div>
+            </div>
+            <div class="tl-row" style="margin-top:8px;grid-template-columns:84px 1.2fr 132px 116px 1fr">
+              <div></div>
+              <div class="tl-reason">reason: {_escape(fill_row["reason"])}</div>
+              <div class="tl-requested">source: engine</div>
+              <div class="tl-requested">exec: FILL</div>
+              <div></div>
+            </div>
+          </summary>
+          <div class="ti-body">
+            <div class="ti-body-grid">
+              <div class="ti-panel">
+                <h3>Fill detected by simulator</h3>
+                <div class="ti-meta">
+                  <div class="lab">Event type</div><div>FILL</div>
+                  <div class="lab">Price</div><div>{_escape(fill_row["event_price"])}</div>
+                  <div class="lab">Quantity</div><div>{_escape(fill_row["qty"])}</div>
+                  <div class="lab">Plan</div><div>{_escape(fill_row["reason"])}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
+"""
+            )
 
     # Full HTML
     html_doc = f"""<!DOCTYPE html>
