@@ -163,6 +163,8 @@
   │ 5   │ Bug difensivo  │ Medio (chain silenziosamente vuota) │ Sì          │
   └─────┴────────────────┴─────────────────────────────────────┴─────────────┘
 
+
+
 Problema 1:
 ● Ora ho il quadro completo. Il problema del PnL è più profondo di quanto sembri.
                                       
