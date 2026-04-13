@@ -17,6 +17,22 @@ from src.signal_chain_lab.policies.base import PolicyConfig
 
 _logger = logging.getLogger(__name__)
 
+_TERMINAL_STATUSES: frozenset[TradeStatus] = frozenset({
+    TradeStatus.CLOSED,
+    TradeStatus.CANCELLED,
+    TradeStatus.EXPIRED,
+    TradeStatus.INVALID,
+})
+
+
+class SimulationInvariantError(RuntimeError):
+    """Raised when a same-candle drain loop iteration produces no observable state progress.
+
+    This indicates a bug in the simulation engine: a collision was detected but
+    none of the guarded fields (next_tp_index, open_size, current_sl, status)
+    changed after a complete resolution cycle, which would cause an infinite loop.
+    """
+
 
 def build_initial_state(chain: CanonicalChain, policy: PolicyConfig) -> TradeState:
     return TradeState(
@@ -182,6 +198,7 @@ def _build_engine_close_event(
     sequence_seed: int,
     is_full_close: bool = True,
     close_pct: float = 1.0,
+    sequence_offset: int = 0,
 ) -> CanonicalEvent:
     """Build the engine-generated close event for an SL or TP resolution.
 
@@ -203,7 +220,7 @@ def _build_engine_close_event(
                 "close_pct": close_pct,
                 "raw_text": "Engine: partial TP close from market data.",
             },
-            sequence=sequence_seed + 10_000,
+            sequence=sequence_seed + 10_000 + sequence_offset,
         )
 
     reason = "tp_hit" if resolution.outcome == "tp_hit" else "sl_hit"
@@ -223,7 +240,7 @@ def _build_engine_close_event(
                 else "Engine: SL hit from market data."
             ),
         },
-        sequence=sequence_seed + 10_000,
+        sequence=sequence_seed + 10_000 + sequence_offset,
     )
 
 
@@ -236,6 +253,7 @@ def _handle_post_tp_partial_actions(
     sequence_seed: int,
     logs: list[EventLogEntry],
     tp_idx_hit: int,
+    sequence_offset: int = 0,
 ) -> None:
     """Emit engine events triggered by a partial TP hit.
 
@@ -273,7 +291,7 @@ def _handle_post_tp_partial_actions(
                         "reason": "be_trigger",
                         "raw_text": f"Engine: move SL to break-even after tp{tp_idx_hit + 1}.",
                     },
-                    sequence=sequence_seed + 10_001,
+                    sequence=sequence_seed + 10_001 + sequence_offset,
                 )
                 logs.append(apply_event(state, be_event, policy=policy))
 
@@ -298,7 +316,7 @@ def _handle_post_tp_partial_actions(
                 "reason": f"cancel_averaging_after_{tp_label}",
                 "raw_text": f"Engine: cancel remaining pending entries after {tp_label.upper()}.",
             },
-            sequence=sequence_seed + 10_002,
+            sequence=sequence_seed + 10_002 + sequence_offset,
         )
         logs.append(apply_event(state, cancel_event, policy=policy))
 
@@ -381,62 +399,102 @@ def _replay_market_segment(
             if state.status in {TradeStatus.CLOSED, TradeStatus.CANCELLED, TradeStatus.EXPIRED, TradeStatus.INVALID}:
                 break
 
-        collision = _detect_sl_tp_collision(state=state, candle=candle)
-        if collision is None:
-            last_replayed_candle_ts = candle.timestamp
-            continue
+        # Inner loop: drain all valid SL/TP collisions for the current candle.
+        # After each partial close or SL move the state may have changed (new TP
+        # level, new SL, reduced open_size), so the same candle must be
+        # re-evaluated until no further collision exists or the trade terminates.
+        loop_iter = 0
+        while True:
+            if state.status in _TERMINAL_STATUSES:
+                break
+            if state.open_size <= 0:
+                break
 
-        resolution = _resolve_collision(
-            state=state,
-            chain=chain,
-            market_provider=market_provider,
-            candle=candle,
-            intrabar_resolver=intrabar_resolver,
-        )
+            collision = _detect_sl_tp_collision(state=state, candle=candle)
+            if collision is None:
+                break
 
-        if resolution.used_fallback:
-            state.warnings_count += 1
-            _logger.warning(
-                "Intrabar fallback applied: signal_id=%s symbol=%s warning_code=%s reason=%s",
-                chain.signal_id,
-                chain.symbol,
-                resolution.warning_code,
-                resolution.reason,
+            # Snapshot for progress guard — every iteration must advance state.
+            tp_idx_before = state.next_tp_index
+            open_size_before = state.open_size
+            sl_before = state.current_sl
+            status_before = state.status
+
+            sequence_offset = loop_iter * 100
+
+            resolution = _resolve_collision(
+                state=state,
+                chain=chain,
+                market_provider=market_provider,
+                candle=candle,
+                intrabar_resolver=intrabar_resolver,
             )
 
-        is_full_close, close_fraction, close_exit_price, close_qty = _apply_close_resolution(
-            state=state, resolution=resolution
-        )
-        if close_qty > 0 and close_exit_price > 0:
-            close_fee = compute_close_fee(close_exit_price, close_qty, policy)
-            state.realized_pnl -= close_fee
-            state.fees_paid += close_fee
-            state.close_fees_paid += close_fee
-        tp_idx_just_hit = state.next_tp_index - 1  # next_tp_index already incremented
-        engine_event = _build_engine_close_event(
-            chain=chain,
-            resolution=resolution,
-            sequence_seed=sequence_seed,
-            is_full_close=is_full_close,
-            close_pct=close_fraction,
-        )
-        engine_log = apply_event(state, engine_event, policy=policy)
-        engine_log.reason = resolution.reason
-        logs.append(engine_log)
-        last_replayed_candle_ts = candle.timestamp
+            if resolution.used_fallback:
+                state.warnings_count += 1
+                _logger.warning(
+                    "Intrabar fallback applied: signal_id=%s symbol=%s warning_code=%s reason=%s",
+                    chain.signal_id,
+                    chain.symbol,
+                    resolution.warning_code,
+                    resolution.reason,
+                )
 
-        if resolution.outcome == "tp_hit" and not is_full_close:
-            _handle_post_tp_partial_actions(
-                state=state,
-                policy=policy,
+            is_full_close, close_fraction, close_exit_price, close_qty = _apply_close_resolution(
+                state=state, resolution=resolution
+            )
+            if close_qty > 0 and close_exit_price > 0:
+                close_fee = compute_close_fee(close_exit_price, close_qty, policy)
+                state.realized_pnl -= close_fee
+                state.fees_paid += close_fee
+                state.close_fees_paid += close_fee
+            tp_idx_just_hit = state.next_tp_index - 1  # next_tp_index already incremented
+            engine_event = _build_engine_close_event(
                 chain=chain,
                 resolution=resolution,
                 sequence_seed=sequence_seed,
-                logs=logs,
-                tp_idx_hit=tp_idx_just_hit,
+                is_full_close=is_full_close,
+                close_pct=close_fraction,
+                sequence_offset=sequence_offset,
             )
+            engine_log = apply_event(state, engine_event, policy=policy)
+            engine_log.reason = resolution.reason
+            logs.append(engine_log)
 
-        if state.status in {TradeStatus.CLOSED, TradeStatus.CANCELLED, TradeStatus.EXPIRED, TradeStatus.INVALID}:
+            if resolution.outcome == "tp_hit" and state.open_size > 0 and state.status not in _TERMINAL_STATUSES:
+                _handle_post_tp_partial_actions(
+                    state=state,
+                    policy=policy,
+                    chain=chain,
+                    resolution=resolution,
+                    sequence_seed=sequence_seed,
+                    logs=logs,
+                    tp_idx_hit=tp_idx_just_hit,
+                    sequence_offset=sequence_offset,
+                )
+
+            if state.status in _TERMINAL_STATUSES or state.open_size <= 0:
+                break
+
+            # Progress guard: if no guarded field changed, the loop would spin
+            # forever — this signals a bug in the resolution pipeline.
+            progressed = (
+                state.next_tp_index != tp_idx_before
+                or state.open_size != open_size_before
+                or state.current_sl != sl_before
+                or state.status != status_before
+            )
+            if not progressed:
+                raise SimulationInvariantError(
+                    f"No progress in same-candle drain loop: signal_id={chain.signal_id} "
+                    f"candle_ts={candle.timestamp} tp_idx={state.next_tp_index} "
+                    f"open_size={state.open_size} sl={state.current_sl}"
+                )
+
+            loop_iter += 1
+
+        last_replayed_candle_ts = candle.timestamp
+        if state.status in _TERMINAL_STATUSES:
             break
 
     if next_event_ts is None:
