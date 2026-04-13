@@ -10,30 +10,42 @@ import json
 _CHART_JS = r"""
 (function () {
   'use strict';
-  var chartEl  = document.getElementById('%%CHART_ID%%');
+  var chartEl   = document.getElementById('%%CHART_ID%%');
   var payloadEl = document.getElementById('%%CHART_ID%%_payload');
   if (!chartEl || !payloadEl) { return; }
 
-  var payload   = JSON.parse(payloadEl.textContent || '{}');
-  var candlesByTF   = payload.candles_by_timeframe || {};
-  var levels        = payload.levels  || {entries: [], sl: [], tps: [], exit: []};
-  var events        = payload.events  || [];
-  var meta          = payload.meta    || {};
-  var posSizePts    = payload.position_size_series  || [];
-  var realizedPnlPts = payload.realized_pnl_series  || [];
-  var currentTF     = meta.default_timeframe || Object.keys(candlesByTF)[0] || '';
+  var payload        = JSON.parse(payloadEl.textContent || '{}');
+  var candlesByTF    = payload.candles_by_timeframe || {};
+  var levels         = payload.levels  || {};
+  var events         = payload.events  || [];
+  var meta           = payload.meta    || {};
+  var posSizePts     = payload.position_size_series  || [];
+  var realizedPnlPts = payload.realized_pnl_series   || [];
+  var currentTF      = meta.default_timeframe || Object.keys(candlesByTF)[0] || '';
+  var fillsCount     = meta.fills_count || 0;
 
   var chart = echarts.init(chartEl, null, {renderer: 'canvas'});
 
-  // ---- colour palette per event kind ----------------------------------------
+  // ---- level line colours (must match LEVEL_SERIES keys below) --------------
+  var LEVEL_COLOR = {
+    'entries_planned': '#93c5fd',   // light blue dashed
+    'entries_filled':  '#1d4ed8',   // solid blue
+    'avg_entry':       '#0369a1',   // deeper blue (only when fills >= 2)
+    'sl_initial':      '#fca5a5',   // light red dashed
+    'sl_current':      '#b91c1c',   // solid red
+    'tps':             '#15803d',   // green dashed
+    'exit':            '#7c3aed'    // purple solid
+  };
+
+  // ---- event marker colours per kind ----------------------------------------
   var KIND_COLOR = {
-    'FILL':          '#1d4ed8',   // blue
-    'TP':            '#15803d',   // green
-    'SL':            '#b91c1c',   // red
-    'MOVE_SL':       '#c2410c',   // orange
-    'PARTIAL_CLOSE': '#7c3aed',   // purple
-    'CLOSE':         '#7c3aed',   // purple
-    'CANCEL':        '#64748b'    // slate
+    'FILL':          '#1d4ed8',
+    'TP':            '#15803d',
+    'SL':            '#b91c1c',
+    'MOVE_SL':       '#c2410c',
+    'PARTIAL_CLOSE': '#7c3aed',
+    'CLOSE':         '#7c3aed',
+    'CANCEL':        '#64748b'
   };
   var KIND_SYMBOL = {
     'FILL':          'circle',
@@ -47,10 +59,25 @@ _CHART_JS = r"""
   function kindColor(k)  { return KIND_COLOR[k]  || '#f59e0b'; }
   function kindSymbol(k) { return KIND_SYMBOL[k] || 'circle'; }
 
-  // ---- series visibility state ----------------------------------------------
+  // ---- granular visibility state --------------------------------------------
+  // Canonical kind list — must match _classify_event_type() in html_writer.py
   var visibility = {
-    levels:       true,
-    events:       true,
+    // level lines
+    entries_planned: true,
+    entries_filled:  true,
+    avg_entry:       true,   // conditional: only if fillsCount >= 2
+    sl:              true,
+    tps:             true,
+    exit:            true,
+    // event markers (per kind)
+    ev_FILL:          true,
+    ev_TP:            true,
+    ev_SL:            true,
+    ev_MOVE_SL:       true,
+    ev_CLOSE:         true,
+    ev_PARTIAL_CLOSE: true,
+    ev_CANCEL:        false,
+    // secondary overlays (existing toggles, unchanged)
     volume:       false,
     pos_size:     false,
     realized_pnl: false
@@ -69,21 +96,44 @@ _CHART_JS = r"""
   }
   function buildMarkLineData(levelList) {
     return (levelList || []).map(function (l) {
-      return {yAxis: l.price, name: l.label};
+      return {yAxis: l.price, name: l.label || ''};
     });
   }
-  function buildScatterData() {
-    return (events || []).map(function (e) {
-      return {
-        value:  [e.ts, e.price],
-        name:   e.label || e.kind,
-        kind:   e.kind,
-        itemStyle: {
-          color:       kindColor(e.kind),
-          borderColor: '#ffffff',
-          borderWidth: 1.5
+  function buildMarkLineSeries(id, name, levelKey, color, lineType, show) {
+    var data = show ? buildMarkLineData(levels[levelKey] || []) : [];
+    return {
+      id: id, name: name, type: 'line', data: [],
+      xAxisIndex: 0, yAxisIndex: 0, silent: true,
+      markLine: data.length === 0 ? {data: []} : {
+        symbol: ['none', 'none'],
+        lineStyle: {color: color, type: lineType, width: 1.5},
+        label: {
+          show: true,
+          position: 'insideStartTop',
+          formatter: '{b}',
+          color: color,
+          fontSize: 10,
+          backgroundColor: 'rgba(255,255,255,0.82)',
+          padding: [1, 4],
+          borderRadius: 3
         },
-        symbol: kindSymbol(e.kind)
+        data: data
+      }
+    };
+  }
+  function buildScatterData() {
+    return (events || []).filter(function (e) {
+      var key = 'ev_' + e.kind;
+      return visibility[key] !== false;
+    }).map(function (e) {
+      return {
+        value:       [e.ts, e.price],
+        name:        e.label || e.kind,
+        kind:        e.kind,
+        source:      e.source || '',
+        return_pct:  e.return_pct != null ? e.return_pct : null,
+        itemStyle:   {color: kindColor(e.kind), borderColor: '#ffffff', borderWidth: 1.5},
+        symbol:      kindSymbol(e.kind)
       };
     });
   }
@@ -93,26 +143,18 @@ _CHART_JS = r"""
 
   // ---- build full option ---------------------------------------------------
   function buildOption(tf) {
-    var showLevels = visibility.levels;
-    var showEvents = visibility.events;
-    var showVol    = visibility.volume;
-    var showPS     = visibility.pos_size;
-    var showPnl    = visibility.realized_pnl;
+    var showVol  = visibility.volume;
+    var showPS   = visibility.pos_size;
+    var showPnl  = visibility.realized_pnl;
+    var showAvgE = visibility.avg_entry && fillsCount >= 2;
 
-    // Grids: main | optional bottom bar for volume
     var mainGridBottom = showVol ? 150 : 80;
-    var grids = [
-      {left: 80, right: 24, top: 56, bottom: mainGridBottom}
-    ];
-    var xAxes = [
-      {type: 'time', scale: true, gridIndex: 0,
-       axisLine: {lineStyle: {color: '#cbd5e1'}}, splitLine: {show: false}}
-    ];
+    var grids = [{left: 80, right: 24, top: 56, bottom: mainGridBottom}];
+    var xAxes = [{type: 'time', scale: true, gridIndex: 0,
+                  axisLine: {lineStyle: {color: '#cbd5e1'}}, splitLine: {show: false}}];
     var yAxes = [
-      // main price axis
       {type: 'value', scale: true, gridIndex: 0, position: 'left',
        axisLine: {show: false}, splitLine: {lineStyle: {color: '#f1f5f9'}}},
-      // secondary: position size / realized PnL (hidden labels if both off)
       {type: 'value', scale: true, gridIndex: 0, position: 'right',
        axisLine: {show: false}, splitLine: {show: false},
        axisLabel: {color: '#94a3b8', fontSize: 10},
@@ -128,7 +170,6 @@ _CHART_JS = r"""
                   axisLabel: {show: false}, splitLine: {show: false}});
     }
 
-    // scatter per-point symbol via callback
     var scatterData = buildScatterData();
 
     var series = [
@@ -142,89 +183,50 @@ _CHART_JS = r"""
           borderColor: '#15803d', borderColor0: '#b91c1c'
         }
       },
-      // ---- levels (markLines) ----
-      {
-        id: 'entries', name: 'Entries', type: 'line', data: [],
-        xAxisIndex: 0, yAxisIndex: 0, silent: true,
-        markLine: !showLevels ? {} : {
-          symbol: ['none', 'none'],
-          lineStyle: {color: '#2563eb', type: 'dashed', width: 1.5},
-          label: {formatter: '{b}  {c}', color: '#2563eb', fontSize: 11},
-          data: buildMarkLineData(levels.entries)
-        }
-      },
-      {
-        id: 'sl_be', name: 'SL/BE', type: 'line', data: [],
-        xAxisIndex: 0, yAxisIndex: 0, silent: true,
-        markLine: !showLevels ? {} : {
-          symbol: ['none', 'none'],
-          lineStyle: {color: '#b91c1c', type: 'dashed', width: 1.5},
-          label: {formatter: '{b}  {c}', color: '#b91c1c', fontSize: 11},
-          data: buildMarkLineData(levels.sl)
-        }
-      },
-      {
-        id: 'tps', name: 'TPs', type: 'line', data: [],
-        xAxisIndex: 0, yAxisIndex: 0, silent: true,
-        markLine: !showLevels ? {} : {
-          symbol: ['none', 'none'],
-          lineStyle: {color: '#15803d', type: 'dashed', width: 1.5},
-          label: {formatter: '{b}  {c}', color: '#15803d', fontSize: 11},
-          data: buildMarkLineData(levels.tps)
-        }
-      },
-      {
-        id: 'exit', name: 'Exit', type: 'line', data: [],
-        xAxisIndex: 0, yAxisIndex: 0, silent: true,
-        markLine: !showLevels ? {} : {
-          symbol: ['none', 'none'],
-          lineStyle: {color: '#7c3aed', type: 'solid', width: 2},
-          label: {formatter: '{b}  {c}', color: '#7c3aed', fontSize: 11},
-          data: buildMarkLineData(levels.exit)
-        }
-      },
-      // ---- events (scatter) ----
+      // ---- level markLine series (one per level type) ----
+      buildMarkLineSeries('lv_entries_planned', 'Entries (plan)', 'entries_planned',
+        LEVEL_COLOR.entries_planned, 'dashed', visibility.entries_planned),
+      buildMarkLineSeries('lv_entries_filled',  'Entries (fill)', 'entries_filled',
+        LEVEL_COLOR.entries_filled,  'solid',  visibility.entries_filled),
+      buildMarkLineSeries('lv_avg_entry',        'Avg Entry',      'avg_entry',
+        LEVEL_COLOR.avg_entry,       'dashed', showAvgE),
+      buildMarkLineSeries('lv_sl_initial',       'Initial SL',     'sl_initial',
+        LEVEL_COLOR.sl_initial,      'dashed', visibility.sl),
+      buildMarkLineSeries('lv_sl_current',       'Current SL',     'sl_current',
+        LEVEL_COLOR.sl_current,      'solid',  visibility.sl),
+      buildMarkLineSeries('lv_tps',              'TPs',            'tps',
+        LEVEL_COLOR.tps,             'dashed', visibility.tps),
+      buildMarkLineSeries('lv_exit',             'Exit',           'exit',
+        LEVEL_COLOR.exit,            'solid',  visibility.exit),
+      // ---- events scatter ----
       {
         id: 'events', name: 'Events', type: 'scatter',
-        data: showEvents ? scatterData : [],
+        data: scatterData,
         xAxisIndex: 0, yAxisIndex: 0,
-        symbolSize: 11, z: 5,
-        label: {
-          show: showEvents, position: 'top',
-          formatter: function (p) { return p.name; },
-          fontSize: 10, color: '#0f172a'
-        }
+        symbolSize: 12, z: 5,
+        label: {show: false}
       },
-      // ---- position size step line ----
+      // ---- position size / realized PnL overlays ----
       {
         id: 'pos_size', name: 'Position Size', type: 'line',
         data: showPS ? buildStepData(posSizePts) : [],
-        xAxisIndex: 0, yAxisIndex: 1,
-        step: 'end',
-        symbol: 'none',
-        lineStyle: {color: '#0284c7', width: 1.5, type: 'solid', opacity: 0.8},
-        areaStyle: {color: 'rgba(2,132,199,.08)'},
-        z: 2
+        xAxisIndex: 0, yAxisIndex: 1, step: 'end', symbol: 'none',
+        lineStyle: {color: '#0284c7', width: 1.5, opacity: 0.8},
+        areaStyle: {color: 'rgba(2,132,199,.08)'}, z: 2
       },
-      // ---- realized PnL step line ----
       {
         id: 'realized_pnl', name: 'Realized PnL', type: 'line',
         data: showPnl ? buildStepData(realizedPnlPts) : [],
-        xAxisIndex: 0, yAxisIndex: 1,
-        step: 'end',
-        symbol: 'none',
-        lineStyle: {color: '#f59e0b', width: 1.5, type: 'solid', opacity: 0.9},
-        z: 2
+        xAxisIndex: 0, yAxisIndex: 1, step: 'end', symbol: 'none',
+        lineStyle: {color: '#f59e0b', width: 1.5, opacity: 0.9}, z: 2
       }
     ];
 
-    // ---- volume bar (optional grid) ----
     if (showVol) {
       series.push({
         id: 'volume', name: 'Volume', type: 'bar',
         data: buildVolumeData(tf),
-        xAxisIndex: 1, yAxisIndex: 2,
-        barMaxWidth: 20,
+        xAxisIndex: 1, yAxisIndex: 2, barMaxWidth: 20,
         itemStyle: {
           color: function (p) { return p.data[2] >= 0 ? 'rgba(21,128,61,.5)' : 'rgba(185,28,28,.5)'; }
         }
@@ -245,36 +247,32 @@ _CHART_JS = r"""
               lines.push('<b>' + echarts.format.formatTime('yyyy-MM-dd hh:mm', d[0]) + '</b>');
               lines.push('O:&nbsp;' + (+d[1]).toFixed(6) + '&ensp;C:&nbsp;' + (+d[2]).toFixed(6));
               lines.push('L:&nbsp;' + (+d[3]).toFixed(6) + '&ensp;H:&nbsp;' + (+d[4]).toFixed(6));
-            } else if (p.seriesType === 'scatter' && p.data) {
-              lines.push('<span style="color:' + p.color + '">&#9679;</span>&nbsp;' +
-                p.name + '&nbsp;@&nbsp;' + (+p.data.value[1]).toFixed(6));
+            } else if (p.seriesType === 'scatter' && p.data && p.data.kind) {
+              var ev = p.data;
+              var ts  = new Date(ev.value[0]).toISOString().replace('T', ' ').slice(0, 19);
+              lines.push('<b style="color:' + kindColor(ev.kind) + '">&#9679;&nbsp;' + (ev.name || ev.kind) + '</b>');
+              lines.push('Time:&nbsp;' + ts);
+              lines.push('Price:&nbsp;' + (+ev.value[1]).toFixed(6));
+              if (ev.source) { lines.push('Source:&nbsp;' + ev.source); }
+              if (ev.return_pct != null) {
+                var sign = ev.return_pct >= 0 ? '+' : '';
+                lines.push('Return:&nbsp;<b>' + sign + (+ev.return_pct).toFixed(2) + '%</b>');
+              }
             } else if (p.seriesType === 'line' && p.data) {
               lines.push('<span style="color:' + p.color + '">&#9644;</span>&nbsp;' +
                 p.seriesName + ':&nbsp;<b>' + (+p.data[1]).toFixed(4) + '</b>');
             }
           }
-          return lines.join('<br/>');
+          return lines.length ? lines.join('<br/>') : '';
         }
       },
-      legend: {
-        top: 6, itemGap: 14,
-        data: [
-          {name: 'Candles'},
-          {name: 'Entries',       icon: 'line'},
-          {name: 'SL/BE',         icon: 'line'},
-          {name: 'TPs',           icon: 'line'},
-          {name: 'Exit',          icon: 'line'},
-          {name: 'Events',        icon: 'circle'},
-          {name: 'Position Size', icon: 'line'},
-          {name: 'Realized PnL',  icon: 'line'}
-        ]
-      },
+      legend: {show: false},
       grid:  grids,
       xAxis: xAxes,
       yAxis: yAxes,
       dataZoom: [
-        {type: 'inside',  xAxisIndex: showVol ? [0,1] : [0], filterMode: 'weakFilter'},
-        {type: 'slider',  xAxisIndex: showVol ? [0,1] : [0], bottom: 8, height: 28,
+        {type: 'inside',  xAxisIndex: showVol ? [0, 1] : [0], filterMode: 'weakFilter'},
+        {type: 'slider',  xAxisIndex: showVol ? [0, 1] : [0], bottom: 8, height: 28,
          borderColor: '#e2e8f0'}
       ],
       series: series
@@ -305,26 +303,45 @@ _CHART_JS = r"""
     });
   }
 
-  // ---- toggle buttons -------------------------------------------------------
+  // ---- toggle buttons with optional timeline sync --------------------------
   function rebuildChart() {
     chart.setOption(buildOption(currentTF), {replaceMerge: ['series', 'grid', 'xAxis', 'yAxis']});
   }
   function wireToggle(btnId, key) {
     var btn = document.getElementById('%%CHART_ID%%-' + btnId);
     if (!btn) { return; }
-    // initialise visual state
-    btn.classList.toggle('active', visibility[key]);
+    var timelineKind = btn.getAttribute('data-timeline-kind');
+    btn.classList.toggle('active', !!visibility[key]);
     btn.addEventListener('click', function () {
       visibility[key] = !visibility[key];
-      btn.classList.toggle('active', visibility[key]);
+      btn.classList.toggle('active', !!visibility[key]);
       rebuildChart();
+      // sync timeline item visibility (1:1 mapping)
+      if (timelineKind) {
+        document.querySelectorAll('.ti-v2[data-kind="' + timelineKind + '"]').forEach(function (el) {
+          el.style.display = visibility[key] ? '' : 'none';
+        });
+      }
     });
   }
-  wireToggle('toggle-levels',   'levels');
-  wireToggle('toggle-events',   'events');
-  wireToggle('toggle-volume',   'volume');
-  wireToggle('toggle-pos-size', 'pos_size');
-  wireToggle('toggle-pnl',      'realized_pnl');
+  // level toggles
+  wireToggle('toggle-entries-planned', 'entries_planned');
+  wireToggle('toggle-entries-filled',  'entries_filled');
+  wireToggle('toggle-avg-entry',       'avg_entry');
+  wireToggle('toggle-sl',              'sl');
+  wireToggle('toggle-tps',             'tps');
+  wireToggle('toggle-exit',            'exit');
+  // event marker toggles
+  wireToggle('toggle-ev-fill',         'ev_FILL');
+  wireToggle('toggle-ev-tp',           'ev_TP');
+  wireToggle('toggle-ev-sl',           'ev_SL');
+  wireToggle('toggle-ev-move-sl',      'ev_MOVE_SL');
+  wireToggle('toggle-ev-close',        'ev_CLOSE');
+  wireToggle('toggle-ev-partial',      'ev_PARTIAL_CLOSE');
+  // secondary overlays
+  wireToggle('toggle-volume',          'volume');
+  wireToggle('toggle-pos-size',        'pos_size');
+  wireToggle('toggle-pnl',             'realized_pnl');
 
   // ---- resize ---------------------------------------------------------------
   window.addEventListener('resize', function () { chart.resize(); });
@@ -343,18 +360,35 @@ def _build_tf_buttons(chart_id: str, timeframes: list[str], default_tf: str | No
 
 
 def _build_toggle_buttons(chart_id: str) -> str:
-    toggles = [
-        ("toggle-levels",   "Levels",    True),
-        ("toggle-events",   "Events",    True),
-        ("toggle-volume",   "Volume",    False),
-        ("toggle-pos-size", "Pos Size",  False),
-        ("toggle-pnl",      "Realized PnL", False),
+    # (btn_id, label, default_on, timeline_kind)
+    # timeline_kind: the data-kind value on .ti-v2 items to show/hide in sync (None = no sync)
+    toggles: list[tuple[str, str, bool, str | None]] = [
+        # ---- level lines ----
+        ("toggle-entries-planned", "Entries (plan)", True,  None),
+        ("toggle-entries-filled",  "Entries (fill)", True,  None),
+        ("toggle-avg-entry",       "Avg Entry",      True,  None),
+        ("toggle-sl",              "SL",             True,  "SL"),
+        ("toggle-tps",             "TPs",            True,  "TP"),
+        ("toggle-exit",            "Exit",           True,  "EXIT"),
+        # ---- event markers ----
+        ("toggle-ev-fill",         "Fills",          True,  "FILL"),
+        ("toggle-ev-tp",           "TP events",      True,  "TP"),
+        ("toggle-ev-sl",           "SL events",      True,  "SL"),
+        ("toggle-ev-move-sl",      "SL moves",       True,  "MOVE_SL"),
+        ("toggle-ev-close",        "Close",          True,  "EXIT"),
+        ("toggle-ev-partial",      "Partial close",  True,  "PARTIAL_CLOSE"),
+        # ---- secondary overlays ----
+        ("toggle-volume",          "Volume",         False, None),
+        ("toggle-pos-size",        "Pos Size",       False, None),
+        ("toggle-pnl",             "Realized PnL",   False, None),
     ]
     parts: list[str] = []
-    for key, label, default_on in toggles:
+    for btn_id, label, default_on, timeline_kind in toggles:
         active_cls = "active" if default_on else ""
+        tl_attr = f" data-timeline-kind='{timeline_kind}'" if timeline_kind else ""
         parts.append(
-            f"<button id='{chart_id}-{key}' class='chart-toolbar-btn {active_cls}' title='Toggle {label}'>{label}</button>"
+            f"<button id='{chart_id}-{btn_id}' class='chart-toolbar-btn {active_cls}'"
+            f" title='Toggle {label}'{tl_attr}>{label}</button>"
         )
     return "".join(parts)
 
@@ -364,7 +398,15 @@ def _build_fallback(payload: dict[str, object]) -> str:
     events = payload.get("events") or []
 
     rows_levels: list[str] = []
-    for group_name, group_key in [("Entries", "entries"), ("SL/BE", "sl"), ("TPs", "tps"), ("Exit", "exit")]:
+    for group_name, group_key in [
+        ("Entries (plan)", "entries_planned"),
+        ("Entries (fill)", "entries_filled"),
+        ("Avg Entry",      "avg_entry"),
+        ("Initial SL",     "sl_initial"),
+        ("Current SL",     "sl_current"),
+        ("TPs",            "tps"),
+        ("Exit",           "exit"),
+    ]:
         for item in (levels.get(group_key) or []):
             rows_levels.append(
                 f"<tr><td>{group_name}</td><td>{item.get('label', '')}</td>"

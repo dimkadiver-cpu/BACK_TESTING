@@ -54,30 +54,62 @@ def _build_levels(
     trade: TradeResult,
     event_log: list[EventLogEntry],
 ) -> dict[str, list[dict[str, object]]]:
-    entries: list[dict[str, object]] = []
-    sl: list[dict[str, object]] = []
+    # Canonical kind list — must match JS LEVEL_SERIES in trade_chart_echarts.py
+    entries_planned: list[dict[str, object]] = []
+    entries_filled: list[dict[str, object]] = []
+    avg_entry: list[dict[str, object]] = []
+    sl_initial: list[dict[str, object]] = []
+    sl_current: list[dict[str, object]] = []
     tps: list[dict[str, object]] = []
     exit_levels: list[dict[str, object]] = []
 
     if not event_log:
-        return {"entries": entries, "sl": sl, "tps": tps, "exit": exit_levels}
+        return {
+            "entries_planned": entries_planned,
+            "entries_filled": entries_filled,
+            "avg_entry": avg_entry,
+            "sl_initial": sl_initial,
+            "sl_current": sl_current,
+            "tps": tps,
+            "exit": exit_levels,
+        }
 
+    # Planned entry levels — LIMIT orders only (skip MARKET: no price or entry_type==MARKET)
     first_state = event_log[0].state_after or {}
-    entries_planned = first_state.get("entries_planned") or []
-    for idx, plan in enumerate(entries_planned[:5]):
-        if isinstance(plan, dict):
-            price = plan.get("price")
-            if isinstance(price, int | float):
-                entries.append({"label": f"Entry {idx + 1}", "price": float(price)})
+    planned_list = first_state.get("entries_planned") or []
+    for idx, plan in enumerate(planned_list[:5]):
+        if not isinstance(plan, dict):
+            continue
+        entry_type = (plan.get("entry_type") or "").upper()
+        if entry_type == "MARKET":
+            continue  # MARKET orders: no horizontal level line, only event marker
+        price = plan.get("price")
+        if isinstance(price, int | float):
+            entries_planned.append({"label": f"Entry {idx + 1}", "price": float(price)})
 
-    if trade.avg_entry_price is not None:
-        entries.append({"label": "Avg Entry", "price": float(trade.avg_entry_price)})
-
-    # Collect SL changes to capture initial SL, BE moves, and final SL
-    seen_sl: set[float] = set()
-    be_added = False
+    # Filled entry levels — track LIMIT fills (from FILL events on limit orders)
     for entry in event_log:
         etype = (entry.event_type or "").upper()
+        if etype not in {"FILL", "ADD_ENTRY"}:
+            continue
+        state = entry.state_after or {}
+        fill_price = state.get("last_fill_price") or state.get("avg_entry_price")
+        if isinstance(fill_price, int | float):
+            # Only add if there's a matching planned entry (i.e., it was a limit fill)
+            if entries_planned:
+                entries_filled.append({
+                    "label": f"Fill {len(entries_filled) + 1}",
+                    "price": float(fill_price),
+                })
+
+    # Avg Entry — only shown when fills_count >= 2
+    if trade.avg_entry_price is not None and trade.fills_count >= 2:
+        avg_entry.append({"label": "Avg Entry", "price": float(trade.avg_entry_price)})
+
+    # SL: track initial and current (last moved)
+    seen_sl: set[float] = set()
+    all_sl: list[dict[str, object]] = []
+    for entry in event_log:
         state = entry.state_after or {}
         current_sl = state.get("current_sl")
         if not isinstance(current_sl, int | float):
@@ -86,19 +118,18 @@ def _build_levels(
         if sl_price in seen_sl:
             continue
         seen_sl.add(sl_price)
-        if not sl:
-            sl.append({"label": "Initial SL", "price": sl_price})
-        elif "MOVE_STOP" in etype or "BE" in etype:
-            if not be_added:
-                sl.append({"label": "Break Even", "price": sl_price})
-                be_added = True
-            else:
-                sl.append({"label": "Moved SL", "price": sl_price})
+        all_sl.append({"price": sl_price})
 
-    # TPs from last state
+    if all_sl:
+        sl_initial.append({"label": "Initial SL", "price": all_sl[0]["price"]})
+        last_sl_price = all_sl[-1]["price"]
+        if len(all_sl) > 1 and last_sl_price != all_sl[0]["price"]:
+            sl_current.append({"label": "Current SL", "price": last_sl_price})
+
+    # TPs from last event state
     last_state = event_log[-1].state_after or {}
-    tp_levels = last_state.get("tp_levels") or []
-    for idx, tp in enumerate(tp_levels):
+    tp_levels_raw = last_state.get("tp_levels") or []
+    for idx, tp in enumerate(tp_levels_raw):
         if isinstance(tp, int | float):
             tps.append({"label": f"TP{idx + 1}", "price": float(tp)})
 
@@ -109,10 +140,47 @@ def _build_levels(
             exit_levels.append({"label": "Final Exit", "price": float(val)})
             break
 
-    return {"entries": entries, "sl": sl, "tps": tps, "exit": exit_levels}
+    return {
+        "entries_planned": entries_planned,
+        "entries_filled": entries_filled,
+        "avg_entry": avg_entry,
+        "sl_initial": sl_initial,
+        "sl_current": sl_current,
+        "tps": tps,
+        "exit": exit_levels,
+    }
 
 
-def _build_events(event_log: list[EventLogEntry]) -> list[dict[str, object]]:
+def _compute_tp_return_pct(
+    entry: EventLogEntry,
+    trade: TradeResult,
+) -> float | None:
+    """Return the % return at this TP/CLOSE event relative to avg entry, or None."""
+    state = entry.state_after or {}
+    avg_entry = state.get("avg_entry_price") or trade.avg_entry_price
+    if not isinstance(avg_entry, int | float) or avg_entry == 0:
+        return None
+    exit_price: float | None = None
+    if isinstance(entry.price_reference, int | float):
+        exit_price = float(entry.price_reference)
+    if exit_price is None:
+        for key in ("close_price", "market_price", "mark_price", "last_price"):
+            val = state.get(key)
+            if isinstance(val, int | float):
+                exit_price = float(val)
+                break
+    if exit_price is None:
+        return None
+    side = (trade.side or "").upper()
+    direction = -1.0 if side in {"SHORT", "SELL"} else 1.0
+    return round((exit_price - float(avg_entry)) / float(avg_entry) * 100.0 * direction, 3)
+
+
+def _build_events(
+    event_log: list[EventLogEntry],
+    trade: TradeResult,
+) -> list[dict[str, object]]:
+    # Canonical kind list — must match visibility keys ev_* in trade_chart_echarts.py
     events: list[dict[str, object]] = []
     for entry in event_log:
         ts = _to_epoch_ms(entry.timestamp)
@@ -148,12 +216,21 @@ def _build_events(event_log: list[EventLogEntry]) -> list[dict[str, object]]:
 
         etype = (entry.event_type or "").upper()
         kind = _EVENT_KIND_MAP.get(etype, etype)
+
+        # return_pct for TP / CLOSE events
+        return_pct: float | None = None
+        if kind in {"TP", "CLOSE", "PARTIAL_CLOSE"}:
+            return_pct = _compute_tp_return_pct(entry, trade)
+
         events.append(
             {
                 "ts": ts,
                 "price": price,
                 "kind": kind,
                 "label": entry.event_type or kind,
+                "return_pct": return_pct,
+                "source": entry.source or "engine",
+                "event_type_raw": entry.event_type or "",
             }
         )
 
@@ -215,10 +292,11 @@ def build_trade_chart_payload(
             "side": trade.side,
             "policy_name": trade.policy_name,
             "default_timeframe": _default_timeframe(candles_serialized),
+            "fills_count": trade.fills_count,
         },
         "candles_by_timeframe": candles_serialized,
         "levels": _build_levels(trade, event_log),
-        "events": _build_events(event_log),
+        "events": _build_events(event_log, trade),
         "position_size_series": _build_position_size_series(event_log),
         "realized_pnl_series": _build_realized_pnl_series(event_log),
     }
