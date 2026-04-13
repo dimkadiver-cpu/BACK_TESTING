@@ -34,6 +34,10 @@ class PolicyLoader:
             raise PolicyLoadError("Policy YAML must define a mapping object")
 
         normalized = self._apply_defaults(raw_data)
+        # Keep runtime/report naming aligned with the selected file name.
+        # This avoids collisions when multiple YAML files are copied from the
+        # same template and still contain the same internal `name` field.
+        normalized["name"] = policy_path.stem
 
         try:
             return PolicyConfig.from_dict(normalized)

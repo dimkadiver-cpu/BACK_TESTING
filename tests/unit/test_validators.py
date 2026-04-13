@@ -121,6 +121,26 @@ def test_missing_entry_is_fatal() -> None:
     assert any(g.field == "entry" for g in result.fatal_gaps)
 
 
+def test_market_entry_without_explicit_prices_is_simulable() -> None:
+    event = _make_open_event(entries=[], sl=85000.0, tps=[95000.0])
+    event.payload["entry_type"] = "MARKET"
+    chain = _make_chain(events=[event])
+    result = validate_chain_for_simulation(chain)
+    assert result.is_simulable is True
+    assert result.fatal_gaps == []
+
+
+def test_legacy_single_market_plan_without_entry_type_is_simulable() -> None:
+    event = _make_open_event(entries=[], sl=85000.0, tps=[95000.0])
+    event.payload["entry_plan_type"] = "SINGLE_MARKET"
+    event.payload["entry_structure"] = "ONE_SHOT"
+    event.payload["entry_plan_entries"] = [{"order_type": "MARKET", "price": None}]
+    chain = _make_chain(events=[event])
+    result = validate_chain_for_simulation(chain)
+    assert result.is_simulable is True
+    assert result.fatal_gaps == []
+
+
 # ---------------------------------------------------------------------------
 # Simulation validation — missing SL
 # ---------------------------------------------------------------------------

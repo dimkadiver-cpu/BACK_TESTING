@@ -11,11 +11,10 @@ from pathlib import Path
 _PROJECT_ROOT = Path(__file__).resolve().parents[4]
 _POLICIES_DIR = _PROJECT_ROOT / "configs" / "policies"
 _FALLBACK_POLICIES: list[str] = ["original_chain", "signal_only"]
-_TEMPLATE_PREFIX = "policy_template"
 
 
 def discover_policy_names(policies_dir: Path | None = None) -> list[str]:
-    """Scan configs/policies/*.yaml and return sorted names, excluding templates.
+    """Scan configs/policies/*.yaml and return sorted names.
 
     Falls back to ['original_chain', 'signal_only'] when the directory is
     missing or contains no valid policy files.
@@ -23,10 +22,13 @@ def discover_policy_names(policies_dir: Path | None = None) -> list[str]:
     d = policies_dir or _POLICIES_DIR
     if not d.exists():
         return list(_FALLBACK_POLICIES)
-    names = sorted(
-        p.stem for p in d.glob("*.yaml") if not p.stem.startswith(_TEMPLATE_PREFIX)
-    )
+    names = sorted({p.stem for p in d.glob("*.yaml")} | {p.stem for p in d.glob("*.yml")})
     return names if names else list(_FALLBACK_POLICIES)
+
+
+def policies_dir_path(policies_dir: Path | None = None) -> Path:
+    """Return the absolute policy directory used by the GUI."""
+    return (policies_dir or _POLICIES_DIR).resolve()
 
 
 def load_policy_yaml(policy_name: str, policies_dir: Path | None = None) -> str:

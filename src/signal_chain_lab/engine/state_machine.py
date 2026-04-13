@@ -446,6 +446,7 @@ def _apply_open_signal(
 
     state.entries_planned = [
         EntryPlan(
+            plan_id=f"{event.signal_id}:{event.sequence}:E{index + 1}",
             role=spec["role"],
             order_type=spec["order_type"],
             price=spec["price"],
@@ -505,8 +506,10 @@ def apply_event(state: TradeState, event: CanonicalEvent, *, policy: PolicyConfi
             reason = "add_entry_disabled_by_policy"
             _warning(state)
         else:
+            ordinal = len(state.entries_planned) + 1
             state.entries_planned.append(
                 EntryPlan(
+                    plan_id=f"{event.signal_id}:{event.sequence}:E{ordinal}",
                     role="averaging",
                     order_type=event.payload.get("order_type", "limit"),
                     price=event.payload.get("price"),

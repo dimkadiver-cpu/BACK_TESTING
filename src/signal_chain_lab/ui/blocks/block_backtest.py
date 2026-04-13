@@ -24,6 +24,7 @@ from src.signal_chain_lab.ui.blocks.backtest_support import (
     discover_policy_names,
     discover_traders_from_db,
     load_policy_yaml,
+    policies_dir_path,
     save_policy_yaml,
 )
 from src.signal_chain_lab.ui.blocks.backtest_observability import (
@@ -759,6 +760,7 @@ def render_block_backtest(
                 "Nuova", icon="add", color="secondary",
                 on_click=lambda: _on_new_policy(),
             ).props("dense flat")
+        ui.label(f"Cartella policy: {policies_dir_path()}").classes("text-caption text-grey-6")
 
         policy_select = ui.select(
             options=_build_policy_options(),

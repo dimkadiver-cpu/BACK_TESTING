@@ -4,7 +4,7 @@ from __future__ import annotations
 import html
 import json
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from src.signal_chain_lab.domain.results import EventLogEntry, TradeResult
 from src.signal_chain_lab.market.data_models import Candle
@@ -140,24 +140,12 @@ dialog::backdrop{background:rgba(15,23,42,.55)}
 .dialog-head{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
 .dialog-body{padding:18px}
 .timeline{display:grid;gap:10px}
-.timeline-item{border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden}
-.timeline-item[open]{box-shadow:0 6px 24px rgba(15,23,42,.06)}
-.timeline-item summary{list-style:none;cursor:pointer;padding:12px 14px}
-.timeline-item summary::-webkit-details-marker{display:none}
-.tl-row{display:grid;grid-template-columns:84px 1.2fr 132px 116px 1fr;gap:10px;align-items:center}
-.tl-time{font-size:12px;font-weight:700;color:var(--muted)}
-.tl-main{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
-.tl-event{font-size:14px;font-weight:800}
-.tl-requested,.tl-reason{font-size:12px;color:var(--muted);font-weight:600}
-.tl-pills{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
-.ti-body{border-top:1px solid var(--line);background:#fcfdff;padding:14px}
-.ti-body-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.ti-panel{border:1px solid var(--line);border-radius:12px;background:#fff;padding:12px}
-.ti-panel h3{margin:0 0 10px;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
-.ti-meta{display:grid;grid-template-columns:140px 1fr;gap:6px 10px;font-size:13px}
+.ti{border:1px solid var(--line);border-radius:14px;padding:14px}
+.ti-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.ti-meta{display:grid;grid-template-columns:160px 1fr;gap:6px 10px;font-size:13px}
 .ti-meta .lab{color:var(--muted)}
-.ti-delta{display:flex;gap:6px;flex-wrap:wrap}
-.ti-delta-item{font-size:12px;background:#f1f5f9;border-radius:999px;padding:4px 9px}
+.ti-delta{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
+.ti-delta-item{font-size:12px;background:#f1f5f9;border-radius:8px;padding:3px 8px}
 .ti-delta-item .dlab{color:var(--muted);margin-right:3px}
 .chart-wrap{border:1px solid var(--line);border-radius:14px;padding:10px;background:#fff}
 .chart-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
@@ -181,20 +169,51 @@ dialog::backdrop{background:rgba(15,23,42,.55)}
 .excl-reason-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
 .excl-badge{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid transparent}
 .excl-badge.active{border-color:var(--accent);outline:2px solid var(--accent)}
-/* event timeline source/status labels */
-.ti-src-trader{display:inline-block;font-size:11px;font-weight:700;color:#166534;background:#dcfce7;border-radius:999px;padding:3px 8px}
-.ti-src-system{display:inline-block;font-size:11px;color:#4338ca;background:#eef2ff;border-radius:999px;padding:3px 8px}
-.ti-status-applied{display:inline-block;font-size:11px;font-weight:700;color:#166534;background:#dcfce7;border-radius:999px;padding:3px 8px}
-.ti-status-generated{display:inline-block;font-size:11px;font-weight:700;color:#9a3412;background:#ffedd5;border-radius:999px;padding:3px 8px}
-.ti-status-ignored,.ti-status-rejected{display:inline-block;font-size:11px;font-weight:700;color:#991b1b;background:#fee2e2;border-radius:999px;padding:3px 8px}
+/* event timeline source label */
+.ti-src-trader{display:inline-block;font-size:11px;font-weight:700;color:#166534;background:#dcfce7;border-radius:6px;padding:1px 6px;margin-left:6px}
+.ti-src-system{display:inline-block;font-size:11px;color:var(--muted);background:#f1f5f9;border-radius:6px;padding:1px 6px;margin-left:6px}
+/* ---- Trade header bar ---- */
+.trade-header-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 18px;margin-bottom:14px;position:sticky;top:0;z-index:20;box-shadow:0 2px 8px rgba(15,23,42,.06)}
+.trade-header-bar .signal-id{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--muted)}
+.trade-header-bar .symbol{font-size:20px;font-weight:800}
+.side-badge-long{background:#dcfce7;color:#166534;border-radius:999px;padding:3px 10px;font-size:13px;font-weight:700}
+.side-badge-short{background:#fee2e2;color:#991b1b;border-radius:999px;padding:3px 10px;font-size:13px;font-weight:700}
+.status-badge{background:#e0f2fe;color:#0369a1;border-radius:999px;padding:3px 10px;font-size:13px;font-weight:700}
+.warn-badge{background:#fef3c7;color:#92400e;border-radius:999px;padding:3px 10px;font-size:13px;font-weight:700}
+/* ---- Performance groups ---- */
+.perf-groups{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.perf-group{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.perf-group-label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
+.metric.compact{padding:10px 12px}
+.metric.compact .v{font-size:18px}
+/* ---- Timeline V2 ---- */
+.ti-v2{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:8px}
+.ti-v2-compact{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;cursor:pointer;user-select:none}
+.ti-v2-compact:hover{background:#f8fafc}
+.ti-v2-detail{display:none;padding:14px;border-top:1px solid var(--line);background:#fafafa}
+.ti-v2.open .ti-v2-detail{display:block}
+.ti-kind-badge{border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;white-space:nowrap}
+.ti-kind-NEW_SIGNAL{background:#e0f2fe;color:#0369a1}
+.ti-kind-FILL{background:#dbeafe;color:#1e40af}
+.ti-kind-MOVE_SL{background:#ffedd5;color:#c2410c}
+.ti-kind-TP{background:#dcfce7;color:#166534}
+.ti-kind-SL{background:#fee2e2;color:#991b1b}
+.ti-kind-EXIT{background:#f3e8ff;color:#6b21a8}
+.ti-kind-PARTIAL_CLOSE{background:#e9d5ff;color:#7e22ce}
+.ti-kind-CANCEL{background:#f1f5f9;color:#475569}
+.ti-kind-UPDATE{background:#fef9c3;color:#713f12}
+.return-pill{border-radius:999px;padding:2px 8px;font-size:12px;font-weight:700}
+.return-pill.ok{background:#dcfce7;color:#166534}
+.return-pill.bad{background:#fee2e2;color:#991b1b}
+.signal-summary{font-size:12px;color:var(--muted);background:#f0f9ff;border-radius:6px;padding:2px 8px}
+.ti-detail-grid{display:grid;grid-template-columns:140px 1fr;gap:5px 12px;font-size:13px}
+.ti-detail-grid .lab{color:var(--muted)}
 @media(max-width:900px){
   .grid-4{grid-template-columns:repeat(2,minmax(0,1fr))}
   .grid-3{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .tl-row{grid-template-columns:1fr}
-  .tl-pills{justify-content:flex-start}
-  .ti-body-grid{grid-template-columns:1fr}
   .ti-meta{grid-template-columns:1fr}
   .charts-grid{grid-template-columns:1fr}
+  .perf-groups{grid-template-columns:1fr}
 }
 </style>
 <script>
@@ -289,6 +308,13 @@ function filterExcluded(reason, badge){
   }
   document.querySelectorAll(".excl-badge").forEach(b => b.classList.remove("active"));
   if(badge) badge.classList.add("active");
+}
+// ---- timeline V2 expand/collapse ----
+function toggleTiDetail(header){
+  var item = header.parentElement;
+  item.classList.toggle('open');
+  var arrow = header.querySelector('.ti-arrow');
+  if(arrow) arrow.textContent = item.classList.contains('open') ? '\u25b2' : '\u25bc';
 }
 </script>
 """
@@ -891,102 +917,27 @@ def _display_event_name(value: str | None) -> str:
     normalized = (value or "").upper()
     if normalized == "OPEN_SIGNAL":
         return "NEW_SIGNAL"
+    if normalized == "MOVE_STOP_TO_BE":
+        return "UPDATE"
+    if normalized == "MOVE_STOP":
+        return "UPDATE"
     return normalized or "-"
 
 
-def _status_badge_class(entry: EventLogEntry) -> str:
-    return f"ti-status-{entry.processing_status.value.lower()}"
-
-
-def _fills_from_state(state: dict[str, Any]) -> list[dict[str, Any]]:
-    fills = state.get("fills") or []
-    return [item for item in fills if isinstance(item, dict)]
-
-
-def _fill_label(fill: dict[str, Any], *, index: int) -> str:
-    plan_id = str(fill.get("plan_id") or "")
-    if ":E" in plan_id:
-        return f"FILL {plan_id.split(':E')[-1]}"
-    return f"FILL {index + 1}"
-
-
-def _is_material_engine_event(entry: EventLogEntry) -> bool:
-    before = entry.state_before or {}
-    after = entry.state_after or {}
-    before_fills = len(_fills_from_state(before))
-    after_fills = len(_fills_from_state(after))
-    event_name = (entry.event_type or "").upper()
-    reason = (entry.reason or "").lower()
-    if (entry.source or "").lower() != "engine":
-        return False
-    if after_fills > before_fills:
-        return True
-    if entry.processing_status.value.lower() == "generated":
-        return True
-    if event_name in {"CLOSE_FULL", "CLOSE_PARTIAL", "CANCEL_PENDING"}:
-        return True
-    if "tp" in event_name.lower() or "sl" in event_name.lower():
-        return True
-    if "tp" in reason or "sl" in reason or "timeout" in reason or "filled" in reason:
-        return True
-    return False
-
-
-def _new_signal_details(entry: EventLogEntry) -> dict[str, str]:
-    state_after = entry.state_after or {}
-    entries = state_after.get("entries_planned") or []
-    fills = _fills_from_state(state_after)
-    entry_prices = [
-        _fmt_number(item.get("price"), 4)
-        for item in entries
-        if isinstance(item, dict) and isinstance(item.get("price"), (int, float))
-    ]
-    order_types = {
-        str(item.get("order_type")).upper()
-        for item in entries
-        if isinstance(item, dict) and item.get("order_type")
-    }
-    entry_type = ", ".join(sorted(order_types)) if order_types else "-"
-    if len(entries) <= 1:
-        entry_structure = "ONE_SHOT"
-    elif len(entries) == 2:
-        entry_structure = "TWO_STEP"
-    else:
-        entry_structure = "LADDER"
-    tp_count = len([value for value in (state_after.get("tp_levels") or []) if isinstance(value, (int, float))])
-    return {
-        "Entry type": entry_type,
-        "Entry structure": entry_structure,
-        "Planned entries": str(len(entries)),
-        "Filled entries": str(len(fills)),
-        "TP count": str(tp_count),
-        "Stop loss": _fmt_number(state_after.get("current_sl"), 4),
-        "Entry prices": ", ".join(entry_prices) if entry_prices else "-",
-    }
-
-
-def _timeline_fill_rows(entry: EventLogEntry) -> list[dict[str, str]]:
-    before_fills = _fills_from_state(entry.state_before or {})
-    after_fills = _fills_from_state(entry.state_after or {})
-    if len(after_fills) <= len(before_fills):
-        return []
-
-    rows: list[dict[str, str]] = []
-    for idx, fill in enumerate(after_fills[len(before_fills):], start=len(before_fills)):
-        fill_ts = fill.get("timestamp")
-        rows.append(
-            {
-                "timestamp": _fmt_timestamp(fill_ts or entry.timestamp),
-                "event_name": _fill_label(fill, index=idx),
-                "requested_action": "FILL",
-                "reason": str(fill.get("plan_id") or "order_filled"),
-                "status": "applied",
-                "event_price": _fmt_number(fill.get("price"), 6),
-                "qty": _fmt_number(fill.get("qty"), 4),
-                "source": "engine",
-            }
-        )
-    return rows
+def _event_outcome_labels(event_log: list[EventLogEntry]) -> set[str]:
+    labels: set[str] = set()
+    for entry in event_log:
+        name = (entry.event_type or "").upper()
+        if "TP" in name:
+            labels.add(name)
+        if "SL" in name:
+            labels.add(name)
+        executed = (entry.executed_action or "").upper()
+        if "TP" in executed:
+            labels.add(executed)
+        if "SL" in executed:
+            labels.add(executed)
+    return labels
 
 
 def _state_delta_html(before: dict, after: dict, initial_capital: float | None) -> str:
@@ -1011,16 +962,6 @@ def _state_delta_html(before: dict, after: dict, initial_capital: float | None) 
     pb = before.get("open_size")
     pa = after.get("open_size")
     items.append(_delta_pill("size", pb, pa, lambda v: _fmt_number(v, 4)))
-
-    # avg entry
-    ab = before.get("avg_entry_price")
-    aa = after.get("avg_entry_price")
-    items.append(_delta_pill("avg", ab, aa, lambda v: _fmt_number(v, 4)))
-
-    # pending size
-    qpb = before.get("pending_size")
-    qpa = after.get("pending_size")
-    items.append(_delta_pill("pending", qpb, qpa, lambda v: _fmt_number(v, 4)))
 
     # realized PnL %
     if initial_capital and initial_capital > 0:
@@ -1056,6 +997,346 @@ def _state_delta_html(before: dict, after: dict, initial_capital: float | None) 
 
 
 # ---------------------------------------------------------------------------
+# Single trade report — new helper functions
+# ---------------------------------------------------------------------------
+
+def _render_header_bar(trade: TradeResult) -> str:
+    """Compact sticky header bar: Symbol | Signal ID | Side | Status | Warnings."""
+    side_str = _display_side(trade.side)
+    side_cls = "side-badge-long" if side_str == "LONG" else "side-badge-short"
+    warn_html = (
+        f"<span class='warn-badge'>&#9888; {trade.warnings_count}"
+        f" warning{'s' if trade.warnings_count != 1 else ''}</span>"
+        if trade.warnings_count else ""
+    )
+    return (
+        "<div class='trade-header-bar'>"
+        f"<span class='symbol'>{_escape(trade.symbol)}</span>"
+        f"<span class='signal-id'>{_escape(trade.signal_id)}</span>"
+        f"<span class='{side_cls}'>{_escape(side_str)}</span>"
+        f"<span class='status-badge'>{_escape(trade.status)}</span>"
+        f"{warn_html}"
+        "</div>"
+    )
+
+
+def _classify_event_type(event_type: str | None) -> str:
+    """Map raw event_type to canonical display kind.
+
+    Canonical kind list — must match visibility keys ev_* in trade_chart_echarts.py
+    and data-kind attributes on .ti-v2 elements.
+    """
+    raw = (event_type or "").upper()
+    if raw in {"OPEN_SIGNAL"}:
+        return "NEW_SIGNAL"
+    if raw in {"FILL", "ADD_ENTRY"}:
+        return "FILL"
+    if raw in {"MOVE_STOP", "MOVE_STOP_TO_BE"}:
+        return "MOVE_SL"
+    if raw in {"TP_HIT"} or (raw.startswith("TP") and "_" in raw):
+        return "TP"
+    if raw in {"SL_HIT", "STOP_LOSS"}:
+        return "SL"
+    if raw in {"CLOSE_FULL", "CLOSE"}:
+        return "EXIT"
+    if raw in {"CLOSE_PARTIAL", "PARTIAL_CLOSE"}:
+        return "PARTIAL_CLOSE"
+    if raw in {"CANCEL_PENDING", "CANCEL", "EXPIRED", "TIMEOUT"}:
+        return "CANCEL"
+    return raw or "UPDATE"
+
+
+def _event_kind_css_class(kind: str) -> str:
+    mapping = {
+        "NEW_SIGNAL":    "ti-kind-NEW_SIGNAL",
+        "FILL":          "ti-kind-FILL",
+        "MOVE_SL":       "ti-kind-MOVE_SL",
+        "TP":            "ti-kind-TP",
+        "SL":            "ti-kind-SL",
+        "EXIT":          "ti-kind-EXIT",
+        "PARTIAL_CLOSE": "ti-kind-PARTIAL_CLOSE",
+        "CANCEL":        "ti-kind-CANCEL",
+    }
+    return mapping.get(kind, "ti-kind-UPDATE")
+
+
+def _extract_new_signal_summary(entry: EventLogEntry) -> str:
+    """Return a compact summary string for NEW_SIGNAL events: 'Limit ×3 | TP×2 | SL 42000'."""
+    state = entry.state_after or {}
+    parts: list[str] = []
+
+    planned = state.get("entries_planned") or []
+    if isinstance(planned, list) and planned:
+        has_price = any(
+            isinstance(item, dict) and isinstance(item.get("price"), int | float)
+            for item in planned
+        )
+        entry_types = {
+            (item.get("entry_type") or "").upper()
+            for item in planned
+            if isinstance(item, dict)
+        }
+        etype_label = "Market" if "MARKET" in entry_types else "Limit"
+        if not has_price:
+            etype_label = "Market"
+        parts.append(f"{etype_label} ×{len(planned)}")
+
+    tp_levels = state.get("tp_levels") or []
+    if isinstance(tp_levels, list) and tp_levels:
+        parts.append(f"TP×{len(tp_levels)}")
+
+    current_sl = state.get("current_sl")
+    if isinstance(current_sl, int | float):
+        parts.append(f"SL {_fmt_number(current_sl, 4)}")
+
+    return " | ".join(parts) if parts else ""
+
+
+def _compute_tp_return_pct_html(entry: EventLogEntry, trade: TradeResult) -> float | None:
+    """Return % return at TP/CLOSE event vs avg entry, accounting for direction."""
+    state = entry.state_after or {}
+    avg_entry = state.get("avg_entry_price") or trade.avg_entry_price
+    if not isinstance(avg_entry, (int, float)) or avg_entry == 0:
+        return None
+    exit_price: float | None = None
+    if isinstance(entry.price_reference, (int, float)):
+        exit_price = float(entry.price_reference)
+    if exit_price is None:
+        for key in ("close_price", "market_price", "mark_price", "last_price"):
+            val = state.get(key)
+            if isinstance(val, (int, float)):
+                exit_price = float(val)
+                break
+    if exit_price is None:
+        return None
+    side = (trade.side or "").upper()
+    direction = -1.0 if side in {"SHORT", "SELL"} else 1.0
+    return round((exit_price - float(avg_entry)) / float(avg_entry) * 100.0 * direction, 2)
+
+
+def _render_performance_card(trade: TradeResult) -> str:
+    """Unica card Performance con 4 gruppi tematici."""
+    # Computed percentage costs
+    fees_pct: float | None = None
+    funding_pct: float | None = None
+    if trade.invested_notional and trade.invested_notional > 0:
+        fees_pct = trade.fees_total_raw / trade.invested_notional * 100.0
+        funding_pct = trade.funding_total_raw_net / trade.invested_notional * 100.0
+
+    def grp(title: str, cards_html: str) -> str:
+        return (
+            f"<div><div class='perf-group-label'>{_escape(title)}</div>"
+            f"<div class='perf-group'>{cards_html}</div></div>"
+        )
+
+    net_v   = trade.trade_return_pct_net
+    gross_v = trade.trade_return_pct_gross
+    drag_v  = trade.cost_drag_pct
+    r_v     = trade.r_multiple
+
+    returns_html = "".join([
+        _metric_card("Return % Net",
+                     _fmt_percent(net_v) if net_v is not None else _fmt_number(trade.realized_pnl, 4),
+                     _badge_class_for_percent(net_v) if net_v is not None else _badge_class_for_number(trade.realized_pnl)),
+        _metric_card("Return % Gross",
+                     _fmt_percent(gross_v) if gross_v is not None else "-",
+                     _badge_class_for_percent(gross_v)),
+        _metric_card("Cost Drag %",
+                     _fmt_percent(drag_v, signed=False) if drag_v is not None else "-",
+                     "bad" if drag_v and float(drag_v) > 0 else "muted"),
+        _metric_card("R-Multiple",
+                     _fmt_number(r_v) if r_v is not None else "-",
+                     _badge_class_for_number(r_v)),
+    ])
+
+    costs_html = "".join([
+        _metric_card("Fees Total %",
+                     _fmt_percent(fees_pct, signed=False) if fees_pct is not None else _fmt_number(trade.fees_total_raw, 6),
+                     "bad" if (fees_pct or trade.fees_total_raw or 0) > 0 else "muted"),
+        _metric_card("Funding Net %",
+                     _fmt_percent(funding_pct) if funding_pct is not None else _fmt_number(trade.funding_total_raw_net, 6),
+                     _badge_class_for_number(funding_pct if funding_pct is not None else trade.funding_total_raw_net)),
+    ])
+
+    excursions_html = "".join([
+        _metric_card("MAE %",
+                     _fmt_percent(trade.mae_pct) if trade.mae_pct is not None else _fmt_number(trade.mae, 4),
+                     "bad" if (trade.mae_pct or trade.mae or 0) < 0 else "muted"),
+        _metric_card("MFE %",
+                     _fmt_percent(trade.mfe_pct) if trade.mfe_pct is not None else _fmt_number(trade.mfe, 4),
+                     "ok" if (trade.mfe_pct or trade.mfe or 0) > 0 else "muted"),
+        _metric_card("Capture Ratio %",
+                     _fmt_percent(trade.capture_ratio_pct) if trade.capture_ratio_pct is not None else "-",
+                     _badge_class_for_percent(trade.capture_ratio_pct)),
+        _metric_card("Cum. Equity % After",
+                     _fmt_percent(trade.cum_equity_after_trade_pct) if trade.cum_equity_after_trade_pct is not None else "-",
+                     _badge_class_for_percent(trade.cum_equity_after_trade_pct)),
+    ])
+
+    timing_html = "".join([
+        _metric_card("Time to Fill",  _fmt_duration(trade.time_to_fill_seconds), ""),
+        _metric_card("Total Duration", _fmt_duration(trade.duration_seconds), ""),
+        _metric_card("Created",        _escape(_fmt_timestamp(trade.created_at)), ""),
+        _metric_card("Closed",         _escape(_fmt_timestamp(trade.closed_at)), ""),
+    ])
+
+    return (
+        "<div class='card'>"
+        "<h2>Performance</h2>"
+        "<div class='perf-groups'>"
+        + grp("Returns", returns_html)
+        + grp("Costs", costs_html)
+        + grp("Excursions", excursions_html)
+        + grp("Timing", timing_html)
+        + "</div></div>"
+    )
+
+
+def _render_technical_details_card(trade: TradeResult) -> str:
+    """Collapsible card with raw/technical metrics."""
+    cards = "".join([
+        _metric_card("PnL Net (raw)",   _fmt_number(trade.pnl_net_raw, 6)  if trade.pnl_net_raw  is not None else "-", _badge_class_for_number(trade.pnl_net_raw)),
+        _metric_card("PnL Gross (raw)", _fmt_number(trade.pnl_gross_raw, 6) if trade.pnl_gross_raw is not None else "-", _badge_class_for_number(trade.pnl_gross_raw)),
+        _metric_card("Fees Total (raw)", _fmt_number(trade.fees_total_raw, 6), "bad" if trade.fees_total_raw > 0 else "muted"),
+        _metric_card("Funding Net (raw)", _fmt_number(trade.funding_total_raw_net, 6), _badge_class_for_number(trade.funding_total_raw_net)),
+        _metric_card("Invested Notional", _fmt_number(trade.invested_notional, 4) if trade.invested_notional is not None else "-", ""),
+        _metric_card("Initial R %",  _fmt_percent(trade.initial_r_pct, signed=False) if trade.initial_r_pct is not None else "-", "muted"),
+        _metric_card("First Fill",   _fmt_number(trade.first_fill_price, 4), ""),
+        _metric_card("Final Exit",   _fmt_number(trade.final_exit_price, 4), ""),
+        _metric_card("Avg Entry",    _fmt_number(trade.avg_entry_price, 4), ""),
+        _metric_card("Fills Count",  str(trade.fills_count), ""),
+        _metric_card("Partial Closes", str(trade.partial_closes_count), ""),
+        _metric_card("Updates Applied", str(trade.updates_applied_count), ""),
+        _metric_card("Ignored Events", str(trade.ignored_events_count), ""),
+        _metric_card("Close Reason", _escape(trade.close_reason or "-"), ""),
+    ])
+    return (
+        "<details class='card'>"
+        "<summary>Technical details</summary>"
+        f"<div style='margin-top:12px'><div class='grid-4'>{cards}</div></div>"
+        "</details>"
+    )
+
+
+def _render_timeline_v2(
+    trade: TradeResult,
+    event_log: list[EventLogEntry],
+    initial_capital: float | None,
+) -> tuple[str, str]:
+    """Return (timeline_html, dialogs_html) for the redesigned event timeline."""
+    timeline_blocks: list[str] = []
+    dialogs: list[str] = []
+
+    for index, entry in enumerate(event_log):
+        kind = _classify_event_type(entry.event_type)
+        kind_css = _event_kind_css_class(kind)
+        dialog_id = _safe_dom_id(f"raw_{trade.signal_id}_{index}")
+
+        is_trader = _is_telegram_event(entry)
+        is_new_signal = kind == "NEW_SIGNAL"
+        is_tp = kind == "TP"
+        is_close = kind in {"EXIT", "PARTIAL_CLOSE"}
+
+        # --- raw TEXT dialog (only for trader events) ---
+        raw_button = ""
+        if is_trader and entry.raw_text:
+            raw_button = (
+                f"<button class='inline-btn' style='padding:3px 8px;font-size:11px'"
+                f" onclick=\"openText('{dialog_id}')\">Raw TEXT</button>"
+            )
+            dialogs.append(
+                f'<dialog id="{dialog_id}">'
+                f'<div class="dialog-head">'
+                f"<strong>{_escape(trade.signal_id)} — {_escape(kind)}</strong>"
+                f"<button class='inline-btn' onclick=\"closeText('{dialog_id}')\">Close</button>"
+                f'</div>'
+                f'<div class="dialog-body"><pre class="code">{_escape(entry.raw_text)}</pre></div>'
+                f'</dialog>'
+            )
+
+        # --- compact row extras ---
+        source_badge = "<span class='ti-src-trader'>trader</span>" if is_trader else ""
+
+        signal_summary_html = ""
+        if is_new_signal:
+            summary = _extract_new_signal_summary(entry)
+            if summary:
+                signal_summary_html = f"<span class='signal-summary'>{_escape(summary)}</span>"
+
+        return_pill_html = ""
+        if is_tp or is_close:
+            ret_pct = _compute_tp_return_pct_html(entry, trade)
+            if ret_pct is not None:
+                pill_cls = "ok" if ret_pct >= 0 else "bad"
+                sign = "+" if ret_pct >= 0 else ""
+                return_pill_html = (
+                    f"<span class='return-pill {pill_cls}'>{sign}{ret_pct:.2f}%</span>"
+                )
+
+        reason_badge_html = ""
+        if entry.reason:
+            reason_badge_html = (
+                f"<span class='badge muted' style='font-size:11px'>{_escape(entry.reason)}</span>"
+            )
+
+        status_val = entry.processing_status.value if entry.processing_status else "-"
+        brief_action = _escape((entry.requested_action or entry.executed_action or "-")[:70])
+
+        # --- detail section ---
+        extracted_levels_row = ""
+        if is_new_signal:
+            lvl_str = _event_extracted_signal_levels(entry)
+            extracted_levels_row = (
+                f"<div class='lab'>Extracted levels</div><div>{_escape(lvl_str)}</div>"
+            )
+
+        price_ref_val = _event_price_reference(entry)
+
+        state_delta = _state_delta_html(entry.state_before, entry.state_after, initial_capital)
+
+        timestamp_str = _escape(_fmt_timestamp(entry.timestamp))
+
+        compact_row = (
+            f"<div class='ti-v2-compact' onclick='toggleTiDetail(this)'>"
+            f"<span class='ti-kind-badge {kind_css}'>{_escape(kind)}</span>"
+            f"{source_badge}"
+            f"<span class='note'>{timestamp_str}</span>"
+            f"<span style='flex:1;min-width:0;font-size:13px;overflow:hidden;text-overflow:ellipsis'>{brief_action}</span>"
+            f"<span class='badge muted' style='font-size:11px'>{_escape(status_val)}</span>"
+            f"{reason_badge_html}"
+            f"{return_pill_html}"
+            f"{signal_summary_html}"
+            f"{raw_button}"
+            f"<span class='ti-arrow' style='color:var(--muted);font-size:12px;margin-left:4px'>&#9660;</span>"
+            f"</div>"
+        )
+
+        detail_row = (
+            f"<div class='ti-v2-detail'>"
+            f"<div class='ti-detail-grid'>"
+            f"<div class='lab'>Requested action</div><div>{_escape(entry.requested_action or '-')}</div>"
+            f"<div class='lab'>Executed action</div><div>{_escape(entry.executed_action or '-')}</div>"
+            f"<div class='lab'>Status</div><div>{_escape(status_val)}</div>"
+            f"<div class='lab'>Event price</div>"
+            f"<div>{_fmt_number(entry.price_reference, 6) if entry.price_reference is not None else '-'}</div>"
+            f"<div class='lab'>Price reference</div><div>{_escape(price_ref_val)}</div>"
+            + (f"<div class='lab'>Reason code</div><div>{_escape(entry.reason)}</div>" if entry.reason else "")
+            + extracted_levels_row
+            + f"</div>"
+            + (state_delta or "")
+            + f"</div>"
+        )
+
+        timeline_blocks.append(
+            f"<div class='ti-v2 {kind_css}' data-kind='{_escape(kind)}'>"
+            f"{compact_row}{detail_row}"
+            f"</div>"
+        )
+
+    return "".join(timeline_blocks), "".join(dialogs)
+
+
+# ---------------------------------------------------------------------------
 # Single trade chart
 # ---------------------------------------------------------------------------
 
@@ -1088,297 +1369,48 @@ def write_single_trade_html_report(
     trades_total: int | None = None,
     initial_capital: float | None = None,
 ) -> Path:
-    # --- Group 1: Risultato (net/gross/cost) ---
-    net_v   = trade.trade_return_pct_net
-    gross_v = trade.trade_return_pct_gross
-    drag_v  = trade.cost_drag_pct
-    r_v     = trade.r_multiple
+    header_bar  = _render_header_bar(trade)
+    perf_html   = _render_performance_card(trade)
+    tech_html   = _render_technical_details_card(trade)
+    chart_html  = _render_chart(trade, event_log, candles_by_timeframe or {}, echarts_asset_path)
+    tl_html, dialogs_html = _render_timeline_v2(trade, event_log, initial_capital)
 
-    perf_cards = "".join([
-        _metric_card(
-            "Return % Net",
-            _fmt_percent(net_v) if net_v is not None else _fmt_number(trade.realized_pnl, 4),
-            _badge_class_for_percent(net_v) if net_v is not None else _badge_class_for_number(trade.realized_pnl),
-        ),
-        _metric_card(
-            "Return % Gross",
-            _fmt_percent(gross_v) if gross_v is not None else "-",
-            _badge_class_for_percent(gross_v),
-        ),
-        _metric_card(
-            "Cost Drag %",
-            _fmt_percent(drag_v, signed=False) if drag_v is not None else "-",
-            "bad" if drag_v and float(drag_v) > 0 else "muted",
-        ),
-        _metric_card(
-            "R-Multiple",
-            _fmt_number(r_v) if r_v is not None else "-",
-            _badge_class_for_number(r_v),
-        ),
-        _metric_card("Close Reason", _escape(trade.close_reason or "-"), ""),
-        _metric_card("Status", _escape(trade.status), ""),
-    ])
+    nav_html = (
+        "<div class='footer-nav' style='display:flex;align-items:center;gap:10px;flex-wrap:wrap'>"
+        + (f'<a class="inline-btn" href="{_escape(prev_link)}" title="Previous trade">&larr; Prev</a>'
+           if prev_link else '<span class="inline-btn" style="opacity:.35;cursor:default">&larr; Prev</span>')
+        + f'<a class="inline-btn" href="{_escape(back_link_href)}">&#8801; Summary'
+        + (f' ({trade_index}/{trades_total})' if trade_index is not None and trades_total is not None else '')
+        + '</a>'
+        + (f'<a class="inline-btn" href="{_escape(next_link)}" title="Next trade">Next &rarr;</a>'
+           if next_link else '<span class="inline-btn" style="opacity:.35;cursor:default">Next &rarr;</span>')
+        + "</div>"
+    )
 
-    # --- Group 2: Costi ---
-    cost_cards = "".join([
-        _metric_card("Fees Total (raw)", _fmt_number(trade.fees_total_raw, 6), "bad" if trade.fees_total_raw > 0 else "muted"),
-        _metric_card("Funding Net (raw)", _fmt_number(trade.funding_total_raw_net, 6), _badge_class_for_number(trade.funding_total_raw_net)),
-        _metric_card("PnL Net (raw)", _fmt_number(trade.pnl_net_raw, 6) if trade.pnl_net_raw is not None else "-", _badge_class_for_number(trade.pnl_net_raw)),
-        _metric_card("PnL Gross (raw)", _fmt_number(trade.pnl_gross_raw, 6) if trade.pnl_gross_raw is not None else "-", _badge_class_for_number(trade.pnl_gross_raw)),
-        _metric_card("Invested Notional", _fmt_number(trade.invested_notional, 4) if trade.invested_notional is not None else "-", ""),
-        _metric_card("Initial R %", _fmt_percent(trade.initial_r_pct, signed=False) if trade.initial_r_pct is not None else "-", "muted"),
-    ])
+    html_doc = (
+        "<!DOCTYPE html>\n"
+        "<html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'>\n"
+        f"<title>{_escape(trade.signal_id)} - Single Trade Report</title>\n"
+        f"{_base_styles()}\n"
+        "</head>\n<body>\n<div class='wrap'>\n"
+        + header_bar
+        + perf_html
+        + tech_html
+        + "<div class='card'>"
+        + "<h2>Price Chart</h2>"
+        + "<div class='note' style='margin-bottom:10px'>Candlestick chart. Use timeframe buttons and toggle buttons to navigate.</div>"
+        + chart_html
+        + "</div>\n"
+        + nav_html + "\n"
+        + "<div class='card' style='margin-top:18px'>"
+        + "<h2>Event Timeline</h2>"
+        + "<div class='note' style='margin-bottom:10px'>Click any event to expand details and state changes.</div>"
+        + tl_html
+        + "</div>\n"
+        + dialogs_html
+        + "</div></body></html>\n"
+    )
 
-    # --- Group 3: Excursions ---
-    excursion_cards = "".join([
-        _metric_card(
-            "MAE %",
-            _fmt_percent(trade.mae_pct) if trade.mae_pct is not None else _fmt_number(trade.mae, 4),
-            "bad" if (trade.mae_pct or trade.mae or 0) < 0 else "muted",
-        ),
-        _metric_card(
-            "MFE %",
-            _fmt_percent(trade.mfe_pct) if trade.mfe_pct is not None else _fmt_number(trade.mfe, 4),
-            "ok" if (trade.mfe_pct or trade.mfe or 0) > 0 else "muted",
-        ),
-        _metric_card(
-            "Capture Ratio %",
-            _fmt_percent(trade.capture_ratio_pct) if trade.capture_ratio_pct is not None else "-",
-            _badge_class_for_percent(trade.capture_ratio_pct),
-        ),
-        _metric_card("Cum. Equity % After", _fmt_percent(trade.cum_equity_after_trade_pct) if trade.cum_equity_after_trade_pct is not None else "-", _badge_class_for_percent(trade.cum_equity_after_trade_pct)),
-    ])
-
-    # --- Group 4: Execution ---
-    execution_cards = "".join([
-        _metric_card("First Fill Price", _fmt_number(trade.first_fill_price, 4), ""),
-        _metric_card("Final Exit Price", _fmt_number(trade.final_exit_price, 4), ""),
-        _metric_card("Fills Count", str(trade.fills_count), ""),
-        _metric_card("Partial Closes", str(trade.partial_closes_count), ""),
-        _metric_card("Updates Applied", str(trade.updates_applied_count), ""),
-        _metric_card("Avg Entry", _fmt_number(trade.avg_entry_price, 4), ""),
-    ])
-
-    # --- Group 5: Timing ---
-    timing_cards = "".join([
-        _metric_card("Time to Fill", _fmt_duration(trade.time_to_fill_seconds), ""),
-        _metric_card("Total Duration", _fmt_duration(trade.duration_seconds), ""),
-        _metric_card("Created", _escape(_fmt_timestamp(trade.created_at)), ""),
-        _metric_card("Closed", _escape(_fmt_timestamp(trade.closed_at)), ""),
-    ])
-
-    # --- Group 6: Trade Identity ---
-    identity_cards = "".join([
-        _metric_card("Signal ID", _escape(trade.signal_id), ""),
-        _metric_card("Symbol", _escape(trade.symbol), ""),
-        _metric_card("Side", _escape(_display_side(trade.side)), ""),
-        _metric_card("Warnings", str(trade.warnings_count), "bad" if trade.warnings_count else "muted"),
-        _metric_card("Ignored Events", str(trade.ignored_events_count), ""),
-        _metric_card("Fees (raw)", _fmt_number(trade.fees_paid, 6), ""),
-    ])
-
-    # --- Event Timeline ---
-    timeline_blocks: list[str] = []
-    dialogs: list[str] = []
-    for index, entry in enumerate(event_log):
-        dialog_id = _safe_dom_id(f"raw_{trade.signal_id}_{index}")
-        raw_button = "-"
-        if entry.raw_text and _is_telegram_event(entry):
-            raw_button = f"<button class='inline-btn' onclick=\"openText('{dialog_id}')\">Open raw telegram text</button>"
-            dialogs.append(
-                f"""
-    <dialog id="{dialog_id}">
-      <div class="dialog-head">
-        <strong>{_escape(trade.signal_id)} — {_escape(_display_event_name(entry.event_type))}</strong>
-        <button class="inline-btn" onclick="closeText('{dialog_id}')">Close</button>
-      </div>
-      <div class="dialog-body">
-        <pre class="code">{_escape(entry.raw_text)}</pre>
-      </div>
-    </dialog>
-"""
-            )
-
-        event_name = _display_event_name(entry.event_type)
-        state_delta = _state_delta_html(entry.state_before, entry.state_after, initial_capital)
-
-        # Source badge
-        src = (entry.source or "").lower()
-        if src == "trader":
-            src_badge = f"<span class='ti-src-trader'>trader</span>"
-        elif src:
-            src_badge = f"<span class='ti-src-system'>{_escape(entry.source)}</span>"
-        else:
-            src_badge = ""
-
-        open_attr = " open" if _is_material_engine_event(entry) else ""
-        body_sections: list[str] = []
-        event_meta = [
-            f"<div class='lab'>Requested action</div><div>{_escape(entry.requested_action or '-')}</div>",
-            f"<div class='lab'>Status</div><div>{_escape(entry.processing_status.value)}</div>",
-            f"<div class='lab'>Reason code</div><div>{_escape(entry.reason or '-')}</div>",
-            f"<div class='lab'>Event price</div><div>{_fmt_number(entry.price_reference, 6) if entry.price_reference is not None else '-'}</div>",
-        ]
-        if entry.raw_text and _is_telegram_event(entry) and event_name != "NEW_SIGNAL":
-            event_meta.append(f"<div class='lab'>Raw TEXT</div><div>{raw_button}</div>")
-
-        body_sections.append(
-            "<div class='ti-panel'><h3>Event details</h3>"
-            f"<div class='ti-meta'>{''.join(event_meta)}</div></div>"
-        )
-
-        if event_name == "NEW_SIGNAL":
-            signal_rows = []
-            for label, value in _new_signal_details(entry).items():
-                signal_rows.append(f"<div class='lab'>{_escape(label)}</div><div>{_escape(value)}</div>")
-            signal_rows.append(
-                f"<div class='lab'>Extracted levels</div><div>{_escape(_event_extracted_signal_levels(entry))}</div>"
-            )
-            body_sections.append(
-                "<div class='ti-panel'><h3>Signal extracted</h3>"
-                f"<div class='ti-meta'>{''.join(signal_rows)}</div>"
-                f"{raw_button if entry.raw_text and _is_telegram_event(entry) else ''}"
-                "</div>"
-            )
-        else:
-            body_sections.append(
-                "<div class='ti-panel'><h3>Reference snapshot</h3>"
-                f"<div class='ti-meta'>"
-                f"<div class='lab'>Price reference</div><div>{_escape(_event_price_reference(entry))}</div>"
-                f"<div class='lab'>Executed action</div><div>{_escape(entry.executed_action or '-')}</div>"
-                f"</div></div>"
-            )
-
-        timeline_blocks.append(
-            f"""
-        <details class="timeline-item"{open_attr}>
-          <summary>
-            <div class="tl-row">
-              <div class="tl-time">{_escape(_fmt_timestamp(entry.timestamp))}</div>
-              <div class="tl-main"><span class="tl-event">{_escape(event_name)}</span>{src_badge}</div>
-              <div class="tl-requested">{_escape(entry.requested_action or '-')}</div>
-              <div><span class="{_escape(_status_badge_class(entry))}">{_escape(entry.processing_status.value.upper())}</span></div>
-              <div class="tl-pills">{state_delta}</div>
-            </div>
-            <div class="tl-row" style="margin-top:8px;grid-template-columns:84px 1.2fr 132px 116px 1fr">
-              <div></div>
-              <div class="tl-reason">reason: {_escape(entry.reason or '-')}</div>
-              <div class="tl-requested">source: {_escape(entry.source or '-')}</div>
-              <div class="tl-requested">exec: {_escape(entry.executed_action or '-')}</div>
-              <div></div>
-            </div>
-          </summary>
-          <div class="ti-body">
-            <div class="ti-body-grid">
-              {''.join(body_sections)}
-            </div>
-          </div>
-        </details>
-"""
-        )
-
-        for fill_index, fill_row in enumerate(_timeline_fill_rows(entry)):
-            timeline_blocks.append(
-                f"""
-        <details class="timeline-item" open>
-          <summary>
-            <div class="tl-row">
-              <div class="tl-time">{_escape(fill_row["timestamp"])}</div>
-              <div class="tl-main"><span class="tl-event">{_escape(fill_row["event_name"])}</span><span class='ti-src-system'>engine</span></div>
-              <div class="tl-requested">FILL</div>
-              <div><span class="ti-status-applied">APPLIED</span></div>
-              <div class="tl-pills">
-                <span class="ti-delta-item"><span class="dlab">qty</span>{_escape(fill_row["qty"])}</span>
-                <span class="ti-delta-item"><span class="dlab">price</span>{_escape(fill_row["event_price"])}</span>
-              </div>
-            </div>
-            <div class="tl-row" style="margin-top:8px;grid-template-columns:84px 1.2fr 132px 116px 1fr">
-              <div></div>
-              <div class="tl-reason">reason: {_escape(fill_row["reason"])}</div>
-              <div class="tl-requested">source: engine</div>
-              <div class="tl-requested">exec: FILL</div>
-              <div></div>
-            </div>
-          </summary>
-          <div class="ti-body">
-            <div class="ti-body-grid">
-              <div class="ti-panel">
-                <h3>Fill detected by simulator</h3>
-                <div class="ti-meta">
-                  <div class="lab">Event type</div><div>FILL</div>
-                  <div class="lab">Price</div><div>{_escape(fill_row["event_price"])}</div>
-                  <div class="lab">Quantity</div><div>{_escape(fill_row["qty"])}</div>
-                  <div class="lab">Plan</div><div>{_escape(fill_row["reason"])}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </details>
-"""
-            )
-
-    # Full HTML
-    html_doc = f"""<!DOCTYPE html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{_escape(trade.signal_id)} - Single Trade Report</title>
-{_base_styles()}
-</head>
-<body>
-<div class="wrap">
-  <h1>Single Trade — {_escape(trade.signal_id)}</h1>
-
-  <div class="card">
-    <h2>Performance — Net / Gross</h2>
-    <div class="grid-4">{perf_cards}</div>
-  </div>
-
-  <div class="card">
-    <h2>Costi e PnL raw</h2>
-    <div class="grid-4">{cost_cards}</div>
-  </div>
-
-  <div class="grid-2" style="margin-bottom:18px">
-    <div class="card" style="margin:0">
-      <h2>Excursions</h2>
-      <div class="grid-2">{excursion_cards}</div>
-    </div>
-    <div class="card" style="margin:0">
-      <h2>Timing</h2>
-      <div class="grid-2">{timing_cards}</div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>Execution</h2>
-    <div class="grid-4">{execution_cards}</div>
-  </div>
-
-  <details class="card">
-    <summary>Identity &amp; metadata</summary>
-    <div style="margin-top:12px"><div class="grid-4">{identity_cards}</div></div>
-  </details>
-
-  <div class="card">
-    <h2>Price Chart</h2>
-    <div class="note" style="margin-bottom:10px">Candlestick chart in price. Use timeframe buttons and legend toggles to navigate.</div>
-    {_render_chart(trade, event_log, candles_by_timeframe or {}, echarts_asset_path)}
-  </div>
-
-  <div class="card">
-    <h2>Event Timeline</h2>
-    <div class="note" style="margin-bottom:10px">Each row shows state changes (delta pills) when available.</div>
-    <div class="timeline">{''.join(timeline_blocks)}</div>
-  </div>
-
-  <div class="footer-nav" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-    {f'<a class="inline-btn" href="{_escape(prev_link)}" title="Previous trade">&larr; Prev</a>' if prev_link else '<span class="inline-btn" style="opacity:.35;cursor:default">&larr; Prev</span>'}
-    <a class="inline-btn" href="{_escape(back_link_href)}">&#8801; Summary{f' ({trade_index}/{trades_total})' if trade_index is not None and trades_total is not None else ''}</a>
-    {f'<a class="inline-btn" href="{_escape(next_link)}" title="Next trade">Next &rarr;</a>' if next_link else '<span class="inline-btn" style="opacity:.35;cursor:default">Next &rarr;</span>'}
-  </div>
-
-  {''.join(dialogs)}
-</div></body></html>
-"""
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(html_doc, encoding="utf-8")

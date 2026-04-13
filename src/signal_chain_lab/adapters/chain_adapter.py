@@ -21,6 +21,13 @@ _INTENT_TO_EVENT_TYPE: dict[str, EventType] = {
     "U_ADD_ENTRY": EventType.ADD_ENTRY,
 }
 
+_ENTRY_PLAN_TYPE_TO_ENTRY_TYPE: dict[str, str] = {
+    "SINGLE_MARKET": "MARKET",
+    "SINGLE_LIMIT": "LIMIT",
+    "MARKET_WITH_LIMIT_AVERAGING": "MARKET",
+    "LIMIT_WITH_LIMIT_AVERAGING": "LIMIT",
+}
+
 
 def _update_to_event_type(msg: ChainedMessage) -> EventType | None:
     """Return the primary EventType for an UPDATE message based on its intents."""
@@ -44,13 +51,18 @@ def _new_signal_payload(chain: SignalChain) -> dict:
     # Include richer entities if available
     if isinstance(chain.new_signal.entities, NewSignalEntities):
         ents = chain.new_signal.entities
-        payload["entry_type"] = ents.entry_type
+        inferred_entry_type = ents.entry_type
+        if inferred_entry_type is None and ents.entry_plan_type is not None:
+            inferred_entry_type = _ENTRY_PLAN_TYPE_TO_ENTRY_TYPE.get(str(ents.entry_plan_type).upper())
+        payload["entry_type"] = inferred_entry_type
         if ents.stop_loss is not None:
             payload["stop_loss"] = ents.stop_loss.price.value
         payload["entries"] = [
-            {"price": e.price.value, "order_type": e.order_type}
-            for e in ents.entries
-            if e.price is not None
+            {
+                "price": e.price.value if e.price is not None else None,
+                "order_type": e.order_type,
+            }
+            for e in (ents.entries or ents.entry_plan_entries)
         ]
         payload["take_profits"] = [
             {"price": tp.price.value, "label": tp.label}

@@ -39,6 +39,49 @@ class ChainValidationResult:
         return [g for g in self.gaps if g.severity == GapSeverity.OPTIONAL]
 
 
+def _has_valid_open_entry(payload: dict) -> bool:
+    """Return True when the OPEN_SIGNAL payload carries a usable entry definition.
+
+    Supported forms:
+    - explicit priced entries via ``entries`` or ``entry_prices``
+    - market entries via ``entry_type="MARKET"``
+    - market/limit plan entries via ``entry_plan_entries``
+    - legacy metadata-only ``entry_plan_type`` for market-first plans
+    """
+    entries = payload.get("entries") or []
+    for entry in entries:
+        if isinstance(entry, dict):
+            if entry.get("price") is not None:
+                return True
+            if str(entry.get("order_type") or "").upper() == "MARKET":
+                return True
+        elif entry is not None:
+            return True
+
+    entry_prices = payload.get("entry_prices") or []
+    if entry_prices:
+        return True
+
+    entry_type = str(payload.get("entry_type") or "").upper()
+    if entry_type == "MARKET":
+        return True
+
+    plan_entries = payload.get("entry_plan_entries") or []
+    for entry in plan_entries:
+        if not isinstance(entry, dict):
+            continue
+        if entry.get("price") is not None:
+            return True
+        if str(entry.get("order_type") or "").upper() == "MARKET":
+            return True
+
+    plan_type = str(payload.get("entry_plan_type") or "").upper()
+    if plan_type in {"SINGLE_MARKET", "MARKET_WITH_LIMIT_AVERAGING"}:
+        return True
+
+    return False
+
+
 def validate_chain_identity(chain: CanonicalChain) -> list[ValidationGap]:
     """Validate that the chain has the minimum fields required for identification.
 
@@ -98,8 +141,7 @@ def validate_chain_for_simulation(chain: CanonicalChain) -> ChainValidationResul
         payload = open_event.payload
 
         # Entry check
-        entries = payload.get("entries") or payload.get("entry_prices") or []
-        if not entries:
+        if not _has_valid_open_entry(payload):
             gaps.append(ValidationGap(
                 "entry",
                 GapSeverity.FATAL,

@@ -66,6 +66,50 @@ def test_adapt_signal_chain_preserves_entry_plan_entries() -> None:
     assert payload["has_averaging_plan"] is True
 
 
+def test_adapt_signal_chain_inferrs_market_entry_type_from_plan_metadata() -> None:
+    entities = NewSignalEntities.model_validate(
+        {
+            "symbol": "BTCUSDT",
+            "direction": "LONG",
+            "entry_plan_entries": [{"order_type": "MARKET", "price": None}],
+            "entry_plan_type": "SINGLE_MARKET",
+            "entry_structure": "ONE_SHOT",
+            "stop_loss": {"price": {"raw": "90.0", "value": 90.0}},
+            "take_profits": [{"price": {"raw": "110.0", "value": 110.0}, "label": "TP1"}],
+        }
+    )
+
+    chain = SignalChain(
+        chain_id="trader_a:attempt-market-legacy",
+        trader_id="trader_a",
+        symbol="BTCUSDT",
+        side="BUY",
+        new_signal=ChainedMessage(
+            raw_message_id=1,
+            parse_result_id=1,
+            telegram_message_id=101,
+            message_ts=_utc("2026-01-01T00:00:00"),
+            message_type="NEW_SIGNAL",
+            intents=["NS_CREATE_SIGNAL"],
+            entities=entities,
+            op_signal_id=10,
+            attempt_key="attempt-market-legacy",
+        ),
+        updates=[],
+        entry_prices=[],
+        sl_price=90.0,
+        tp_prices=[110.0],
+        open_ts=_utc("2026-01-01T00:00:00"),
+    )
+
+    canonical = adapt_signal_chain(chain)
+    payload = canonical.events[0].payload
+
+    assert payload["entry_type"] == "MARKET"
+    assert payload["entry_plan_type"] == "SINGLE_MARKET"
+    assert payload["entries"] == [{"price": None, "order_type": "MARKET"}]
+
+
 def test_adapt_signal_chain_uses_canonical_update_fields() -> None:
     chain = SignalChain(
         chain_id="trader_a:attempt-2",

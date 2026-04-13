@@ -3,248 +3,230 @@ from __future__ import annotations
 
 import json
 
+# ---------------------------------------------------------------------------
+# JavaScript template — %%CHART_ID%% is replaced at render time.
+# Written as a raw string to avoid f-string / JS brace conflicts.
+# ---------------------------------------------------------------------------
 _CHART_JS = r"""
 (function () {
   'use strict';
-  var chartEl = document.getElementById('%%CHART_ID%%');
+  var chartEl   = document.getElementById('%%CHART_ID%%');
   var payloadEl = document.getElementById('%%CHART_ID%%_payload');
   if (!chartEl || !payloadEl) { return; }
 
-  var payload = JSON.parse(payloadEl.textContent || '{}');
-  var candlesByTF = payload.candles_by_timeframe || {};
-  var levels = payload.levels || {};
-  var events = payload.events || [];
-  var meta = payload.meta || {};
-  var currentTF = meta.default_timeframe || Object.keys(candlesByTF)[0] || '';
-  var chart = echarts.init(chartEl, null, { renderer: 'canvas' });
+  var payload        = JSON.parse(payloadEl.textContent || '{}');
+  var candlesByTF    = payload.candles_by_timeframe || {};
+  var levels         = payload.levels  || {};
+  var events         = payload.events  || [];
+  var meta           = payload.meta    || {};
+  var posSizePts     = payload.position_size_series  || [];
+  var realizedPnlPts = payload.realized_pnl_series   || [];
+  var currentTF      = meta.default_timeframe || Object.keys(candlesByTF)[0] || '';
+  var fillsCount     = meta.fills_count || 0;
 
-  var FAMILY_COLOR = {
-    'SIGNAL': '#60a5fa',
-    'FILL': '#1d4ed8',
-    'UPDATE': '#c2410c',
-    'TP': '#15803d',
-    'SL': '#b91c1c',
+  var chart = echarts.init(chartEl, null, {renderer: 'canvas'});
+
+  // ---- level line colours (must match LEVEL_SERIES keys below) --------------
+  var LEVEL_COLOR = {
+    'entries_planned': '#93c5fd',   // light blue dashed
+    'entries_filled':  '#1d4ed8',   // solid blue
+    'avg_entry':       '#0369a1',   // deeper blue (only when fills >= 2)
+    'sl_initial':      '#fca5a5',   // light red dashed
+    'sl_current':      '#b91c1c',   // solid red
+    'tps':             '#15803d',   // green dashed
+    'exit':            '#7c3aed'    // purple solid
+  };
+
+  // ---- event marker colours per kind ----------------------------------------
+  var KIND_COLOR = {
+    'FILL':          '#1d4ed8',
+    'TP':            '#15803d',
+    'SL':            '#b91c1c',
+    'MOVE_SL':       '#c2410c',
     'PARTIAL_CLOSE': '#7c3aed',
-    'CLOSE': '#7c3aed',
-    'CANCEL': '#64748b',
-    'EVENT': '#f59e0b'
+    'CLOSE':         '#7c3aed',
+    'CANCEL':        '#64748b'
   };
-  var FAMILY_SYMBOL = {
-    'SIGNAL': 'circle',
-    'FILL': 'circle',
-    'UPDATE': 'rect',
-    'TP': 'diamond',
-    'SL': 'triangle',
+  var KIND_SYMBOL = {
+    'FILL':          'circle',
+    'TP':            'diamond',
+    'SL':            'triangle',
+    'MOVE_SL':       'rect',
     'PARTIAL_CLOSE': 'roundRect',
-    'CLOSE': 'diamond',
-    'CANCEL': 'pin',
-    'EVENT': 'circle'
+    'CLOSE':         'diamond',
+    'CANCEL':        'triangle'
   };
-  var LEVEL_META = {
-    entries:    { name: 'Entries',    color: '#2563eb', type: 'dashed', position: 'middle' },
-    avg_entry:  { name: 'Avg Entry',  color: '#1d4ed8', type: 'solid',  position: 'middle' },
-    initial_sl: { name: 'Initial SL', color: '#ef4444', type: 'dashed', position: 'start'  },
-    last_sl:    { name: 'Last SL',    color: '#b91c1c', type: 'solid',  position: 'start'  },
-    sl_history: { name: 'SL History', color: '#f97316', type: 'dotted', position: 'start'  },
-    tps:        { name: 'TPs',        color: '#15803d', type: 'dashed', position: 'end'    },
-    exit:       { name: 'Exit',       color: '#7c3aed', type: 'solid',  position: 'end'    }
-  };
+  function kindColor(k)  { return KIND_COLOR[k]  || '#f59e0b'; }
+  function kindSymbol(k) { return KIND_SYMBOL[k] || 'circle'; }
 
+  // ---- granular visibility state --------------------------------------------
+  // Canonical kind list — must match _classify_event_type() in html_writer.py
   var visibility = {
-    entries: true,
-    sl: true,
-    tp: true,
-    exit: true,
-    sl_history: false,
-    signal: true,
-    fills: true,
-    updates: true,
-    outcomes: true,
-    volume: false
+    // level lines
+    entries_planned: true,
+    entries_filled:  true,
+    avg_entry:       true,   // conditional: only if fillsCount >= 2
+    sl:              true,
+    tps:             true,
+    exit:            true,
+    // event markers (per kind)
+    ev_FILL:          true,
+    ev_TP:            true,
+    ev_SL:            true,
+    ev_MOVE_SL:       true,
+    ev_CLOSE:         true,
+    ev_PARTIAL_CLOSE: true,
+    ev_CANCEL:        false,
+    // secondary overlays (existing toggles, unchanged)
+    volume:       false,
+    pos_size:     false,
+    realized_pnl: false
   };
 
-  function familyColor(name) { return FAMILY_COLOR[name] || '#f59e0b'; }
-  function familySymbol(name) { return FAMILY_SYMBOL[name] || 'circle'; }
-
+  // ---- data builders -------------------------------------------------------
   function buildCandleData(tf) {
     return (candlesByTF[tf] || []).map(function (c) {
       return [c[0], c[1], c[2], c[3], c[4]];
     });
   }
-
   function buildVolumeData(tf) {
     return (candlesByTF[tf] || []).map(function (c) {
       return [c[0], c[5] || 0, c[2] >= c[1] ? 1 : -1];
     });
   }
-
   function buildMarkLineData(levelList) {
     return (levelList || []).map(function (l) {
-      return { yAxis: l.price, name: l.label };
+      return {yAxis: l.price, name: l.label || ''};
     });
   }
-
-  function buildLevelSeries(groupKey) {
-    var cfg = LEVEL_META[groupKey];
-    var data = buildMarkLineData(levels[groupKey] || []);
-    var visible = false;
-    if (groupKey === 'entries' || groupKey === 'avg_entry') { visible = visibility.entries; }
-    else if (groupKey === 'initial_sl' || groupKey === 'last_sl') { visible = visibility.sl; }
-    else if (groupKey === 'tps') { visible = visibility.tp; }
-    else if (groupKey === 'exit') { visible = visibility.exit; }
-    else if (groupKey === 'sl_history') { visible = visibility.sl_history; }
-
+  function buildMarkLineSeries(id, name, levelKey, color, lineType, show) {
+    var data = show ? buildMarkLineData(levels[levelKey] || []) : [];
     return {
-      id: groupKey,
-      name: cfg.name,
-      type: 'line',
-      data: [],
-      xAxisIndex: 0,
-      yAxisIndex: 0,
-      silent: true,
-      markLine: !visible ? {} : {
+      id: id, name: name, type: 'line', data: [],
+      xAxisIndex: 0, yAxisIndex: 0, silent: true,
+      markLine: data.length === 0 ? {data: []} : {
         symbol: ['none', 'none'],
-        lineStyle: { color: cfg.color, type: cfg.type, width: groupKey === 'last_sl' ? 2.4 : 1.6, opacity: 0.95 },
-        label: { formatter: '{b}  {c}', color: cfg.color, fontSize: 11, position: cfg.position, backgroundColor: '#ffffff', padding: [2, 4], borderRadius: 4 },
+        lineStyle: {color: color, type: lineType, width: 1.5},
+        label: {
+          show: true,
+          position: 'insideStartTop',
+          formatter: '{b}',
+          color: color,
+          fontSize: 10,
+          backgroundColor: 'rgba(255,255,255,0.82)',
+          padding: [1, 4],
+          borderRadius: 3
+        },
         data: data
       }
     };
   }
-
-  function eventVisible(family) {
-    if (family === 'SIGNAL') { return visibility.signal; }
-    if (family === 'FILL') { return visibility.fills; }
-    if (family === 'UPDATE') { return visibility.updates; }
-    return visibility.outcomes;
+  function buildScatterData() {
+    return (events || []).filter(function (e) {
+      var key = 'ev_' + e.kind;
+      return visibility[key] !== false;
+    }).map(function (e) {
+      return {
+        value:       [e.ts, e.price],
+        name:        e.label || e.kind,
+        kind:        e.kind,
+        source:      e.source || '',
+        return_pct:  e.return_pct != null ? e.return_pct : null,
+        itemStyle:   {color: kindColor(e.kind), borderColor: '#ffffff', borderWidth: 1.5},
+        symbol:      kindSymbol(e.kind)
+      };
+    });
+  }
+  function buildStepData(pts) {
+    return pts.map(function (p) { return [p[0], p[1]]; });
   }
 
-  function eventSeries(family) {
-    var points = events.filter(function (e) { return e.family === family && eventVisible(family); });
-    return {
-      id: 'event_' + family.toLowerCase(),
-      name: family === 'PARTIAL_CLOSE' ? 'Outcomes' : (family === 'CLOSE' || family === 'CANCEL' || family === 'TP' || family === 'SL' ? 'Outcomes' : family.charAt(0) + family.slice(1).toLowerCase()),
-      type: 'scatter',
-      data: points.map(function (e) {
-        return {
-          value: [e.ts, e.price],
-          labelText: e.label,
-          eventType: e.event_type,
-          source: e.source,
-          status: e.status,
-          reason: e.reason || '-',
-          family: e.family,
-          itemStyle: {
-            color: familyColor(e.family),
-            borderColor: '#ffffff',
-            borderWidth: 1.5
-          },
-          symbol: familySymbol(e.family)
-        };
-      }),
-      xAxisIndex: 0,
-      yAxisIndex: 0,
-      symbolSize: family === 'SIGNAL' ? 12 : 11,
-      z: 5,
-      label: {
-        show: points.length > 0 && eventVisible(family),
-        position: 'top',
-        formatter: function (p) { return p.data.labelText; },
-        fontSize: 10,
-        color: '#0f172a',
-        backgroundColor: 'rgba(255,255,255,.92)',
-        padding: [2, 5],
-        borderRadius: 4
-      }
-    };
-  }
-
-  function pad2(value) { return String(value).padStart(2, '0'); }
-  function formatUtcDateTime(ts) {
-    var dt = new Date(ts);
-    return dt.getUTCFullYear() + '-' + pad2(dt.getUTCMonth() + 1) + '-' + pad2(dt.getUTCDate()) + ' ' + pad2(dt.getUTCHours()) + ':' + pad2(dt.getUTCMinutes()) + ' UTC';
-  }
-  function formatUtcAxis(ts, tf) {
-    var dt = new Date(ts);
-    var monthDay = pad2(dt.getUTCMonth() + 1) + '-' + pad2(dt.getUTCDate());
-    var hourMinute = pad2(dt.getUTCHours()) + ':' + pad2(dt.getUTCMinutes());
-    if (tf === '1d') { return monthDay; }
-    if (tf === '4h' || tf === '1h') { return monthDay + '\n' + hourMinute; }
-    return hourMinute;
-  }
-
+  // ---- build full option ---------------------------------------------------
   function buildOption(tf) {
-    var showVol = visibility.volume;
+    var showVol  = visibility.volume;
+    var showPS   = visibility.pos_size;
+    var showPnl  = visibility.realized_pnl;
+    var showAvgE = visibility.avg_entry && fillsCount >= 2;
+
     var mainGridBottom = showVol ? 150 : 80;
-    var grids = [{ left: 80, right: 24, top: 56, bottom: mainGridBottom }];
-    var xAxes = [{
-      type: 'time',
-      scale: true,
-      gridIndex: 0,
-      axisLine: { lineStyle: { color: '#cbd5e1' } },
-      splitLine: { show: false },
-      axisLabel: { formatter: function (value) { return formatUtcAxis(value, tf); } }
-    }];
-    var yAxes = [{
-      type: 'value',
-      scale: true,
-      gridIndex: 0,
-      position: 'left',
-      axisLine: { show: false },
-      splitLine: { lineStyle: { color: '#f1f5f9' } }
-    }];
+    var grids = [{left: 80, right: 24, top: 56, bottom: mainGridBottom}];
+    var xAxes = [{type: 'time', scale: true, gridIndex: 0,
+                  axisLine: {lineStyle: {color: '#cbd5e1'}}, splitLine: {show: false}}];
+    var yAxes = [
+      {type: 'value', scale: true, gridIndex: 0, position: 'left',
+       axisLine: {show: false}, splitLine: {lineStyle: {color: '#f1f5f9'}}},
+      {type: 'value', scale: true, gridIndex: 0, position: 'right',
+       axisLine: {show: false}, splitLine: {show: false},
+       axisLabel: {color: '#94a3b8', fontSize: 10},
+       show: showPS || showPnl}
+    ];
 
     if (showVol) {
-      grids.push({ left: 80, right: 24, top: 'auto', bottom: 40, height: 60 });
-      xAxes.push({
-        type: 'time',
-        scale: true,
-        gridIndex: 1,
-        axisLine: { lineStyle: { color: '#cbd5e1' } },
-        splitLine: { show: false },
-        axisLabel: { formatter: function (value) { return formatUtcAxis(value, tf); } }
-      });
-      yAxes.push({
-        type: 'value',
-        scale: true,
-        gridIndex: 1,
-        position: 'left',
-        axisLabel: { show: false },
-        splitLine: { show: false }
-      });
+      grids.push({left: 80, right: 24, top: 'auto', bottom: 40, height: 60});
+      xAxes.push({type: 'time', scale: true, gridIndex: 1,
+                  axisLine: {lineStyle: {color: '#cbd5e1'}}, splitLine: {show: false},
+                  axisLabel: {show: false}});
+      yAxes.push({type: 'value', scale: true, gridIndex: 1, position: 'left',
+                  axisLabel: {show: false}, splitLine: {show: false}});
     }
 
-    var series = [{
-      id: 'candles',
-      name: 'Candles',
-      type: 'candlestick',
-      data: buildCandleData(tf),
-      barMaxWidth: 20,
-      xAxisIndex: 0,
-      yAxisIndex: 0,
-      itemStyle: {
-        color: '#15803d',
-        color0: '#b91c1c',
-        borderColor: '#15803d',
-        borderColor0: '#b91c1c'
-      }
-    }];
+    var scatterData = buildScatterData();
 
-    ['entries', 'avg_entry', 'initial_sl', 'last_sl', 'sl_history', 'tps', 'exit'].forEach(function (key) {
-      series.push(buildLevelSeries(key));
-    });
-    ['SIGNAL', 'FILL', 'UPDATE', 'TP', 'SL', 'PARTIAL_CLOSE', 'CLOSE', 'CANCEL', 'EVENT'].forEach(function (family) {
-      series.push(eventSeries(family));
-    });
+    var series = [
+      // ---- candlestick ----
+      {
+        id: 'candles', name: 'Candles', type: 'candlestick',
+        data: buildCandleData(tf), barMaxWidth: 20,
+        xAxisIndex: 0, yAxisIndex: 0,
+        itemStyle: {
+          color: '#15803d', color0: '#b91c1c',
+          borderColor: '#15803d', borderColor0: '#b91c1c'
+        }
+      },
+      // ---- level markLine series (one per level type) ----
+      buildMarkLineSeries('lv_entries_planned', 'Entries (plan)', 'entries_planned',
+        LEVEL_COLOR.entries_planned, 'dashed', visibility.entries_planned),
+      buildMarkLineSeries('lv_entries_filled',  'Entries (fill)', 'entries_filled',
+        LEVEL_COLOR.entries_filled,  'solid',  visibility.entries_filled),
+      buildMarkLineSeries('lv_avg_entry',        'Avg Entry',      'avg_entry',
+        LEVEL_COLOR.avg_entry,       'dashed', showAvgE),
+      buildMarkLineSeries('lv_sl_initial',       'Initial SL',     'sl_initial',
+        LEVEL_COLOR.sl_initial,      'dashed', visibility.sl),
+      buildMarkLineSeries('lv_sl_current',       'Current SL',     'sl_current',
+        LEVEL_COLOR.sl_current,      'solid',  visibility.sl),
+      buildMarkLineSeries('lv_tps',              'TPs',            'tps',
+        LEVEL_COLOR.tps,             'dashed', visibility.tps),
+      buildMarkLineSeries('lv_exit',             'Exit',           'exit',
+        LEVEL_COLOR.exit,            'solid',  visibility.exit),
+      // ---- events scatter ----
+      {
+        id: 'events', name: 'Events', type: 'scatter',
+        data: scatterData,
+        xAxisIndex: 0, yAxisIndex: 0,
+        symbolSize: 12, z: 5,
+        label: {show: false}
+      },
+      // ---- position size / realized PnL overlays ----
+      {
+        id: 'pos_size', name: 'Position Size', type: 'line',
+        data: showPS ? buildStepData(posSizePts) : [],
+        xAxisIndex: 0, yAxisIndex: 1, step: 'end', symbol: 'none',
+        lineStyle: {color: '#0284c7', width: 1.5, opacity: 0.8},
+        areaStyle: {color: 'rgba(2,132,199,.08)'}, z: 2
+      },
+      {
+        id: 'realized_pnl', name: 'Realized PnL', type: 'line',
+        data: showPnl ? buildStepData(realizedPnlPts) : [],
+        xAxisIndex: 0, yAxisIndex: 1, step: 'end', symbol: 'none',
+        lineStyle: {color: '#f59e0b', width: 1.5, opacity: 0.9}, z: 2
+      }
+    ];
 
     if (showVol) {
       series.push({
-        id: 'volume',
-        name: 'Volume',
-        type: 'bar',
+        id: 'volume', name: 'Volume', type: 'bar',
         data: buildVolumeData(tf),
-        xAxisIndex: 1,
-        yAxisIndex: 1,
-        barMaxWidth: 20,
+        xAxisIndex: 1, yAxisIndex: 2, barMaxWidth: 20,
         itemStyle: {
           color: function (p) { return p.data[2] >= 0 ? 'rgba(21,128,61,.5)' : 'rgba(185,28,28,.5)'; }
         }
@@ -255,63 +237,56 @@ _CHART_JS = r"""
       animation: false,
       backgroundColor: '#ffffff',
       tooltip: {
-        trigger: 'axis',
-        axisPointer: { type: 'cross' },
+        trigger: 'axis', axisPointer: {type: 'cross'},
         formatter: function (params) {
           var lines = [];
           for (var i = 0; i < params.length; i++) {
             var p = params[i];
             if (p.seriesType === 'candlestick' && p.data) {
               var d = p.data;
-              lines.push('<b>' + formatUtcDateTime(d[0]) + '</b>');
+              lines.push('<b>' + echarts.format.formatTime('yyyy-MM-dd hh:mm', d[0]) + '</b>');
               lines.push('O:&nbsp;' + (+d[1]).toFixed(6) + '&ensp;C:&nbsp;' + (+d[2]).toFixed(6));
               lines.push('L:&nbsp;' + (+d[3]).toFixed(6) + '&ensp;H:&nbsp;' + (+d[4]).toFixed(6));
-            } else if (p.seriesType === 'scatter' && p.data) {
-              lines.push('<span style="color:' + p.color + '">&#9679;</span>&nbsp;<b>' + p.data.eventType + '</b>');
-              lines.push('Source:&nbsp;' + p.data.source);
-              lines.push('Status:&nbsp;' + p.data.status);
-              lines.push('Price:&nbsp;' + (+p.data.value[1]).toFixed(6));
-              if (p.data.reason && p.data.reason !== '-') { lines.push('Reason:&nbsp;' + p.data.reason); }
+            } else if (p.seriesType === 'scatter' && p.data && p.data.kind) {
+              var ev = p.data;
+              var ts  = new Date(ev.value[0]).toISOString().replace('T', ' ').slice(0, 19);
+              lines.push('<b style="color:' + kindColor(ev.kind) + '">&#9679;&nbsp;' + (ev.name || ev.kind) + '</b>');
+              lines.push('Time:&nbsp;' + ts);
+              lines.push('Price:&nbsp;' + (+ev.value[1]).toFixed(6));
+              if (ev.source) { lines.push('Source:&nbsp;' + ev.source); }
+              if (ev.return_pct != null) {
+                var sign = ev.return_pct >= 0 ? '+' : '';
+                lines.push('Return:&nbsp;<b>' + sign + (+ev.return_pct).toFixed(2) + '%</b>');
+              }
+            } else if (p.seriesType === 'line' && p.data) {
+              lines.push('<span style="color:' + p.color + '">&#9644;</span>&nbsp;' +
+                p.seriesName + ':&nbsp;<b>' + (+p.data[1]).toFixed(4) + '</b>');
             }
           }
-          return lines.join('<br/>');
+          return lines.length ? lines.join('<br/>') : '';
         }
       },
-      legend: {
-        top: 6,
-        itemGap: 14,
-        data: [
-          { name: 'Candles' },
-          { name: 'Entries', icon: 'line' },
-          { name: 'Avg Entry', icon: 'line' },
-          { name: 'Initial SL', icon: 'line' },
-          { name: 'Last SL', icon: 'line' },
-          { name: 'SL History', icon: 'line' },
-          { name: 'TPs', icon: 'line' },
-          { name: 'Exit', icon: 'line' },
-          { name: 'Signal', icon: 'circle' },
-          { name: 'Fill', icon: 'circle' },
-          { name: 'Update', icon: 'rect' },
-          { name: 'Outcomes', icon: 'diamond' }
-        ]
-      },
-      grid: grids,
+      legend: {show: false},
+      grid:  grids,
       xAxis: xAxes,
       yAxis: yAxes,
       dataZoom: [
-        { type: 'inside', xAxisIndex: showVol ? [0, 1] : [0], filterMode: 'weakFilter' },
-        { type: 'slider', xAxisIndex: showVol ? [0, 1] : [0], bottom: 8, height: 28, borderColor: '#e2e8f0' }
+        {type: 'inside',  xAxisIndex: showVol ? [0, 1] : [0], filterMode: 'weakFilter'},
+        {type: 'slider',  xAxisIndex: showVol ? [0, 1] : [0], bottom: 8, height: 28,
+         borderColor: '#e2e8f0'}
       ],
       series: series
     };
   }
 
+  // ---- initial render -------------------------------------------------------
   chart.setOption(buildOption(currentTF));
 
+  // ---- timeframe switch -----------------------------------------------------
   function setTF(tf) {
     if (!(tf in candlesByTF)) { return; }
     currentTF = tf;
-    chart.setOption({ series: [{ id: 'candles', data: buildCandleData(tf) }] });
+    chart.setOption({series: [{id: 'candles', data: buildCandleData(tf)}]});
     document.querySelectorAll('.%%CHART_ID%%-tf').forEach(function (btn) {
       btn.classList.toggle('active', btn.getAttribute('data-tf') === tf);
     });
@@ -320,37 +295,55 @@ _CHART_JS = r"""
     btn.addEventListener('click', function () { setTF(btn.getAttribute('data-tf')); });
   });
 
+  // ---- reset zoom -----------------------------------------------------------
   var resetBtn = document.getElementById('%%CHART_ID%%-reset');
   if (resetBtn) {
     resetBtn.addEventListener('click', function () {
-      chart.dispatchAction({ type: 'dataZoom', start: 0, end: 100 });
+      chart.dispatchAction({type: 'dataZoom', start: 0, end: 100});
     });
   }
 
+  // ---- toggle buttons with optional timeline sync --------------------------
   function rebuildChart() {
-    chart.setOption(buildOption(currentTF), { replaceMerge: ['series', 'grid', 'xAxis', 'yAxis'] });
+    chart.setOption(buildOption(currentTF), {replaceMerge: ['series', 'grid', 'xAxis', 'yAxis']});
   }
   function wireToggle(btnId, key) {
     var btn = document.getElementById('%%CHART_ID%%-' + btnId);
     if (!btn) { return; }
-    btn.classList.toggle('active', visibility[key]);
+    var timelineKind = btn.getAttribute('data-timeline-kind');
+    btn.classList.toggle('active', !!visibility[key]);
     btn.addEventListener('click', function () {
       visibility[key] = !visibility[key];
-      btn.classList.toggle('active', visibility[key]);
+      btn.classList.toggle('active', !!visibility[key]);
       rebuildChart();
+      // sync timeline item visibility (1:1 mapping)
+      if (timelineKind) {
+        document.querySelectorAll('.ti-v2[data-kind="' + timelineKind + '"]').forEach(function (el) {
+          el.style.display = visibility[key] ? '' : 'none';
+        });
+      }
     });
   }
-  wireToggle('toggle-entries', 'entries');
-  wireToggle('toggle-sl', 'sl');
-  wireToggle('toggle-tp', 'tp');
-  wireToggle('toggle-exit', 'exit');
-  wireToggle('toggle-sl-history', 'sl_history');
-  wireToggle('toggle-signal', 'signal');
-  wireToggle('toggle-fills', 'fills');
-  wireToggle('toggle-updates', 'updates');
-  wireToggle('toggle-outcomes', 'outcomes');
-  wireToggle('toggle-volume', 'volume');
+  // level toggles
+  wireToggle('toggle-entries-planned', 'entries_planned');
+  wireToggle('toggle-entries-filled',  'entries_filled');
+  wireToggle('toggle-avg-entry',       'avg_entry');
+  wireToggle('toggle-sl',              'sl');
+  wireToggle('toggle-tps',             'tps');
+  wireToggle('toggle-exit',            'exit');
+  // event marker toggles
+  wireToggle('toggle-ev-fill',         'ev_FILL');
+  wireToggle('toggle-ev-tp',           'ev_TP');
+  wireToggle('toggle-ev-sl',           'ev_SL');
+  wireToggle('toggle-ev-move-sl',      'ev_MOVE_SL');
+  wireToggle('toggle-ev-close',        'ev_CLOSE');
+  wireToggle('toggle-ev-partial',      'ev_PARTIAL_CLOSE');
+  // secondary overlays
+  wireToggle('toggle-volume',          'volume');
+  wireToggle('toggle-pos-size',        'pos_size');
+  wireToggle('toggle-pnl',             'realized_pnl');
 
+  // ---- resize ---------------------------------------------------------------
   window.addEventListener('resize', function () { chart.resize(); });
 }());
 """
@@ -367,23 +360,35 @@ def _build_tf_buttons(chart_id: str, timeframes: list[str], default_tf: str | No
 
 
 def _build_toggle_buttons(chart_id: str) -> str:
-    toggles = [
-        ("toggle-entries", "Entries", True),
-        ("toggle-sl", "SL", True),
-        ("toggle-tp", "TP", True),
-        ("toggle-exit", "Exit", True),
-        ("toggle-sl-history", "SL History", False),
-        ("toggle-signal", "Signal", True),
-        ("toggle-fills", "Fills", True),
-        ("toggle-updates", "Updates", True),
-        ("toggle-outcomes", "Outcomes", True),
-        ("toggle-volume", "Volume", False),
+    # (btn_id, label, default_on, timeline_kind)
+    # timeline_kind: the data-kind value on .ti-v2 items to show/hide in sync (None = no sync)
+    toggles: list[tuple[str, str, bool, str | None]] = [
+        # ---- level lines ----
+        ("toggle-entries-planned", "Entries (plan)", True,  None),
+        ("toggle-entries-filled",  "Entries (fill)", True,  None),
+        ("toggle-avg-entry",       "Avg Entry",      True,  None),
+        ("toggle-sl",              "SL",             True,  "SL"),
+        ("toggle-tps",             "TPs",            True,  "TP"),
+        ("toggle-exit",            "Exit",           True,  "EXIT"),
+        # ---- event markers ----
+        ("toggle-ev-fill",         "Fills",          True,  "FILL"),
+        ("toggle-ev-tp",           "TP events",      True,  "TP"),
+        ("toggle-ev-sl",           "SL events",      True,  "SL"),
+        ("toggle-ev-move-sl",      "SL moves",       True,  "MOVE_SL"),
+        ("toggle-ev-close",        "Close",          True,  "EXIT"),
+        ("toggle-ev-partial",      "Partial close",  True,  "PARTIAL_CLOSE"),
+        # ---- secondary overlays ----
+        ("toggle-volume",          "Volume",         False, None),
+        ("toggle-pos-size",        "Pos Size",       False, None),
+        ("toggle-pnl",             "Realized PnL",   False, None),
     ]
     parts: list[str] = []
-    for key, label, default_on in toggles:
+    for btn_id, label, default_on, timeline_kind in toggles:
         active_cls = "active" if default_on else ""
+        tl_attr = f" data-timeline-kind='{timeline_kind}'" if timeline_kind else ""
         parts.append(
-            f"<button id='{chart_id}-{key}' class='chart-toolbar-btn {active_cls}' title='Toggle {label}'>{label}</button>"
+            f"<button id='{chart_id}-{btn_id}' class='chart-toolbar-btn {active_cls}'"
+            f" title='Toggle {label}'{tl_attr}>{label}</button>"
         )
     return "".join(parts)
 
@@ -394,32 +399,34 @@ def _build_fallback(payload: dict[str, object]) -> str:
 
     rows_levels: list[str] = []
     for group_name, group_key in [
-        ("Entries", "entries"),
-        ("Avg Entry", "avg_entry"),
-        ("Initial SL", "initial_sl"),
-        ("Last SL", "last_sl"),
-        ("SL History", "sl_history"),
-        ("TPs", "tps"),
-        ("Exit", "exit"),
+        ("Entries (plan)", "entries_planned"),
+        ("Entries (fill)", "entries_filled"),
+        ("Avg Entry",      "avg_entry"),
+        ("Initial SL",     "sl_initial"),
+        ("Current SL",     "sl_current"),
+        ("TPs",            "tps"),
+        ("Exit",           "exit"),
     ]:
         for item in (levels.get(group_key) or []):
             rows_levels.append(
-                f"<tr><td>{group_name}</td><td>{item.get('label', '')}</td><td>{item.get('price', '')}</td></tr>"
+                f"<tr><td>{group_name}</td><td>{item.get('label', '')}</td>"
+                f"<td>{item.get('price', '')}</td></tr>"
             )
 
     rows_events: list[str] = []
     for ev in events:
         rows_events.append(
-            f"<tr><td>{ev.get('family', '')}</td><td>{ev.get('event_type', '')}</td><td>{ev.get('price', '')}</td></tr>"
+            f"<tr><td>{ev.get('kind', '')}</td><td>{ev.get('label', '')}</td>"
+            f"<td>{ev.get('price', '')}</td></tr>"
         )
 
     levels_table = (
         "<table><thead><tr><th>Group</th><th>Label</th><th>Price</th></tr></thead>"
-        f"<tbody>{''.join(rows_levels) or '<tr><td colspan=3>-</td></tr>'}</tbody></table>"
+        f"<tbody>{''.join(rows_levels) or '<tr><td colspan=3>—</td></tr>'}</tbody></table>"
     )
     events_table = (
-        "<table><thead><tr><th>Family</th><th>Event</th><th>Price</th></tr></thead>"
-        f"<tbody>{''.join(rows_events) or '<tr><td colspan=3>-</td></tr>'}</tbody></table>"
+        "<table><thead><tr><th>Kind</th><th>Label</th><th>Price</th></tr></thead>"
+        f"<tbody>{''.join(rows_events) or '<tr><td colspan=3>—</td></tr>'}</tbody></table>"
     )
 
     return (
@@ -450,7 +457,7 @@ def render_trade_chart_echarts(
     default_tf: str | None = meta.get("default_timeframe")
     timeframes = list(candles_by_tf.keys())
 
-    tf_buttons = _build_tf_buttons(chart_id, timeframes, default_tf)
+    tf_buttons  = _build_tf_buttons(chart_id, timeframes, default_tf)
     tog_buttons = _build_toggle_buttons(chart_id)
     payload_json = json.dumps(payload, ensure_ascii=False)
     js_code = _CHART_JS.replace("%%CHART_ID%%", chart_id)

@@ -10,6 +10,7 @@ from src.signal_chain_lab.domain.enums import ChainInputMode, CloseReason, Trade
 
 
 class EntryPlan(BaseModel):
+    plan_id: str | None = None
     role: Literal["primary", "averaging"]
     order_type: Literal["market", "limit", "unknown"]
     price: float | None = None
@@ -25,6 +26,7 @@ class FillRecord(BaseModel):
     timestamp: datetime
     source_event_sequence: int | None = None
     fee_paid: float = 0.0
+    plan_id: str | None = None
 
 
 class TradeState(BaseModel):

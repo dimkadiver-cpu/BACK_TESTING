@@ -319,6 +319,33 @@ class ExecutionPolicy(BaseModel):
     fee_bps: float = 0.0
 
 
+class IntrabarReplayConfig(BaseModel):
+    """Configuration for intrabar event-aware replay (Solution B).
+
+    When ``event_aware_replay_enabled`` is True and a trader update lands inside
+    a parent candle, the simulator splits that candle using ``child_timeframe``
+    child candles so that market prices before the event are evaluated with the
+    pre-event state and prices after the event use the post-event state.
+
+    same_child_event_policy controls what happens when the event timestamp falls
+    inside a child candle (rather than on its boundary):
+      conservative_pre_event  — the child candle containing the event is
+                                 processed with the pre-event state; the new
+                                 state takes effect from the next child candle.
+      conservative_post_event — the child candle containing the event is
+                                 processed with the post-event state.
+
+    fallback_mode controls behaviour when child candles are unavailable:
+      warn_and_use_parent_logic — emit a warning and apply events without
+                                   intrabar splitting (legacy behaviour).
+    """
+
+    event_aware_replay_enabled: bool = False
+    child_timeframe: str | None = None
+    same_child_event_policy: str = "conservative_pre_event"
+    fallback_mode: str = "warn_and_use_parent_logic"
+
+
 class PolicyConfig(BaseModel):
     name: str
     entry: EntryPolicy = Field(default_factory=EntryPolicy)
@@ -328,6 +355,7 @@ class PolicyConfig(BaseModel):
     pending: PendingPolicy = Field(default_factory=PendingPolicy)
     risk: RiskPolicy = Field(default_factory=RiskPolicy)
     execution: ExecutionPolicy = Field(default_factory=ExecutionPolicy)
+    intrabar: IntrabarReplayConfig = Field(default_factory=IntrabarReplayConfig)
 
     model_config = {"extra": "allow"}
 
