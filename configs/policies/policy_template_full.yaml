@@ -197,6 +197,31 @@ execution:
   # Usato da latency_model.py / fill_model.py
   latency_ms: 0
 
+  # Modello OHLC per il prezzo di fill degli ordini MARKET.
+  #
+  # current_open  -> usa open della candela corrente
+  # next_open     -> usa open della prima candela successiva all'attivazione
+  # current_close -> usa close della candela corrente
+  # candle_proxy  -> usa market_price_proxy (hl2/ohlc4/open/close)
+  market_fill_mode: next_open  # raccomandato per ridurre look-ahead bias
+
+  # Come trattare l'eventuale prezzo market fornito nel segnale.
+  #
+  # reference -> prezzo segnale usato come riferimento/log, ma il fill segue market_fill_mode
+  # strict    -> se il segnale include un prezzo, usa quello come fill reference
+  market_requested_price_mode: reference
+
+  # Proxy OHLC usato solo quando market_fill_mode: candle_proxy
+  # hl2   = (high + low) / 2
+  # ohlc4 = (open + high + low + close) / 4
+  # open  = open candela
+  # close = close candela
+  market_price_proxy: hl2
+
+  # Se market_requested_price_mode: strict e il prezzo richiesto e' fuori range
+  # candela, clampa dentro [low, high].
+  clamp_requested_to_candle: true
+
   # Modello slippage applicato ai market order.
   # Valori supportati:
   #   none      → nessuno slippage (default)

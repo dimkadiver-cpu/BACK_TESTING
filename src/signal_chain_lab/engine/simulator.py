@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 from src.signal_chain_lab.domain.enums import EventSource, EventType, TradeStatus
 from src.signal_chain_lab.domain.events import CanonicalChain, CanonicalEvent
 from src.signal_chain_lab.domain.results import EventLogEntry
-from src.signal_chain_lab.domain.trade_state import TradeState
+from src.signal_chain_lab.domain.trade_state import EntryPlan, TradeState
 from src.signal_chain_lab.engine.fill_model import compute_close_fee, fill_market_order, try_fill_limit_order_touch
 from src.signal_chain_lab.engine.state_machine import apply_event
 from src.signal_chain_lab.engine.timeout_manager import check_chain_timeout, check_pending_timeout
@@ -808,7 +808,9 @@ def _try_fill_pending_entries(state: TradeState, policy: PolicyConfig, candle: C
         qty = float(plan.size_ratio)
         fill = None
         if plan.order_type == "market":
-            reference_price = float(plan.price) if plan.price is not None else float(candle.open)
+            if not _market_order_fill_ready(plan=plan, candle=candle, policy=policy):
+                continue
+            reference_price = _resolve_market_reference_price(plan=plan, candle=candle, policy=policy)
             fill = fill_market_order(
                 qty=qty,
                 reference_price=reference_price,
@@ -905,6 +907,51 @@ def _apply_close_resolution(
 
 def _normalize_fill_side(side: str) -> str:
     return "LONG" if side.upper() in {"BUY", "LONG"} else "SHORT"
+
+
+def _market_order_fill_ready(*, plan: EntryPlan, candle: Candle, policy: PolicyConfig) -> bool:
+    """Return whether a market entry can be filled on this candle.
+
+    For ``execution.market_fill_mode == "next_open"``, the fill is deferred to
+    the first candle strictly after the activation candle bucket.
+    """
+    mode = str(policy.execution.market_fill_mode or "current_open").strip().lower()
+    if mode != "next_open":
+        return True
+    if plan.activation_ts is None:
+        return True
+    activation_bucket = _floor_to_timeframe(plan.activation_ts, candle.timeframe)
+    return candle.timestamp > activation_bucket
+
+
+def _resolve_market_reference_price(*, plan: EntryPlan, candle: Candle, policy: PolicyConfig) -> float:
+    """Resolve market reference price from policy in OHLC-only context."""
+    requested_mode = str(policy.execution.market_requested_price_mode or "reference").strip().lower()
+    mode = str(policy.execution.market_fill_mode or "current_open").strip().lower()
+    requested_price = float(plan.price) if plan.price is not None else None
+
+    # strict: when a trader-provided market price is available, honour it.
+    if requested_mode == "strict" and requested_price is not None:
+        if policy.execution.clamp_requested_to_candle:
+            return min(max(requested_price, float(candle.low)), float(candle.high))
+        return requested_price
+
+    # reference: ignore trader-provided market price for execution,
+    # and derive fill reference from OHLC policy.
+    if mode in {"current_open", "next_open"}:
+        return float(candle.open)
+    if mode == "current_close":
+        return float(candle.close)
+
+    proxy = str(policy.execution.market_price_proxy or "hl2").strip().lower()
+    if proxy == "ohlc4":
+        return float((candle.open + candle.high + candle.low + candle.close) / 4.0)
+    if proxy == "open":
+        return float(candle.open)
+    if proxy == "close":
+        return float(candle.close)
+    # hl2 default
+    return float((candle.high + candle.low) / 2.0)
 
 
 def _get_event_candle(

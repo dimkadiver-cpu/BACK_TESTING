@@ -46,3 +46,9 @@ def test_load_extended_policy_template_supports_nested_contract() -> None:
     # pending: canonical fields
     assert policy.pending.cancel_unfilled_pending_after is None
     assert policy.pending.cancel_averaging_pending_after is None
+
+    # execution: market fill contract
+    assert policy.execution.market_fill_mode == "next_open"
+    assert policy.execution.market_requested_price_mode == "reference"
+    assert policy.execution.market_price_proxy == "hl2"
+    assert policy.execution.clamp_requested_to_candle is True

@@ -317,6 +317,39 @@ class ExecutionPolicy(BaseModel):
     fill_touch_guaranteed: bool = True
     fee_model: str = "none"
     fee_bps: float = 0.0
+    market_fill_mode: str = "current_open"
+    market_requested_price_mode: str = "reference"
+    market_price_proxy: str = "hl2"
+    clamp_requested_to_candle: bool = False
+
+    @field_validator("market_fill_mode", mode="before")
+    @classmethod
+    def _normalize_market_fill_mode(cls, value: Any) -> str:
+        normalized = str(value or "current_open").strip().lower()
+        allowed = {"current_open", "next_open", "current_close", "candle_proxy"}
+        if normalized not in allowed:
+            raise ValueError(f"execution.market_fill_mode must be one of {sorted(allowed)}")
+        return normalized
+
+    @field_validator("market_requested_price_mode", mode="before")
+    @classmethod
+    def _normalize_market_requested_price_mode(cls, value: Any) -> str:
+        normalized = str(value or "reference").strip().lower()
+        allowed = {"reference", "strict"}
+        if normalized not in allowed:
+            raise ValueError(
+                f"execution.market_requested_price_mode must be one of {sorted(allowed)}"
+            )
+        return normalized
+
+    @field_validator("market_price_proxy", mode="before")
+    @classmethod
+    def _normalize_market_price_proxy(cls, value: Any) -> str:
+        normalized = str(value or "hl2").strip().lower()
+        allowed = {"hl2", "ohlc4", "open", "close"}
+        if normalized not in allowed:
+            raise ValueError(f"execution.market_price_proxy must be one of {sorted(allowed)}")
+        return normalized
 
 
 class IntrabarReplayConfig(BaseModel):
