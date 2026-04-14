@@ -83,7 +83,7 @@ def build_trade_result(
     pnl_gross_raw: float | None = None
     pnl_net_raw: float | None = None
     fees_total_raw = state.fees_paid
-    funding_total_raw_net = 0.0  # funding non ancora implementato
+    funding_total_raw_net = float(getattr(state, "funding_paid", 0.0))
 
     if invested_notional is not None:
         close_fees_paid = getattr(state, "close_fees_paid", 0.0)

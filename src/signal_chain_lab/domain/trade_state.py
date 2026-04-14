@@ -57,6 +57,10 @@ class TradeState(BaseModel):
     unrealized_pnl: float = 0.0
     fees_paid: float = 0.0
     close_fees_paid: float = 0.0  # subset of fees_paid: fees paid on close events only
+    funding_paid: float = 0.0
+    funding_events_count: int = 0
+    applied_funding_event_keys: list[str] = Field(default_factory=list)
+    funding_watermark_ts: datetime | None = None
 
     warnings_count: int = 0
     ignored_events_count: int = 0

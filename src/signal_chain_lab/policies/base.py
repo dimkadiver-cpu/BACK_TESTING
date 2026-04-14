@@ -321,6 +321,8 @@ class ExecutionPolicy(BaseModel):
     market_requested_price_mode: str = "reference"
     market_price_proxy: str = "hl2"
     clamp_requested_to_candle: bool = False
+    funding_model: str = "none"
+    funding_apply_to_pnl: bool = True
 
     @field_validator("market_fill_mode", mode="before")
     @classmethod
@@ -349,6 +351,15 @@ class ExecutionPolicy(BaseModel):
         allowed = {"hl2", "ohlc4", "open", "close"}
         if normalized not in allowed:
             raise ValueError(f"execution.market_price_proxy must be one of {sorted(allowed)}")
+        return normalized
+
+    @field_validator("funding_model", mode="before")
+    @classmethod
+    def _normalize_funding_model(cls, value: Any) -> str:
+        normalized = str(value or "none").strip().lower()
+        allowed = {"none", "historical"}
+        if normalized not in allowed:
+            raise ValueError(f"execution.funding_model must be one of {sorted(allowed)}")
         return normalized
 
 
