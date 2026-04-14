@@ -92,3 +92,69 @@ Questa checklist traduce il PRD funding in attività implementative concrete nel
 2. Doppio conteggio su intrabar/replay.
 3. Dati funding mancanti: fallback robusto senza bloccare simulazione.
 4. Errori timezone/allineamento timestamp (usare UTC end-to-end).
+
+## 5) Incremento operativo (round successivo)
+
+Per accelerare l’implementazione, il piano viene incrementato con task più granulari,
+criteri di accettazione e metriche minime di controllo.
+
+### 5.1 Backlog esecutivo (P0 → P2)
+
+#### P0 — Bloccanti funzionali
+- [ ] **Contratto dati funding canonico**
+  - Definire schema parquet minimo: `symbol`, `funding_ts_utc`, `funding_rate`, `source`, `ingested_at`.
+  - Versionare schema (`schema_version`) per migrazioni future.
+- [ ] **Applicazione funding in simulator idempotente**
+  - Introdurre chiave evento univoca (`symbol + funding_ts_utc`) per prevenire doppio conteggio.
+  - Persistenza in `TradeState` degli ultimi eventi già applicati (o watermark temporale).
+- [ ] **Segno economico formalizzato**
+  - Tabelle di verità long/short × rate +/- con expected PnL.
+  - Assertion runtime (debug) su casi impossibili.
+
+#### P1 — Robustezza operativa
+- [ ] **Downloader production-ready**
+  - Retry esponenziale con jitter.
+  - Circuit breaker locale su errori ripetuti API.
+  - Resume download da ultimo timestamp disponibile.
+- [ ] **Gap filling e qualità dato**
+  - Controllo buchi temporali per finestra richiesta.
+  - Report di coverage per simbolo (`events_found / events_expected`).
+- [ ] **Wiring completo runner**
+  - Fallback esplicito a `funding_model=none` se provider non disponibile.
+  - Warning strutturato nel report scenario.
+
+#### P2 — Osservabilità e UX tecnica
+- [ ] **Metriche e logging**
+  - Contatori: `funding_events_loaded`, `funding_events_applied`, `funding_events_skipped`.
+  - Timing: latenza lookup provider e costo download.
+- [ ] **CLI evoluta**
+  - Flag `--resume`, `--force-refresh`, `--dry-run`.
+  - Output riepilogo per simbolo e mese.
+- [ ] **Documentazione utente/dev**
+  - Esempi end-to-end (download → backtest → report).
+  - Troubleshooting (dataset incompleto, timezone, mismatch simboli).
+
+### 5.2 Criteri di accettazione tecnici (aggiuntivi)
+
+- **Correttezza finanziaria:** differenza tra PnL atteso e PnL simulato < `1e-9` sui test deterministici.
+- **Idempotenza:** due replay consecutivi sugli stessi dati producono funding totale identico.
+- **Copertura test:** almeno un test per:
+  - funding positivo su posizione long e short;
+  - funding negativo su posizione long e short;
+  - assenza eventi funding nell’intervallo trade.
+- **Degrado controllato:** in assenza dati funding, simulazione completata con warning e senza crash.
+
+### 5.3 Piano test incrementale (pratico)
+
+1. **Unit test provider** con fixture parquet sintetiche multi-mese.
+2. **Unit test simulator** con timeline minima (entry, 2 funding event, exit).
+3. **Integration test runner** con `funding_model=historical` e confronto snapshot report.
+4. **Regression test** su scenario reale già validato senza funding (`funding_model=none` invariato).
+
+### 5.4 Exit criteria del round
+
+Il round è chiuso quando:
+- tutti i task P0 sono completati;
+- almeno il 70% dei task P1 è completato;
+- la pipeline CI esegue i nuovi test funding senza flaky failure;
+- i report espongono in modo trasparente il contributo funding (trade e policy).
