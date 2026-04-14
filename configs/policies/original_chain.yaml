@@ -221,8 +221,8 @@ execution:
   # Modello funding rate per futures perpetui.
   # none       → nessun funding applicato (default)
   # historical → usa i dati storici scaricati da Bybit (PRD: docs/PRD_funding_model.md)
-  # funding_model: none
-  # funding_apply_to_pnl: true   # se false: calcola e logga ma non deduce dal PnL
+  funding_model: none
+  funding_apply_to_pnl: true   # se false: calcola e logga ma non deduce dal PnL
 
   # Estensioni possibili:
   # partial_fill_model: none   # design: docs/DESIGN_partial_fill_model.md

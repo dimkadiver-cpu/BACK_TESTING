@@ -43,3 +43,22 @@ class MarketDataProvider(Protocol):
     ) -> list[Candle]: ...
 
     def get_metadata(self, symbol: str, timeframe: str) -> MarketMetadata | None: ...
+
+
+class FundingEvent(BaseModel):
+    symbol: str
+    funding_ts_utc: datetime
+    funding_rate: float
+    source: str = "unknown"
+    schema_version: int = 1
+
+
+class FundingRateProvider(Protocol):
+    def get_funding_rate(self, symbol: str, ts: datetime) -> float | None: ...
+
+    def get_funding_events(
+        self,
+        symbol: str,
+        start: datetime,
+        end: datetime,
+    ) -> list[FundingEvent]: ...

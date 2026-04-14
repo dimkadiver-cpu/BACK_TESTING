@@ -10,6 +10,8 @@ def test_load_original_chain_policy() -> None:
     assert policy.name == "original_chain"
     assert policy.updates.apply_move_stop is True
     assert policy.execution.latency_ms == 0
+    assert policy.execution.funding_model == "none"
+    assert policy.execution.funding_apply_to_pnl is True
 
 
 def test_load_signal_only_policy() -> None:

@@ -44,6 +44,10 @@ def test_trade_state_default_fields() -> None:
     assert state.realized_pnl == 0.0
     assert state.unrealized_pnl == 0.0
     assert state.fees_paid == 0.0
+    assert state.funding_paid == 0.0
+    assert state.funding_events_count == 0
+    assert state.applied_funding_event_keys == []
+    assert state.funding_watermark_ts is None
     assert state.warnings_count == 0
     assert state.ignored_events_count == 0
     assert state.tp_levels == []
