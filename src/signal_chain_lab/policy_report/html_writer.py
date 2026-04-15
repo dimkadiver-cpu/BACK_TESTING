@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 from src.signal_chain_lab.domain.results import EventLogEntry, TradeResult
 from src.signal_chain_lab.market.data_models import Candle
+from src.signal_chain_lab.policy_report.event_normalizer import normalize_events
 from src.signal_chain_lab.policy_report.trade_chart_echarts import render_trade_chart_echarts
 from src.signal_chain_lab.policy_report.trade_chart_payload import build_trade_chart_payload
 
@@ -1355,6 +1356,152 @@ def _render_chart(
 # Single trade HTML report
 # ---------------------------------------------------------------------------
 
+def _trade_return_net_pct(trade: TradeResult) -> float | None:
+    return trade.trade_return_pct_net if trade.trade_return_pct_net is not None else trade.trade_impact_pct
+
+
+def _build_single_trade_hero(trade: TradeResult) -> str:
+    net_pct = _trade_return_net_pct(trade)
+    gross_pct = trade.trade_return_pct_gross
+    cost_total = trade.cost_drag_pct
+    fees_pct = ((trade.fees_total_raw / trade.invested_notional) * 100) if trade.invested_notional else None
+    funding_pct = ((trade.funding_total_raw_net / trade.invested_notional) * 100) if trade.invested_notional else None
+
+    fields: list[tuple[str, str, str]] = [
+        ("Return % net", _fmt_percent(net_pct), _badge_class_for_percent(net_pct)),
+        ("Return % gross", _fmt_percent(gross_pct), _badge_class_for_percent(gross_pct)),
+        ("Costs total %", _fmt_percent(cost_total, signed=False), "muted"),
+        ("Fees total %", _fmt_percent(fees_pct, signed=False), "muted"),
+        ("Funding net %", _fmt_percent(funding_pct), _badge_class_for_percent(funding_pct)),
+        ("R multiple", _fmt_number(trade.r_multiple), _badge_class_for_number(trade.r_multiple)),
+        ("MAE %", _fmt_percent(trade.mae_pct), "muted"),
+        ("MFE %", _fmt_percent(trade.mfe_pct), "muted"),
+        ("Duration", _fmt_duration(trade.duration_seconds), "muted"),
+    ]
+
+    cells = []
+    for label, value, css in fields:
+        cells.append(
+            f"<div class='metric compact'><div class='k'>{_escape(label)}</div><div class='v {css}'>{_escape(value)}</div></div>"
+        )
+
+    warnings_html = ""
+    if (trade.warnings_count or 0) > 0:
+        warnings_html = f"<span class='warn-badge'>Warnings: {_escape(trade.warnings_count)}</span>"
+
+    status_cls = "ok" if str(trade.status).lower() == "closed" else "muted"
+    side_cls = "side-badge-long" if str(trade.side).upper() == "LONG" else "side-badge-short"
+
+    return (
+        "<div class='card'>"
+        "<div style='display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px'>"
+        f"<span class='symbol'>{_escape(trade.symbol)}</span>"
+        f"<span class='{side_cls}'>{_escape(trade.side)}</span>"
+        f"<span class='badge {status_cls}'>{_escape(trade.status)}</span>"
+        f"{warnings_html}"
+        "</div>"
+        "<div class='grid-3'>"
+        + "".join(cells)
+        + "</div></div>"
+    )
+
+
+def _build_event_rail_and_sidebar(trade: TradeResult, event_log: list[EventLogEntry]) -> tuple[str, str, str]:
+    canonical = normalize_events(trade, event_log)
+    rail_items: list[str] = []
+    sidebar_items: list[str] = []
+    audit_items: list[str] = []
+
+    for idx, ev in enumerate(canonical):
+        row_id = _safe_dom_id(ev.id)
+        chips = [ev.phase, ev.event_class, ev.subtype]
+        chips_html = "".join(f"<span class='badge muted' style='font-size:11px'>{_escape(ch)}</span>" for ch in chips[:3])
+        summary = _escape(ev.summary or ev.title)
+        price_val = _fmt_number(ev.price_anchor, 6) if ev.price_anchor is not None else "-"
+        raw_btn = ""
+        if ev.source == "TRADER" and ev.raw_text:
+            rid = _safe_dom_id(f"raw_{ev.id}")
+            raw_btn = (
+                f"<button class='inline-btn' type='button' onclick=\"openText('{rid}')\">Raw message text</button>"
+                f"<dialog id='{rid}'><div class='dialog-head'><strong>Raw message</strong><button class='inline-btn' type='button' onclick=\"closeText('{rid}')\">Close</button></div><div class='dialog-body'><pre class='code'>{_escape(ev.raw_text)}</pre></div></dialog>"
+            )
+
+        rail_items.append(
+            f"<button type='button' class='rail-item' data-event-id='{row_id}' title='{_escape(ev.title)}'>"
+            f"<span class='badge muted' style='font-size:10px'>{_escape(ev.subtype)}</span>"
+            f"<span class='note'>{_escape(_fmt_timestamp(ev.ts))}</span></button>"
+        )
+
+        sidebar_items.append(
+            "<div class='ti-v2 unified-event' "
+            f"id='evt_{row_id}' data-event-id='{row_id}'>"
+            f"<div class='ti-v2-compact' onclick='toggleUnifiedEvent(this)'>"
+            f"<span class='ti-kind-badge ti-kind-UPDATE'>{_escape(ev.title)}</span>"
+            f"<span class='note'>{_escape(_fmt_timestamp(ev.ts))}</span>"
+            f"<span style='flex:1;min-width:0;font-size:13px;overflow:hidden;text-overflow:ellipsis'>{summary}</span>"
+            f"{chips_html}"
+            "</div>"
+            "<div class='ti-v2-detail'>"
+            "<div class='ti-detail-grid'>"
+            f"<div class='lab'>Source</div><div>{_escape(ev.source)}</div>"
+            f"<div class='lab'>Price</div><div>{_escape(price_val)}</div>"
+            f"<div class='lab'>Event id</div><div>{_escape(ev.id)}</div>"
+            "</div>"
+            f"<div style='margin-top:8px'>{raw_btn}</div>"
+            f"<pre class='code' style='margin-top:8px'>{_escape(json.dumps(ev.details, ensure_ascii=False, indent=2))}</pre>"
+            "</div>"
+            "</div>"
+        )
+
+        audit_items.append(
+            f"<li><strong>{_escape(_fmt_timestamp(ev.ts))}</strong> — {_escape(ev.subtype)}"
+            f"<pre class='code'>{_escape(json.dumps(ev.details, ensure_ascii=False, indent=2))}</pre></li>"
+        )
+
+    js = """
+<script>
+function toggleUnifiedEvent(el){
+  const container = el.closest('.unified-event');
+  if(!container) return;
+  const open = container.classList.contains('open');
+  document.querySelectorAll('.unified-event.open').forEach(x=>x.classList.remove('open'));
+  if(!open){ container.classList.add('open'); }
+}
+document.querySelectorAll('.rail-item').forEach((btn)=>{
+  btn.addEventListener('click', ()=>{
+    const eventId = btn.getAttribute('data-event-id');
+    const target = document.getElementById('evt_' + eventId);
+    if(!target) return;
+    document.querySelectorAll('.unified-event.open').forEach(x=>x.classList.remove('open'));
+    target.classList.add('open');
+    target.scrollIntoView({behavior:'smooth', block:'nearest'});
+  });
+});
+</script>
+"""
+
+    rail_html = (
+        "<div class='card'><h2>Event Rail</h2>"
+        "<div class='note' style='margin-bottom:8px'>Operational events timeline (toggleable from chart toolbar).</div>"
+        "<div id='event-rail-container' style='display:flex;gap:6px;overflow:auto;padding:6px;border:1px solid var(--line);border-radius:10px'>"
+        + ("".join(rail_items) or "<span class='note'>No events available.</span>")
+        + "</div></div>"
+    )
+    sidebar_html = (
+        "<div class='card'><h2>Unified operational events list</h2>"
+        "<div class='note' style='margin-bottom:10px'>All events are collapsed by default. Click to expand details.</div>"
+        + "".join(sidebar_items)
+        + "</div>"
+    )
+    audit_html = (
+        "<details class='card'><summary>Audit drawer</summary>"
+        "<ul style='padding-left:18px'>"
+        + ("".join(audit_items) or "<li class='note'>No audit events.</li>")
+        + "</ul></details>"
+    )
+    return rail_html, sidebar_html, audit_html + js
+
+
 def write_single_trade_html_report(
     *,
     trade: TradeResult,
@@ -1369,21 +1516,19 @@ def write_single_trade_html_report(
     trades_total: int | None = None,
     initial_capital: float | None = None,
 ) -> Path:
-    header_bar  = _render_header_bar(trade)
-    perf_html   = _render_performance_card(trade)
-    tech_html   = _render_technical_details_card(trade)
-    chart_html  = _render_chart(trade, event_log, candles_by_timeframe or {}, echarts_asset_path)
-    tl_html, dialogs_html = _render_timeline_v2(trade, event_log, initial_capital)
+    hero_html = _build_single_trade_hero(trade)
+    chart_html = _render_chart(trade, event_log, candles_by_timeframe or {}, echarts_asset_path)
+    rail_html, sidebar_html, audit_html = _build_event_rail_and_sidebar(trade, event_log)
 
     nav_html = (
-        "<div class='footer-nav' style='display:flex;align-items:center;gap:10px;flex-wrap:wrap'>"
-        + (f'<a class="inline-btn" href="{_escape(prev_link)}" title="Previous trade">&larr; Prev</a>'
-           if prev_link else '<span class="inline-btn" style="opacity:.35;cursor:default">&larr; Prev</span>')
-        + f'<a class="inline-btn" href="{_escape(back_link_href)}">&#8801; Summary'
+        "<div class='card' style='display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap'>"
+        + (f'<a class="inline-btn" href="{_escape(prev_link)}">&larr; Prev Trade</a>'
+           if prev_link else '<span class="inline-btn" style="opacity:.35;cursor:default">&larr; Prev Trade</span>')
+        + f'<a class="inline-btn" href="{_escape(back_link_href)}">Back to Policy Report'
         + (f' ({trade_index}/{trades_total})' if trade_index is not None and trades_total is not None else '')
         + '</a>'
-        + (f'<a class="inline-btn" href="{_escape(next_link)}" title="Next trade">Next &rarr;</a>'
-           if next_link else '<span class="inline-btn" style="opacity:.35;cursor:default">Next &rarr;</span>')
+        + (f'<a class="inline-btn" href="{_escape(next_link)}">Next Trade &rarr;</a>'
+           if next_link else '<span class="inline-btn" style="opacity:.35;cursor:default">Next Trade &rarr;</span>')
         + "</div>"
     )
 
@@ -1392,22 +1537,17 @@ def write_single_trade_html_report(
         "<html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'>\n"
         f"<title>{_escape(trade.signal_id)} - Single Trade Report</title>\n"
         f"{_base_styles()}\n"
-        "</head>\n<body>\n<div class='wrap'>\n"
-        + header_bar
-        + perf_html
-        + tech_html
-        + "<div class='card'>"
-        + "<h2>Price Chart</h2>"
-        + "<div class='note' style='margin-bottom:10px'>Candlestick chart. Use timeframe buttons and toggle buttons to navigate.</div>"
+        "</head><body><div class='wrap'>\n"
+        "<h1>Single Trade Report</h1>"
+        + hero_html
+        + "<div class='card'><h2>Main analysis block</h2>"
+        + "<div class='note' style='margin-bottom:10px'>Price chart, timeframe/toggles and unified events workflow.</div>"
         + chart_html
-        + "</div>\n"
-        + nav_html + "\n"
-        + "<div class='card' style='margin-top:18px'>"
-        + "<h2>Event Timeline</h2>"
-        + "<div class='note' style='margin-bottom:10px'>Click any event to expand details and state changes.</div>"
-        + tl_html
-        + "</div>\n"
-        + dialogs_html
+        + "</div>"
+        + rail_html
+        + sidebar_html
+        + nav_html
+        + audit_html
         + "</div></body></html>\n"
     )
 

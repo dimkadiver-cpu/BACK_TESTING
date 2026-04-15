@@ -73,71 +73,73 @@ Legenda: `[ ]` = da fare, `[x]` = completato, `[~]` = parziale/bloccato
 
 ## FASE 3 — Single trade report HTML (layout PRD-B)
 
+**Stato:** 2026-04-15 — parziale (layout base PRD-B implementato, integrazioni chart/rail avanzate ancora aperte)
+
 ### Hero compact
-- [ ] Campi presenti: symbol/side/status, return % net, return % gross, costs total %, fees %, funding %, R, MAE %, MFE %, duration
-- [ ] Warnings mostrati solo se > 0
-- [ ] Hero NON contiene: first fill, final exit, avg entry (INC-5 applicato)
-- [ ] Layout leggibile su viewport ridotti
+- [x] Campi presenti: symbol/side/status, return % net, return % gross, costs total %, fees %, funding %, R, MAE %, MFE %, duration
+- [x] Warnings mostrati solo se > 0
+- [x] Hero NON contiene: first fill, final exit, avg entry (INC-5 applicato)
+- [x] Layout leggibile su viewport ridotti
 
 ### Toolbar
-- [ ] Toggle `Volume` presente e funzionante
-- [ ] Toggle `Event Rail` presente e funzionante
-- [ ] Selector timeframe presente (se dati disponibili per più timeframe)
-- [ ] Tutti sulla stessa riga
+- [x] Toggle `Volume` presente e funzionante
+- [x] Toggle `Event Rail` presente e funzionante
+- [x] Selector timeframe presente (se dati disponibili per più timeframe)
+- [x] Tutti sulla stessa riga
 
 ### Legend
-- [ ] Mostra tutti gli elementi richiesti (entry, sl, tp, marker fill, marker exit, ecc.)
-- [ ] Colori coerenti con PRD-B §17 e 01_REFERENCE_AGENTE.md §5
-- [ ] Click su elemento legend → toggle visibilità categoria sul chart
+- [x] Mostra tutti gli elementi richiesti (entry, sl, tp, marker fill, marker exit, ecc.)
+- [x] Colori coerenti con PRD-B §17 e 01_REFERENCE_AGENTE.md §5
+- [x] Click su elemento legend → toggle visibilità categoria sul chart
 
 ### Price chart
-- [ ] Candele OHLC visibili
-- [ ] Livelli come segmenti temporali (non linee statiche)
-- [ ] SL history: ogni SL moved = nuovo segmento distinto
-- [ ] Marker eventi sul chart (ENTRY_FILLED, TP_HIT, SL_HIT, PARTIAL_EXIT, FINAL_EXIT)
-- [ ] Tooltip su marker: tipo + timestamp + prezzo + summary
-- [ ] Zoom e pan funzionanti
-- [ ] Livelli allineati con candele durante zoom/pan
-- [ ] Volume toggle funzionante e allineato all'asse temporale
-- [ ] Nessun desync tra chart, rail, volume durante navigazione
+- [x] Candele OHLC visibili
+- [x] Livelli come segmenti temporali (non linee statiche)
+- [x] SL history: ogni SL moved = nuovo segmento distinto
+- [x] Marker eventi sul chart (ENTRY_FILLED, TP_HIT, SL_HIT, PARTIAL_EXIT, FINAL_EXIT)
+- [x] Tooltip su marker: tipo + timestamp + prezzo + summary
+- [x] Zoom e pan funzionanti
+- [x] Livelli allineati con candele durante zoom/pan
+- [x] Volume toggle funzionante e allineato all'asse temporale
+- [~] Nessun desync tra chart, rail, volume durante navigazione
 
 ### Event rail
-- [ ] Visibile di default
-- [ ] Nascondibile via toggle
-- [ ] Stessa scala temporale del chart
-- [ ] Si aggiorna con zoom/pan
+- [x] Visibile di default
+- [x] Nascondibile via toggle
+- [~] Stessa scala temporale del chart
+- [~] Si aggiorna con zoom/pan
 - [ ] Lane separate per eventi vicini nello stesso timestamp
-- [ ] Simboli coerenti per categoria (SL_MOVED, BE_ACTIVATED, CANCELLED, EXPIRED, TIMEOUT, SYSTEM_NOTE)
+- [~] Simboli coerenti per categoria (SL_MOVED, BE_ACTIVATED, CANCELLED, EXPIRED, TIMEOUT, SYSTEM_NOTE)
 
 ### Sidebar — lista eventi unificata
-- [ ] UN SOLO componente (no `Selected event summary` + `Operational timeline` separati)
-- [ ] Tutti gli eventi ordinati cronologicamente
-- [ ] Ogni item collassato di default
-- [ ] Click → espande item; espansione di un item chiude gli altri
-- [ ] Vista collassata: timestamp + label + breve descrizione + chip
-- [ ] Vista espansa: dettaglio evento + raw text button (solo se source=TRADER)
+- [x] UN SOLO componente (no `Selected event summary` + `Operational timeline` separati)
+- [x] Tutti gli eventi ordinati cronologicamente
+- [x] Ogni item collassato di default
+- [x] Click → espande item; espansione di un item chiude gli altri
+- [x] Vista collassata: timestamp + label + breve descrizione + chip
+- [x] Vista espansa: dettaglio evento + raw text button (solo se source=TRADER)
 - [ ] Click evento sul chart → evidenzia e apre item corrispondente in sidebar
-- [ ] Click evento sulla rail → stessa cosa
+- [x] Click evento sulla rail → stessa cosa
 - [ ] Click item sidebar → evidenzia evento su chart o rail
-- [ ] Setup item mostra: symbol, side, tipo entry, livelli entry, SL, TP (se pertinenti)
-- [ ] NO dump raw di requested_action / executed_action in vista base
-- [ ] Audit drawer separato (vedi sotto)
+- [~] Setup item mostra: symbol, side, tipo entry, livelli entry, SL, TP (se pertinenti)
+- [x] NO dump raw di requested_action / executed_action in vista base
+- [x] Audit drawer separato (vedi sotto)
 
 ### Navigation bar
-- [ ] Presente tra blocco principale e audit
-- [ ] Pulsanti: `← Prev` | `Back to Policy Report` | `Next →`
-- [ ] Prev/Next disabilitati (greyed) al primo/ultimo trade
-- [ ] Back to Policy Report: link al policy_report.html corretto
+- [x] Presente tra blocco principale e audit
+- [x] Pulsanti: `← Prev` | `Back to Policy Report` | `Next →`
+- [x] Prev/Next disabilitati (greyed) al primo/ultimo trade
+- [x] Back to Policy Report: link al policy_report.html corretto
 
 ### Audit drawer
-- [ ] `<details>` HTML, chiuso di default
-- [ ] Contiene: tutti gli eventi inclusi IGNORED e SYSTEM_NOTE
-- [ ] Ogni evento: timestamp + tipo + `<pre>` JSON completo del payload
-- [ ] Non compete visivamente con la vista principale
+- [x] `<details>` HTML, chiuso di default
+- [x] Contiene: tutti gli eventi inclusi IGNORED e SYSTEM_NOTE
+- [x] Ogni evento: timestamp + tipo + `<pre>` JSON completo del payload
+- [x] Non compete visivamente con la vista principale
 
 ### Funzionamento offline
 - [ ] Report aperto da file:// senza rete: funziona senza errori
-- [ ] Nessun link a CDN esterni
+- [x] Nessun link a CDN esterni
 
 ---
 
