@@ -280,17 +280,18 @@ Comparison Report
 - Date range dati testati
 
 **5b. Comparison context visibile**
-- Mostrare il context attivo (filtri Core attivi) in modo leggibile
+- Mostrare il context attivo (filtri attivi) in modo leggibile
 - Badge `Filters active (N)` dove N = numero filtri attivi non vuoti
 - Click sul badge → pannello che lista i filtri attivi con label
 - Se context vuoto: no badge, solo testo "No active context"
 
 **5c. Pulsante reset**
 - "Reset context" → svuota `sessionStorage["compCtx"]`, aggiorna badge e metriche
+- NON tocca le esclusioni per-policy (`policy_<name>_excluded`)
 
 **5d. Tabella di confronto**
-Colonne (decisione INC-2, vedere 01_REFERENCE_AGENTE.md §12):
-- Policy Name (link a policy_report.html con context propagato nell'URL o sessionStorage)
+Colonne (INC-2 + INC-8, vedere 01_REFERENCE_AGENTE.md §12):
+- Policy Name (link a policy_report.html + badge `N excl.` se esclusioni attive in sessionStorage)
 - Net %, Gross %, Max DD %, Win Rate %, Profit Factor, Expectancy %, Avg R, Best Trade %, Worst Trade %, Trades, Open Report
 
 Evidenziazione:
@@ -306,7 +307,12 @@ Il Python deve includere in comparison_report.html:
 <script>
 const POLICY_DATA = {
   "policy_a": {
-    "trades": [ { signal_id, net_pct, gross_pct, side, trade_status, symbol, close_reason, ... }, ... ],
+    "trades": [
+      { "signal_id": "...", "net_pct": ..., "gross_pct": ..., "side": ...,
+        "status": ..., "symbol": ..., "close_reason": ..., "outcome": ...,
+        "created_at": ..., "trader_id": ..., ... },
+      ...
+    ],
     "summary": { ... }
   },
   "policy_b": { ... }
@@ -315,19 +321,23 @@ const RUN_METADATA = { ... };
 </script>
 ```
 
-Il JS filtra i trade in base al context e ricalcola le metriche lato client.
+Il JS filtra e ricalcola lato client. Non usa fetch().
 
-**5f. Ricalcolo metriche con comparison context**
-Funzione JS `applyContext(ctx)`:
-1. Per ogni policy, filtrare `POLICY_DATA[policy].trades` per:
-   - date_from / date_to (su `created_at`)
-   - trader (su `trader_id`)
-   - symbols (su `symbol`)
-   - side (su `side`)
-   - trade_status (su `status`)
-2. Su trade filtrati, ricalcolare: net_pct totale, win_rate, profit_factor, expectancy, max_dd, avg_r, best/worst trade, count
-3. Aggiornare la tabella con i nuovi valori
-4. Riapplicare l'evidenziazione Best
+**5f. Ricalcolo metriche — funzione `computeAll()`**
+
+Sequenza per ogni policy (INC-8 applicata):
+
+```
+1. Leggi POLICY_DATA[policy].trades
+2. Applica filtri del comparison context (date, trader, symbol, side, trade_status, close_reason, outcome)
+3. Leggi sessionStorage["policy_<name>_excluded"] → lista signal_id esclusi
+4. Rimuovi i trade esclusi dalla lista filtrata
+5. Calcola metriche sul set risultante
+6. Conta N_excluded = esclusi presenti nel set filtrato (non in assoluto)
+7. Aggiorna cella tabella + badge "N excl." se N_excluded > 0
+```
+
+Nota al punto 6: il badge `N excl.` deve contare solo i trade che sarebbero stati inclusi dopo i filtri ma sono stati esclusi manualmente — non tutti gli esclusi in assoluto. Questo è il numero rilevante per l'utente.
 
 ### Dipendenze
 - Fase 4 (il policy report deve essere già funzionante per testare la navigazione)

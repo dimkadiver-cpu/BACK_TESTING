@@ -337,6 +337,31 @@ class EventLogEntry(BaseModel):
 
 ---
 
+### INC-8 — Esclusioni manuali e comparison report: incoerenza numerica
+
+**Posizione:** PRD-A §8.5, §11.2
+
+**Problema:**
+Il PRD-A §11.2 dice che le esclusioni manuali non devono passare al comparison report.
+Questo produce un'incoerenza diretta: la stessa policy mostra Net% diverso nel `single_policy_report` (senza il trade escluso) e nel `comparison_report` (con il trade incluso). L'utente vede due numeri diversi per la stessa metrica sulla stessa policy.
+
+**Opzioni valutate:**
+
+- **A** — Isolamento totale (design originale PRD-A): esclusioni solo locali, comparison sempre su dati grezzi. Incoerente.
+- **B** — Esclusioni per-policy portate nel comparison: ogni policy nel comparison usa il proprio set di esclusioni attivo in sessionStorage. Badge visivo `N excluded` avvisa quando i dati non sono grezzi.
+- **C** — Due tipi di esclusione (locale vs globale): più complessa, non necessaria.
+
+**Decisione approvata: Opzione B.**
+
+**Regola risultante:**
+1. Il comparison report legge `sessionStorage["policy_<name>_excluded"]` per ogni policy.
+2. Applica le esclusioni per-policy dopo i filtri del comparison context.
+3. Calcola le metriche sul set risultante (context-filtered + per-policy excluded).
+4. Mostra un badge `N excl.` accanto al nome policy se `N > 0`, per segnalare che i numeri non sono sul dataset grezzo.
+5. Se una policy non è mai stata aperta (nessun sessionStorage), il set esclusi è vuoto → nessun badge.
+
+**Impatto su INC-3:** La regola "esclusioni manuali NON passano al comparison" è soppressa e sostituita da INC-8.
+
 ---
 
 ### INC-7 — Distinzione Core/Local filtri è artificiale — APPROVATA unificazione
@@ -371,7 +396,7 @@ L'unica distinzione che mantiene senso è tra **filtri** (tutti riapplicabili) e
 |----|-----------|
 | INC-1 | Superato da INC-7 |
 | INC-2 | Lista colonne comparison definita in 02_PIANO_ATTUAZIONE.md §4 |
-| INC-3 | Esclusioni manuali NON passano al comparison report (§11.2 prevalente) |
+| INC-3 | Superato da INC-8 |
 | INC-4 | Secondo `Dataset Name` → `Source DB` |
 | INC-5 | PRD-B prevale su DELTA: no avg/fill nell'hero compact |
 | INC-6 | PRD-B prevale su DELTA: solo Volume e Event Rail come toggle |
@@ -388,3 +413,4 @@ L'unica distinzione che mantiene senso è tra **filtri** (tutti riapplicabili) e
 | GAP-6 | Mapping EventLogEntry → canonico definito in 02_PIANO_ATTUAZIONE.md §6 |
 | GAP-7 | Verificare e completare payload SL multipli durante implementazione |
 | GAP-8 | Ritorno al policy report via back_link_href + sessionStorage filtri |
+| **INC-8** | **Esclusioni manuali per-policy portate nel comparison. Badge `N excl.` quando attive. INC-3 soppressa.** |

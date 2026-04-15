@@ -343,9 +343,8 @@ Colonne obbligatorie (PRD-A §10.2):
 ## 11. Metriche cumulative `single_policy_report` — aggiornamento dinamico
 
 Le metriche si aggiornano ogni volta che cambiano:
-- filtri Core attivi
-- filtri Local attivi
-- set trade inclusi/esclusi manualmente
+- filtri attivi (unificati)
+- set trade inclusi/esclusi manualmente (checkbox Include)
 
 ### Metriche da mostrare (PRD-A §9.4)
 | Metrica | Formula |
@@ -367,14 +366,14 @@ Le metriche si aggiornano ogni volta che cambiano:
 
 ---
 
-## 12. Comparison report — colonne tabella (decisione su INC-2)
+## 12. Comparison report — colonne tabella (INC-2 + INC-8)
 
 Lista positiva completa colonne del comparison_report:
 
 | Colonna | Tipo | Note |
 |---------|------|------|
-| Policy Name | str | link al policy_report.html |
-| Net % | float | totale netto |
+| Policy Name | str | link al policy_report.html + badge `N excl.` se esclusioni attive |
+| Net % | float | totale netto (su trade filtrati + non esclusi) |
 | Gross % | float | totale lordo |
 | Max DD % | float | drawdown massimo |
 | Win Rate % | float | |
@@ -383,13 +382,49 @@ Lista positiva completa colonne del comparison_report:
 | Avg R | float | |
 | Best Trade % | float | |
 | Worst Trade % | float | |
-| Trades | int | numero trade nel context attivo |
+| Trades | int | numero trade inclusi nel calcolo (dopo filtri e esclusioni) |
 | Open Report | link | apre policy_report.html con context |
 
 **Evidenziazione migliori:**
 - Net %, Gross %, Win Rate %, Profit Factor, Expectancy %, Avg R, Best Trade %: evidenziare il massimo
 - Max DD %: evidenziare il minimo (il meno negativo)
 - Badge `Best` sotto il nome della policy con il miglior Net %
+
+---
+
+## 12b. Esclusioni manuali nel comparison — comportamento (INC-8)
+
+**Regola:** ogni policy nel comparison report viene calcolata applicando in sequenza:
+1. filtri del comparison context (su tutti i trade della policy)
+2. esclusioni manuali per-policy lette da `sessionStorage["policy_<name>_excluded"]`
+
+**Flusso JS in `applyContext(ctx)`:**
+
+```javascript
+function computePolicyMetrics(policyName, trades, ctx) {
+    // Step 1 — applica filtri context
+    let filtered = applyContextFilters(trades, ctx);
+
+    // Step 2 — applica esclusioni manuali per-policy
+    const excluded = JSON.parse(
+        sessionStorage.getItem(`policy_${policyName}_excluded`) || "[]"
+    );
+    const included = filtered.filter(t => !excluded.includes(t.signal_id));
+
+    // Step 3 — calcola metriche su `included`
+    return calcMetrics(included, excluded.length);
+}
+```
+
+**Badge `N excl.`:**
+- Se `excluded.length > 0`: mostrare accanto al nome policy `(N excl.)` in grigio
+- Tooltip: "N trades manually excluded in policy report session"
+- Se la policy non è mai stata aperta (sessionStorage assente): nessun badge, nessuna esclusione applicata
+
+**Cosa NON cambia:**
+- Le esclusioni rimangono in sessionStorage: non modificano `POLICY_DATA` embedded
+- Il pulsante "Reset context" nel comparison report non tocca le esclusioni per-policy
+- Solo il "Reset filters" nel policy report azzera le esclusioni di quella policy
 
 ---
 
