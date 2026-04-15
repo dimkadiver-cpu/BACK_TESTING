@@ -220,10 +220,19 @@ Legenda: `[ ]` = da fare, `[x]` = completato, `[~]` = parziale/bloccato
 - [ ] Badge `Filters active (N)` con N = count filtri attivi
 - [ ] Click badge → pannello filtri attivi espandibile
 - [ ] Se context vuoto: no badge, testo "No active context"
-- [ ] Pulsante "Reset context" → svuota sessionStorage["compCtx"], aggiorna tutto
+- [ ] Pulsante "Reset context" → svuota `sessionStorage["compCtx"]`, aggiorna metriche e badge
+- [ ] "Reset context" NON tocca `policy_<name>_excluded` (INC-8)
 
-### Tabella confronto
-- [ ] Colonne: Policy Name, Net %, Gross %, Max DD %, Win Rate %, Profit Factor, Expectancy %, Avg R, Best Trade %, Worst Trade %, Trades, Open Report
+### Tabella confronto — esclusioni per-policy (INC-8)
+- [ ] Per ogni policy, legge `sessionStorage["policy_<name>_excluded"]`
+- [ ] Le esclusioni sono applicate DOPO i filtri del context
+- [ ] Il badge `N excl.` appare accanto al nome policy se N > 0 (N = trade esclusi che sarebbero stati inclusi dopo i filtri)
+- [ ] Tooltip del badge: "N trades manually excluded in policy report session"
+- [ ] Se la policy non è mai stata aperta (sessionStorage assente): nessuna esclusione, nessun badge
+- [ ] I numeri nella colonna della policy sono coerenti con quelli visibili nel policy_report
+
+### Tabella confronto — colonne e UX
+- [ ] Colonne: Policy Name (+badge excl.), Net %, Gross %, Max DD %, Win Rate %, Profit Factor, Expectancy %, Avg R, Best Trade %, Worst Trade %, Trades, Open Report
 - [ ] Badge `Best` sotto policy migliore per Net %
 - [ ] Highlight celle: max per metriche positive, min per Max DD
 - [ ] Click Policy Name / Open Report → apre policy_report.html con context propagato
@@ -231,8 +240,9 @@ Legenda: `[ ]` = da fare, `[x]` = completato, `[~]` = parziale/bloccato
 ### Aggiornamento dinamico con context
 - [ ] Metriche ricalcolate in JS sui dati POLICY_DATA embedded
 - [ ] Tutti i filtri del context applicati ai trade per policy (date, trader, symbol, side, trade_status, close_reason, outcome)
+- [ ] Esclusioni per-policy applicate dopo i filtri (step 2 nella sequenza)
 - [ ] Highlights e badge aggiornati dopo ricalcolo
-- [ ] Si aggiorna quando torna in focus (window.addEventListener('focus', ...)) e legge sessionStorage
+- [ ] Si aggiorna quando torna in focus (`window.addEventListener('focus', ...)`) e rilegge sessionStorage
 
 ### Dati embedded
 - [ ] `<script>const POLICY_DATA = {...}</script>` nel HTML
@@ -258,16 +268,20 @@ Legenda: `[ ]` = da fare, `[x]` = completato, `[~]` = parziale/bloccato
 - [ ] Trade con update ravvicinati → no sovrapposizioni illeggibili
 
 ### Test navigazione inter-report
-- [ ] Comparison → Policy: Core filters pre-compilati nel policy report
+- [ ] Comparison → Policy: filtri del context pre-compilati nel policy report
 - [ ] Policy → Comparison: "Save context" aggiorna il comparison report
 - [ ] Policy → Trade: trade detail si apre correttamente
 - [ ] Trade → Policy: back link funziona
 
-### Test persistenza sessione
-- [ ] Esclusione trade in policy report → metriche aggiornate
-- [ ] Ricaricamento policy report → set esclusi ripristinato
-- [ ] Esclusioni NON visibili nel comparison report (INC-3 applicato)
-- [ ] Salvataggio context → comparison report si aggiorna
+### Test persistenza sessione — esclusioni (INC-8)
+- [ ] Esclusione trade in policy report → metriche del policy report aggiornate immediatamente
+- [ ] Ricaricamento policy report → set esclusi ripristinato da sessionStorage
+- [ ] Esclusioni del policy report visibili nel comparison: badge `N excl.` compare sulla policy corretta
+- [ ] Metriche comparison coerenti con metriche policy report (stesso Net% dopo esclusioni)
+- [ ] "Reset context" nel comparison NON azzera le esclusioni per-policy
+- [ ] "Reset filters" nel policy report azzera le esclusioni → comparison si aggiorna (badge sparisce)
+- [ ] Policy B senza esclusioni → nessun badge, nessuna differenza dai dati grezzi
+- [ ] Salvataggio context → comparison report si aggiorna con nuovi filtri + mantiene esclusioni
 
 ### Test acceptance criteria PRD-A §15
 - [ ] 1. Navigazione tra 3 livelli funzionante
