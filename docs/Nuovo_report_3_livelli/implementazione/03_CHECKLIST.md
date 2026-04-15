@@ -9,8 +9,8 @@ Legenda: `[ ]` = da fare, `[x]` = completato, `[~]` = parziale/bloccato
 
 ## PRE-REQUISITI (verifica prima di iniziare)
 
-- [ ] Letti tutti i documenti: PRD-A, PRD-B, 00_ANALISI_PRD_GAP.md, 01_REFERENCE_AGENTE.md, 02_PIANO_ATTUAZIONE.md
-- [ ] Test suite esistente passa: `pytest src/signal_chain_lab/policy_report/`
+- [x] Letti tutti i documenti: PRD-A, PRD-B, 00_ANALISI_PRD_GAP.md, 01_REFERENCE_AGENTE.md, 02_PIANO_ATTUAZIONE.md
+- [x] Test suite esistente passa: `pytest src/signal_chain_lab/policy_report/`
 - [ ] Il report di esempio in `docs/policy_report_full_example/` è apribile in browser senza errori
 - [ ] Confermata la lista di decisioni da 00_ANALISI_PRD_GAP.md con il product owner
 
@@ -18,22 +18,30 @@ Legenda: `[ ]` = da fare, `[x]` = completato, `[~]` = parziale/bloccato
 
 ## FASE 1 — Normalizzatore eventi canonico
 
+**Completato:** 2026-04-15 — branch `claude/implement-report-phase-1-UdCde`
+
 ### Implementazione
-- [ ] Creato `src/signal_chain_lab/policy_report/event_normalizer.py`
-- [ ] Definito dataclass `CanonicalEvent` con tutti i campi dello schema PRD-B §14
-- [ ] Implementata funzione `normalize_events(trade, event_log) -> list[CanonicalEvent]`
-- [ ] Mapping phase/class implementato per tutti i 17+ event_type rilevati nel codice
-- [ ] Tutti i subtype canonici PRD-B §15 supportati (17 subtype minimi)
-- [ ] Fallback a `SYSTEM_NOTE` per event_type sconosciuti
-- [ ] Campo `raw_text` propagato correttamente (solo per eventi TRADER)
+- [x] Creato `src/signal_chain_lab/policy_report/event_normalizer.py`
+- [x] Definito dataclass `ReportCanonicalEvent` con tutti i campi dello schema PRD-B §14
+  - Nota: il dataclass si chiama `ReportCanonicalEvent` (non `CanonicalEvent`) per non confondersi con `domain/events.py:CanonicalEvent` che è un modello di dominio diverso
+- [x] Implementata funzione `normalize_events(trade, event_log) -> list[ReportCanonicalEvent]`
+- [x] Mapping phase/class implementato per tutti i 7 EventType del codice (`OPEN_SIGNAL`, `ADD_ENTRY`, `MOVE_STOP`, `MOVE_STOP_TO_BE`, `CLOSE_PARTIAL`, `CLOSE_FULL`, `CANCEL_PENDING`)
+- [x] Tutti i subtype canonici PRD-B §15 supportati (17 subtype: SIGNAL_CREATED, ENTRY_PLANNED, ENTRY_FILLED, SCALE_IN_FILLED, MARKET_ENTRY_FILLED, SL_SET, SL_MOVED, BE_ACTIVATED, TP_ARMED, TP_HIT, PARTIAL_EXIT, FINAL_EXIT, SL_HIT, CANCELLED, EXPIRED, TIMEOUT, IGNORED, SYSTEM_NOTE)
+- [x] Fallback a `SYSTEM_NOTE` per event_type sconosciuti
+- [x] Campo `raw_text` propagato correttamente (solo per eventi TRADER)
+- Nota architetturale: i `event_type` nel codebase attuale sono i 7 valori dell'enum `EventType` (intent del trader/engine). Il subtype canonico è derivato combinando `event_type` + `processing_status` + `reason`. Il mapping è documentato in `event_normalizer.py`.
 
 ### Test
-- [ ] Creato `src/signal_chain_lab/policy_report/tests/test_event_normalizer.py`
-- [ ] Test: evento ENTRY_FILLED → subtype `ENTRY_FILLED`, phase `ENTRY`, class `STRUCTURAL`
-- [ ] Test: evento senza raw_text → campo `raw_text` None nel canonico
-- [ ] Test: evento IGNORED → class `AUDIT`
-- [ ] Test: trade senza eventi → lista vuota, nessun crash
-- [ ] `pytest` passa
+- [x] Creato `src/signal_chain_lab/policy_report/tests/__init__.py`
+- [x] Creato `src/signal_chain_lab/policy_report/tests/test_event_normalizer.py`
+- [x] Test: evento ADD_ENTRY applied → subtype `ENTRY_FILLED`, phase `ENTRY`, class `STRUCTURAL`
+- [x] Test: evento senza raw_text → campo `raw_text` None nel canonico
+- [x] Test: evento IGNORED → class `AUDIT`
+- [x] Test: trade senza eventi → lista vuota, nessun crash
+- [x] Test: fallback SYSTEM_NOTE per event_type sconosciuto
+- [x] Test: ImpactData estratto da state_after (open_size, current_sl, realized_pnl)
+- [x] Test: SL_HIT / FINAL_EXIT / TIMEOUT / CANCELLED discriminati dal campo `reason`
+- [x] `pytest` passa — 29/29 test OK
 
 ---
 
