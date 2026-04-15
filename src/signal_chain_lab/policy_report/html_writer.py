@@ -1408,11 +1408,10 @@ def _build_single_trade_hero(trade: TradeResult) -> str:
 
 def _build_event_rail_and_sidebar(trade: TradeResult, event_log: list[EventLogEntry]) -> tuple[str, str, str]:
     canonical = normalize_events(trade, event_log)
-    rail_items: list[str] = []
     sidebar_items: list[str] = []
     audit_items: list[str] = []
 
-    for idx, ev in enumerate(canonical):
+    for ev in canonical:
         row_id = _safe_dom_id(ev.id)
         chips = [ev.phase, ev.event_class, ev.subtype]
         chips_html = "".join(f"<span class='badge muted' style='font-size:11px'>{_escape(ch)}</span>" for ch in chips[:3])
@@ -1426,16 +1425,10 @@ def _build_event_rail_and_sidebar(trade: TradeResult, event_log: list[EventLogEn
                 f"<dialog id='{rid}'><div class='dialog-head'><strong>Raw message</strong><button class='inline-btn' type='button' onclick=\"closeText('{rid}')\">Close</button></div><div class='dialog-body'><pre class='code'>{_escape(ev.raw_text)}</pre></div></dialog>"
             )
 
-        rail_items.append(
-            f"<button type='button' class='rail-item' data-event-id='{row_id}' title='{_escape(ev.title)}'>"
-            f"<span class='badge muted' style='font-size:10px'>{_escape(ev.subtype)}</span>"
-            f"<span class='note'>{_escape(_fmt_timestamp(ev.ts))}</span></button>"
-        )
-
         sidebar_items.append(
             "<div class='ti-v2 unified-event' "
-            f"id='evt_{row_id}' data-event-id='{row_id}'>"
-            f"<div class='ti-v2-compact' onclick='toggleUnifiedEvent(this)'>"
+            f"id='evt_{row_id}' data-event-id='{row_id}' data-event-id-raw='{_escape(ev.id)}'>"
+            f"<div class='ti-v2-compact' data-event-id='{row_id}' data-event-id-raw='{_escape(ev.id)}' onclick='toggleUnifiedEvent(this)'>"
             f"<span class='ti-kind-badge ti-kind-UPDATE'>{_escape(ev.title)}</span>"
             f"<span class='note'>{_escape(_fmt_timestamp(ev.ts))}</span>"
             f"<span style='flex:1;min-width:0;font-size:13px;overflow:hidden;text-overflow:ellipsis'>{summary}</span>"
@@ -1460,33 +1453,34 @@ def _build_event_rail_and_sidebar(trade: TradeResult, event_log: list[EventLogEn
 
     js = """
 <script>
+function normEventId(value){
+  return String(value || '').replace(/[^A-Za-z0-9_-]/g, '_') || 'item';
+}
 function toggleUnifiedEvent(el){
   const container = el.closest('.unified-event');
   if(!container) return;
   const open = container.classList.contains('open');
   document.querySelectorAll('.unified-event.open').forEach(x=>x.classList.remove('open'));
   if(!open){ container.classList.add('open'); }
+  const eventId = container.getAttribute('data-event-id-raw') || container.getAttribute('data-event-id');
+  if(eventId){
+    window.dispatchEvent(new CustomEvent('trade-event-select', {detail:{eventId:eventId}}));
+  }
 }
-document.querySelectorAll('.rail-item').forEach((btn)=>{
-  btn.addEventListener('click', ()=>{
-    const eventId = btn.getAttribute('data-event-id');
+window.addEventListener('trade-event-focus', (evt)=>{
+    const eventIdRaw = evt && evt.detail ? evt.detail.eventId : null;
+    const eventId = normEventId(eventIdRaw);
+    if(!eventId) return;
     const target = document.getElementById('evt_' + eventId);
     if(!target) return;
     document.querySelectorAll('.unified-event.open').forEach(x=>x.classList.remove('open'));
     target.classList.add('open');
     target.scrollIntoView({behavior:'smooth', block:'nearest'});
-  });
 });
 </script>
 """
 
-    rail_html = (
-        "<div class='card'><h2>Event Rail</h2>"
-        "<div class='note' style='margin-bottom:8px'>Operational events timeline (toggleable from chart toolbar).</div>"
-        "<div id='event-rail-container' style='display:flex;gap:6px;overflow:auto;padding:6px;border:1px solid var(--line);border-radius:10px'>"
-        + ("".join(rail_items) or "<span class='note'>No events available.</span>")
-        + "</div></div>"
-    )
+    rail_html = ""
     sidebar_html = (
         "<div class='card'><h2>Unified operational events list</h2>"
         "<div class='note' style='margin-bottom:10px'>All events are collapsed by default. Click to expand details.</div>"

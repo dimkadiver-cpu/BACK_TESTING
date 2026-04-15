@@ -103,3 +103,19 @@ def test_multi_tp_segments_close_on_hit_or_trade_end() -> None:
 
     assert tp1["ts_end"] == (_BASE_TS + timedelta(minutes=12)).isoformat()
     assert tp2["ts_end"] == trade.closed_at.isoformat()
+
+
+def test_chart_events_include_stable_event_id_for_sidebar_sync() -> None:
+    trade = _trade(fills_count=1)
+    event_log = [
+        _ev(0, "OPEN_SIGNAL", state_after={"current_sl": 95.0, "tp_levels": [110.0], "avg_entry_price": 100.0}),
+        _ev(5, "MOVE_STOP", state_after={"current_sl": 97.0, "tp_levels": [110.0], "avg_entry_price": 100.0}),
+    ]
+
+    payload = build_trade_chart_payload(trade, event_log, candles_by_timeframe={})
+    events = payload["events"]
+
+    assert len(events) == 2
+    assert events[0]["event_id"] == "sig_phase2_0"
+    assert events[1]["event_id"] == "sig_phase2_1"
+    assert "summary" in events[0]

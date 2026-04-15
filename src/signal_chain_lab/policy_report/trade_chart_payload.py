@@ -15,6 +15,7 @@ _EVENT_KIND_MAP: dict[str, str] = {
     "TP_HIT": "TP",
     "SL_HIT": "SL",
     "MOVE_STOP_TO_BE": "MOVE_SL",
+    "BE_ACTIVATED": "BE",
     "MOVE_STOP": "MOVE_SL",
     "CLOSE_PARTIAL": "PARTIAL_CLOSE",
     "PARTIAL_CLOSE": "PARTIAL_CLOSE",
@@ -22,8 +23,9 @@ _EVENT_KIND_MAP: dict[str, str] = {
     "CLOSE": "CLOSE",
     "CANCEL_PENDING": "CANCEL",
     "CANCEL": "CANCEL",
-    "EXPIRED": "CANCEL",
-    "TIMEOUT": "CANCEL",
+    "EXPIRED": "EXPIRED",
+    "TIMEOUT": "TIMEOUT",
+    "SYSTEM_NOTE": "SYSTEM_NOTE",
 }
 
 _LEVEL_COLORS: dict[str, str] = {
@@ -318,7 +320,7 @@ def _build_events(
 ) -> list[dict[str, object]]:
     # Canonical kind list — must match visibility keys ev_* in trade_chart_echarts.py
     events: list[dict[str, object]] = []
-    for entry in event_log:
+    for idx, entry in enumerate(event_log):
         ts = _to_epoch_ms(entry.timestamp)
         if ts is None:
             continue
@@ -360,6 +362,7 @@ def _build_events(
 
         events.append(
             {
+                "event_id": f"{trade.signal_id}_{idx}",
                 "ts": ts,
                 "price": price,
                 "kind": kind,
@@ -367,6 +370,7 @@ def _build_events(
                 "return_pct": return_pct,
                 "source": entry.source or "engine",
                 "event_type_raw": entry.event_type or "",
+                "summary": entry.executed_action or entry.requested_action or entry.reason or (entry.event_type or kind),
             }
         )
 

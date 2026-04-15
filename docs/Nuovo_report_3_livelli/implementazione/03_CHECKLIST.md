@@ -73,7 +73,7 @@ Legenda: `[ ]` = da fare, `[x]` = completato, `[~]` = parziale/bloccato
 
 ## FASE 3 — Single trade report HTML (layout PRD-B)
 
-**Stato:** 2026-04-15 — parziale (layout base PRD-B implementato, integrazioni chart/rail avanzate ancora aperte)
+**Stato:** 2026-04-15 — aggiornato (sync chart/rail + interazioni bidirezionali completate)
 
 ### Hero compact
 - [x] Campi presenti: symbol/side/status, return % net, return % gross, costs total %, fees %, funding %, R, MAE %, MFE %, duration
@@ -101,15 +101,15 @@ Legenda: `[ ]` = da fare, `[x]` = completato, `[~]` = parziale/bloccato
 - [x] Zoom e pan funzionanti
 - [x] Livelli allineati con candele durante zoom/pan
 - [x] Volume toggle funzionante e allineato all'asse temporale
-- [~] Nessun desync tra chart, rail, volume durante navigazione
+- [x] Nessun desync tra chart, rail, volume durante navigazione
 
 ### Event rail
 - [x] Visibile di default
 - [x] Nascondibile via toggle
-- [~] Stessa scala temporale del chart
-- [~] Si aggiorna con zoom/pan
-- [ ] Lane separate per eventi vicini nello stesso timestamp
-- [~] Simboli coerenti per categoria (SL_MOVED, BE_ACTIVATED, CANCELLED, EXPIRED, TIMEOUT, SYSTEM_NOTE)
+- [x] Stessa scala temporale del chart
+- [x] Si aggiorna con zoom/pan
+- [x] Lane separate per eventi vicini nello stesso timestamp
+- [x] Simboli coerenti per categoria (SL_MOVED, BE_ACTIVATED, CANCELLED, EXPIRED, TIMEOUT, SYSTEM_NOTE)
 
 ### Sidebar — lista eventi unificata
 - [x] UN SOLO componente (no `Selected event summary` + `Operational timeline` separati)
@@ -118,9 +118,9 @@ Legenda: `[ ]` = da fare, `[x]` = completato, `[~]` = parziale/bloccato
 - [x] Click → espande item; espansione di un item chiude gli altri
 - [x] Vista collassata: timestamp + label + breve descrizione + chip
 - [x] Vista espansa: dettaglio evento + raw text button (solo se source=TRADER)
-- [ ] Click evento sul chart → evidenzia e apre item corrispondente in sidebar
+- [x] Click evento sul chart → evidenzia e apre item corrispondente in sidebar
 - [x] Click evento sulla rail → stessa cosa
-- [ ] Click item sidebar → evidenzia evento su chart o rail
+- [x] Click item sidebar → evidenzia evento su chart o rail
 - [~] Setup item mostra: symbol, side, tipo entry, livelli entry, SL, TP (se pertinenti)
 - [x] NO dump raw di requested_action / executed_action in vista base
 - [x] Audit drawer separato (vedi sotto)
