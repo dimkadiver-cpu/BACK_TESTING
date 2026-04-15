@@ -217,6 +217,8 @@ execution:
 
   # Usato solo con fee_model: fixed_bps
   fee_bps: 0.0
+  maker_fee_bps: null
+  taker_fee_bps: null
 
   # Modello funding rate per futures perpetui.
   # none       → nessun funding applicato (default)

@@ -317,6 +317,8 @@ class ExecutionPolicy(BaseModel):
     fill_touch_guaranteed: bool = True
     fee_model: str = "none"
     fee_bps: float = 0.0
+    maker_fee_bps: float | None = None
+    taker_fee_bps: float | None = None
     market_fill_mode: str = "current_open"
     market_requested_price_mode: str = "reference"
     market_price_proxy: str = "hl2"

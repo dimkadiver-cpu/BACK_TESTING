@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import math
 
 from src.signal_chain_lab.domain.enums import ChainInputMode, EventSource, EventType
 from src.signal_chain_lab.domain.events import CanonicalChain, CanonicalEvent
@@ -92,6 +93,37 @@ def _chain_open_market(payload: dict) -> CanonicalChain:
     )
 
 
+def _chain_open_limit(payload: dict) -> CanonicalChain:
+    event = CanonicalEvent(
+        signal_id="sig_limit_001",
+        trader_id="trader_test",
+        symbol="BTCUSDT",
+        side="BUY",
+        timestamp=_utc("2026-01-01T00:00:00"),
+        event_type=EventType.OPEN_SIGNAL,
+        source=EventSource.TRADER,
+        payload={
+            "entry_type": "LIMIT",
+            "entry_prices": [100.0],
+            "sl_price": 50.0,
+            "tp_levels": [200.0],
+            **payload,
+        },
+        sequence=1,
+    )
+    return CanonicalChain(
+        signal_id="sig_limit_001",
+        trader_id="trader_test",
+        symbol="BTCUSDT",
+        side="BUY",
+        input_mode=ChainInputMode.CHAIN_COMPLETE,
+        has_updates_in_dataset=False,
+        created_at=_utc("2026-01-01T00:00:00"),
+        metadata={"timeframe": "1h"},
+        events=[event],
+    )
+
+
 def test_market_fill_mode_next_open_waits_next_candle() -> None:
     chain = _chain_open_market(payload={})
     policy = PolicyConfig.model_validate(
@@ -164,3 +196,32 @@ def test_market_requested_price_strict_with_clamp() -> None:
     assert len(state.fills) == 1
     # requested 999 clamped to candle high=125
     assert state.fills[0].price == 125.0
+
+
+def test_maker_taker_fee_roles_for_entry_and_close() -> None:
+    chain = _chain_open_limit(payload={})
+    policy = PolicyConfig.model_validate(
+        {
+            "name": "p",
+            "execution": {
+                "fee_model": "fixed_bps",
+                "fee_bps": 10.0,
+                "maker_fee_bps": 2.0,
+                "taker_fee_bps": 8.0,
+            },
+            "pending": {"pending_timeout_hours": 9999, "chain_timeout_hours": 9999},
+        }
+    )
+    provider = _ListProvider(
+        [
+            _candle("2026-01-01T00:00:00", open_=101.0, high=105.0, low=99.0, close=103.0),
+            _candle("2026-01-01T01:00:00", open_=150.0, high=210.0, low=149.0, close=205.0),
+        ]
+    )
+
+    _logs, state = simulate_chain(chain, policy, market_provider=provider)
+
+    # entry limit fill = maker (100 * 1 * 2bps = 0.02)
+    # TP close = maker (200 * 1 * 2bps = 0.04)
+    assert math.isclose(state.fees_paid, 0.06, rel_tol=0.0, abs_tol=1e-12)
+    assert math.isclose(state.close_fees_paid, 0.04, rel_tol=0.0, abs_tol=1e-12)
