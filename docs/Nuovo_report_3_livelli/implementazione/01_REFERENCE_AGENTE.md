@@ -211,28 +211,42 @@ Average entry: colore distinto (es. ciano #0891b2), linea continua
 
 ---
 
-## 6. Filtri Core vs Local — definizione operativa
+## 6. Filtri — modello unificato (INC-7 approvata)
 
-### Core filters (salvabili nel comparison context)
+**Non esiste più la distinzione Core/Local.**  
+Tutti i filtri sono dello stesso tipo: agiscono sulla trade list e sono tutti salvabili nel comparison context.  
+Le esclusioni manuali per-trade rimangono separate (non sono filtri).
+
+### Filtri unificati
 | Filtro | Widget | Valori |
 |--------|--------|--------|
 | date range | date range picker (from/to) | ISO date |
 | trader | dropdown / text | trader_id o "all" |
 | symbol | text input (multi-value) | es. "BTCUSDT, ETHUSDT" |
 | side | dropdown | All / LONG / SHORT |
-| trade status | dropdown multi | closed / expired / cancelled / open |
-
-### Local filters (non salvabili)
-| Filtro | Widget | Valori |
-|--------|--------|--------|
-| close reason | dropdown multi | tp / sl / manual / expired / cancelled / timeout |
+| trade status | checkbox multi | closed / expired / cancelled / open |
+| close reason | checkbox multi | tp / sl / manual / expired / cancelled / timeout |
 | outcome | dropdown | All / gain / loss / flat |
 
-**Nota:** `side` è stato rimosso dai Local filters (INC-1). È solo Core.
+`outcome` è derivato da `Net %`: gain = Net% > 0, loss = Net% < 0, flat = Net% == 0.
+
+### UI del pannello filtri nel `single_policy_report`
+```
+┌─ Filters ──────────────────────────────────────────────────────┐
+│  Date range: [from]──[to]   Trader: [____]   Symbol: [_______] │
+│  Side: [All▾]   Status: [✓closed ✓expired □cancelled □open]    │
+│  Close reason: [✓tp ✓sl □manual □expired □cancelled □timeout]  │
+│  Outcome: [All▾]                                               │
+│                                                                 │
+│  [Apply]  [Save as comparison context]  [Reset filters]        │
+└────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
 ## 7. Comparison context — struttura JSON
+
+Contiene l'intero stato filtri al momento del salvataggio.
 
 ```json
 {
@@ -242,11 +256,15 @@ Average entry: colore distinto (es. ciano #0891b2), linea continua
   "trader": "trader_a",
   "symbols": ["BTCUSDT", "ETHUSDT"],
   "side": "LONG",
-  "trade_status": ["closed", "expired"]
+  "trade_status": ["closed", "expired"],
+  "close_reason": ["tp", "sl"],
+  "outcome": "gain"
 }
 ```
 
 Chiave sessionStorage: `"compCtx"` (costante condivisa tra tutti i file HTML della stessa sessione).
+
+Campi omessi o `null` = filtro non attivo (nessun vincolo su quel campo).
 
 ---
 
@@ -254,14 +272,24 @@ Chiave sessionStorage: `"compCtx"` (costante condivisa tra tutti i file HTML del
 
 ```javascript
 // Globale (per tutto il report set)
-sessionStorage["compCtx"]         // comparison context JSON
+sessionStorage["compCtx"]         // comparison context JSON (filtri unificati)
 sessionStorage["reportRoot"]      // pathname radice (da comparison_report.html)
 
 // Per policy (chiave per policy_name)
-sessionStorage["policy_<name>_filters"]    // filtri locali attivi JSON
-sessionStorage["policy_<name>_sort"]       // sort attivo JSON
-sessionStorage["policy_<name>_excluded"]   // lista signal_id esclusi JSON array
+// Nota: ora c'è un solo set filtri, non più "local" separati
+sessionStorage["policy_<name>_filters"]    // filtri attivi nel policy report (stesso schema compCtx)
+sessionStorage["policy_<name>_sort"]       // sort attivo JSON {col, dir}
+sessionStorage["policy_<name>_excluded"]   // lista signal_id esclusi manualmente JSON array
 ```
+
+**Flusso sessionStorage:**
+
+1. Apertura `comparison_report.html` → legge `compCtx`, applica al ricalcolo metriche
+2. Click su policy → apre `policy_report.html` passando context via URL param `?ctx=<encoded>` oppure via `sessionStorage["compCtx"]`
+3. `policy_report.html` all'apertura → legge `compCtx` e pre-popola i filtri; legge `policy_<name>_filters` per ripristinare lo stato locale precedente
+4. Utente modifica filtri → scrive `sessionStorage["policy_<name>_filters"]`
+5. Utente clicca "Save as comparison context" → sovrascrive `sessionStorage["compCtx"]` con i filtri correnti del policy report
+6. Utente torna al `comparison_report` → `focus` event rilegge `compCtx` e aggiorna la tabella
 
 ---
 

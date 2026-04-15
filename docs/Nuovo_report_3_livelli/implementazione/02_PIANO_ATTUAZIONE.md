@@ -159,15 +159,15 @@ Single Trade Report
 **Obiettivo:** Riscrivere `write_policy_html_report` in `html_writer.py` con il layout PRD-A.  
 **File:** `src/signal_chain_lab/policy_report/html_writer.py`
 
-### Layout obbligatorio (PRD-A §9, §10)
+### Layout obbligatorio (PRD-A §9, §10 — aggiornato con INC-7)
 ```
 Policy Report
 ├─ Titolo
 ├─ Dataset metadata (collapsible)
 ├─ Metadata — policy.yaml values (collapsible)
-├─ Core filters (sempre visibile, sopra le metriche)
-├─ Local filters (sempre visibile, accanto/sotto i Core)
-├─ Button "Save as comparison context"
+├─ Filtri unificati (sempre visibile, sopra le metriche)
+│   └─ [Apply]  [Save as comparison context]  [Reset filters]
+├─ Contatori base
 ├─ Metriche cumulative base (aggiornabili dinamicamente)
 ├─ Trade list (tabella con checkbox Include)
 └─ Segnali esclusi (collapsible, separato dalla trade list)
@@ -183,19 +183,23 @@ Dataset metadata (collapsible):
 policy.yaml values (collapsible):
 - tabella chiave/valore dei parametri policy
 
-**4b. Filtri Core e Local**
-Core filters (widget):
+**4b. Filtri unificati** (INC-7 — nessuna distinzione Core/Local)
+
+Un solo pannello filtri con tutti i widget:
 - Date range (from/to date input)
 - Trader (text o dropdown)
 - Symbol (text multi-value)
 - Side (dropdown: All / LONG / SHORT)
 - Trade Status (checkbox multi: closed, expired, cancelled, open)
-
-Local filters (widget, separati visivamente):
 - Close Reason (checkbox multi: tp, sl, manual, expired, cancelled, timeout)
 - Outcome (dropdown: All / gain / loss / flat)
 
-Pulsante "Save as comparison context": salva solo Core filters in `sessionStorage["compCtx"]`
+Tre pulsanti azioni:
+- `Apply` — applica i filtri alla trade list e aggiorna le metriche
+- `Save as comparison context` — serializza l'intero stato filtri in `sessionStorage["compCtx"]`
+- `Reset filters` — azzera tutti i filtri e ripristina tutte le checkbox Include
+
+Nessuna separazione visiva "Core vs Local" nel pannello — è un unico blocco.
 
 **4c. Contatori base**
 - Simulated chains
@@ -220,17 +224,18 @@ Colonne: vedere 01_REFERENCE_AGENTE.md §10.
 
 **4g. Persistenza sessione**
 All'apertura del policy report:
-- leggere `sessionStorage["compCtx"]` e pre-popolare i Core filters
-- leggere `sessionStorage["policy_<name>_filters"]` e ripristinare Local filters
-- leggere `sessionStorage["policy_<name>_excluded"]` e ripristinare checkbox esclusi
+- leggere `sessionStorage["compCtx"]` e pre-popolare i filtri (l'intero stato)
+- se esiste `sessionStorage["policy_<name>_filters"]`, ha precedenza su compCtx (stato locale più recente)
+- leggere `sessionStorage["policy_<name>_excluded"]` e ripristinare checkbox Include
 - leggere `sessionStorage["policy_<name>_sort"]` e ripristinare sort
 
 All'interazione utente:
-- scrivere in sessionStorage i valori correnti (filtri, esclusi, sort)
+- scrivere in `sessionStorage["policy_<name>_filters"]` ad ogni cambio filtro
+- scrivere in `sessionStorage["policy_<name>_excluded"]` ad ogni cambio checkbox
+- scrivere in `sessionStorage["policy_<name>_sort"]` ad ogni cambio sort
 
-**4h. Reset controls**
-- "Reset local filters" → azzera solo Local filters + ripristina tutte le checkbox Include
-- "Reset all" (opzionale) → azzera tutti i filtri, inclusi i Core
+Al click "Save as comparison context":
+- sovrascrivere `sessionStorage["compCtx"]` con il contenuto corrente di `policy_<name>_filters`
 
 **4i. Dati embedded**
 Il Python deve embedded nel policy_report.html la lista trade completa come JSON:

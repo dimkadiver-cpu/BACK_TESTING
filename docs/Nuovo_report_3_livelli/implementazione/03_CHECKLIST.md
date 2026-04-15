@@ -138,20 +138,19 @@ Legenda: `[ ]` = da fare, `[x]` = completato, `[~]` = parziale/bloccato
 - [ ] No `Dataset Name` duplicato (INC-4 applicato)
 - [ ] policy.yaml values (collapsible): tabella chiave/valore
 
-### Filtri Core
+### Filtri unificati (INC-7 — nessuna distinzione Core/Local)
+- [ ] Un solo pannello filtri (non due sezioni separate)
 - [ ] Date range picker (from/to)
 - [ ] Trader input
 - [ ] Symbol input (multi-value)
 - [ ] Side dropdown (All / LONG / SHORT)
 - [ ] Trade Status checkbox multi (closed, expired, cancelled, open)
-- [ ] Pulsante "Save as comparison context": salva solo Core in sessionStorage
-- [ ] `side` NON presente nei Local filters (INC-1 applicato)
-
-### Filtri Local
-- [ ] Close Reason checkbox multi
+- [ ] Close Reason checkbox multi (tp, sl, manual, expired, cancelled, timeout)
 - [ ] Outcome dropdown (All / gain / loss / flat)
-- [ ] Separati visivamente dai Core filters
-- [ ] Label che indica "local — not saved to context"
+- [ ] Pulsante `Apply` — applica filtri e aggiorna metriche
+- [ ] Pulsante `Save as comparison context` — salva l'intero stato filtri in `sessionStorage["compCtx"]`
+- [ ] Pulsante `Reset filters` — azzera tutti i filtri e ripristina tutte le checkbox Include
+- [ ] Nessuna label "local" o "core" visibile in UI
 
 ### Contatori base
 - [ ] Simulated chains
@@ -190,15 +189,15 @@ Legenda: `[ ]` = da fare, `[x]` = completato, `[~]` = parziale/bloccato
 - [ ] Colonne: Signal ID, Symbol, Reason, Note, Raw Message Text
 - [ ] Click Raw Message Text → modal con testo originale
 
-### Reset controls
-- [ ] Pulsante "Reset local filters"
-- [ ] Ripristina anche tutte le checkbox Include (riattiva tutti i trade)
-
 ### Persistenza sessione
-- [ ] All'apertura: legge sessionStorage e ripristina Core filters, Local filters, excluded set, sort
-- [ ] Ad ogni interazione: scrive in sessionStorage
-- [ ] Chiave per Core: `compCtx`
-- [ ] Chiave per Local: `policy_<name>_filters`, `policy_<name>_sort`, `policy_<name>_excluded`
+- [ ] All'apertura: legge `sessionStorage["compCtx"]` e pre-popola i filtri
+- [ ] Se esiste `policy_<name>_filters`, ha precedenza su `compCtx` (stato locale più recente)
+- [ ] All'apertura: ripristina `policy_<name>_excluded` (checkbox Include)
+- [ ] All'apertura: ripristina `policy_<name>_sort`
+- [ ] Ad ogni cambio filtro: scrive `policy_<name>_filters`
+- [ ] Ad ogni cambio checkbox Include: scrive `policy_<name>_excluded`
+- [ ] Ad ogni cambio sort: scrive `policy_<name>_sort`
+- [ ] Click "Save as comparison context": sovrascrive `compCtx` con `policy_<name>_filters`
 
 ### Dati embedded
 - [ ] `<script>const TRADE_DATA = [...]</script>` nel HTML
@@ -231,7 +230,7 @@ Legenda: `[ ]` = da fare, `[x]` = completato, `[~]` = parziale/bloccato
 
 ### Aggiornamento dinamico con context
 - [ ] Metriche ricalcolate in JS sui dati POLICY_DATA embedded
-- [ ] Filtri Core del context applicati ai trade per policy
+- [ ] Tutti i filtri del context applicati ai trade per policy (date, trader, symbol, side, trade_status, close_reason, outcome)
 - [ ] Highlights e badge aggiornati dopo ricalcolo
 - [ ] Si aggiorna quando torna in focus (window.addEventListener('focus', ...)) e legge sessionStorage
 

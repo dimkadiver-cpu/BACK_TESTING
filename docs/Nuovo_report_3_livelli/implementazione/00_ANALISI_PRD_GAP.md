@@ -257,6 +257,8 @@ Questi 4 valori devono essere l'elenco del dropdown filtro.
 - `flat`: `Net % == 0`
 - `All`: nessun filtro
 
+**Nota:** superseded da INC-7 — `outcome` è ora filtro unificato (Core).
+
 ---
 
 ### GAP-3 — `Warn` vs `Warnings` — naming inconsistente
@@ -335,16 +337,45 @@ class EventLogEntry(BaseModel):
 
 ---
 
+---
+
+### INC-7 — Distinzione Core/Local filtri è artificiale — APPROVATA unificazione
+
+**Posizione:** PRD-A §9.5.1, §9.5.2
+
+**Problema:**
+La separazione Core/Local presuppone che `close reason` e `outcome` non siano "portabili" nel comparison context. Questa ipotesi è falsa:
+- "Confronta le policy solo sui trade chiusi in TP" → filtro `close reason = TP` è pienamente comparabile cross-policy.
+- "Confronta le policy solo sui trade in gain" → filtro `outcome = gain` è pienamente comparabile cross-policy.
+
+Tutti i filtri agiscono sulla stessa trade list. Non esiste un filtro che abbia senso solo per una singola policy e non per un confronto.
+
+L'unica distinzione che mantiene senso è tra **filtri** (tutti riapplicabili) e **esclusioni manuali per-trade** (specifiche di un trade, non portabili).
+
+**Decisione approvata:** Opzione A — unificazione totale.
+
+**Modello risultante:**
+- Un solo pannello filtri nel `single_policy_report`
+- Tutti i filtri sono Core e tutti salvabili nel comparison context
+- Filtri unificati: `date range`, `trader`, `symbol`, `side`, `trade status`, `close reason`, `outcome`
+- Le esclusioni manuali per-trade rimangono separate (non sono filtri)
+- Pulsante "Save as comparison context" salva l'intero stato filtri
+
+**Impatto su INC-1:** La rimozione di `side` dai Local filters (INC-1) è ora irrilevante: la distinzione Core/Local non esiste più.
+
+---
+
 ## Riepilogo decisioni concordate
 
 | ID | Decisione |
 |----|-----------|
-| INC-1 | `side` rimosso dai Local filters, rimane solo Core |
+| INC-1 | Superato da INC-7 |
 | INC-2 | Lista colonne comparison definita in 02_PIANO_ATTUAZIONE.md §4 |
 | INC-3 | Esclusioni manuali NON passano al comparison report (§11.2 prevalente) |
 | INC-4 | Secondo `Dataset Name` → `Source DB` |
 | INC-5 | PRD-B prevale su DELTA: no avg/fill nell'hero compact |
 | INC-6 | PRD-B prevale su DELTA: solo Volume e Event Rail come toggle |
+| **INC-7** | **Filtri unificati — nessuna distinzione Core/Local. Tutti salvabili nel comparison context.** |
 | AMB-1 | "Da zero" = rifacimento layout HTML, non del backend Python |
 | AMB-2 | Nav menu: Prev/Back/Next, senza filtri winning/losing |
 | AMB-3 | Propagazione context via sessionStorage con chiave da pathname |
