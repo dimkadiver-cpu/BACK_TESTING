@@ -384,7 +384,13 @@ def _process_single_candle(
             state=state, resolution=resolution
         )
         if close_qty > 0 and close_exit_price > 0:
-            close_fee = compute_close_fee(close_exit_price, close_qty, policy)
+            close_liquidity_role = "maker" if resolution.outcome == "tp_hit" else "taker"
+            close_fee = compute_close_fee(
+                close_exit_price,
+                close_qty,
+                policy,
+                liquidity_role=close_liquidity_role,
+            )
             state.realized_pnl -= close_fee
             state.fees_paid += close_fee
             state.close_fees_paid += close_fee

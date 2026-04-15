@@ -14,7 +14,7 @@ _logger = logging.getLogger(__name__)
 LIMIT_TOUCH_ASSUMPTION_WARNING = "LIMIT_TOUCH_FILLED_V1_ASSUMPTION"
 
 
-def _compute_fee(price: float, qty: float, policy: PolicyConfig) -> float:
+def _compute_fee(price: float, qty: float, policy: PolicyConfig, liquidity_role: str | None = None) -> float:
     """Compute the trading fee for a fill based on the configured fee model.
 
     Supported models:
@@ -27,7 +27,15 @@ def _compute_fee(price: float, qty: float, policy: PolicyConfig) -> float:
     if model in {"none", ""}:
         return 0.0
     if model == "fixed_bps":
-        bps = float(policy.execution.fee_bps)
+        role = (liquidity_role or "").strip().lower()
+        bps_value: float | None = None
+        if role == "maker" and policy.execution.maker_fee_bps is not None:
+            bps_value = float(policy.execution.maker_fee_bps)
+        elif role == "taker" and policy.execution.taker_fee_bps is not None:
+            bps_value = float(policy.execution.taker_fee_bps)
+        else:
+            bps_value = float(policy.execution.fee_bps)
+        bps = float(bps_value)
         if bps <= 0:
             return 0.0
         return price * qty * bps / 10_000.0
@@ -80,7 +88,7 @@ def fill_market_order(
         qty=qty,
         timestamp=apply_latency(event_timestamp, latency_ms),
         source_event_sequence=source_event_sequence,
-        fee_paid=_compute_fee(fill_price, qty, policy),
+        fee_paid=_compute_fee(fill_price, qty, policy, liquidity_role="taker"),
     )
 
 
@@ -114,14 +122,20 @@ def try_fill_limit_order_touch(
         qty=qty,
         timestamp=apply_latency(candle.timestamp, latency_ms),
         source_event_sequence=source_event_sequence,
-        fee_paid=_compute_fee(limit_price, qty, policy),
+        fee_paid=_compute_fee(limit_price, qty, policy, liquidity_role="maker"),
     )
 
 
-def compute_close_fee(exit_price: float, close_qty: float, policy: PolicyConfig) -> float:
+def compute_close_fee(
+    exit_price: float,
+    close_qty: float,
+    policy: PolicyConfig,
+    *,
+    liquidity_role: str | None = None,
+) -> float:
     """Compute the trading fee for a TP or SL close event.
 
     Uses the same fee model as entry fills. Call this after resolving a close
     and deduct the result from ``state.realized_pnl`` / add to ``state.fees_paid``.
     """
-    return _compute_fee(exit_price, close_qty, policy)
+    return _compute_fee(exit_price, close_qty, policy, liquidity_role=liquidity_role)

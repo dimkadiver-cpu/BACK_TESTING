@@ -247,6 +247,13 @@ execution:
   # Usato solo con fee_model: fixed_bps
   fee_bps: 0.0
 
+  # Override opzionali per distinguere maker/taker:
+  # - maker_fee_bps: applicato a fill limit (entry) e TP hit (close)
+  # - taker_fee_bps: applicato a fill market (entry) e SL hit (close)
+  # Se omessi/null, il simulatore usa fee_bps come fallback.
+  maker_fee_bps: null
+  taker_fee_bps: null
+
   # Modello funding rate per futures perpetui.
   # none       → nessun funding applicato (default)
   # historical → usa i dati storici scaricati da Bybit (PRD: docs/PRD_funding_model.md)
