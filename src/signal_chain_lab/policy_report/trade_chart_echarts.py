@@ -11,6 +11,7 @@ _CHART_JS = r"""
 (function () {
   'use strict';
   var chartEl   = document.getElementById('%%CHART_ID%%');
+  var railEl    = document.getElementById('%%CHART_ID%%_rail');
   var payloadEl = document.getElementById('%%CHART_ID%%_payload');
   if (!chartEl || !payloadEl) { return; }
 
@@ -25,6 +26,7 @@ _CHART_JS = r"""
   var fillsCount     = meta.fills_count || 0;
 
   var chart = echarts.init(chartEl, null, {renderer: 'canvas'});
+  var railChart = railEl ? echarts.init(railEl, null, {renderer: 'canvas'}) : null;
 
   // ---- level line colours (must match LEVEL_SERIES keys below) --------------
   var LEVEL_COLOR = {
@@ -43,18 +45,26 @@ _CHART_JS = r"""
     'TP':            '#15803d',
     'SL':            '#b91c1c',
     'MOVE_SL':       '#c2410c',
+    'BE':            '#f59e0b',
     'PARTIAL_CLOSE': '#7c3aed',
     'CLOSE':         '#7c3aed',
-    'CANCEL':        '#64748b'
+    'CANCEL':        '#64748b',
+    'EXPIRED':       '#64748b',
+    'TIMEOUT':       '#475569',
+    'SYSTEM_NOTE':   '#94a3b8'
   };
   var KIND_SYMBOL = {
     'FILL':          'circle',
     'TP':            'diamond',
     'SL':            'triangle',
     'MOVE_SL':       'rect',
+    'BE':            'pin',
     'PARTIAL_CLOSE': 'roundRect',
     'CLOSE':         'diamond',
-    'CANCEL':        'triangle'
+    'CANCEL':        'triangle',
+    'EXPIRED':       'triangle',
+    'TIMEOUT':       'triangle',
+    'SYSTEM_NOTE':   'circle'
   };
   function kindColor(k)  { return KIND_COLOR[k]  || '#f59e0b'; }
   function kindSymbol(k) { return KIND_SYMBOL[k] || 'circle'; }
@@ -74,9 +84,14 @@ _CHART_JS = r"""
     ev_TP:            true,
     ev_SL:            true,
     ev_MOVE_SL:       true,
+    ev_BE:            true,
     ev_CLOSE:         true,
     ev_PARTIAL_CLOSE: true,
     ev_CANCEL:        false,
+    ev_EXPIRED:       true,
+    ev_TIMEOUT:       true,
+    ev_SYSTEM_NOTE:   true,
+    event_rail:      true,
     // secondary overlays (existing toggles, unchanged)
     volume:       false,
     pos_size:     false,
@@ -130,6 +145,8 @@ _CHART_JS = r"""
         value:       [e.ts, e.price],
         name:        e.label || e.kind,
         kind:        e.kind,
+        event_id:    e.event_id || null,
+        summary:     e.summary || '',
         source:      e.source || '',
         return_pct:  e.return_pct != null ? e.return_pct : null,
         itemStyle:   {color: kindColor(e.kind), borderColor: '#ffffff', borderWidth: 1.5},
@@ -137,8 +154,64 @@ _CHART_JS = r"""
       };
     });
   }
+  function buildRailData() {
+    var allowed = {'MOVE_SL':true, 'CANCEL':true, 'EXPIRED':true, 'TIMEOUT':true, 'SYSTEM_NOTE':true, 'BE':true};
+    var grouped = {};
+    var list = [];
+    (events || []).forEach(function (e) {
+      var k = e.kind || '';
+      if (!allowed[k]) { return; }
+      var key = String(e.ts);
+      if (!grouped[key]) { grouped[key] = 0; }
+      var lane = grouped[key];
+      grouped[key] += 1;
+      list.push({
+        value: [e.ts, lane],
+        name: e.label || k,
+        kind: k,
+        event_id: e.event_id || null,
+        summary: e.summary || ''
+      });
+    });
+    return list;
+  }
   function buildStepData(pts) {
     return pts.map(function (p) { return [p[0], p[1]]; });
+  }
+  function buildRailOption() {
+    return {
+      animation: false,
+      grid: {left: 80, right: 24, top: 8, bottom: 28},
+      xAxis: {type: 'time', scale: true, axisLine: {lineStyle: {color: '#cbd5e1'}}, splitLine: {show: false}},
+      yAxis: {
+        type: 'value',
+        min: -0.5,
+        max: 4.5,
+        interval: 1,
+        axisLabel: {formatter: function (v) { return 'L' + (v + 1); }},
+        splitLine: {show: false}
+      },
+      tooltip: {
+        trigger: 'item',
+        formatter: function (p) {
+          if (!p || !p.data) { return ''; }
+          var d = p.data;
+          var ts = new Date(d.value[0]).toISOString().replace('T', ' ').slice(0, 19);
+          return '<b>' + (d.kind || '') + '</b><br/>' + ts + '<br/>' + (d.summary || '');
+        }
+      },
+      dataZoom: [
+        {type: 'inside', xAxisIndex: [0], filterMode: 'none'},
+        {type: 'slider', xAxisIndex: [0], bottom: 0, height: 18, borderColor: '#e2e8f0'}
+      ],
+      series: [{
+        id: 'rail_events',
+        type: 'scatter',
+        data: buildRailData(),
+        symbolSize: 11,
+        itemStyle: {color: function (p) { return kindColor(p.data.kind); }},
+      }]
+    };
   }
 
   // ---- build full option ---------------------------------------------------
@@ -281,6 +354,10 @@ _CHART_JS = r"""
 
   // ---- initial render -------------------------------------------------------
   chart.setOption(buildOption(currentTF));
+  if (railChart) {
+    railChart.setOption(buildRailOption());
+    railEl.style.display = visibility.event_rail ? '' : 'none';
+  }
 
   // ---- timeframe switch -----------------------------------------------------
   function setTF(tf) {
@@ -290,6 +367,9 @@ _CHART_JS = r"""
     document.querySelectorAll('.%%CHART_ID%%-tf').forEach(function (btn) {
       btn.classList.toggle('active', btn.getAttribute('data-tf') === tf);
     });
+    if (railChart) {
+      railChart.setOption({series: [{id: 'rail_events', data: buildRailData()}]});
+    }
   }
   document.querySelectorAll('.%%CHART_ID%%-tf').forEach(function (btn) {
     btn.addEventListener('click', function () { setTF(btn.getAttribute('data-tf')); });
@@ -306,6 +386,11 @@ _CHART_JS = r"""
   // ---- toggle buttons with optional timeline sync --------------------------
   function rebuildChart() {
     chart.setOption(buildOption(currentTF), {replaceMerge: ['series', 'grid', 'xAxis', 'yAxis']});
+    if (railChart) {
+      railChart.setOption({series: [{id: 'rail_events', data: buildRailData()}]});
+      railEl.style.display = visibility.event_rail ? '' : 'none';
+      railChart.resize();
+    }
   }
   function wireToggle(btnId, key) {
     var btn = document.getElementById('%%CHART_ID%%-' + btnId);
@@ -338,13 +423,80 @@ _CHART_JS = r"""
   wireToggle('toggle-ev-move-sl',      'ev_MOVE_SL');
   wireToggle('toggle-ev-close',        'ev_CLOSE');
   wireToggle('toggle-ev-partial',      'ev_PARTIAL_CLOSE');
+  wireToggle('toggle-event-rail',      'event_rail');
   // secondary overlays
   wireToggle('toggle-volume',          'volume');
   wireToggle('toggle-pos-size',        'pos_size');
   wireToggle('toggle-pnl',             'realized_pnl');
 
+  function focusEventById(eventId) {
+    if (!eventId) { return; }
+    var scatter = buildScatterData();
+    var idx = -1;
+    for (var i = 0; i < scatter.length; i++) {
+      if (scatter[i].event_id === eventId) { idx = i; break; }
+    }
+    if (idx >= 0) {
+      chart.dispatchAction({type: 'showTip', seriesId: 'events', dataIndex: idx});
+    }
+    if (railChart) {
+      var rail = buildRailData();
+      for (var j = 0; j < rail.length; j++) {
+        if (rail[j].event_id === eventId) {
+          railChart.dispatchAction({type: 'showTip', seriesId: 'rail_events', dataIndex: j});
+          break;
+        }
+      }
+    }
+  }
+
+  chart.on('click', function (params) {
+    var evId = params && params.data ? params.data.event_id : null;
+    if (evId) {
+      window.dispatchEvent(new CustomEvent('trade-event-focus', {detail: {eventId: evId}}));
+    }
+  });
+  if (railChart) {
+    railChart.on('click', function (params) {
+      var evId = params && params.data ? params.data.event_id : null;
+      if (evId) {
+        window.dispatchEvent(new CustomEvent('trade-event-focus', {detail: {eventId: evId}}));
+      }
+    });
+  }
+  window.addEventListener('trade-event-select', function (evt) {
+    var evId = evt && evt.detail ? evt.detail.eventId : null;
+    focusEventById(evId);
+  });
+
+  // sync zoom between price chart and event rail
+  var syncing = false;
+  chart.on('dataZoom', function () {
+    if (!railChart || syncing) { return; }
+    var opt = chart.getOption() || {};
+    var dz = (opt.dataZoom || [])[0];
+    if (!dz) { return; }
+    syncing = true;
+    railChart.dispatchAction({type: 'dataZoom', start: dz.start, end: dz.end});
+    syncing = false;
+  });
+  if (railChart) {
+    railChart.on('dataZoom', function () {
+      if (syncing) { return; }
+      var opt = railChart.getOption() || {};
+      var dz = (opt.dataZoom || [])[0];
+      if (!dz) { return; }
+      syncing = true;
+      chart.dispatchAction({type: 'dataZoom', start: dz.start, end: dz.end});
+      syncing = false;
+    });
+  }
+
   // ---- resize ---------------------------------------------------------------
-  window.addEventListener('resize', function () { chart.resize(); });
+  window.addEventListener('resize', function () {
+    chart.resize();
+    if (railChart) { railChart.resize(); }
+  });
 }());
 """
 
@@ -377,6 +529,7 @@ def _build_toggle_buttons(chart_id: str) -> str:
         ("toggle-ev-move-sl",      "SL moves",       True,  "MOVE_SL"),
         ("toggle-ev-close",        "Close",          True,  "EXIT"),
         ("toggle-ev-partial",      "Partial close",  True,  "PARTIAL_CLOSE"),
+        ("toggle-event-rail",      "Event rail",     True,  None),
         # ---- secondary overlays ----
         ("toggle-volume",          "Volume",         False, None),
         ("toggle-pos-size",        "Pos Size",       False, None),
@@ -472,6 +625,7 @@ def render_trade_chart_echarts(
         f"    <button id='{chart_id}-reset' class='chart-toolbar-btn' style='margin-left:auto'>Reset zoom</button>\n"
         "  </div>\n"
         f"  <div id='{chart_id}' style='width:100%;height:520px;min-height:320px'></div>\n"
+        f"  <div id='{chart_id}_rail' style='width:100%;height:170px;min-height:120px;margin-top:8px'></div>\n"
         f"  <script type='application/json' id='{chart_id}_payload'>{payload_json}</script>\n"
         f"  <script>{js_code}</script>\n"
         "</div>\n"
