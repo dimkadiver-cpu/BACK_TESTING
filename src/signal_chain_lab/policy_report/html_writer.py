@@ -89,6 +89,32 @@ def _badge_class_for_number(value: float | int | None) -> str:
     return "muted"
 
 
+def _canonical_event_kind_css(ev: object) -> str:
+    """Map ReportCanonicalEvent.subtype → CSS class for the unified sidebar."""
+    subtype = getattr(ev, "subtype", "") or ""
+    mapping: dict[str, str] = {
+        "SIGNAL_CREATED":      "ti-kind-NEW_SIGNAL",
+        "ENTRY_PLANNED":       "ti-kind-NEW_SIGNAL",
+        "ENTRY_FILLED":        "ti-kind-FILL",
+        "SCALE_IN_FILLED":     "ti-kind-FILL",
+        "MARKET_ENTRY_FILLED": "ti-kind-FILL",
+        "SL_SET":              "ti-kind-MOVE_SL",
+        "SL_MOVED":            "ti-kind-MOVE_SL",
+        "BE_ACTIVATED":        "ti-kind-MOVE_SL",
+        "TP_ARMED":            "ti-kind-TP",
+        "TP_HIT":              "ti-kind-TP",
+        "PARTIAL_EXIT":        "ti-kind-PARTIAL_CLOSE",
+        "FINAL_EXIT":          "ti-kind-EXIT",
+        "SL_HIT":              "ti-kind-SL",
+        "CANCELLED":           "ti-kind-CANCEL",
+        "EXPIRED":             "ti-kind-CANCEL",
+        "TIMEOUT":             "ti-kind-CANCEL",
+        "IGNORED":             "ti-kind-UPDATE",
+        "SYSTEM_NOTE":         "ti-kind-UPDATE",
+    }
+    return mapping.get(subtype, "ti-kind-UPDATE")
+
+
 # ---------------------------------------------------------------------------
 # Base styles + shared JS
 # ---------------------------------------------------------------------------
@@ -215,7 +241,21 @@ dialog::backdrop{background:rgba(15,23,42,.55)}
   .ti-meta{grid-template-columns:1fr}
   .charts-grid{grid-template-columns:1fr}
   .perf-groups{grid-template-columns:1fr}
+  .analysis-block{grid-template-columns:1fr}
+  .analysis-sidebar-col{position:static;max-height:none}
 }
+/* ---- Main analysis two-column block (PRD §6, §8) ---- */
+.analysis-block{display:grid;grid-template-columns:70fr 30fr;gap:18px;align-items:start;margin-bottom:18px}
+.analysis-chart-col{min-width:0}
+.analysis-sidebar-col{min-width:0;position:sticky;top:60px;max-height:calc(100vh - 80px);overflow-y:auto}
+/* ---- Custom chart legend (PRD §10) ---- */
+.chart-legend{display:flex;flex-wrap:wrap;gap:6px;padding:4px 0 8px 0;align-items:center}
+.chart-legend-item{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);
+  border-radius:8px;padding:2px 8px;font-size:11px;cursor:pointer;user-select:none;
+  background:#fff;transition:opacity .15s}
+.chart-legend-item.dimmed{opacity:.3}
+.chart-legend-swatch{width:20px;height:3px;border-radius:2px;flex-shrink:0}
+.chart-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 </style>
 <script>
 function openText(id){ document.getElementById(id).showModal(); }
@@ -1364,45 +1404,59 @@ def _build_single_trade_hero(trade: TradeResult) -> str:
     net_pct = _trade_return_net_pct(trade)
     gross_pct = trade.trade_return_pct_gross
     cost_total = trade.cost_drag_pct
-    fees_pct = ((trade.fees_total_raw / trade.invested_notional) * 100) if trade.invested_notional else None
-    funding_pct = ((trade.funding_total_raw_net / trade.invested_notional) * 100) if trade.invested_notional else None
+    fees_pct = (
+        (trade.fees_total_raw / trade.invested_notional * 100)
+        if trade.invested_notional
+        else None
+    )
+    funding_pct = (
+        (trade.funding_total_raw_net / trade.invested_notional * 100)
+        if trade.invested_notional
+        else None
+    )
 
-    fields: list[tuple[str, str, str]] = [
-        ("Return % net", _fmt_percent(net_pct), _badge_class_for_percent(net_pct)),
-        ("Return % gross", _fmt_percent(gross_pct), _badge_class_for_percent(gross_pct)),
-        ("Costs total %", _fmt_percent(cost_total, signed=False), "muted"),
-        ("Fees total %", _fmt_percent(fees_pct, signed=False), "muted"),
-        ("Funding net %", _fmt_percent(funding_pct), _badge_class_for_percent(funding_pct)),
-        ("R multiple", _fmt_number(trade.r_multiple), _badge_class_for_number(trade.r_multiple)),
-        ("MAE %", _fmt_percent(trade.mae_pct), "muted"),
-        ("MFE %", _fmt_percent(trade.mfe_pct), "muted"),
-        ("Duration", _fmt_duration(trade.duration_seconds), "muted"),
-    ]
+    side_str = str(trade.side or "").upper()
+    side_cls = "side-badge-long" if side_str in {"LONG", "BUY"} else "side-badge-short"
+    status_cls = "ok" if str(trade.status or "").lower() == "closed" else "muted"
+    warnings_html = (
+        f"<span class='warn-badge'>&#9888; {_escape(trade.warnings_count)} warning"
+        + ("s" if (trade.warnings_count or 0) != 1 else "")
+        + "</span>"
+    ) if (trade.warnings_count or 0) > 0 else ""
 
-    cells = []
-    for label, value, css in fields:
-        cells.append(
-            f"<div class='metric compact'><div class='k'>{_escape(label)}</div><div class='v {css}'>{_escape(value)}</div></div>"
-        )
-
-    warnings_html = ""
-    if (trade.warnings_count or 0) > 0:
-        warnings_html = f"<span class='warn-badge'>Warnings: {_escape(trade.warnings_count)}</span>"
-
-    status_cls = "ok" if str(trade.status).lower() == "closed" else "muted"
-    side_cls = "side-badge-long" if str(trade.side).upper() == "LONG" else "side-badge-short"
-
-    return (
-        "<div class='card'>"
-        "<div style='display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px'>"
+    badges_row = (
+        "<div style='display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px'>"
         f"<span class='symbol'>{_escape(trade.symbol)}</span>"
         f"<span class='{side_cls}'>{_escape(trade.side)}</span>"
         f"<span class='badge {status_cls}'>{_escape(trade.status)}</span>"
         f"{warnings_html}"
         "</div>"
-        "<div class='grid-3'>"
-        + "".join(cells)
-        + "</div></div>"
+    )
+
+    fields: list[tuple[str, str, str]] = [
+        ("Return % net",   _fmt_percent(net_pct),               _badge_class_for_percent(net_pct)),
+        ("Return % gross", _fmt_percent(gross_pct),             _badge_class_for_percent(gross_pct)),
+        ("Costs total %",  _fmt_percent(cost_total, signed=False), "muted"),
+        ("Fees %",         _fmt_percent(fees_pct, signed=False),   "muted"),
+        ("Funding %",      _fmt_percent(funding_pct),           _badge_class_for_percent(funding_pct)),
+        ("R-multiple",     _fmt_number(trade.r_multiple),       _badge_class_for_number(trade.r_multiple)),
+        ("MAE %",          _fmt_percent(trade.mae_pct),         "muted"),
+        ("MFE %",          _fmt_percent(trade.mfe_pct),         "muted"),
+        ("Duration",       _fmt_duration(trade.duration_seconds), "muted"),
+    ]
+    cells = "".join(
+        f"<div class='metric compact'>"
+        f"<div class='k'>{_escape(lbl)}</div>"
+        f"<div class='v {css}'>{val}</div>"
+        f"</div>"
+        for lbl, val, css in fields
+    )
+
+    return (
+        "<div class='card'>"
+        + badges_row
+        + f"<div class='grid-3'>{cells}</div>"
+        + "</div>"
     )
 
 
@@ -1425,11 +1479,12 @@ def _build_event_rail_and_sidebar(trade: TradeResult, event_log: list[EventLogEn
                 f"<dialog id='{rid}'><div class='dialog-head'><strong>Raw message</strong><button class='inline-btn' type='button' onclick=\"closeText('{rid}')\">Close</button></div><div class='dialog-body'><pre class='code'>{_escape(ev.raw_text)}</pre></div></dialog>"
             )
 
+        kind_css = _canonical_event_kind_css(ev)
         sidebar_items.append(
             "<div class='ti-v2 unified-event' "
             f"id='evt_{row_id}' data-event-id='{row_id}' data-event-id-raw='{_escape(ev.id)}'>"
             f"<div class='ti-v2-compact' data-event-id='{row_id}' data-event-id-raw='{_escape(ev.id)}' onclick='toggleUnifiedEvent(this)'>"
-            f"<span class='ti-kind-badge ti-kind-UPDATE'>{_escape(ev.title)}</span>"
+            f"<span class='ti-kind-badge {kind_css}'>{_escape(ev.title)}</span>"
             f"<span class='note'>{_escape(_fmt_timestamp(ev.ts))}</span>"
             f"<span style='flex:1;min-width:0;font-size:13px;overflow:hidden;text-overflow:ellipsis'>{summary}</span>"
             f"{chips_html}"
@@ -1446,9 +1501,30 @@ def _build_event_rail_and_sidebar(trade: TradeResult, event_log: list[EventLogEn
             "</div>"
         )
 
+        audit_kind_css = _canonical_event_kind_css(ev)
         audit_items.append(
-            f"<li><strong>{_escape(_fmt_timestamp(ev.ts))}</strong> — {_escape(ev.subtype)}"
-            f"<pre class='code'>{_escape(json.dumps(ev.details, ensure_ascii=False, indent=2))}</pre></li>"
+            "<li style='margin-bottom:16px;list-style:none'>"
+            # Header: badge + timestamp + phase + class
+            "<div style='display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px'>"
+            f"<span class='ti-kind-badge {audit_kind_css}'>{_escape(ev.subtype)}</span>"
+            f"<span class='note'>{_escape(_fmt_timestamp(ev.ts))}</span>"
+            f"<span class='badge muted' style='font-size:11px'>{_escape(ev.phase)}</span>"
+            f"<span class='badge muted' style='font-size:11px'>{_escape(ev.event_class)}</span>"
+            "</div>"
+            # Key/value grid dei campi principali
+            "<div class='ti-detail-grid'>"
+            f"<div class='lab'>Title</div><div>{_escape(ev.title)}</div>"
+            f"<div class='lab'>Summary</div><div>{_escape(ev.summary or '-')}</div>"
+            f"<div class='lab'>Source</div><div>{_escape(ev.source)}</div>"
+            f"<div class='lab'>Price</div><div>{_escape(price_val)}</div>"
+            f"<div class='lab'>ID</div><div style='font-family:ui-monospace,monospace;font-size:12px'>{_escape(ev.id)}</div>"
+            "</div>"
+            # Raw JSON solo in sotto-toggle
+            "<details style='margin-top:8px'>"
+            "<summary style='cursor:pointer;font-size:12px;color:var(--muted)'>Raw details JSON</summary>"
+            f"<pre class='code' style='margin-top:6px;font-size:12px'>{_escape(json.dumps(ev.details, ensure_ascii=False, indent=2))}</pre>"
+            "</details>"
+            "</li>"
         )
 
     js = """
@@ -1483,15 +1559,15 @@ window.addEventListener('trade-event-focus', (evt)=>{
     rail_html = ""
     sidebar_html = (
         "<div class='card'><h2>Unified operational events list</h2>"
-        "<div class='note' style='margin-bottom:10px'>All events are collapsed by default. Click to expand details.</div>"
         + "".join(sidebar_items)
         + "</div>"
     )
     audit_html = (
         "<details class='card'><summary>Audit drawer</summary>"
-        "<ul style='padding-left:18px'>"
-        + ("".join(audit_items) or "<li class='note'>No audit events.</li>")
-        + "</ul></details>"
+        "<div style='margin-top:14px'>"
+        "<ul style='padding:0;margin:0'>"
+        + ("".join(audit_items) or "<li class='note' style='list-style:none'>No audit events.</li>")
+        + "</ul></div></details>"
     )
     return rail_html, sidebar_html, audit_html + js
 
@@ -1529,17 +1605,24 @@ def write_single_trade_html_report(
     html_doc = (
         "<!DOCTYPE html>\n"
         "<html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'>\n"
-        f"<title>{_escape(trade.signal_id)} - Single Trade Report</title>\n"
+        f"<title>{_escape(trade.signal_id)} — {_escape(trade.symbol or '')}</title>\n"
         f"{_base_styles()}\n"
         "</head><body><div class='wrap'>\n"
-        "<h1>Single Trade Report</h1>"
+        # H1: signal_id come titolo principale (PRD §7)
+        f"<h1 style='font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:20px;margin:0 0 14px'>"
+        f"{_escape(trade.signal_id)}</h1>"
+        # Hero compatto: symbol/side/status badges + 9 metric cards
         + hero_html
-        + "<div class='card'><h2>Main analysis block</h2>"
-        + "<div class='note' style='margin-bottom:10px'>Price chart, timeframe/toggles and unified events workflow.</div>"
+        # Main analysis block: due colonne [chart+rail | sidebar] (PRD §6, §8)
+        + "<div class='analysis-block'>\n"
+        + "  <div class='analysis-chart-col'>\n"
         + chart_html
-        + "</div>"
-        + rail_html
+        + "  </div>\n"
+        + "  <div class='analysis-sidebar-col'>\n"
         + sidebar_html
+        + "  </div>\n"
+        + "</div>\n"
+        # Navigation menu + audit sotto il blocco principale (PRD §6)
         + nav_html
         + audit_html
         + "</div></body></html>\n"

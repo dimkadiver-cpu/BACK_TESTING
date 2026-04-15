@@ -17,7 +17,6 @@ _CHART_JS = r"""
 
   var payload        = JSON.parse(payloadEl.textContent || '{}');
   var candlesByTF    = payload.candles_by_timeframe || {};
-  var levels         = payload.levels  || {};
   var events         = payload.events  || [];
   var meta           = payload.meta    || {};
   var posSizePts     = payload.position_size_series  || [];
@@ -27,17 +26,6 @@ _CHART_JS = r"""
 
   var chart = echarts.init(chartEl, null, {renderer: 'canvas'});
   var railChart = railEl ? echarts.init(railEl, null, {renderer: 'canvas'}) : null;
-
-  // ---- level line colours (must match LEVEL_SERIES keys below) --------------
-  var LEVEL_COLOR = {
-    'entries_planned': '#93c5fd',   // light blue dashed
-    'entries_filled':  '#1d4ed8',   // solid blue
-    'avg_entry':       '#0369a1',   // deeper blue (only when fills >= 2)
-    'sl_initial':      '#fca5a5',   // light red dashed
-    'sl_current':      '#b91c1c',   // solid red
-    'tps':             '#15803d',   // green dashed
-    'exit':            '#7c3aed'    // purple solid
-  };
 
   // ---- event marker colours per kind ----------------------------------------
   var KIND_COLOR = {
@@ -98,6 +86,176 @@ _CHART_JS = r"""
     realized_pnl: false
   };
 
+  // ---- level segments (from payload.level_segments) -----------------------
+  var levelSegments = payload.level_segments || [];
+
+  // Maps level kind → visibility key in the `visibility` object
+  var KIND_VIS_KEY = {
+    'ENTRY_LIMIT':   'entries_planned',
+    'ENTRY_MARKET':  'entries_planned',
+    'AVG_ENTRY':     'avg_entry',
+    'SL':            'sl',
+    'TP':            'tps'
+  };
+
+  // Maps level kind → display name for legend
+  var KIND_LABEL = {
+    'ENTRY_LIMIT':  'Entry limit',
+    'ENTRY_MARKET': 'Entry market',
+    'AVG_ENTRY':    'Avg entry',
+    'SL':           'Stop Loss',
+    'TP':           'Take Profit'
+  };
+
+  // Maps level kind → color (fallback to payload seg.color)
+  var KIND_LEVEL_COLOR = {
+    'ENTRY_LIMIT':  '#1d4ed8',
+    'ENTRY_MARKET': '#7c3aed',
+    'AVG_ENTRY':    '#0891b2',
+    'SL':           '#b91c1c',
+    'TP':           '#15803d'
+  };
+
+  /**
+   * renderItem for a single level segment.
+   * data: [ts_start_ms, ts_end_ms, price, label, style, prevPrice|null]
+   *   index 0: ts_start_ms
+   *   index 1: ts_end_ms
+   *   index 2: price
+   *   index 3: label string
+   *   index 4: style ('dashed'|'solid')
+   *   index 5: prevPrice (for SL elbow) or null
+   */
+  function makeLevelRenderItem(color) {
+    return function (params, api) {
+      var tsStart  = api.value(0);
+      var tsEnd    = api.value(1);
+      var price    = api.value(2);
+      var label    = String(api.value(3) || '');
+      var style    = String(api.value(4) || 'dashed');
+      var prevPrice = api.value(5);
+
+      var ptStart = api.coord([tsStart, price]);
+      var ptEnd   = api.coord([tsEnd,   price]);
+      var x0 = ptStart[0];
+      var x1 = ptEnd[0];
+      var y  = ptStart[1];
+
+      var cs = params.coordSys;   // {x, y, width, height} of the grid
+      var lineDash = style === 'dashed' ? [6, 3] : [];
+      var lineW    = 1.5;
+
+      var children = [];
+
+      // Elbow connector: vertical line from prevPrice to current price at ts_start
+      if (prevPrice !== null && prevPrice !== undefined) {
+        var prevPt = api.coord([tsStart, prevPrice]);
+        var yPrev  = prevPt[1];
+        if (Math.abs(yPrev - y) > 1) {   // skip if delta is sub-pixel
+          children.push({
+            type: 'line',
+            shape: {x1: x0, y1: yPrev, x2: x0, y2: y},
+            style: {stroke: color, lineWidth: lineW, lineDash: lineDash},
+            clipRect: {x: cs.x, y: cs.y, width: cs.width, height: cs.height}
+          });
+        }
+      }
+
+      // Horizontal segment — clipped to grid viewport automatically
+      children.push({
+        type: 'line',
+        shape: {x1: x0, y1: y, x2: x1, y2: y},
+        style: {stroke: color, lineWidth: lineW, lineDash: lineDash},
+        clipRect: {x: cs.x, y: cs.y, width: cs.width, height: cs.height}
+      });
+
+      // Label centered on the visible portion of the segment
+      if (label) {
+        var visX0 = Math.max(x0, cs.x);
+        var visX1 = Math.min(x1, cs.x + cs.width);
+        if (visX1 > visX0) {
+          var lx = (visX0 + visX1) / 2;
+          // keep label inside grid bounds
+          var ly = Math.max(cs.y + 2, Math.min(y - 3, cs.y + cs.height - 12));
+          children.push({
+            type: 'text',
+            x: lx, y: ly,
+            style: {
+              text: label,
+              textAlign: 'center',
+              textVerticalAlign: 'bottom',
+              fill: color,
+              fontSize: 10,
+              backgroundColor: 'rgba(255,255,255,0.88)',
+              padding: [1, 4],
+              borderRadius: 3
+            }
+          });
+        }
+      }
+
+      return {type: 'group', children: children};
+    };
+  }
+
+  /**
+   * Build an array of ECharts custom series — one per level kind.
+   * Only emits series whose visibility key is truthy.
+   * SL segments get prevPrice passed as index-5 for elbow rendering.
+   */
+  function buildLevelSegmentSeries() {
+    // Group by kind
+    var groups = {};
+    levelSegments.forEach(function (seg) {
+      var k = seg.kind || 'SL';
+      if (!groups[k]) { groups[k] = []; }
+      groups[k].push(seg);
+    });
+
+    var result = [];
+    Object.keys(groups).forEach(function (kind) {
+      var visKey = KIND_VIS_KEY[kind] || 'sl';
+      // AVG_ENTRY also needs fills >= 2
+      if (kind === 'AVG_ENTRY' && fillsCount < 2) { return; }
+      if (!visibility[visKey]) { return; }
+
+      var segs  = groups[kind];
+      var color = KIND_LEVEL_COLOR[kind] || '#64748b';
+
+      var seriesData = segs.map(function (seg, i) {
+        var tsStart = new Date(seg.ts_start).getTime();
+        var tsEnd   = new Date(seg.ts_end).getTime();
+        var prevPrice = (kind === 'SL' && i > 0) ? segs[i - 1].price : null;
+        return {
+          value: [tsStart, tsEnd, seg.price, seg.label || kind, seg.style || 'dashed', prevPrice],
+          label: seg.label,
+          kind:  kind
+        };
+      });
+
+      result.push({
+        id:          'lv_seg_' + kind,
+        name:        KIND_LABEL[kind] || kind,
+        type:        'custom',
+        xAxisIndex:  0,
+        yAxisIndex:  0,
+        renderItem:  makeLevelRenderItem(color),
+        data:        seriesData,
+        z:           3,
+        tooltip: {
+          trigger: 'item',
+          formatter: function (p) {
+            if (!p || !p.data) { return ''; }
+            var d = p.data;
+            return '<b>' + (d.label || d.kind || '') + '</b><br/>'
+                   + 'Price: ' + Number(d.value[2]).toFixed(6);
+          }
+        }
+      });
+    });
+    return result;
+  }
+
   // ---- data builders -------------------------------------------------------
   function buildCandleData(tf) {
     return (candlesByTF[tf] || []).map(function (c) {
@@ -108,33 +266,6 @@ _CHART_JS = r"""
     return (candlesByTF[tf] || []).map(function (c) {
       return [c[0], c[5] || 0, c[2] >= c[1] ? 1 : -1];
     });
-  }
-  function buildMarkLineData(levelList) {
-    return (levelList || []).map(function (l) {
-      return {yAxis: l.price, name: l.label || ''};
-    });
-  }
-  function buildMarkLineSeries(id, name, levelKey, color, lineType, show) {
-    var data = show ? buildMarkLineData(levels[levelKey] || []) : [];
-    return {
-      id: id, name: name, type: 'line', data: [],
-      xAxisIndex: 0, yAxisIndex: 0, silent: true,
-      markLine: data.length === 0 ? {data: []} : {
-        symbol: ['none', 'none'],
-        lineStyle: {color: color, type: lineType, width: 1.5},
-        label: {
-          show: true,
-          position: 'insideStartTop',
-          formatter: '{b}',
-          color: color,
-          fontSize: 10,
-          backgroundColor: 'rgba(255,255,255,0.82)',
-          padding: [1, 4],
-          borderRadius: 3
-        },
-        data: data
-      }
-    };
   }
   function buildScatterData() {
     return (events || []).filter(function (e) {
@@ -216,10 +347,9 @@ _CHART_JS = r"""
 
   // ---- build full option ---------------------------------------------------
   function buildOption(tf) {
-    var showVol  = visibility.volume;
-    var showPS   = visibility.pos_size;
-    var showPnl  = visibility.realized_pnl;
-    var showAvgE = visibility.avg_entry && fillsCount >= 2;
+    var showVol = visibility.volume;
+    var showPS  = visibility.pos_size;
+    var showPnl = visibility.realized_pnl;
 
     var mainGridBottom = showVol ? 150 : 80;
     var grids = [{left: 80, right: 24, top: 56, bottom: mainGridBottom}];
@@ -245,6 +375,7 @@ _CHART_JS = r"""
 
     var scatterData = buildScatterData();
 
+    var levelSeries = buildLevelSegmentSeries();
     var series = [
       // ---- candlestick ----
       {
@@ -255,22 +386,8 @@ _CHART_JS = r"""
           color: '#15803d', color0: '#b91c1c',
           borderColor: '#15803d', borderColor0: '#b91c1c'
         }
-      },
-      // ---- level markLine series (one per level type) ----
-      buildMarkLineSeries('lv_entries_planned', 'Entries (plan)', 'entries_planned',
-        LEVEL_COLOR.entries_planned, 'dashed', visibility.entries_planned),
-      buildMarkLineSeries('lv_entries_filled',  'Entries (fill)', 'entries_filled',
-        LEVEL_COLOR.entries_filled,  'solid',  visibility.entries_filled),
-      buildMarkLineSeries('lv_avg_entry',        'Avg Entry',      'avg_entry',
-        LEVEL_COLOR.avg_entry,       'dashed', showAvgE),
-      buildMarkLineSeries('lv_sl_initial',       'Initial SL',     'sl_initial',
-        LEVEL_COLOR.sl_initial,      'dashed', visibility.sl),
-      buildMarkLineSeries('lv_sl_current',       'Current SL',     'sl_current',
-        LEVEL_COLOR.sl_current,      'solid',  visibility.sl),
-      buildMarkLineSeries('lv_tps',              'TPs',            'tps',
-        LEVEL_COLOR.tps,             'dashed', visibility.tps),
-      buildMarkLineSeries('lv_exit',             'Exit',           'exit',
-        LEVEL_COLOR.exit,            'solid',  visibility.exit),
+      }
+    ].concat(levelSeries).concat([
       // ---- events scatter ----
       {
         id: 'events', name: 'Events', type: 'scatter',
@@ -293,7 +410,7 @@ _CHART_JS = r"""
         xAxisIndex: 0, yAxisIndex: 1, step: 'end', symbol: 'none',
         lineStyle: {color: '#f59e0b', width: 1.5, opacity: 0.9}, z: 2
       }
-    ];
+    ]);
 
     if (showVol) {
       series.push({
@@ -352,8 +469,69 @@ _CHART_JS = r"""
     };
   }
 
+  // ---- custom legend (PRD §10) — click controls visibility, no zoom reset ---
+  function buildCustomLegend() {
+    var legendEl = document.getElementById('%%CHART_ID%%-legend');
+    if (!legendEl) { return; }
+
+    // level items (line swatches)
+    var levelItems = [
+      {key: 'entries_planned', label: 'Entries (plan)', color: '#1d4ed8',  dash: true},
+      {key: 'avg_entry',       label: 'Avg entry',      color: '#0891b2',  dash: true},
+      {key: 'sl',              label: 'Stop Loss',       color: '#b91c1c',  dash: true},
+      {key: 'tps',             label: 'Take Profit',     color: '#15803d',  dash: true},
+    ];
+    // event marker items (dot swatches)
+    var evItems = [
+      {key: 'ev_FILL',         label: 'Entry filled',    color: '#1d4ed8',  dot: true},
+      {key: 'ev_TP',           label: 'TP hit',          color: '#15803d',  dot: true},
+      {key: 'ev_SL',           label: 'SL hit',          color: '#b91c1c',  dot: true},
+      {key: 'ev_MOVE_SL',      label: 'SL moved',        color: '#c2410c',  dot: true},
+      {key: 'ev_BE',           label: 'Break-even',      color: '#f59e0b',  dot: true},
+      {key: 'ev_CLOSE',        label: 'Final exit',      color: '#7c3aed',  dot: true},
+      {key: 'ev_PARTIAL_CLOSE',label: 'Partial exit',    color: '#7c3aed',  dot: true},
+    ];
+    var allItems = levelItems.concat(evItems);
+
+    legendEl.innerHTML = '';
+    allItems.forEach(function (item) {
+      var el = document.createElement('div');
+      el.className = 'chart-legend-item' + (visibility[item.key] ? '' : ' dimmed');
+
+      var sw = document.createElement('span');
+      if (item.dot) {
+        sw.className = 'chart-legend-dot';
+        sw.style.background = item.color;
+      } else {
+        sw.className = 'chart-legend-swatch';
+        if (item.dash) {
+          sw.style.backgroundImage = 'repeating-linear-gradient(to right,'
+            + item.color + ' 0,' + item.color + ' 4px,transparent 4px,transparent 7px)';
+        } else {
+          sw.style.background = item.color;
+        }
+      }
+
+      var txt = document.createElement('span');
+      txt.textContent = item.label;
+
+      el.appendChild(sw);
+      el.appendChild(txt);
+
+      el.addEventListener('click', function () {
+        visibility[item.key] = !visibility[item.key];
+        el.classList.toggle('dimmed', !visibility[item.key]);
+        // rebuildChart uses replaceMerge — dataZoom range is NOT reset
+        rebuildChart();
+      });
+
+      legendEl.appendChild(el);
+    });
+  }
+
   // ---- initial render -------------------------------------------------------
   chart.setOption(buildOption(currentTF));
+  buildCustomLegend();
   if (railChart) {
     railChart.setOption(buildRailOption());
     railEl.style.display = visibility.event_rail ? '' : 'none';
@@ -395,39 +573,16 @@ _CHART_JS = r"""
   function wireToggle(btnId, key) {
     var btn = document.getElementById('%%CHART_ID%%-' + btnId);
     if (!btn) { return; }
-    var timelineKind = btn.getAttribute('data-timeline-kind');
     btn.classList.toggle('active', !!visibility[key]);
     btn.addEventListener('click', function () {
       visibility[key] = !visibility[key];
       btn.classList.toggle('active', !!visibility[key]);
       rebuildChart();
-      // sync timeline item visibility (1:1 mapping)
-      if (timelineKind) {
-        document.querySelectorAll('.ti-v2[data-kind="' + timelineKind + '"]').forEach(function (el) {
-          el.style.display = visibility[key] ? '' : 'none';
-        });
-      }
     });
   }
-  // level toggles
-  wireToggle('toggle-entries-planned', 'entries_planned');
-  wireToggle('toggle-entries-filled',  'entries_filled');
-  wireToggle('toggle-avg-entry',       'avg_entry');
-  wireToggle('toggle-sl',              'sl');
-  wireToggle('toggle-tps',             'tps');
-  wireToggle('toggle-exit',            'exit');
-  // event marker toggles
-  wireToggle('toggle-ev-fill',         'ev_FILL');
-  wireToggle('toggle-ev-tp',           'ev_TP');
-  wireToggle('toggle-ev-sl',           'ev_SL');
-  wireToggle('toggle-ev-move-sl',      'ev_MOVE_SL');
-  wireToggle('toggle-ev-close',        'ev_CLOSE');
-  wireToggle('toggle-ev-partial',      'ev_PARTIAL_CLOSE');
-  wireToggle('toggle-event-rail',      'event_rail');
-  // secondary overlays
-  wireToggle('toggle-volume',          'volume');
-  wireToggle('toggle-pos-size',        'pos_size');
-  wireToggle('toggle-pnl',             'realized_pnl');
+  // PRD §9: solo Volume e Event rail sul toolbar — gli altri si gestiscono via legend custom
+  wireToggle('toggle-volume',     'volume');
+  wireToggle('toggle-event-rail', 'event_rail');
 
   function focusEventById(eventId) {
     if (!eventId) { return; }
@@ -512,36 +667,17 @@ def _build_tf_buttons(chart_id: str, timeframes: list[str], default_tf: str | No
 
 
 def _build_toggle_buttons(chart_id: str) -> str:
-    # (btn_id, label, default_on, timeline_kind)
-    # timeline_kind: the data-kind value on .ti-v2 items to show/hide in sync (None = no sync)
-    toggles: list[tuple[str, str, bool, str | None]] = [
-        # ---- level lines ----
-        ("toggle-entries-planned", "Entries (plan)", True,  None),
-        ("toggle-entries-filled",  "Entries (fill)", True,  None),
-        ("toggle-avg-entry",       "Avg Entry",      True,  None),
-        ("toggle-sl",              "SL",             True,  "SL"),
-        ("toggle-tps",             "TPs",            True,  "TP"),
-        ("toggle-exit",            "Exit",           True,  "EXIT"),
-        # ---- event markers ----
-        ("toggle-ev-fill",         "Fills",          True,  "FILL"),
-        ("toggle-ev-tp",           "TP events",      True,  "TP"),
-        ("toggle-ev-sl",           "SL events",      True,  "SL"),
-        ("toggle-ev-move-sl",      "SL moves",       True,  "MOVE_SL"),
-        ("toggle-ev-close",        "Close",          True,  "EXIT"),
-        ("toggle-ev-partial",      "Partial close",  True,  "PARTIAL_CLOSE"),
-        ("toggle-event-rail",      "Event rail",     True,  None),
-        # ---- secondary overlays ----
-        ("toggle-volume",          "Volume",         False, None),
-        ("toggle-pos-size",        "Pos Size",       False, None),
-        ("toggle-pnl",             "Realized PnL",   False, None),
+    # PRD §9: solo Volume e Event rail sul toolbar row
+    toggles: list[tuple[str, str, bool]] = [
+        ("toggle-volume",     "Volume",     False),
+        ("toggle-event-rail", "Event rail", True),
     ]
     parts: list[str] = []
-    for btn_id, label, default_on, timeline_kind in toggles:
+    for btn_id, label, default_on in toggles:
         active_cls = "active" if default_on else ""
-        tl_attr = f" data-timeline-kind='{timeline_kind}'" if timeline_kind else ""
         parts.append(
             f"<button id='{chart_id}-{btn_id}' class='chart-toolbar-btn {active_cls}'"
-            f" title='Toggle {label}'{tl_attr}>{label}</button>"
+            f" title='Toggle {label}'>{label}</button>"
         )
     return "".join(parts)
 
@@ -618,12 +754,15 @@ def render_trade_chart_echarts(
     return (
         f"<script src='{asset_path}'></script>\n"
         "<div class='chart-wrap'>\n"
+        # Toolbar row: TF buttons + Volume + Event rail + Reset (PRD §9)
         "  <div class='chart-toolbar' style='flex-wrap:wrap;gap:6px'>\n"
         f"    {tf_buttons}\n"
         f"    <span style='width:1px;background:#e2e8f0;align-self:stretch;margin:0 4px'></span>\n"
         f"    {tog_buttons}\n"
         f"    <button id='{chart_id}-reset' class='chart-toolbar-btn' style='margin-left:auto'>Reset zoom</button>\n"
         "  </div>\n"
+        # Custom legend row (PRD §10) — built by buildCustomLegend() in JS
+        f"  <div id='{chart_id}-legend' class='chart-legend'></div>\n"
         f"  <div id='{chart_id}' style='width:100%;height:520px;min-height:320px'></div>\n"
         f"  <div id='{chart_id}_rail' style='width:100%;height:170px;min-height:120px;margin-top:8px'></div>\n"
         f"  <script type='application/json' id='{chart_id}_payload'>{payload_json}</script>\n"
