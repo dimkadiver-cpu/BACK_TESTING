@@ -26,6 +26,17 @@ _EVENT_KIND_MAP: dict[str, str] = {
     "TIMEOUT": "CANCEL",
 }
 
+_LEVEL_COLORS: dict[str, str] = {
+    "ENTRY_LIMIT": "#1d4ed8",
+    "ENTRY_MARKET": "#7c3aed",
+    "SL": "#b91c1c",
+    "TP": "#15803d",
+    "AVG_ENTRY": "#0891b2",
+}
+
+
+# NOTE(Fase 2): nuova rappresentazione segmenti temporali livelli.
+# Manteniamo anche la struttura legacy in "levels" per compatibilità nella transizione.
 
 def _to_epoch_ms(dt: datetime | None) -> int | None:
     if dt is None:
@@ -33,6 +44,14 @@ def _to_epoch_ms(dt: datetime | None) -> int | None:
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=timezone.utc)
     return int(dt.timestamp() * 1000)
+
+
+def _to_iso(dt: datetime | None) -> str | None:
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.isoformat()
 
 
 def _candles_to_array(candles: list[Candle]) -> list[list[object]]:
@@ -149,6 +168,123 @@ def _build_levels(
         "tps": tps,
         "exit": exit_levels,
     }
+
+
+def _infer_trade_window(trade: TradeResult, event_log: list[EventLogEntry]) -> tuple[datetime | None, datetime | None]:
+    if not event_log:
+        return trade.created_at, trade.closed_at
+
+    start = trade.created_at or event_log[0].timestamp
+    end = trade.closed_at or event_log[-1].timestamp
+    if start and end and end < start:
+        end = start
+    return start, end
+
+
+def _first_fill_timestamp(event_log: list[EventLogEntry]) -> datetime | None:
+    for entry in event_log:
+        if (entry.event_type or "").upper() in {"ADD_ENTRY", "FILL"}:
+            return entry.timestamp
+    return None
+
+
+def _build_level_segments(trade: TradeResult, event_log: list[EventLogEntry]) -> list[dict[str, object]]:
+    """Build PRD-B level segments with explicit start/end timestamps."""
+    start_ts, end_ts = _infer_trade_window(trade, event_log)
+    if start_ts is None or end_ts is None:
+        return []
+
+    segments: list[dict[str, object]] = []
+
+    def add_segment(
+        kind: str,
+        label: str,
+        price: float,
+        ts_start: datetime,
+        ts_end: datetime,
+        *,
+        style: str,
+    ) -> None:
+        if ts_end < ts_start:
+            ts_end = ts_start
+        segments.append(
+            {
+                "kind": kind,
+                "label": label,
+                "price": float(price),
+                "ts_start": _to_iso(ts_start),
+                "ts_end": _to_iso(ts_end),
+                "color": _LEVEL_COLORS[kind],
+                "style": style,
+            }
+        )
+
+    first_state = event_log[0].state_after if event_log else {}
+    first_fill_ts = _first_fill_timestamp(event_log)
+
+    for idx, plan in enumerate((first_state or {}).get("entries_planned") or []):
+        if not isinstance(plan, dict):
+            continue
+        price = plan.get("price")
+        if not isinstance(price, (int, float)):
+            continue
+        entry_type = (plan.get("entry_type") or "LIMIT").upper()
+        kind = "ENTRY_MARKET" if entry_type == "MARKET" else "ENTRY_LIMIT"
+        end_for_entry = first_fill_ts or end_ts
+        add_segment(kind, f"Entry {idx + 1}", float(price), start_ts, end_for_entry, style="dashed")
+
+    if trade.avg_entry_price is not None and trade.fills_count >= 2:
+        add_segment(
+            "AVG_ENTRY",
+            "Avg Entry",
+            float(trade.avg_entry_price),
+            first_fill_ts or start_ts,
+            end_ts,
+            style="solid",
+        )
+
+    active_sl_price: float | None = None
+    active_sl_start: datetime | None = None
+
+    active_tp_segments: dict[float, tuple[datetime, str]] = {}
+    next_tp_label_idx = 1
+
+    for entry in event_log:
+        ts = entry.timestamp
+        state = entry.state_after or {}
+
+        current_sl = state.get("current_sl")
+        if isinstance(current_sl, (int, float)):
+            sl_price = float(current_sl)
+            if active_sl_price is None:
+                active_sl_price = sl_price
+                active_sl_start = start_ts
+            elif sl_price != active_sl_price:
+                if active_sl_start is not None:
+                    add_segment("SL", "Stop Loss", active_sl_price, active_sl_start, ts, style="dashed")
+                active_sl_price = sl_price
+                active_sl_start = ts
+
+        tp_levels = [float(tp) for tp in (state.get("tp_levels") or []) if isinstance(tp, (int, float))]
+        current_prices = set(tp_levels)
+        previous_prices = set(active_tp_segments.keys())
+
+        for closed_price in sorted(previous_prices - current_prices):
+            tp_start, label = active_tp_segments.pop(closed_price)
+            add_segment("TP", label, closed_price, tp_start, ts, style="dashed")
+
+        for price in sorted(current_prices - previous_prices):
+            label = f"TP{next_tp_label_idx}"
+            next_tp_label_idx += 1
+            active_tp_segments[price] = (start_ts, label)
+
+    if active_sl_price is not None and active_sl_start is not None:
+        add_segment("SL", "Stop Loss", active_sl_price, active_sl_start, end_ts, style="dashed")
+
+    for price, (tp_start, label) in sorted(active_tp_segments.items()):
+        add_segment("TP", label, price, tp_start, end_ts, style="dashed")
+
+    return segments
 
 
 def _compute_tp_return_pct(
@@ -296,6 +432,7 @@ def build_trade_chart_payload(
         },
         "candles_by_timeframe": candles_serialized,
         "levels": _build_levels(trade, event_log),
+        "level_segments": _build_level_segments(trade, event_log),
         "events": _build_events(event_log, trade),
         "position_size_series": _build_position_size_series(event_log),
         "realized_pnl_series": _build_realized_pnl_series(event_log),

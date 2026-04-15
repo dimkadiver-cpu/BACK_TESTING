@@ -47,25 +47,27 @@ Legenda: `[ ]` = da fare, `[x]` = completato, `[~]` = parziale/bloccato
 
 ## FASE 2 — Segmenti livelli temporali
 
+**Completato:** 2026-04-15 — branch `claude/implement-report-phase-2`
+
 ### Verifica e completamento
-- [ ] Letto `trade_chart_payload.py` per capire lo stato attuale
-- [ ] Verificato: SL con history multipla → segmenti separati (ogni `SL_MOVED` chiude e apre)
-- [ ] Verificato: TP multipli → un segmento per ciascun TP distinto
-- [ ] Verificato: `average_entry` non disegnata se `fills_count < 2`
-- [ ] Struttura `LevelSegment` con campi: kind, label, price, ts_start, ts_end, color, style
-- [ ] Entry limit: blu, tratteggiato
-- [ ] Entry market: viola, tratteggiato
-- [ ] Stop loss: rosso, tratteggiato
-- [ ] Take profit: verde, tratteggiato
-- [ ] Average entry: ciano, continuo (solo se fills >= 2)
-- [ ] Segmenti coerenti con asse temporale del chart (non statici)
+- [x] Letto `trade_chart_payload.py` per capire lo stato attuale
+- [x] Verificato: SL con history multipla → segmenti separati (ogni `SL_MOVED` chiude e apre)
+- [x] Verificato: TP multipli → un segmento per ciascun TP distinto
+- [x] Verificato: `average_entry` non disegnata se `fills_count < 2`
+- [x] Struttura `LevelSegment` con campi: kind, label, price, ts_start, ts_end, color, style
+- [x] Entry limit: blu, tratteggiato
+- [x] Entry market: viola, tratteggiato
+- [x] Stop loss: rosso, tratteggiato
+- [x] Take profit: verde, tratteggiato
+- [x] Average entry: ciano, continuo (solo se fills >= 2)
+- [x] Segmenti coerenti con asse temporale del chart (non statici)
 
 ### Test
-- [ ] Test: trade con SL moved → 2 segmenti SL, il primo chiuso al timestamp SL_MOVED
-- [ ] Test: trade con single fill → nessun segmento avg_entry
-- [ ] Test: trade con 2 fill → segmento avg_entry presente
-- [ ] Test: TP multipli → segmenti distinti, ciascuno termina al suo hit timestamp o al trade close
-- [ ] `pytest` passa
+- [x] Test: trade con SL moved → 2 segmenti SL, il primo chiuso al timestamp SL_MOVED
+- [x] Test: trade con single fill → nessun segmento avg_entry
+- [x] Test: trade con 2 fill → segmento avg_entry presente
+- [x] Test: TP multipli → segmenti distinti, ciascuno termina al suo hit timestamp o al trade close
+- [x] `pytest` passa
 
 ---
 
