@@ -714,7 +714,7 @@ class TraderAProfileRealCasesTests(unittest.TestCase):
         )
         result = self.parser.parse_message(text, _context(text=text))
         self.assertEqual(result.message_type, "NEW_SIGNAL")
-        self.assertEqual(result.entities.get("symbol"), "ORDIUSDT.P")
+        self.assertEqual(result.entities.get("symbol"), "ORDIUSDT")
         self.assertEqual(result.entities.get("take_profits"), [5.8613, 6.3269, 7.2469])
 
 
