@@ -12,6 +12,7 @@ class EventType(str, Enum):
     CLOSE_PARTIAL = "CLOSE_PARTIAL"
     CLOSE_FULL = "CLOSE_FULL"
     CANCEL_PENDING = "CANCEL_PENDING"
+    FUNDING_APPLIED = "funding_applied"
 
 
 class EventSource(str, Enum):

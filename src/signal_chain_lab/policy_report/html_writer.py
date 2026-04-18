@@ -90,28 +90,10 @@ def _badge_class_for_number(value: float | int | None) -> str:
 
 
 def _canonical_event_kind_css(ev: object) -> str:
-    """Map ReportCanonicalEvent.subtype → CSS class for the unified sidebar."""
-    subtype = getattr(ev, "subtype", "") or ""
-    mapping: dict[str, str] = {
-        "SETUP_CREATED":            "ti-kind-NEW_SIGNAL",
-        "ENTRY_ORDER_ADDED":        "ti-kind-NEW_SIGNAL",
-        "ENTRY_FILLED_INITIAL":     "ti-kind-FILL",
-        "ENTRY_FILLED_SCALE_IN":    "ti-kind-FILL",
-        "STOP_MOVED":               "ti-kind-MOVE_SL",
-        "BREAK_EVEN_ACTIVATED":     "ti-kind-MOVE_SL",
-        "EXIT_PARTIAL_TP":          "ti-kind-TP",
-        "EXIT_PARTIAL_MANUAL":      "ti-kind-PARTIAL_CLOSE",
-        "EXIT_FINAL_TP":            "ti-kind-EXIT",
-        "EXIT_FINAL_SL":            "ti-kind-SL",
-        "EXIT_FINAL_MANUAL":        "ti-kind-EXIT",
-        "EXIT_FINAL_TIMEOUT":       "ti-kind-CANCEL",
-        "PENDING_CANCELLED_TRADER": "ti-kind-CANCEL",
-        "PENDING_CANCELLED_ENGINE": "ti-kind-CANCEL",
-        "PENDING_TIMEOUT":          "ti-kind-CANCEL",
-        "IGNORED":                  "ti-kind-UPDATE",
-        "SYSTEM_NOTE":              "ti-kind-UPDATE",
-    }
-    return mapping.get(subtype, "ti-kind-UPDATE")
+    """Map canonical event_code → CSS class for the unified sidebar."""
+    event_code = getattr(ev, "event_code", "") or getattr(ev, "subtype", "") or ""
+    from src.signal_chain_lab.policy_report.event_normalizer import canonical_event_badge_class
+    return canonical_event_badge_class(event_code)
 
 
 # ---------------------------------------------------------------------------
@@ -127,7 +109,7 @@ def _base_styles() -> str:
 }
 *{box-sizing:border-box}
 body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}
-.wrap{max-width:1280px;margin:0 auto;padding:24px}
+.wrap{max-width:1900px;margin:0 auto;padding:24px 24px 104px}
 h1{font-size:28px;margin:0 0 18px}
 h2{font-size:18px;margin:0 0 12px;font-weight:700}
 h3{font-size:14px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:0 0 10px}
@@ -212,6 +194,16 @@ dialog::backdrop{background:rgba(15,23,42,.55)}
 .perf-group-label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
 .metric.compact{padding:10px 12px}
 .metric.compact .v{font-size:18px}
+.hero-card{padding:14px 16px}
+.hero-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.hero-meta{display:flex;align-items:center;gap:8px 10px;flex-wrap:wrap;min-width:0}
+.hero-meta .symbol{font-size:24px;font-weight:800;line-height:1}
+.hero-meta .signal-id{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--muted)}
+.hero-metrics{display:flex;flex-wrap:nowrap;gap:10px;overflow-x:auto;overflow-y:hidden;padding-bottom:2px}
+.hero-metrics .metric{flex:1 1 0;min-width:0}
+.hero-metrics .metric.compact{padding:9px 10px}
+.hero-metrics .metric.compact .k{font-size:10px;margin-bottom:4px}
+.hero-metrics .metric.compact .v{font-size:17px;line-height:1.15}
 /* ---- Timeline V2 ---- */
 .ti-v2{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:8px}
 .ti-v2-compact{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;cursor:pointer;user-select:none}
@@ -242,19 +234,35 @@ dialog::backdrop{background:rgba(15,23,42,.55)}
   .perf-groups{grid-template-columns:1fr}
   .analysis-block{grid-template-columns:1fr}
   .analysis-sidebar-col{position:static;max-height:none}
+  .hero-metrics .metric{min-width:140px}
 }
+/* ---- Event list Section A / Section B (PRD §5) ---- */
+.evt-section-b{opacity:.75}
+.evt-section-b .ti-v2-compact{background:#fafafa}
+.evt-section-b .ti-v2-compact:hover{background:#f1f5f9}
+.section-b-header{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:14px 0 8px;padding:0 2px}
 /* ---- Main analysis two-column block (PRD §6, §8) ---- */
 .analysis-block{display:grid;grid-template-columns:70fr 30fr;gap:18px;align-items:start;margin-bottom:18px}
 .analysis-chart-col{min-width:0}
 .analysis-sidebar-col{min-width:0;position:sticky;top:60px;max-height:calc(100vh - 80px);overflow-y:auto}
 /* ---- Custom chart legend (PRD §10) ---- */
-.chart-legend{display:flex;flex-wrap:wrap;gap:6px;padding:4px 0 8px 0;align-items:center}
+.chart-legend{display:flex;flex-wrap:wrap;gap:6px;padding:4px 0 8px 0;align-items:center;justify-content:center}
 .chart-legend-item{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);
   border-radius:8px;padding:2px 8px;font-size:11px;cursor:pointer;user-select:none;
   background:#fff;transition:opacity .15s}
 .chart-legend-item.dimmed{opacity:.3}
 .chart-legend-swatch{width:20px;height:3px;border-radius:2px;flex-shrink:0}
-.chart-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.chart-legend-marker{width:10px;height:10px;display:inline-block;flex-shrink:0;background:var(--marker-color,#475569)}
+.chart-legend-marker.sym-circle{border-radius:50%}
+.chart-legend-marker.sym-rect{border-radius:2px}
+.chart-legend-marker.sym-roundrect{border-radius:4px}
+.chart-legend-marker.sym-diamond{border-radius:2px;transform:rotate(45deg)}
+.chart-legend-marker.sym-triangle{clip-path:polygon(50% 0%,0% 100%,100% 100%)}
+.chart-legend-marker.sym-pin{clip-path:polygon(50% 0%,86% 34%,62% 100%,38% 100%,14% 34%)}
+.trade-bottom-nav{
+  position:fixed;left:50%;bottom:12px;transform:translateX(-50%);
+  width:min(1160px, calc(100vw - 20px));z-index:90
+}
 </style>
 <script>
 function openText(id){ document.getElementById(id).showModal(); }
@@ -355,6 +363,18 @@ function toggleTiDetail(header){
   item.classList.toggle('open');
   var arrow = header.querySelector('.ti-arrow');
   if(arrow) arrow.textContent = item.classList.contains('open') ? '\u25b2' : '\u25bc';
+}
+// ---- per-event audit drawer (PRD §7-8) ----
+function __normEventId(value){
+  return String(value || '').replace(/[^A-Za-z0-9_-]/g, '_') || 'item';
+}
+function openAuditDrawer(eventId){
+  var dlg = document.getElementById('audit_' + __normEventId(eventId));
+  if(dlg){ dlg.showModal(); }
+}
+function closeAuditDrawer(eventId){
+  var dlg = document.getElementById('audit_' + __normEventId(eventId));
+  if(dlg){ dlg.close(); }
 }
 </script>
 """
@@ -1423,12 +1443,20 @@ def _build_single_trade_hero(trade: TradeResult) -> str:
         + "</span>"
     ) if (trade.warnings_count or 0) > 0 else ""
 
-    badges_row = (
-        "<div style='display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px'>"
+    meta_row = (
+        "<div class='hero-head'>"
+        "<div class='hero-meta'>"
         f"<span class='symbol'>{_escape(trade.symbol)}</span>"
+        f"<span class='signal-id'>{_escape(trade.signal_id)}</span>"
         f"<span class='{side_cls}'>{_escape(trade.side)}</span>"
         f"<span class='badge {status_cls}'>{_escape(trade.status)}</span>"
         f"{warnings_html}"
+        "</div>"
+        "<div class='hero-meta'>"
+        f"<span class='badge muted'>fills {int(trade.fills_count or 0)}</span>"
+        f"<span class='badge muted'>partials {int(trade.partial_closes_count or 0)}</span>"
+        f"<span class='badge muted'>{_escape(trade.close_reason or 'open')}</span>"
+        "</div>"
         "</div>"
     )
 
@@ -1452,9 +1480,9 @@ def _build_single_trade_hero(trade: TradeResult) -> str:
     )
 
     return (
-        "<div class='card'>"
-        + badges_row
-        + f"<div class='grid-3'>{cells}</div>"
+        "<div class='card hero-card'>"
+        + meta_row
+        + f"<div class='hero-metrics'>{cells}</div>"
         + "</div>"
     )
 
@@ -1527,69 +1555,248 @@ def _sidebar_detail_rows(ev: object) -> str:
     return "".join(f"<div class='lab'>{label}</div><div>{value}</div>" for label, value in rows)
 
 
+def _build_position_effect_badge(position_effect: str) -> str:
+    """Small inline badge for the position_effect field (PRD §6.2)."""
+    _MAP = {
+        "PLAN_CREATED":      ("muted", "Plan created"),
+        "POSITION_OPENED":   ("ok",    "Opened"),
+        "POSITION_INCREASED":("ok",    "Increased"),
+        "POSITION_REDUCED":  ("muted", "Partial exit"),
+        "POSITION_CLOSED":   ("muted", "Closed"),
+        "STOP_ADJUSTED":     ("muted", "Stop adjusted"),
+        "PLAN_CANCELLED":    ("muted", "Cancelled"),
+        "NO_EFFECT":         ("",      ""),
+    }
+    cls, label = _MAP.get(position_effect, ("muted", position_effect.replace("_", " ").title()))
+    if not label:
+        return ""
+    return f"<span class='badge {cls}' style='font-size:10px;padding:2px 7px'>{_escape(label)}</span>"
+
+
+def _build_audit_dialog(ev: object) -> str:
+    """Build the per-event audit drawer as a <dialog> element (PRD §7-8)."""
+    eid = _safe_dom_id(getattr(ev, "id", ""))
+    title = getattr(ev, "display_label", "") or getattr(ev, "title", "") or ""
+    price_val = _canonical_price_anchor(ev)
+    position_effect = getattr(ev, "position_effect", "") or "NO_EFFECT"
+    event_code = getattr(ev, "event_code", "") or getattr(ev, "subtype", "")
+    phase = getattr(ev, "phase", "") or ""
+    stage = getattr(ev, "stage", "") or phase
+    event_class = getattr(ev, "event_class", "") or ""
+    source = getattr(ev, "source", "") or ""
+    chart_marker_kind = getattr(ev, "chart_marker_kind", "") or ""
+    geometry_effect = getattr(ev, "geometry_effect", "") or ""
+    event_list_section = getattr(ev, "event_list_section", "A") or "A"
+    reason = getattr(ev, "reason", None)
+    raw_text = getattr(ev, "raw_text", None)
+    details = getattr(ev, "details", {}) or {}
+    impact = getattr(ev, "impact", None)
+    state_delta_full = getattr(ev, "state_delta_full", []) or []
+
+    def _h3(text: str) -> str:
+        return (
+            f"<h3 style='font-size:11px;text-transform:uppercase;letter-spacing:.05em;"
+            f"color:var(--muted);margin:14px 0 6px'>{_escape(text)}</h3>"
+        )
+
+    def _kv_grid(rows: list[tuple[str, str]]) -> str:
+        return (
+            "<div class='ti-detail-grid'>"
+            + "".join(f"<div class='lab'>{label}</div><div>{value}</div>" for label, value in rows)
+            + "</div>"
+        )
+
+    # 1. Execution summary
+    exec_rows: list[tuple[str, str]] = [
+        ("Event",            _escape(title)),
+        ("Event code",       _escape(event_code)),
+        ("Stage",            _escape(stage)),
+        ("Position effect",  _escape(position_effect.replace("_", " ").title())),
+        ("Price / Level",    _escape(price_val)),
+        ("Source",           _escape(source)),
+    ]
+    if reason:
+        exec_rows.append(("Reason", _escape(reason)))
+    if impact is not None:
+        result = getattr(impact, "result", None)
+        if result is not None:
+            exec_rows.append(("PnL realized", _escape(_fmt_number(result, 4))))
+
+    # 2. State delta
+    if state_delta_full:
+        delta_items = "".join(
+            "<div class='ti-delta-item'>"
+            f"<span class='dlab'>{_escape(d.get('field_path', ''))}</span>"
+            f"{_escape(str(d.get('before', '')))} → {_escape(str(d.get('after', '')))}"
+            "</div>"
+            for d in state_delta_full
+        )
+        delta_html = f"<div class='ti-delta' style='margin:0'>{delta_items}</div>"
+    else:
+        delta_html = "<p class='note' style='font-size:12px;margin:4px 0 0'>No state delta available for this event.</p>"
+
+    # 3. Structured event data
+    struct_rows: list[tuple[str, str]] = [
+        ("event_code",          _escape(event_code)),
+        ("phase / stage",       f"{_escape(phase)} / {_escape(stage)}"),
+        ("event_class",         _escape(event_class)),
+        ("chart_marker_kind",   _escape(chart_marker_kind)),
+        ("geometry_effect",     _escape(geometry_effect)),
+        ("event_list_section",  _escape(event_list_section)),
+        ("event_id",            f"<span style='font-family:ui-monospace,monospace;font-size:12px'>{_escape(getattr(ev, 'id', ''))}</span>"),
+    ]
+
+    # 4. Original trader message
+    trader_html = ""
+    if source == "TRADER" and raw_text:
+        trader_html = (
+            _h3("Original trader message")
+            + f"<pre class='code' style='font-size:12px;margin:0'>{_escape(raw_text)}</pre>"
+        )
+
+    # 5. Raw technical data (sub-toggle)
+    raw_tech_html = (
+        "<details style='margin-top:14px'>"
+        "<summary style='cursor:pointer;font-size:12px;color:var(--muted)'>Raw technical data</summary>"
+        f"<pre class='code' style='margin-top:6px;font-size:12px'>"
+        f"{_escape(json.dumps(details, ensure_ascii=False, indent=2, default=str))}"
+        "</pre></details>"
+    )
+
+    return (
+        f"<dialog id='audit_{eid}'>"
+        "<div class='dialog-head'>"
+        f"<strong>Audit — {_escape(title)}</strong>"
+        f"<button class='inline-btn' type='button' onclick=\"closeAuditDrawer('{eid}')\">Close</button>"
+        "</div>"
+        "<div class='dialog-body' style='overflow-y:auto;max-height:72vh'>"
+        + _h3("Execution summary")
+        + _kv_grid(exec_rows)
+        + _h3("State delta")
+        + delta_html
+        + _h3("Structured event data")
+        + _kv_grid(struct_rows)
+        + trader_html
+        + raw_tech_html
+        + "</div>"
+        "</dialog>"
+    )
+
+
+def _build_section_a_card(ev: object) -> str:
+    """Section A event card: operational events with detail rows and AUDIT button (PRD §5)."""
+    ev_id_raw = getattr(ev, "id", "") or ""
+    ev_title = getattr(ev, "display_label", "") or getattr(ev, "title", "") or ""
+    ev_ts = getattr(ev, "ts", "") or ""
+    eid = _safe_dom_id(ev_id_raw)
+    kind_css = _canonical_event_kind_css(ev)
+    position_effect = getattr(ev, "position_effect", "NO_EFFECT") or "NO_EFFECT"
+    pe_badge = _build_position_effect_badge(position_effect)
+    source = getattr(ev, "source", "ENGINE") or "ENGINE"
+    source_label = (
+        "<span class='ti-src-trader'>TRADER</span>" if source == "TRADER"
+        else f"<span class='ti-src-system'>{_escape(source)}</span>"
+    )
+
+    raw_btn = ""
+    raw_text_val = getattr(ev, "raw_text", None)
+    if source == "TRADER" and raw_text_val:
+        rid = _safe_dom_id(f"raw_{ev_id_raw}")
+        raw_btn = (
+            f"<button class='inline-btn' type='button' onclick=\"openText('{rid}')\">Original message</button>"
+            f"<dialog id='{rid}'>"
+            f"<div class='dialog-head'><strong>Raw message</strong>"
+            f"<button class='inline-btn' type='button' onclick=\"closeText('{rid}')\">Close</button></div>"
+            f"<div class='dialog-body'><pre class='code'>{_escape(raw_text_val)}</pre></div>"
+            "</dialog>"
+        )
+    audit_btn = f"<button class='inline-btn' type='button' onclick=\"openAuditDrawer('{eid}')\">AUDIT</button>"
+
+    sde = getattr(ev, "state_delta_essential", []) or []
+    delta_html = ""
+    if sde:
+        items = "".join(
+            "<div class='ti-delta-item'>"
+            f"<span class='dlab'>{_escape(d.get('field_path', ''))}</span>"
+            f"{_escape(str(d.get('before', '')))} \u2192 {_escape(str(d.get('after', '')))}"
+            "</div>"
+            for d in sde
+        )
+        delta_html = f"<div class='ti-delta'>{items}</div>"
+
+    escaped_id = _escape(ev_id_raw)
+    return (
+        f"<div class='ti-v2 unified-event evt-section-a' id='evt_{eid}' "
+        f"data-event-id='{eid}' data-event-id-raw='{escaped_id}'>"
+        f"<div class='ti-v2-compact' data-event-id='{eid}' "
+        f"data-event-id-raw='{escaped_id}' onclick='toggleUnifiedEvent(this)'>"
+        f"<span class='ti-kind-badge {kind_css}'>{_escape(ev_title)}</span>"
+        f"<span class='note' style='font-size:12px'>{_escape(_fmt_timestamp(ev_ts))}</span>"
+        + source_label
+        + (f" {pe_badge}" if pe_badge else "")
+        + "<span style='flex:1'></span>"
+        "<span class='ti-arrow' style='color:var(--muted);font-size:10px'>&#x25BC;</span>"
+        "</div>"
+        "<div class='ti-v2-detail'>"
+        f"<div class='ti-detail-grid'>{_sidebar_detail_rows(ev)}</div>"
+        + delta_html
+        + f"<div style='margin-top:10px;display:flex;gap:8px;flex-wrap:wrap'>{raw_btn}{audit_btn}</div>"
+        "</div>"
+        "</div>"
+    )
+
+
+def _build_section_b_card(ev: object) -> str:
+    """Section B event card: audit/informational events, dimmed style (PRD §5)."""
+    ev_id_raw = getattr(ev, "id", "") or ""
+    ev_title = getattr(ev, "display_label", "") or getattr(ev, "title", "") or ""
+    ev_ts = getattr(ev, "ts", "") or ""
+    eid = _safe_dom_id(ev_id_raw)
+    reason = getattr(ev, "reason", None) or ""
+    escaped_id = _escape(ev_id_raw)
+    audit_btn = f"<button class='inline-btn' type='button' onclick=\"openAuditDrawer('{eid}')\">AUDIT</button>"
+    return (
+        f"<div class='ti-v2 unified-event evt-section-b' id='evt_{eid}' "
+        f"data-event-id='{eid}' data-event-id-raw='{escaped_id}'>"
+        f"<div class='ti-v2-compact' data-event-id='{eid}' "
+        f"data-event-id-raw='{escaped_id}' onclick='toggleUnifiedEvent(this)'>"
+        "<span class='ti-kind-badge ti-kind-UPDATE' style='opacity:.75'>"
+        f"{_escape(ev_title)}</span>"
+        f"<span class='note' style='font-size:12px'>{_escape(_fmt_timestamp(ev_ts))}</span>"
+        + (f"<span class='note' style='font-size:11px;font-style:italic'>{_escape(reason)}</span>" if reason else "")
+        + "<span style='flex:1'></span>"
+        "<span class='ti-arrow' style='color:var(--muted);font-size:10px'>&#x25BC;</span>"
+        "</div>"
+        "<div class='ti-v2-detail'>"
+        f"<div style='display:flex;gap:8px;flex-wrap:wrap'>{audit_btn}</div>"
+        "</div>"
+        "</div>"
+    )
+
+
 def _build_event_rail_and_sidebar(trade: TradeResult, event_log: list[EventLogEntry]) -> tuple[str, str, str]:
     canonical = normalize_events(trade, event_log)
-    sidebar_items: list[str] = []
-    audit_items: list[str] = []
 
-    for ev in canonical:
-        row_id = _safe_dom_id(ev.id)
-        price_val = _canonical_price_anchor(ev)
-        raw_btn = ""
-        if ev.source == "TRADER" and ev.raw_text:
-            rid = _safe_dom_id(f"raw_{ev.id}")
-            raw_btn = (
-                f"<button class='inline-btn' type='button' onclick=\"openText('{rid}')\">Open raw telegram text</button>"
-                f"<dialog id='{rid}'><div class='dialog-head'><strong>Raw message</strong><button class='inline-btn' type='button' onclick=\"closeText('{rid}')\">Close</button></div><div class='dialog-body'><pre class='code'>{_escape(ev.raw_text)}</pre></div></dialog>"
-            )
+    section_a = [ev for ev in canonical if getattr(ev, "event_list_section", "A") == "A"]
+    section_b = [ev for ev in canonical if getattr(ev, "event_list_section", "A") == "B"]
 
-        if getattr(ev, "event_class", None) != "AUDIT":
-            kind_css = _canonical_event_kind_css(ev)
-            sidebar_items.append(
-                "<div class='ti-v2 unified-event' "
-                f"id='evt_{row_id}' data-event-id='{row_id}' data-event-id-raw='{_escape(ev.id)}'>"
-                f"<div class='ti-v2-compact' data-event-id='{row_id}' data-event-id-raw='{_escape(ev.id)}' onclick='toggleUnifiedEvent(this)'>"
-                f"<span class='ti-kind-badge {kind_css}'>{_escape(ev.title)}</span>"
-                f"<span class='note'>{_escape(_fmt_timestamp(ev.ts))}</span>"
-                f"<span style='flex:1'></span>"
-                "</div>"
-                "<div class='ti-v2-detail'>"
-                f"<div class='ti-detail-grid'>{_sidebar_detail_rows(ev)}</div>"
-                f"<div style='margin-top:8px'>{raw_btn}</div>"
-                "</div>"
-                "</div>"
-            )
+    # Section A cards (operational events)
+    section_a_html = "".join(_build_section_a_card(ev) for ev in section_a)
 
-        audit_kind_css = _canonical_event_kind_css(ev)
-        audit_items.append(
-            "<li style='margin-bottom:16px;list-style:none'>"
-            # Header: badge + timestamp + phase + class
-            "<div style='display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px'>"
-            f"<span class='ti-kind-badge {audit_kind_css}'>{_escape(ev.subtype)}</span>"
-            f"<span class='note'>{_escape(_fmt_timestamp(ev.ts))}</span>"
-            f"<span class='badge muted' style='font-size:11px'>{_escape(ev.phase)}</span>"
-            f"<span class='badge muted' style='font-size:11px'>{_escape(ev.event_class)}</span>"
-            "</div>"
-            # Key/value grid dei campi principali
-            "<div class='ti-detail-grid'>"
-            f"<div class='lab'>Title</div><div>{_escape(ev.title)}</div>"
-            f"<div class='lab'>Summary</div><div>{_escape(ev.summary or '-')}</div>"
-            f"<div class='lab'>Source</div><div>{_escape(ev.source)}</div>"
-            f"<div class='lab'>Price</div><div>{_escape(price_val)}</div>"
-            f"<div class='lab'>Reason</div><div>{_escape(ev.reason or '-')}</div>"
-            f"<div class='lab'>ID</div><div style='font-family:ui-monospace,monospace;font-size:12px'>{_escape(ev.id)}</div>"
-            "</div>"
-            # Raw JSON solo in sotto-toggle
-            "<details style='margin-top:8px'>"
-            "<summary style='cursor:pointer;font-size:12px;color:var(--muted)'>Raw details JSON</summary>"
-            f"<pre class='code' style='margin-top:6px;font-size:12px'>{_escape(json.dumps(ev.details, ensure_ascii=False, indent=2))}</pre>"
-            "</details>"
-            "</li>"
+    # Section B cards (audit/informational, dimmed) — only rendered if present
+    section_b_html = ""
+    if section_b:
+        section_b_html = (
+            "<h3 class='section-b-header'>Section B — Audit / Informational</h3>"
+            + "".join(_build_section_b_card(ev) for ev in section_b)
         )
+
+    # Per-event audit dialogs (one per canonical event, opened via AUDIT button)
+    audit_dialogs = "".join(_build_audit_dialog(ev) for ev in canonical)
 
     js = """
 <script>
-function normEventId(value){
+function __normUnifiedEventId(value){
   return String(value || '').replace(/[^A-Za-z0-9_-]/g, '_') || 'item';
 }
 function toggleUnifiedEvent(el){
@@ -1605,7 +1812,7 @@ function toggleUnifiedEvent(el){
 }
 window.addEventListener('trade-event-focus', (evt)=>{
     const eventIdRaw = evt && evt.detail ? evt.detail.eventId : null;
-    const eventId = normEventId(eventIdRaw);
+    const eventId = __normUnifiedEventId(eventIdRaw);
     if(!eventId) return;
     const target = document.getElementById('evt_' + eventId);
     if(!target) return;
@@ -1618,18 +1825,15 @@ window.addEventListener('trade-event-focus', (evt)=>{
 
     rail_html = ""
     sidebar_html = (
-        "<div class='card'><h2>Unified operational events list</h2>"
-        + "".join(sidebar_items)
+        "<div class='card'>"
+        "<h2>Events</h2>"
+        + (section_a_html or "<p class='note'>No operational events.</p>")
+        + section_b_html
         + "</div>"
+        + audit_dialogs
+        + js
     )
-    audit_html = (
-        "<details class='card'><summary>Audit drawer</summary>"
-        "<div style='margin-top:14px'>"
-        "<ul style='padding:0;margin:0'>"
-        + ("".join(audit_items) or "<li class='note' style='list-style:none'>No audit events.</li>")
-        + "</ul></div></details>"
-    )
-    return rail_html, sidebar_html, audit_html + js
+    return rail_html, sidebar_html, ""
 
 
 def write_single_trade_html_report(
@@ -1651,7 +1855,7 @@ def write_single_trade_html_report(
     rail_html, sidebar_html, audit_html = _build_event_rail_and_sidebar(trade, event_log)
 
     nav_html = (
-        "<div class='card' style='display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap'>"
+        "<div class='card trade-bottom-nav' style='display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap;margin-bottom:0;box-shadow:0 8px 26px rgba(2,6,23,.16)'>"
         + (f'<a class="inline-btn" href="{_escape(prev_link)}">&larr; Prev Trade</a>'
            if prev_link else '<span class="inline-btn" style="opacity:.35;cursor:default">&larr; Prev Trade</span>')
         + f'<a class="inline-btn" href="{_escape(back_link_href)}">Back to Policy Report'
@@ -1669,8 +1873,6 @@ def write_single_trade_html_report(
         f"{_base_styles()}\n"
         "</head><body><div class='wrap'>\n"
         # H1: signal_id come titolo principale (PRD §7)
-        f"<h1 style='font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:20px;margin:0 0 14px'>"
-        f"{_escape(trade.signal_id)}</h1>"
         # Hero compatto: symbol/side/status badges + 9 metric cards
         + hero_html
         # Main analysis block: due colonne [chart+rail | sidebar] (PRD §6, §8)
@@ -1682,9 +1884,8 @@ def write_single_trade_html_report(
         + sidebar_html
         + "  </div>\n"
         + "</div>\n"
-        # Navigation menu + audit sotto il blocco principale (PRD §6)
+        # Navigation menu (PRD §6); audit dialogs are embedded inside sidebar_html
         + nav_html
-        + audit_html
         + "</div></body></html>\n"
     )
 

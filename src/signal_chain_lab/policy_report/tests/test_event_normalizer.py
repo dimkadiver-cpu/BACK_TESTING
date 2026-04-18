@@ -119,9 +119,9 @@ def test_open_signal_maps_to_setup_created():
 
 
 def test_entry_filled_mapping():
-    """ADD_ENTRY applied → ENTRY_FILLED_INITIAL / ENTRY / STRUCTURAL."""
+    """FILL applied → ENTRY_FILLED_INITIAL / ENTRY / STRUCTURAL."""
     trade = _trade()
-    log = [_entry("ADD_ENTRY", processing_status=EventProcessingStatus.APPLIED)]
+    log = [_entry("FILL", processing_status=EventProcessingStatus.APPLIED)]
     ev = normalize_events(trade, log)[0]
     assert ev.subtype == Subtype.ENTRY_FILLED_INITIAL
     assert ev.phase == Phase.ENTRY
@@ -129,12 +129,22 @@ def test_entry_filled_mapping():
 
 
 def test_scale_in_fill_mapping():
-    """ADD_ENTRY with fills_count >= 2 → ENTRY_FILLED_SCALE_IN."""
+    """FILL with fills_count >= 2 → ENTRY_FILLED_SCALE_IN."""
     trade = _trade()
-    log = [_entry("ADD_ENTRY", state_after={"fills_count": 2})]
+    log = [_entry("FILL", state_before={"open_size": 1.0}, state_after={"fills_count": 2, "open_size": 2.0})]
     ev = normalize_events(trade, log)[0]
     assert ev.subtype == Subtype.ENTRY_FILLED_SCALE_IN
+    assert ev.phase == Phase.MANAGEMENT
+
+
+def test_entry_order_added_mapping():
+    """ADD_ENTRY applied without fill → ENTRY_ORDER_ADDED / ENTRY / STRUCTURAL."""
+    trade = _trade()
+    log = [_entry("ADD_ENTRY", processing_status=EventProcessingStatus.APPLIED)]
+    ev = normalize_events(trade, log)[0]
+    assert ev.subtype == Subtype.ENTRY_ORDER_ADDED
     assert ev.phase == Phase.ENTRY
+    assert ev.event_class == EventClass.STRUCTURAL
 
 
 def test_sl_moved_mapping():
@@ -158,22 +168,22 @@ def test_be_activated_mapping():
 
 
 def test_partial_exit_tp_mapping():
-    """CLOSE_PARTIAL with tp reason → EXIT_PARTIAL_TP / EXIT / RESULT."""
+    """CLOSE_PARTIAL with tp reason → EXIT_PARTIAL_TP / MANAGEMENT / RESULT."""
     trade = _trade()
     log = [_entry("CLOSE_PARTIAL", reason="tp_hit")]
     ev = normalize_events(trade, log)[0]
     assert ev.subtype == Subtype.EXIT_PARTIAL_TP
-    assert ev.phase == Phase.EXIT
+    assert ev.phase == Phase.MANAGEMENT
     assert ev.event_class == EventClass.RESULT
 
 
 def test_partial_exit_manual_mapping():
-    """CLOSE_PARTIAL without tp reason → EXIT_PARTIAL_MANUAL / EXIT / RESULT."""
+    """CLOSE_PARTIAL without tp reason → EXIT_PARTIAL_MANUAL / MANAGEMENT / RESULT."""
     trade = _trade()
     log = [_entry("CLOSE_PARTIAL", reason="manual_partial")]
     ev = normalize_events(trade, log)[0]
     assert ev.subtype == Subtype.EXIT_PARTIAL_MANUAL
-    assert ev.phase == Phase.EXIT
+    assert ev.phase == Phase.MANAGEMENT
     assert ev.event_class == EventClass.RESULT
 
 
@@ -347,7 +357,7 @@ def test_impact_extracted_from_state_after():
         "current_sl": 41500.0,
         "realized_pnl": 125.0,
     }
-    log = [_entry("ADD_ENTRY", state_after=state_after)]
+    log = [_entry("FILL", state_after=state_after)]
     ev = normalize_events(trade, log)[0]
     assert ev.impact.position == 0.5
     assert ev.impact.risk == 41500.0
@@ -441,6 +451,36 @@ def test_tp_hit_anchor_uses_previous_tp_when_engine_snapshot_is_already_advanced
     assert ev.price_anchor == 42100.0
 
 
+def test_close_full_tp_anchor_uses_removed_tp_when_price_reference_missing() -> None:
+    trade = _trade()
+    log = [
+        _entry(
+            "CLOSE_FULL",
+            reason="tp_hit",
+            state_before={"tp_levels": [42100.0, 42200.0], "open_size": 1.0},
+            state_after={"tp_levels": [42200.0], "open_size": 0.0},
+        )
+    ]
+    ev = normalize_events(trade, log)[0]
+    assert ev.subtype == Subtype.EXIT_FINAL_TP
+    assert ev.price_anchor == 42100.0
+
+
+def test_sl_hit_anchor_uses_state_before_current_sl_when_price_reference_missing() -> None:
+    trade = _trade()
+    log = [
+        _entry(
+            "CLOSE_FULL",
+            reason="sl_hit",
+            state_before={"open_size": 1.0, "current_sl": 41850.0},
+            state_after={"open_size": 0.0, "realized_pnl": -150.0},
+        )
+    ]
+    ev = normalize_events(trade, log)[0]
+    assert ev.subtype == Subtype.EXIT_FINAL_SL
+    assert ev.price_anchor == 41850.0
+
+
 # ---------------------------------------------------------------------------
 # Tests — multiple events in sequence
 # ---------------------------------------------------------------------------
@@ -459,7 +499,7 @@ def test_multiple_events_ordered_and_indexed():
     assert result[1].id == "sig_xyz_1"
     assert result[2].id == "sig_xyz_2"
     assert result[0].subtype == Subtype.SETUP_CREATED
-    assert result[1].subtype == Subtype.ENTRY_FILLED_INITIAL
+    assert result[1].subtype == Subtype.ENTRY_ORDER_ADDED
     assert result[2].subtype == Subtype.EXIT_FINAL_SL
 
 
@@ -487,3 +527,389 @@ def test_details_contain_state_after_and_extras():
     assert ev.details["requested_action"] == "open_trade"
     assert ev.details["executed_action"] == "position_opened"
     assert ev.details["reason"] == "initial_setup"
+
+
+# ---------------------------------------------------------------------------
+# Tests — chart_marker_kind (PRD §9)
+# ---------------------------------------------------------------------------
+
+def test_chart_marker_kind_required_for_entry_filled_initial():
+    """ENTRY_FILLED_INITIAL → chart_marker_kind = REQUIRED (PRD §9)."""
+    ev = normalize_events(_trade(), [_entry("FILL")])[0]
+    assert ev.chart_marker_kind == "REQUIRED"
+
+
+def test_chart_marker_kind_required_for_entry_filled_scale_in():
+    """ENTRY_FILLED_SCALE_IN → chart_marker_kind = REQUIRED."""
+    ev = normalize_events(_trade(), [_entry("FILL", state_before={"open_size": 1.0}, state_after={"fills_count": 2})])[0]
+    assert ev.chart_marker_kind == "REQUIRED"
+
+
+def test_chart_marker_kind_required_for_exit_partial_tp():
+    ev = normalize_events(_trade(), [_entry("CLOSE_PARTIAL", reason="tp_hit")])[0]
+    assert ev.chart_marker_kind == "REQUIRED"
+
+
+def test_chart_marker_kind_required_for_exit_final_sl():
+    ev = normalize_events(_trade(), [_entry("CLOSE_FULL", reason="sl_hit")])[0]
+    assert ev.chart_marker_kind == "REQUIRED"
+
+
+def test_chart_marker_kind_optional_light_for_exit_final_timeout():
+    """EXIT_FINAL_TIMEOUT → chart_marker_kind = REQUIRED (PRD §9)."""
+    ev = normalize_events(_trade(), [_entry("CLOSE_FULL", reason="chain_timeout")])[0]
+    assert ev.chart_marker_kind == "REQUIRED"
+
+
+def test_chart_marker_kind_none_for_setup_created():
+    """SETUP_CREATED → chart_marker_kind = NONE (PRD §9)."""
+    ev = normalize_events(_trade(), [_entry("OPEN_SIGNAL")])[0]
+    assert ev.chart_marker_kind == "NONE"
+
+
+def test_chart_marker_kind_none_for_stop_moved():
+    """STOP_MOVED → chart_marker_kind = NONE — geometry only, no chart marker."""
+    ev = normalize_events(_trade(), [_entry("MOVE_STOP")])[0]
+    assert ev.chart_marker_kind == "NONE"
+
+
+def test_chart_marker_kind_none_for_break_even_activated():
+    ev = normalize_events(_trade(), [_entry("MOVE_STOP_TO_BE")])[0]
+    assert ev.chart_marker_kind == "NONE"
+
+
+def test_chart_marker_kind_none_for_pending_cancelled_trader():
+    ev = normalize_events(_trade(), [_entry("CANCEL_PENDING", source="trader")])[0]
+    assert ev.chart_marker_kind == "OPTIONAL_LIGHT"
+
+
+def test_chart_marker_kind_optional_light_for_pending_timeout():
+    ev = normalize_events(_trade(), [_entry("CANCEL_PENDING", reason="timeout")])[0]
+    assert ev.chart_marker_kind == "OPTIONAL_LIGHT"
+
+
+def test_event_list_section_a_for_pending_cancelled():
+    ev = normalize_events(_trade(), [_entry("CANCEL_PENDING", source="trader")])[0]
+    assert ev.event_list_section == "A"
+
+
+def test_chart_marker_kind_none_for_ignored():
+    ev = normalize_events(
+        _trade(),
+        [_entry("ADD_ENTRY", processing_status=EventProcessingStatus.IGNORED)],
+    )[0]
+    assert ev.chart_marker_kind == "NONE"
+
+
+# ---------------------------------------------------------------------------
+# Tests — event_list_section (PRD §5)
+# ---------------------------------------------------------------------------
+
+def test_event_list_section_a_for_setup_created():
+    ev = normalize_events(_trade(), [_entry("OPEN_SIGNAL")])[0]
+    assert ev.event_list_section == "A"
+
+
+def test_event_list_section_a_for_entry_filled():
+    ev = normalize_events(_trade(), [_entry("FILL")])[0]
+    assert ev.event_list_section == "A"
+
+
+def test_event_list_section_a_for_exit_events():
+    for event_type, reason in [
+        ("CLOSE_FULL", "sl_hit"),
+        ("CLOSE_FULL", "tp_hit"),
+        ("CLOSE_PARTIAL", "tp_hit"),
+        ("CLOSE_FULL", "chain_timeout"),
+    ]:
+        ev = normalize_events(_trade(), [_entry(event_type, reason=reason)])[0]
+        assert ev.event_list_section == "A", f"Expected A for {event_type}+{reason}"
+
+
+def test_event_list_section_b_for_ignored():
+    """IGNORED → event_list_section = B (Section B — audit/informational, PRD §5)."""
+    ev = normalize_events(
+        _trade(),
+        [_entry("ADD_ENTRY", processing_status=EventProcessingStatus.IGNORED)],
+    )[0]
+    assert ev.event_list_section == "B"
+
+
+def test_event_list_section_b_for_system_note():
+    """SYSTEM_NOTE (unknown event_type) → event_list_section = B."""
+    ev = normalize_events(_trade(), [_entry("COMPLETELY_UNKNOWN")])[0]
+    assert ev.event_list_section == "B"
+
+
+# ---------------------------------------------------------------------------
+# Tests — position_effect (PRD §6.2)
+# ---------------------------------------------------------------------------
+
+def test_position_effect_plan_created_for_setup():
+    ev = normalize_events(_trade(), [_entry("OPEN_SIGNAL")])[0]
+    assert ev.position_effect == "PLAN_CREATED"
+
+
+def test_position_effect_position_opened_for_initial_fill():
+    ev = normalize_events(_trade(), [_entry("FILL")])[0]
+    assert ev.position_effect == "POSITION_OPENED"
+
+
+def test_position_effect_position_increased_for_scale_in():
+    ev = normalize_events(_trade(), [_entry("FILL", state_before={"open_size": 1.0}, state_after={"fills_count": 2})])[0]
+    assert ev.position_effect == "POSITION_INCREASED"
+
+
+def test_position_effect_stop_adjusted_for_stop_moved():
+    ev = normalize_events(_trade(), [_entry("MOVE_STOP")])[0]
+    assert ev.position_effect == "PLAN_UPDATED"
+
+
+def test_position_effect_position_closed_for_sl_hit():
+    ev = normalize_events(_trade(), [_entry("CLOSE_FULL", reason="sl_hit")])[0]
+    assert ev.position_effect == "POSITION_CLOSED"
+
+
+def test_position_effect_plan_cancelled_for_cancel_pending():
+    ev = normalize_events(_trade(), [_entry("CANCEL_PENDING", source="trader")])[0]
+    assert ev.position_effect == "PENDING_CANCELLED"
+
+
+def test_position_effect_no_effect_for_ignored():
+    ev = normalize_events(
+        _trade(),
+        [_entry("ADD_ENTRY", processing_status=EventProcessingStatus.IGNORED)],
+    )[0]
+    assert ev.position_effect == "NO_EFFECT"
+
+
+# ---------------------------------------------------------------------------
+# Tests — geometry_effect (PRD §15.2)
+# ---------------------------------------------------------------------------
+
+def test_geometry_effect_create_initial_levels_for_setup():
+    ev = normalize_events(_trade(), [_entry("OPEN_SIGNAL")])[0]
+    assert ev.geometry_effect == "CREATE_INITIAL_LEVELS"
+
+
+def test_geometry_effect_activate_filled_entry_for_fill():
+    ev = normalize_events(_trade(), [_entry("FILL")])[0]
+    assert ev.geometry_effect == "ACTIVATE_FILLED_ENTRY"
+
+
+def test_geometry_effect_scale_in_updates_average_entry():
+    ev = normalize_events(_trade(), [_entry("FILL", state_before={"open_size": 1.0}, state_after={"fills_count": 2})])[0]
+    assert ev.geometry_effect == "UPDATE_AVERAGE_ENTRY_AND_POSITION_LEVELS"
+
+
+def test_geometry_effect_move_sl_level_for_stop_moved():
+    ev = normalize_events(_trade(), [_entry("MOVE_STOP")])[0]
+    assert ev.geometry_effect == "UPDATE_STOP_LINE"
+
+
+def test_geometry_effect_break_even_converts_stop():
+    ev = normalize_events(_trade(), [_entry("MOVE_STOP_TO_BE")])[0]
+    assert ev.geometry_effect == "CONVERT_STOP_TO_BE"
+
+
+def test_geometry_effect_close_all_for_sl_hit():
+    ev = normalize_events(_trade(), [_entry("CLOSE_FULL", reason="sl_hit")])[0]
+    assert ev.geometry_effect == "CLOSE_POSITION_LEVELS"
+
+
+def test_geometry_effect_cancel_pending_level_for_cancel():
+    ev = normalize_events(_trade(), [_entry("CANCEL_PENDING")])[0]
+    assert ev.geometry_effect == "REMOVE_PENDING_LEVEL"
+
+
+def test_cancel_pending_anchor_falls_back_to_entry_level_when_snapshot_keeps_plan() -> None:
+    ev = normalize_events(
+        _trade(),
+        [
+            _entry(
+                "CANCEL_PENDING",
+                state_before={
+                    "pending_size": 1.0,
+                    "entries_planned": [{"plan_id": "e1", "price": 41950.0, "order_type": "LIMIT"}],
+                },
+                state_after={
+                    "pending_size": 0.0,
+                    "entries_planned": [{"plan_id": "e1", "price": 41950.0, "order_type": "LIMIT"}],
+                },
+            )
+        ],
+    )[0]
+    assert ev.price_anchor == 41950.0
+
+
+def test_geometry_effect_none_for_ignored():
+    ev = normalize_events(
+        _trade(),
+        [_entry("ADD_ENTRY", processing_status=EventProcessingStatus.IGNORED)],
+    )[0]
+    assert ev.geometry_effect == "ANNOTATION_ONLY"
+
+
+# ---------------------------------------------------------------------------
+# Tests — Step 2 canonical enrichment / state delta (PRD §6, §11)
+# ---------------------------------------------------------------------------
+
+def test_display_label_falls_back_from_event_code():
+    ev = normalize_events(_trade(), [_entry("MOVE_STOP")])[0]
+    assert ev.display_label == "MOVE STOP"
+
+
+def test_display_group_assigned_for_exit_final():
+    ev = normalize_events(_trade(), [_entry("CLOSE_FULL", reason="sl_hit")])[0]
+    assert ev.display_group == "EXIT_FINAL"
+
+
+def test_raw_event_ref_contains_source_index_and_type():
+    ev = normalize_events(_trade("sig_step2"), [_entry("OPEN_SIGNAL")])[0]
+    assert ev.raw_event_ref == "sig_step2:0:OPEN_SIGNAL"
+
+
+def test_state_delta_full_contains_mutations_for_core_fields():
+    ev = normalize_events(
+        _trade(),
+        [
+            _entry(
+                "MOVE_STOP",
+                state_before={"open_size": 1.0, "current_sl": 42000.0, "status": "ACTIVE"},
+                state_after={"open_size": 1.0, "current_sl": 42150.0, "status": "ACTIVE"},
+            )
+        ],
+    )[0]
+    fields = {item["field_path"] for item in ev.state_delta_full}
+    assert "current_sl" in fields
+    assert "open_size" not in fields
+
+
+def test_state_delta_essential_derived_from_state_delta_full():
+    ev = normalize_events(
+        _trade(),
+        [
+            _entry(
+                "CLOSE_PARTIAL",
+                reason="tp_hit",
+                state_before={"open_size": 1.0, "realized_pnl": 0.0, "current_sl": 42000.0},
+                state_after={"open_size": 0.5, "realized_pnl": 115.0, "current_sl": 42100.0},
+            )
+        ],
+    )[0]
+    assert ev.state_delta_full
+    essential_fields = {item["field_path"] for item in ev.state_delta_essential}
+    assert "open_size" in essential_fields
+    assert "realized_pnl" in essential_fields
+
+
+# ---------------------------------------------------------------------------
+# Tests — stage per CANCEL/TIMEOUT (PRD §12)
+# ---------------------------------------------------------------------------
+
+def test_stage_cancel_open_size_zero_is_entry():
+    """CANCEL_PENDING con open_size=0 in state_before → stage = ENTRY (PRD §12)."""
+    log = [_entry("CANCEL_PENDING", source="trader", state_before={"open_size": 0})]
+    ev = normalize_events(_trade(), log)[0]
+    assert ev.stage == Phase.ENTRY
+
+
+def test_stage_cancel_open_size_positive_is_management():
+    """CANCEL_PENDING con open_size>0 in state_before → stage = MANAGEMENT (PRD §12)."""
+    log = [_entry("CANCEL_PENDING", source="engine", state_before={"open_size": 0.5})]
+    ev = normalize_events(_trade(), log)[0]
+    assert ev.stage == Phase.MANAGEMENT
+
+
+def test_stage_pending_timeout_open_size_zero_is_entry():
+    """PENDING_TIMEOUT con open_size=0 → stage = ENTRY."""
+    log = [_entry("CANCEL_PENDING", reason="timeout", state_before={"open_size": 0})]
+    ev = normalize_events(_trade(), log)[0]
+    assert ev.subtype == Subtype.PENDING_TIMEOUT
+    assert ev.stage == Phase.ENTRY
+
+
+def test_stage_pending_timeout_open_size_positive_is_management():
+    """PENDING_TIMEOUT con open_size>0 → stage = MANAGEMENT."""
+    log = [_entry("CANCEL_PENDING", reason="timeout", state_before={"open_size": 1.0})]
+    ev = normalize_events(_trade(), log)[0]
+    assert ev.stage == Phase.MANAGEMENT
+
+
+def test_stage_cancel_no_state_before_defaults_to_entry():
+    """CANCEL_PENDING senza open_size in state_before → default stage = ENTRY."""
+    log = [_entry("CANCEL_PENDING", source="engine", state_before={})]
+    ev = normalize_events(_trade(), log)[0]
+    assert ev.stage == Phase.ENTRY
+
+
+def test_stage_non_cancel_events_equals_phase():
+    """Per eventi non-CANCEL, stage == phase (nessuna override PRD §12)."""
+    cases = [
+        ("OPEN_SIGNAL", Phase.ENTRY),
+        ("ADD_ENTRY", Phase.ENTRY),
+        ("FILL", Phase.ENTRY),
+        ("MOVE_STOP", Phase.MANAGEMENT),
+        ("CLOSE_FULL", Phase.EXIT),
+    ]
+    for event_type, expected_stage in cases:
+        kwargs = {"reason": "sl_hit"} if event_type == "CLOSE_FULL" else {}
+        ev = normalize_events(_trade(), [_entry(event_type, **kwargs)])[0]
+        assert ev.stage == expected_stage, f"Failed for {event_type}"
+
+
+def test_raw_fill_events_are_not_duplicated_by_synthetic_fill_generation():
+    trade = _trade("sig_dedup")
+    log = [
+        _entry(
+            "FILL",
+            state_before={"open_size": 0.0},
+            state_after={
+                "fills": [{"timestamp": _TS.isoformat(), "price": 42000.0, "qty": 1.0, "plan_id": "e1"}],
+                "fills_count": 1,
+                "open_size": 1.0,
+            },
+        )
+    ]
+    result = normalize_events(trade, log)
+    fills = [ev for ev in result if ev.event_code == Subtype.ENTRY_FILLED_INITIAL]
+    assert len(fills) == 1
+
+
+# ---------------------------------------------------------------------------
+# Tests — ordinamento deterministico (PRD §13.2)
+# ---------------------------------------------------------------------------
+
+def test_deterministic_order_setup_before_fill_same_timestamp():
+    """SETUP_CREATED precede ENTRY_FILLED_INITIAL a parità di timestamp (PRD §13.2)."""
+    trade = _trade()
+    # FILL first in log, OPEN_SIGNAL second — same timestamp
+    log = [
+        _entry("FILL"),        # ENTRY_FILLED_INITIAL, priority 2
+        _entry("OPEN_SIGNAL"), # SETUP_CREATED, priority 0
+    ]
+    result = normalize_events(trade, log)
+    operational = [
+        ev for ev in result
+        if ev.subtype in {Subtype.SETUP_CREATED, Subtype.ENTRY_FILLED_INITIAL}
+    ]
+    assert len(operational) >= 2
+    assert operational[0].subtype == Subtype.SETUP_CREATED
+    assert operational[1].subtype == Subtype.ENTRY_FILLED_INITIAL
+
+
+def test_deterministic_order_tp_before_be_same_timestamp():
+    """EXIT_PARTIAL_TP precede BREAK_EVEN_ACTIVATED a parità di timestamp (PRD §13.2)."""
+    trade = _trade()
+    log = [
+        _entry("MOVE_STOP_TO_BE"),              # BREAK_EVEN_ACTIVATED, priority 5
+        _entry("CLOSE_PARTIAL", reason="tp_hit"), # EXIT_PARTIAL_TP, priority 6
+    ]
+    result = normalize_events(trade, log)
+    operational = [
+        ev for ev in result
+        if ev.subtype in {Subtype.EXIT_PARTIAL_TP, Subtype.BREAK_EVEN_ACTIVATED}
+    ]
+    assert len(operational) == 2
+    assert operational[0].subtype == Subtype.EXIT_PARTIAL_TP
+    assert operational[1].subtype == Subtype.BREAK_EVEN_ACTIVATED

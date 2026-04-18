@@ -1,4 +1,4 @@
-"""Coverage planning with adaptive buffers and interval merge by symbol."""
+"""Coverage planning with adaptive buffers and chart-aware windows by symbol."""
 
 from __future__ import annotations
 
@@ -9,6 +9,13 @@ from typing import Callable, Literal
 from src.signal_chain_lab.market.planning.demand_scanner import DemandChain
 
 DurationClass = Literal["intraday", "swing", "position", "unknown"]
+
+
+@dataclass(frozen=True, slots=True)
+class ManualBuffer:
+    pre_days: int
+    post_days: int
+    preset: str = "custom"
 
 
 @dataclass(frozen=True, slots=True)
@@ -63,18 +70,53 @@ class CoverageInterval:
 
 
 @dataclass(frozen=True, slots=True)
-class CoveragePlan:
-    intervals_by_symbol: dict[str, list[CoverageInterval]] = field(default_factory=dict)
+class SymbolCoverageWindows:
+    execution_window: list[CoverageInterval] = field(default_factory=list)
+    chart_window: list[CoverageInterval] = field(default_factory=list)
+    download_window: list[CoverageInterval] = field(default_factory=list)
+    download_windows_by_timeframe: dict[str, list[CoverageInterval]] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, list[dict[str, str]]]:
+        return {
+            "execution_window": [interval.to_dict() for interval in self.execution_window],
+            "chart_window": [interval.to_dict() for interval in self.chart_window],
+            "download_window": [interval.to_dict() for interval in self.download_window],
+            "download_windows_by_timeframe": {
+                timeframe: [interval.to_dict() for interval in intervals]
+                for timeframe, intervals in sorted(self.download_windows_by_timeframe.items())
+            },
+            "requested_timeframes": sorted(self.download_windows_by_timeframe.keys()),
+            # Backward-compatible alias for downstream scripts.
+            "required_intervals": [interval.to_dict() for interval in self.download_window],
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class CoveragePlan:
+    windows_by_symbol: dict[str, SymbolCoverageWindows] = field(default_factory=dict)
+
+    @property
+    def intervals_by_symbol(self) -> dict[str, list[CoverageInterval]]:
+        """Backward-compatible view exposing download windows only."""
+        return {
+            symbol: windows.download_window
+            for symbol, windows in self.windows_by_symbol.items()
+        }
+
+    def to_dict(self) -> dict[str, dict[str, list[dict[str, str]]]]:
         """Return deterministic JSON-safe output ordered by symbol and start."""
-        output: dict[str, list[dict[str, str]]] = {}
-        for symbol in sorted(self.intervals_by_symbol.keys()):
-            ordered = sorted(
-                self.intervals_by_symbol[symbol],
-                key=lambda interval: (interval.start, interval.end),
-            )
-            output[symbol] = [interval.to_dict() for interval in ordered]
+        output: dict[str, dict[str, list[dict[str, str]]]] = {}
+        for symbol in sorted(self.windows_by_symbol.keys()):
+            windows = self.windows_by_symbol[symbol]
+            output[symbol] = SymbolCoverageWindows(
+                execution_window=sorted(windows.execution_window, key=lambda interval: (interval.start, interval.end)),
+                chart_window=sorted(windows.chart_window, key=lambda interval: (interval.start, interval.end)),
+                download_window=sorted(windows.download_window, key=lambda interval: (interval.start, interval.end)),
+                download_windows_by_timeframe={
+                    timeframe: sorted(intervals, key=lambda interval: (interval.start, interval.end))
+                    for timeframe, intervals in windows.download_windows_by_timeframe.items()
+                },
+            ).to_dict()
         return output
 
 
@@ -106,30 +148,90 @@ class CoveragePlanner:
             return "swing"
         return "position"
 
-    def plan(self, chains: list[DemandChain]) -> CoveragePlan:
-        intervals: list[CoverageInterval] = []
+    def plan(
+        self,
+        chains: list[DemandChain],
+        *,
+        manual_buffer: ManualBuffer | None = None,
+        timeframes: list[str] | None = None,
+    ) -> CoveragePlan:
+        execution_intervals: list[CoverageInterval] = []
+        chart_intervals: list[CoverageInterval] = []
+        requested_timeframes = self._normalize_timeframes(timeframes)
         now_utc = self._utc_now()
         for chain in chains:
-            duration_class = self.classify_duration(chain)
-            profile = self._config.profile_for(duration_class)
+            execution_end = (
+                chain.timestamp_last_relevant_update
+                if chain.timestamp_last_relevant_update is not None
+                else chain.timestamp_open
+            )
+            if execution_end < chain.timestamp_open:
+                execution_end = chain.timestamp_open
+            execution_interval = CoverageInterval(
+                symbol=chain.symbol,
+                start=chain.timestamp_open,
+                end=min(execution_end, now_utc),
+            )
 
-            start = chain.timestamp_open - profile.pre
-            if chain.timestamp_last_relevant_update is not None:
-                raw_end = chain.timestamp_last_relevant_update
+            if manual_buffer is not None:
+                pre = timedelta(days=manual_buffer.pre_days)
+                post = timedelta(days=manual_buffer.post_days)
+                chart_start = execution_interval.start - pre
+                chart_end = min(execution_interval.end + post, now_utc)
             else:
-                raw_end = chain.timestamp_open + profile.estimated_duration
-            end = min(raw_end + profile.post, now_utc)
-            if end <= start:
-                end = start
+                duration_class = self.classify_duration(chain)
+                profile = self._config.profile_for(duration_class)
+                chart_start = execution_interval.start - profile.pre
+                chart_end = min(execution_interval.end + profile.post, now_utc)
+                if chain.timestamp_last_relevant_update is None:
+                    chart_end = min(chain.timestamp_open + profile.estimated_duration + profile.post, now_utc)
 
-            intervals.append(CoverageInterval(symbol=chain.symbol, start=start, end=end))
+            if chart_end <= chart_start:
+                chart_end = chart_start
 
-        merged_by_symbol: dict[str, list[CoverageInterval]] = {}
-        for symbol in sorted({interval.symbol for interval in intervals}):
-            symbol_intervals = [interval for interval in intervals if interval.symbol == symbol]
-            merged_by_symbol[symbol] = self._merge_intervals(symbol_intervals)
+            execution_intervals.append(execution_interval)
+            chart_intervals.append(
+                CoverageInterval(
+                    symbol=chain.symbol,
+                    start=chart_start,
+                    end=chart_end,
+                )
+            )
 
-        return CoveragePlan(intervals_by_symbol=merged_by_symbol)
+        windows_by_symbol: dict[str, SymbolCoverageWindows] = {}
+        symbols = sorted({interval.symbol for interval in execution_intervals + chart_intervals})
+        for symbol in symbols:
+            symbol_execution = [interval for interval in execution_intervals if interval.symbol == symbol]
+            symbol_chart = [interval for interval in chart_intervals if interval.symbol == symbol]
+            merged_execution = self._merge_intervals(symbol_execution)
+            merged_chart = self._merge_intervals(symbol_chart)
+            merged_download = self._merge_intervals(symbol_execution + symbol_chart)
+            download_windows_by_timeframe = {
+                timeframe: list(merged_download)
+                for timeframe in requested_timeframes
+            }
+            windows_by_symbol[symbol] = SymbolCoverageWindows(
+                execution_window=merged_execution,
+                chart_window=merged_chart,
+                download_window=merged_download,
+                download_windows_by_timeframe=download_windows_by_timeframe,
+            )
+
+        return CoveragePlan(windows_by_symbol=windows_by_symbol)
+
+    @staticmethod
+    def _normalize_timeframes(timeframes: list[str] | None) -> list[str]:
+        if not timeframes:
+            return []
+        normalized: list[str] = []
+        seen: set[str] = set()
+        for timeframe in timeframes:
+            value = str(timeframe or "").strip()
+            if not value or value in seen:
+                continue
+            seen.add(value)
+            normalized.append(value)
+        return normalized
 
     def _merge_intervals(self, intervals: list[CoverageInterval]) -> list[CoverageInterval]:
         if not intervals:

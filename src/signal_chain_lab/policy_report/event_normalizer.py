@@ -94,6 +94,126 @@ class ReportCanonicalEvent:
     details: dict[str, Any] = field(default_factory=dict)
     visual: EventVisual = field(default_factory=EventVisual)
     relations: EventRelations = field(default_factory=EventRelations)
+    # ── New canonical fields (PRD §6.2, §9, §15.2) ───────────────────────────
+    event_code: str = ""            # = subtype; explicit canonical alias (PRD)
+    stage: str = ""                 # ENTRY | MANAGEMENT | EXIT (= phase)
+    position_effect: str = "NO_EFFECT"
+    display_group: str = ""
+    display_label: str = ""
+    event_list_section: str = "A"   # "A" (operational) | "B" (audit/ignored)
+    chart_marker_kind: str = "NONE" # REQUIRED | OPTIONAL_LIGHT | NONE
+    geometry_effect: str = "NONE"
+    state_delta_full: list[dict[str, Any]] = field(default_factory=list)
+    state_delta_essential: list[dict[str, Any]] = field(default_factory=list)
+    raw_event_ref: str | None = None
+
+
+_CANONICAL_EVENT_BADGE_CLASS: dict[str, str] = {
+    Subtype.SETUP_CREATED:            "ti-kind-NEW_SIGNAL",
+    Subtype.ENTRY_ORDER_ADDED:        "ti-kind-NEW_SIGNAL",
+    Subtype.ENTRY_FILLED_INITIAL:     "ti-kind-FILL",
+    Subtype.ENTRY_FILLED_SCALE_IN:    "ti-kind-FILL",
+    Subtype.STOP_MOVED:               "ti-kind-MOVE_SL",
+    Subtype.BREAK_EVEN_ACTIVATED:     "ti-kind-MOVE_SL",
+    Subtype.EXIT_PARTIAL_TP:          "ti-kind-TP",
+    Subtype.EXIT_PARTIAL_MANUAL:      "ti-kind-PARTIAL_CLOSE",
+    Subtype.EXIT_FINAL_TP:            "ti-kind-EXIT",
+    Subtype.EXIT_FINAL_SL:            "ti-kind-SL",
+    Subtype.EXIT_FINAL_MANUAL:        "ti-kind-EXIT",
+    Subtype.EXIT_FINAL_TIMEOUT:       "ti-kind-CANCEL",
+    Subtype.PENDING_CANCELLED_TRADER: "ti-kind-CANCEL",
+    Subtype.PENDING_CANCELLED_ENGINE: "ti-kind-CANCEL",
+    Subtype.PENDING_TIMEOUT:          "ti-kind-CANCEL",
+    Subtype.IGNORED:                  "ti-kind-UPDATE",
+    Subtype.SYSTEM_NOTE:              "ti-kind-UPDATE",
+}
+
+_CANONICAL_EVENT_MARKER_COLOR: dict[str, str] = {
+    Subtype.SETUP_CREATED:            "#0369a1",
+    Subtype.ENTRY_ORDER_ADDED:        "#1d4ed8",
+    Subtype.ENTRY_FILLED_INITIAL:     "#1d4ed8",
+    Subtype.ENTRY_FILLED_SCALE_IN:    "#2563eb",
+    Subtype.STOP_MOVED:               "#c2410c",
+    Subtype.BREAK_EVEN_ACTIVATED:     "#f59e0b",
+    Subtype.EXIT_PARTIAL_TP:          "#15803d",
+    Subtype.EXIT_PARTIAL_MANUAL:      "#ea580c",
+    Subtype.EXIT_FINAL_TP:            "#15803d",
+    Subtype.EXIT_FINAL_SL:            "#b91c1c",
+    Subtype.EXIT_FINAL_MANUAL:        "#ea580c",
+    Subtype.EXIT_FINAL_TIMEOUT:       "#64748b",
+    Subtype.PENDING_CANCELLED_TRADER: "#eab308",
+    Subtype.PENDING_CANCELLED_ENGINE: "#eab308",
+    Subtype.PENDING_TIMEOUT:          "#94a3b8",
+    Subtype.IGNORED:                  "#94a3b8",
+    Subtype.SYSTEM_NOTE:              "#475569",
+}
+
+_CANONICAL_EVENT_MARKER_SYMBOL: dict[str, str] = {
+    Subtype.SETUP_CREATED:            "circle",
+    Subtype.ENTRY_ORDER_ADDED:        "rect",
+    Subtype.ENTRY_FILLED_INITIAL:     "circle",
+    Subtype.ENTRY_FILLED_SCALE_IN:    "circle",
+    Subtype.STOP_MOVED:               "rect",
+    Subtype.BREAK_EVEN_ACTIVATED:     "pin",
+    Subtype.EXIT_PARTIAL_TP:          "diamond",
+    Subtype.EXIT_PARTIAL_MANUAL:      "pin",
+    Subtype.EXIT_FINAL_TP:            "diamond",
+    Subtype.EXIT_FINAL_SL:            "triangle",
+    Subtype.EXIT_FINAL_MANUAL:        "roundRect",
+    Subtype.EXIT_FINAL_TIMEOUT:       "triangle",
+    Subtype.PENDING_CANCELLED_TRADER: "triangle",
+    Subtype.PENDING_CANCELLED_ENGINE: "triangle",
+    Subtype.PENDING_TIMEOUT:          "triangle",
+    Subtype.IGNORED:                  "emptyCircle",
+    Subtype.SYSTEM_NOTE:              "circle",
+}
+
+_CANONICAL_EVENT_LEGEND_LABEL: dict[str, str] = {
+    Subtype.ENTRY_FILLED_INITIAL: "Entry filled",
+    Subtype.ENTRY_FILLED_SCALE_IN: "Scale-in filled",
+    Subtype.EXIT_PARTIAL_TP: "TP hit",
+    Subtype.EXIT_PARTIAL_MANUAL: "Partial close",
+    Subtype.EXIT_FINAL_SL: "SL hit",
+    Subtype.EXIT_FINAL_TP: "Final exit (TP)",
+    Subtype.EXIT_FINAL_MANUAL: "Final exit",
+}
+
+
+def canonical_event_badge_class(event_code: str) -> str:
+    return _CANONICAL_EVENT_BADGE_CLASS.get(event_code, "ti-kind-UPDATE")
+
+
+def canonical_event_marker_color(event_code: str) -> str:
+    return _CANONICAL_EVENT_MARKER_COLOR.get(event_code, "#475569")
+
+
+def canonical_event_marker_symbol(event_code: str) -> str:
+    return _CANONICAL_EVENT_MARKER_SYMBOL.get(event_code, "circle")
+
+
+def canonical_event_legend_items(
+    visible_event_codes: set[str] | None = None,
+) -> list[dict[str, str]]:
+    ordered_event_codes = [
+        Subtype.ENTRY_FILLED_INITIAL,
+        Subtype.ENTRY_FILLED_SCALE_IN,
+        Subtype.EXIT_PARTIAL_TP,
+        Subtype.EXIT_PARTIAL_MANUAL,
+        Subtype.EXIT_FINAL_SL,
+        Subtype.EXIT_FINAL_TP,
+        Subtype.EXIT_FINAL_MANUAL,
+    ]
+    return [
+        {
+            "key": f"ev_{event_code}",
+            "label": _CANONICAL_EVENT_LEGEND_LABEL[event_code],
+            "color": canonical_event_marker_color(event_code),
+            "shape": "marker",
+            "symbol": canonical_event_marker_symbol(event_code),
+        }
+        for event_code in ordered_event_codes
+        if visible_event_codes is None or event_code in visible_event_codes
+    ]
 
 
 # Maps keywords in `reason` (lowercase) → (subtype, phase, event_class) for CLOSE_FULL events.
@@ -112,7 +232,7 @@ _CLOSE_FULL_REASON_MAP: list[tuple[str, tuple[str, str, str]]] = [
 ]
 
 _SUBTYPE_TITLE: dict[str, str] = {
-    Subtype.SETUP_CREATED:          "SETUP OPENED",
+    Subtype.SETUP_CREATED:          "SETUP",
     Subtype.ENTRY_ORDER_ADDED:      "ENTRY PLANNED",
     Subtype.ENTRY_FILLED_INITIAL:   "ENTRY FILLED",
     Subtype.ENTRY_FILLED_SCALE_IN:  "ADD ENTRY FILLED",
@@ -150,6 +270,114 @@ _VISUAL_COLOR_KEY: dict[str, str] = {
     Subtype.IGNORED:                "audit",
     Subtype.SYSTEM_NOTE:            "audit",
 }
+
+# ── New canonical lookup tables (PRD §6.2, §9, §15.2) ──────────────────────
+
+# PRD §9 — chart marker visibility
+_CHART_MARKER_KIND: dict[str, str] = {
+    Subtype.SETUP_CREATED:            "NONE",
+    Subtype.ENTRY_ORDER_ADDED:        "NONE",
+    Subtype.ENTRY_FILLED_INITIAL:     "REQUIRED",
+    Subtype.ENTRY_FILLED_SCALE_IN:    "REQUIRED",
+    Subtype.STOP_MOVED:               "NONE",
+    Subtype.BREAK_EVEN_ACTIVATED:     "NONE",
+    Subtype.EXIT_PARTIAL_TP:          "REQUIRED",
+    Subtype.EXIT_PARTIAL_MANUAL:      "REQUIRED",
+    Subtype.EXIT_FINAL_TP:            "REQUIRED",
+    Subtype.EXIT_FINAL_SL:            "REQUIRED",
+    Subtype.EXIT_FINAL_MANUAL:        "REQUIRED",
+    Subtype.EXIT_FINAL_TIMEOUT:       "REQUIRED",
+    Subtype.PENDING_CANCELLED_TRADER: "OPTIONAL_LIGHT",
+    Subtype.PENDING_CANCELLED_ENGINE: "OPTIONAL_LIGHT",
+    Subtype.PENDING_TIMEOUT:          "OPTIONAL_LIGHT",
+    Subtype.IGNORED:                  "NONE",
+    Subtype.SYSTEM_NOTE:              "NONE",
+}
+
+# PRD §15.2 — geometry effect on level segments
+_GEOMETRY_EFFECT: dict[str, str] = {
+    Subtype.SETUP_CREATED:            "CREATE_INITIAL_LEVELS",
+    Subtype.ENTRY_ORDER_ADDED:        "ADD_PENDING_LEVEL",
+    Subtype.ENTRY_FILLED_INITIAL:     "ACTIVATE_FILLED_ENTRY",
+    Subtype.ENTRY_FILLED_SCALE_IN:    "UPDATE_AVERAGE_ENTRY_AND_POSITION_LEVELS",
+    Subtype.STOP_MOVED:               "UPDATE_STOP_LINE",
+    Subtype.BREAK_EVEN_ACTIVATED:     "CONVERT_STOP_TO_BE",
+    Subtype.EXIT_PARTIAL_TP:          "REDUCE_POSITION_LEVELS",
+    Subtype.EXIT_PARTIAL_MANUAL:      "REDUCE_POSITION_LEVELS",
+    Subtype.EXIT_FINAL_TP:            "CLOSE_POSITION_LEVELS",
+    Subtype.EXIT_FINAL_SL:            "CLOSE_POSITION_LEVELS",
+    Subtype.EXIT_FINAL_MANUAL:        "CLOSE_POSITION_LEVELS",
+    Subtype.EXIT_FINAL_TIMEOUT:       "CLOSE_POSITION_LEVELS",
+    Subtype.PENDING_CANCELLED_TRADER: "REMOVE_PENDING_LEVEL",
+    Subtype.PENDING_CANCELLED_ENGINE: "REMOVE_PENDING_LEVEL",
+    Subtype.PENDING_TIMEOUT:          "REMOVE_PENDING_LEVEL",
+    Subtype.IGNORED:                  "ANNOTATION_ONLY",
+    Subtype.SYSTEM_NOTE:              "ANNOTATION_ONLY",
+}
+
+# PRD §5 — event list section (default "A"; only IGNORED/SYSTEM_NOTE → "B")
+_EVENT_LIST_SECTION: dict[str, str] = {
+    Subtype.IGNORED:     "B",
+    Subtype.SYSTEM_NOTE: "B",
+}
+
+# PRD §6.2 — position effect of each event
+_POSITION_EFFECT: dict[str, str] = {
+    Subtype.SETUP_CREATED:            "PLAN_CREATED",
+    Subtype.ENTRY_ORDER_ADDED:        "PLAN_UPDATED",
+    Subtype.ENTRY_FILLED_INITIAL:     "POSITION_OPENED",
+    Subtype.ENTRY_FILLED_SCALE_IN:    "POSITION_INCREASED",
+    Subtype.STOP_MOVED:               "PLAN_UPDATED",
+    Subtype.BREAK_EVEN_ACTIVATED:     "PLAN_UPDATED",
+    Subtype.EXIT_PARTIAL_TP:          "POSITION_REDUCED",
+    Subtype.EXIT_PARTIAL_MANUAL:      "POSITION_REDUCED",
+    Subtype.EXIT_FINAL_TP:            "POSITION_CLOSED",
+    Subtype.EXIT_FINAL_SL:            "POSITION_CLOSED",
+    Subtype.EXIT_FINAL_MANUAL:        "POSITION_CLOSED",
+    Subtype.EXIT_FINAL_TIMEOUT:       "POSITION_CLOSED",
+    Subtype.PENDING_CANCELLED_TRADER: "PENDING_CANCELLED",
+    Subtype.PENDING_CANCELLED_ENGINE: "PENDING_CANCELLED",
+    Subtype.PENDING_TIMEOUT:          "PENDING_CANCELLED",
+    Subtype.IGNORED:                  "NO_EFFECT",
+    Subtype.SYSTEM_NOTE:              "NO_EFFECT",
+}
+
+_DISPLAY_GROUP: dict[str, str] = {
+    Subtype.SETUP_CREATED:            "SETUP",
+    Subtype.ENTRY_ORDER_ADDED:        "ENTRY_PLAN",
+    Subtype.ENTRY_FILLED_INITIAL:     "ENTRY_FILL",
+    Subtype.ENTRY_FILLED_SCALE_IN:    "ENTRY_FILL",
+    Subtype.STOP_MOVED:               "STOP_MANAGEMENT",
+    Subtype.BREAK_EVEN_ACTIVATED:     "STOP_MANAGEMENT",
+    Subtype.EXIT_PARTIAL_TP:          "EXIT_PARTIAL",
+    Subtype.EXIT_PARTIAL_MANUAL:      "EXIT_PARTIAL",
+    Subtype.EXIT_FINAL_TP:            "EXIT_FINAL",
+    Subtype.EXIT_FINAL_SL:            "EXIT_FINAL",
+    Subtype.EXIT_FINAL_MANUAL:        "EXIT_FINAL",
+    Subtype.EXIT_FINAL_TIMEOUT:       "EXIT_FINAL",
+    Subtype.PENDING_CANCELLED_TRADER: "PENDING_CANCEL",
+    Subtype.PENDING_CANCELLED_ENGINE: "PENDING_CANCEL",
+    Subtype.PENDING_TIMEOUT:          "PENDING_CANCEL",
+    Subtype.IGNORED:                  "AUDIT",
+    Subtype.SYSTEM_NOTE:              "AUDIT",
+}
+
+_STATE_DELTA_SPECS: list[tuple[str, str | None, int]] = [
+    ("status", "state", 1),
+    ("open_size", "qty", 1),
+    ("pending_size", "qty", 2),
+    ("avg_entry_price", "price", 2),
+    ("current_sl", "price", 1),
+    ("next_tp_index", "index", 2),
+    ("realized_pnl", "pnl", 1),
+    ("unrealized_pnl", "pnl", 3),
+    ("close_fees_paid", "fee", 2),
+    ("fills_count", "count", 2),
+    ("max_position_size", "qty", 3),
+    ("closed_at", "timestamp", 2),
+    ("entries_planned_count", "count", 3),
+    ("tp_levels_count", "count", 3),
+]
 
 
 def _normalize_source(source: str | None) -> str:
@@ -265,7 +493,131 @@ def _tp_hit_price(entry: EventLogEntry) -> float | None:
     return None
 
 
+def _compute_stage(subtype: str, phase: str, entry: EventLogEntry) -> str:
+    """PRD §12: for CANCEL/TIMEOUT events, stage depends on open_size in state_before.
+
+    - open_size == 0 (no fills yet) → stage = ENTRY
+    - open_size > 0  (partial position) → stage = MANAGEMENT
+    - open_size unknown → default ENTRY (conservative: no fills assumed)
+    """
+    if subtype in {
+        Subtype.PENDING_CANCELLED_TRADER,
+        Subtype.PENDING_CANCELLED_ENGINE,
+        Subtype.PENDING_TIMEOUT,
+    }:
+        state_before = entry.state_before or {}
+        open_size = state_before.get("open_size")
+        if isinstance(open_size, (int, float)):
+            return Phase.ENTRY if open_size == 0 else Phase.MANAGEMENT
+        return Phase.ENTRY
+    return phase
+
+
+def _normalize_delta_value(value: Any) -> Any:
+    if isinstance(value, float):
+        return round(value, 8)
+    if isinstance(value, list):
+        return [_normalize_delta_value(item) for item in value]
+    if isinstance(value, dict):
+        return {str(key): _normalize_delta_value(val) for key, val in sorted(value.items())}
+    return value
+
+
+def _state_metric(state: dict[str, Any], field_path: str) -> Any:
+    if field_path == "entries_planned_count":
+        return len([plan for plan in state.get("entries_planned") or [] if isinstance(plan, dict)])
+    if field_path == "tp_levels_count":
+        return len([tp for tp in state.get("tp_levels") or [] if isinstance(tp, (int, float))])
+    if field_path == "fills_count":
+        explicit = state.get("fills_count")
+        if isinstance(explicit, int):
+            return explicit
+        return len([fill for fill in state.get("fills") or [] if isinstance(fill, dict)])
+    return state.get(field_path)
+
+
+def _build_state_delta_full(before: dict[str, Any], after: dict[str, Any]) -> list[dict[str, Any]]:
+    delta_full: list[dict[str, Any]] = []
+    for field_path, unit, display_priority in _STATE_DELTA_SPECS:
+        before_value = _normalize_delta_value(_state_metric(before, field_path))
+        after_value = _normalize_delta_value(_state_metric(after, field_path))
+        if before_value == after_value:
+            continue
+        delta_full.append(
+            {
+                "field_path": field_path,
+                "before": before_value,
+                "after": after_value,
+                "unit": unit,
+                "is_mutative": True,
+                "display_priority": display_priority,
+            }
+        )
+
+    for field_path, unit, display_priority in [
+        ("tp_levels", "levels", 3),
+        ("entries_planned", "plans", 4),
+    ]:
+        before_value = _normalize_delta_value(before.get(field_path))
+        after_value = _normalize_delta_value(after.get(field_path))
+        if before_value == after_value:
+            continue
+        delta_full.append(
+            {
+                "field_path": field_path,
+                "before": before_value,
+                "after": after_value,
+                "unit": unit,
+                "is_mutative": True,
+                "display_priority": display_priority,
+            }
+        )
+    return delta_full
+
+
+def _derive_state_delta_essential(delta_full: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    essential = [
+        item
+        for item in delta_full
+        if item.get("is_mutative") and int(item.get("display_priority", 99)) <= 2
+    ]
+    essential.sort(key=lambda item: (int(item.get("display_priority", 99)), str(item.get("field_path", ""))))
+    return essential[:6]
+
+
+def _build_position_effect(event_code: str, state_before: dict[str, Any], state_after: dict[str, Any]) -> str:
+    if event_code == Subtype.ENTRY_FILLED_INITIAL:
+        before_open = state_before.get("open_size")
+        after_open = state_after.get("open_size")
+        if isinstance(before_open, (int, float)) and isinstance(after_open, (int, float)) and before_open > 0:
+            return "POSITION_INCREASED"
+    return _POSITION_EFFECT.get(event_code, "NO_EFFECT")
+
+
+def _build_geometry_effect(event_code: str) -> str:
+    return _GEOMETRY_EFFECT.get(event_code, "NONE")
+
+
+def _build_chart_marker_kind(event_code: str) -> str:
+    return _CHART_MARKER_KIND.get(event_code, "NONE")
+
+
+def _build_event_list_section(event_code: str) -> str:
+    return _EVENT_LIST_SECTION.get(event_code, "A")
+
+
+def _build_display_group(event_code: str) -> str:
+    return _DISPLAY_GROUP.get(event_code, "GENERAL")
+
+
+def _build_display_label(event_code: str) -> str:
+    return _build_title(event_code)
+
+
 def _derive_fill_subtype(entry: EventLogEntry) -> str:
+    before_open = (entry.state_before or {}).get("open_size")
+    if isinstance(before_open, (int, float)) and before_open > 0:
+        return Subtype.ENTRY_FILLED_SCALE_IN
     fills_count = (entry.state_after or {}).get("fills_count")
     if isinstance(fills_count, int) and fills_count >= 2:
         return Subtype.ENTRY_FILLED_SCALE_IN
@@ -287,16 +639,20 @@ def _derive_subtype_phase_class(entry: EventLogEntry) -> tuple[str, str, str]:
 
     if event_type == "OPEN_SIGNAL":
         return Subtype.SETUP_CREATED, Phase.ENTRY, EventClass.STRUCTURAL
-    if event_type in {"FILL", "ADD_ENTRY"}:
-        return _derive_fill_subtype(entry), Phase.ENTRY, EventClass.STRUCTURAL
+    if event_type == "ADD_ENTRY":
+        return Subtype.ENTRY_ORDER_ADDED, Phase.ENTRY, EventClass.STRUCTURAL
+    if event_type == "FILL":
+        subtype = _derive_fill_subtype(entry)
+        phase = Phase.ENTRY if subtype == Subtype.ENTRY_FILLED_INITIAL else Phase.MANAGEMENT
+        return subtype, phase, EventClass.STRUCTURAL
     if event_type == "MOVE_STOP":
         return Subtype.STOP_MOVED, Phase.MANAGEMENT, EventClass.MANAGEMENT
     if event_type == "MOVE_STOP_TO_BE":
         return Subtype.BREAK_EVEN_ACTIVATED, Phase.MANAGEMENT, EventClass.MANAGEMENT
     if event_type == "CLOSE_PARTIAL":
         if "tp_hit" in reason_lc or "tp_reached" in reason_lc or "tp" in reason_lc:
-            return Subtype.EXIT_PARTIAL_TP, Phase.EXIT, EventClass.RESULT
-        return Subtype.EXIT_PARTIAL_MANUAL, Phase.EXIT, EventClass.RESULT
+            return Subtype.EXIT_PARTIAL_TP, Phase.MANAGEMENT, EventClass.RESULT
+        return Subtype.EXIT_PARTIAL_MANUAL, Phase.MANAGEMENT, EventClass.RESULT
     if event_type == "CLOSE_FULL":
         for keyword, mapping in _CLOSE_FULL_REASON_MAP:
             if keyword in reason_lc:
@@ -325,7 +681,43 @@ def _price_anchor(entry: EventLogEntry) -> float | None:
             if isinstance(plan, dict) and isinstance(plan.get("price"), (int, float)):
                 return float(plan["price"])
         return None
-    if event_type in {"FILL", "ADD_ENTRY"}:
+    if event_type == "ADD_ENTRY":
+        for snapshot in (entry.state_after or {}, entry.state_before or {}):
+            plans = snapshot.get("entries_planned") or []
+            for plan in reversed(plans):
+                if isinstance(plan, dict) and isinstance(plan.get("price"), (int, float)):
+                    return float(plan["price"])
+        return None
+    if event_type == "CANCEL_PENDING":
+        before_plans = {
+            str(plan.get("plan_id") or f"idx:{idx}"): plan
+            for idx, plan in enumerate((entry.state_before or {}).get("entries_planned") or [])
+            if isinstance(plan, dict)
+        }
+        after_plan_ids = {
+            str(plan.get("plan_id") or f"idx:{idx}")
+            for idx, plan in enumerate((entry.state_after or {}).get("entries_planned") or [])
+            if isinstance(plan, dict)
+        }
+        removed_ids = [plan_id for plan_id in before_plans if plan_id not in after_plan_ids]
+        for plan_id in removed_ids:
+            plan = before_plans.get(plan_id) or {}
+            price = plan.get("price")
+            if isinstance(price, (int, float)):
+                return float(price)
+        before_pending_size = (entry.state_before or {}).get("pending_size")
+        after_pending_size = (entry.state_after or {}).get("pending_size")
+        if (
+            isinstance(before_pending_size, (int, float))
+            and before_pending_size > 0
+            and isinstance(after_pending_size, (int, float))
+            and after_pending_size <= 0
+        ):
+            for plan in reversed(list(before_plans.values())):
+                price = plan.get("price")
+                if isinstance(price, (int, float)):
+                    return float(price)
+    if event_type == "FILL":
         fill_price = _latest_fill_price(entry)
         if fill_price is not None:
             return fill_price
@@ -333,6 +725,17 @@ def _price_anchor(entry: EventLogEntry) -> float | None:
         tp_price = _tp_hit_price(entry)
         if tp_price is not None:
             return tp_price
+    if event_type == "CLOSE_FULL" and "tp" in (entry.reason or "").lower():
+        tp_price = _tp_hit_price(entry)
+        if tp_price is not None:
+            return tp_price
+    if event_type == "CLOSE_FULL" and any(
+        keyword in (entry.reason or "").lower() for keyword in ("sl_hit", "stop_hit", "sl_reached")
+    ):
+        for snapshot in (entry.state_before or {}, entry.state_after or {}):
+            current_sl = snapshot.get("current_sl")
+            if isinstance(current_sl, (int, float)):
+                return float(current_sl)
     if isinstance(entry.price_reference, (int, float)):
         return float(entry.price_reference)
 
@@ -454,10 +857,11 @@ def _synthetic_fill_event(
         "order_type": str(fill.get("_order_type") or "").upper() or None,
     }
     summary = _build_summary(subtype, float(price), None)
+    state_delta_full: list[dict[str, Any]] = []
     return ReportCanonicalEvent(
         id=f"{trade.signal_id}_fill_{index}",
         ts=str(ts),
-        phase=Phase.ENTRY,
+        phase=Phase.ENTRY if subtype == Subtype.ENTRY_FILLED_INITIAL else Phase.MANAGEMENT,
         event_class=EventClass.STRUCTURAL,
         subtype=subtype,
         title=_build_title(subtype),
@@ -470,6 +874,17 @@ def _synthetic_fill_event(
         details=details,
         visual=_build_visual(subtype, float(price)),
         relations=EventRelations(parent_event_id=None, derived_from_policy=False, sequence_group=str(ts)),
+        event_code=subtype,
+        stage=Phase.ENTRY if subtype == Subtype.ENTRY_FILLED_INITIAL else Phase.MANAGEMENT,
+        position_effect=_build_position_effect(subtype, {}, details),
+        display_group=_build_display_group(subtype),
+        display_label=_build_display_label(subtype),
+        event_list_section=_build_event_list_section(subtype),
+        chart_marker_kind=_build_chart_marker_kind(subtype),
+        geometry_effect=_build_geometry_effect(subtype),
+        state_delta_full=state_delta_full,
+        state_delta_essential=_derive_state_delta_essential(state_delta_full),
+        raw_event_ref=f"synthetic_fill:{trade.signal_id}:{index}",
     )
 
 
@@ -480,8 +895,8 @@ _SUBTYPE_SORT_PRIORITY: dict[str, int] = {
     Subtype.ENTRY_FILLED_INITIAL:     2,
     Subtype.ENTRY_FILLED_SCALE_IN:    3,
     Subtype.STOP_MOVED:               4,
-    Subtype.BREAK_EVEN_ACTIVATED:     5,
-    Subtype.EXIT_PARTIAL_TP:          6,
+    Subtype.EXIT_PARTIAL_TP:          5,
+    Subtype.BREAK_EVEN_ACTIVATED:     6,
     Subtype.EXIT_PARTIAL_MANUAL:      7,
     Subtype.EXIT_FINAL_TP:            8,
     Subtype.EXIT_FINAL_SL:            9,
@@ -507,8 +922,12 @@ def normalize_events(
         subtype, phase, event_class = _derive_subtype_phase_class(entry)
         source = _normalize_source(entry.source)
         price_anchor = _price_anchor(entry)
-        details = dict(entry.state_after)
-        details["state_before"] = dict(entry.state_before)
+        state_before = dict(entry.state_before or {})
+        state_after = dict(entry.state_after or {})
+        state_delta_full = _build_state_delta_full(state_before, state_after)
+        state_delta_essential = _derive_state_delta_essential(state_delta_full)
+        details = dict(state_after)
+        details["state_before"] = state_before
         if subtype == Subtype.SETUP_CREATED:
             details.setdefault("symbol", trade.symbol)
             details.setdefault("side", trade.side)
@@ -539,7 +958,7 @@ def normalize_events(
                 title=custom_title if custom_title is not None else _build_title(subtype),
                 price_anchor=price_anchor,
                 source=source,
-                impact=_extract_impact(entry.state_after or {}),
+                impact=_extract_impact(state_after),
                 summary=_build_summary(subtype, price_anchor, entry.reason, custom_title=custom_title),
                 raw_text=entry.raw_text if source == "TRADER" else None,
                 reason=entry.reason,
@@ -553,15 +972,29 @@ def normalize_events(
                     },
                     sequence_group=entry.timestamp.isoformat(),
                 ),
+                event_code=subtype,
+                stage=_compute_stage(subtype, phase, entry),
+                position_effect=_build_position_effect(subtype, state_before, state_after),
+                display_group=_build_display_group(subtype),
+                display_label=_build_display_label(subtype),
+                event_list_section=_build_event_list_section(subtype),
+                chart_marker_kind=_build_chart_marker_kind(subtype),
+                geometry_effect=_build_geometry_effect(subtype),
+                state_delta_full=state_delta_full,
+                state_delta_essential=state_delta_essential,
+                raw_event_ref=f"{trade.signal_id}:{idx}:{entry.event_type}",
             )
         )
 
-    synthetic_fills = [
-        event
-        for idx, fill in enumerate(_collect_fill_records(event_log))
-        for event in [_synthetic_fill_event(trade=trade, fill=fill, index=idx)]
-        if event is not None
-    ]
+    has_raw_fill_events = any((entry.event_type or "").upper() == "FILL" for entry in event_log)
+    synthetic_fills = []
+    if not has_raw_fill_events:
+        synthetic_fills = [
+            event
+            for idx, fill in enumerate(_collect_fill_records(event_log))
+            for event in [_synthetic_fill_event(trade=trade, fill=fill, index=idx)]
+            if event is not None
+        ]
 
     all_events = normalized + synthetic_fills
     all_events.sort(

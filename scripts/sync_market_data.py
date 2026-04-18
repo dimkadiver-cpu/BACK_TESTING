@@ -43,6 +43,9 @@ def main() -> int:
     manifest = ManifestStore(root=market_dir / "manifests")
     timeframe = str(plan["timeframe"])
 
+    print("PHASE=sync")
+    print("PROGRESS=0")
+
     if args.source == "fixture":
         if not args.db_path:
             raise SystemExit("--db-path is required when --source=fixture")
@@ -59,7 +62,6 @@ def main() -> int:
             plan=plan,
             market_dir=market_dir,
             manifest=manifest,
-            timeframe=timeframe,
             source=args.source,
         )
 
@@ -82,6 +84,8 @@ def main() -> int:
     skipped_count = sum(1 for item in results if item["status"] == "skipped")
     failed_count = sum(1 for item in results if item["status"] in {"error", "partial"})
 
+    print("PROGRESS=100")
+    print(f"SUMMARY=ok:{ok_count} skipped:{skipped_count} error:{failed_count}")
     print(f"sync_report={output}")
     print(f"source={args.source}")
     print(f"jobs={len(results)}")
@@ -98,16 +102,8 @@ def _sync_bybit(
     plan: dict[str, object],
     market_dir: Path,
     manifest: ManifestStore,
-    timeframe: str,
     source: str,
 ) -> list[dict[str, object]]:
-    downloader = BybitDownloader(
-        market_dir=market_dir,
-        manifest_store=manifest,
-        timeframe=timeframe,
-        bases=["last", "mark"],
-    )
-
     results: list[dict[str, object]] = []
     symbols_payload = plan.get("symbols", {})
     for symbol, basis_payload in symbols_payload.items():
@@ -115,11 +111,61 @@ def _sync_bybit(
             continue
 
         for basis, entry in basis_payload.items():
-            gaps = [Interval.from_dict(item) for item in entry.get("gaps", [])]
-            if not gaps:
-                results.append({"symbol": symbol, "basis": basis, "status": "skipped", "rows_written": 0})
+            timeframe_entries = entry.get("timeframes") if isinstance(entry, dict) else None
+            if isinstance(timeframe_entries, dict) and timeframe_entries:
+                for requested_timeframe, timeframe_entry in timeframe_entries.items():
+                    gaps = [Interval.from_dict(item) for item in timeframe_entry.get("gaps", [])]
+                    if not gaps:
+                        results.append(
+                            {
+                                "symbol": symbol,
+                                "basis": basis,
+                                "timeframe": requested_timeframe,
+                                "status": "skipped",
+                                "rows_written": 0,
+                                "source": source,
+                            }
+                        )
+                        continue
+
+                    downloader = BybitDownloader(
+                        market_dir=market_dir,
+                        manifest_store=manifest,
+                        timeframe=str(requested_timeframe),
+                        bases=["last", "mark"],
+                    )
+                    sync_result = downloader.sync_gaps(symbol=symbol, gaps=gaps, bases=[basis])[0]
+                    if sync_result.status in {"error", "partial"}:
+                        print(
+                            f"ERROR sync_bybit symbol={symbol} basis={basis} timeframe={requested_timeframe} "
+                            f"status={sync_result.status} errors={sync_result.errors}"
+                        )
+
+                    results.append(
+                        {
+                            "symbol": symbol,
+                            "basis": basis,
+                            "timeframe": requested_timeframe,
+                            "status": sync_result.status,
+                            "rows_written": sync_result.rows_downloaded,
+                            "partitions_written": sync_result.partitions_written,
+                            "errors": sync_result.errors,
+                            "source": source,
+                        }
+                    )
                 continue
 
+            gaps = [Interval.from_dict(item) for item in entry.get("gaps", [])]
+            if not gaps:
+                results.append({"symbol": symbol, "basis": basis, "timeframe": plan["timeframe"], "status": "skipped", "rows_written": 0})
+                continue
+
+            downloader = BybitDownloader(
+                market_dir=market_dir,
+                manifest_store=manifest,
+                timeframe=str(plan["timeframe"]),
+                bases=["last", "mark"],
+            )
             sync_result = downloader.sync_gaps(symbol=symbol, gaps=gaps, bases=[basis])[0]
             if sync_result.status in {"error", "partial"}:
                 print(
@@ -131,6 +177,7 @@ def _sync_bybit(
                 {
                     "symbol": symbol,
                     "basis": basis,
+                    "timeframe": plan["timeframe"],
                     "status": sync_result.status,
                     "rows_written": sync_result.rows_downloaded,
                     "partitions_written": sync_result.partitions_written,

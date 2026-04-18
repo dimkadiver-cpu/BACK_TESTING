@@ -1,18 +1,20 @@
 """Main simulation orchestrator: drives signal chains through market data."""
 from __future__ import annotations
 
+from copy import deepcopy
 import logging
 from datetime import datetime, timedelta, timezone
 
-from src.signal_chain_lab.domain.enums import EventSource, EventType, TradeStatus
+from src.signal_chain_lab.domain.enums import EventProcessingStatus, EventSource, EventType, TradeStatus
 from src.signal_chain_lab.domain.events import CanonicalChain, CanonicalEvent
 from src.signal_chain_lab.domain.results import EventLogEntry
 from src.signal_chain_lab.domain.trade_state import EntryPlan, TradeState
 from src.signal_chain_lab.engine.fill_model import compute_close_fee, fill_market_order, try_fill_limit_order_touch
 from src.signal_chain_lab.engine.state_machine import apply_event
 from src.signal_chain_lab.engine.timeout_manager import check_chain_timeout, check_pending_timeout
-from src.signal_chain_lab.market.data_models import Candle, MarketDataProvider
+from src.signal_chain_lab.market.data_models import Candle, FundingRateProvider, MarketDataProvider
 from src.signal_chain_lab.market.intrabar_resolver import IntrabarResolution, IntrabarResolver
+from src.signal_chain_lab.market.runtime_config import MarketRuntimeConfig
 from src.signal_chain_lab.policies.base import PolicyConfig
 
 _logger = logging.getLogger(__name__)
@@ -50,16 +52,27 @@ def simulate_chain(
     chain: CanonicalChain,
     policy: PolicyConfig,
     market_provider: MarketDataProvider | None = None,
+    funding_provider: FundingRateProvider | None = None,
 ) -> tuple[list[EventLogEntry], TradeState]:
     state = build_initial_state(chain, policy)
     logs: list[EventLogEntry] = []
 
     events = sorted(chain.events, key=lambda evt: (evt.timestamp, evt.sequence))
-    intrabar_resolver = IntrabarResolver()
-    last_replayed_candle_ts: datetime | None = None
-
     timeframe = str(chain.metadata.get("timeframe", "1h"))
     child_timeframe = _get_effective_child_timeframe(chain, policy)
+    intrabar_resolver = IntrabarResolver(
+        runtime_config=MarketRuntimeConfig(
+            download_tf=timeframe,
+            simulation_tf=timeframe,
+            detail_tf=child_timeframe or timeframe,
+            price_basis=str(chain.metadata.get("price_basis", "last")),
+            source=str(chain.metadata.get("market_source", "runtime")),
+            buffer_mode="auto",
+            pre_buffer_days=0,
+            post_buffer_days=0,
+        )
+    )
+    last_replayed_candle_ts: datetime | None = None
     intrabar_enabled = (
         market_provider is not None
         and policy.intrabar.event_aware_replay_enabled
@@ -101,6 +114,7 @@ def simulate_chain(
                     state=state,
                     policy=policy,
                     market_provider=market_provider,
+                    funding_provider=funding_provider,
                     intrabar_resolver=intrabar_resolver,
                     logs=logs,
                     parent_candle_ts=parent_candle_ts,
@@ -122,6 +136,7 @@ def simulate_chain(
                         state=state,
                         policy=policy,
                         market_provider=market_provider,
+                        funding_provider=funding_provider,
                         intrabar_resolver=intrabar_resolver,
                         logs=logs,
                         sequence_seed=group[-1].sequence,
@@ -141,6 +156,7 @@ def simulate_chain(
                 state=state,
                 policy=policy,
                 market_provider=market_provider,
+                funding_provider=funding_provider,
                 intrabar_resolver=intrabar_resolver,
                 logs=logs,
                 sequence_seed=event.sequence,
@@ -175,6 +191,7 @@ def _replay_parent_candle_with_events(
     state: TradeState,
     policy: PolicyConfig,
     market_provider: MarketDataProvider,
+    funding_provider: FundingRateProvider | None,
     intrabar_resolver: IntrabarResolver,
     logs: list[EventLogEntry],
     parent_candle_ts: datetime,
@@ -241,6 +258,7 @@ def _replay_parent_candle_with_events(
                 state=state,
                 policy=policy,
                 market_provider=market_provider,
+                funding_provider=funding_provider,
                 intrabar_resolver=intrabar_resolver,
                 logs=logs,
                 candle=child,
@@ -264,6 +282,7 @@ def _replay_parent_candle_with_events(
             state=state,
             policy=policy,
             market_provider=market_provider,
+            funding_provider=funding_provider,
             intrabar_resolver=intrabar_resolver,
             logs=logs,
             candle=child,
@@ -283,6 +302,7 @@ def _process_single_candle(
     state: TradeState,
     policy: PolicyConfig,
     market_provider: MarketDataProvider,
+    funding_provider: FundingRateProvider | None,
     intrabar_resolver: IntrabarResolver,
     logs: list[EventLogEntry],
     candle: Candle,
@@ -298,6 +318,13 @@ def _process_single_candle(
         True if the trade reached a terminal status; False otherwise.
     """
     _try_fill_pending_entries(state=state, policy=policy, candle=candle)
+    _apply_funding_for_candle(
+        state=state,
+        funding_provider=funding_provider,
+        policy=policy,
+        candle=candle,
+        logs=logs,
+    )
 
     # Cancel all pending entries if a TP level is reached before any fill.
     cancel_unfilled_idx = _tp_ref_to_index(policy.pending.cancel_unfilled_pending_after)
@@ -540,6 +567,32 @@ def _resolve_collision(
 
     timeframe = str(chain.metadata.get("timeframe", "1h"))
     child_timeframe = str(child_timeframe_value)
+    runtime_config = MarketRuntimeConfig(
+        download_tf=timeframe,
+        simulation_tf=timeframe,
+        detail_tf=child_timeframe,
+        price_basis=str(chain.metadata.get("price_basis", "last")),
+        source=str(chain.metadata.get("market_source", "runtime")),
+        buffer_mode="auto",
+        pre_buffer_days=0,
+        post_buffer_days=0,
+    )
+    entry_prices = [float(plan.price) for plan in state.entries_planned if plan.price is not None]
+    candidate_reasons = intrabar_resolver.select_candidate_reasons(
+        parent_candle=candle,
+        side=state.side,
+        sl_price=state.current_sl,
+        tp_price=state.tp_levels[min(state.next_tp_index, len(state.tp_levels) - 1)],
+        entry_prices=entry_prices,
+    )
+    if not candidate_reasons:
+        return IntrabarResolution(
+            outcome="sl_hit",
+            reason="fallback_parent_bar_not_candidate_for_child_scan",
+            decided_at=candle.timestamp,
+            used_fallback=True,
+            warning_code=IntrabarResolver.FALLBACK_WARNING_CODE,
+        )
     child_candles = market_provider.get_intrabar_range(
         chain.symbol,
         timeframe,
@@ -552,6 +605,8 @@ def _resolve_collision(
         side=state.side,
         sl_price=state.current_sl,
         tp_price=state.tp_levels[min(state.next_tp_index, len(state.tp_levels) - 1)],
+        runtime_config=runtime_config,
+        candidate_reasons=candidate_reasons,
     )
 
 
@@ -691,6 +746,7 @@ def _replay_market_segment(
     state: TradeState,
     policy: PolicyConfig,
     market_provider: MarketDataProvider,
+    funding_provider: FundingRateProvider | None,
     intrabar_resolver: IntrabarResolver,
     logs: list[EventLogEntry],
     sequence_seed: int,
@@ -724,6 +780,7 @@ def _replay_market_segment(
             state=state,
             policy=policy,
             market_provider=market_provider,
+            funding_provider=funding_provider,
             intrabar_resolver=intrabar_resolver,
             logs=logs,
             candle=candle,
@@ -745,6 +802,92 @@ def _replay_market_segment(
         )
 
     return last_replayed_candle_ts
+
+
+def _apply_funding_for_candle(
+    *,
+    state: TradeState,
+    funding_provider: FundingRateProvider | None,
+    policy: PolicyConfig,
+    candle: Candle,
+    logs: list[EventLogEntry],
+) -> None:
+    if funding_provider is None:
+        return
+    if policy.execution.funding_model != "historical":
+        return
+    if state.open_size <= 0:
+        return
+
+    candle_delta = _timeframe_to_delta(candle.timeframe) or timedelta(0)
+    candle_end = candle.timestamp + candle_delta
+    _apply_funding_events(
+        state=state,
+        funding_provider=funding_provider,
+        policy=policy,
+        candle_start=candle.timestamp,
+        candle_end=candle_end,
+        symbol=state.symbol,
+        price_reference=float(candle.close),
+        logs=logs,
+    )
+
+
+def _apply_funding_events(
+    *,
+    state: TradeState,
+    funding_provider: FundingRateProvider,
+    policy: PolicyConfig,
+    candle_start: datetime,
+    candle_end: datetime,
+    symbol: str,
+    price_reference: float | None,
+    logs: list[EventLogEntry],
+) -> None:
+    events = funding_provider.get_funding_events(symbol, candle_start, candle_end)
+    if not events:
+        return
+
+    ref_price = float(price_reference) if price_reference is not None else 0.0
+    if ref_price <= 0 and state.avg_entry_price is not None:
+        ref_price = float(state.avg_entry_price)
+    if ref_price <= 0:
+        return
+
+    direction = -1.0 if state.side.upper() in {"BUY", "LONG"} else 1.0
+    for event in events:
+        event_key = event.funding_ts_utc.isoformat()
+        if event_key in state.applied_funding_event_keys:
+            continue
+
+        amount = state.open_size * ref_price * float(event.funding_rate) * direction
+        state_before = deepcopy(state)
+        state.applied_funding_event_keys.append(event_key)
+        state.funding_events_count += 1
+        state.funding_watermark_ts = event.funding_ts_utc
+        if policy.execution.funding_apply_to_pnl:
+            state.funding_paid += amount
+
+        reason = "funding_received" if amount >= 0 else "funding_paid"
+        logs.append(
+            EventLogEntry(
+                timestamp=event.funding_ts_utc,
+                signal_id=state.signal_id,
+                event_type=EventType.FUNDING_APPLIED.value,
+                source=EventSource.ENGINE.value,
+                requested_action=EventType.FUNDING_APPLIED.value,
+                executed_action=EventType.FUNDING_APPLIED.value,
+                processing_status=EventProcessingStatus.GENERATED,
+                price_reference=ref_price,
+                reason=reason,
+                raw_text=(
+                    f"Engine funding event applied: rate={event.funding_rate:.10f}, "
+                    f"amount={amount:.10f}"
+                ),
+                state_before=state_before.model_dump(mode="json"),
+                state_after=state.model_dump(mode="json"),
+            )
+        )
 
 
 def _apply_terminal_timeout_if_due(

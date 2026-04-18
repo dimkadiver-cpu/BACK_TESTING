@@ -10,6 +10,7 @@ import nicegui.run as nicegui_run
 from src.signal_chain_lab.ui.blocks.block_backtest import render_block_backtest
 from src.signal_chain_lab.ui.blocks.block_download import render_block_download
 from src.signal_chain_lab.ui.blocks.block_parse import render_block_parse
+from src.signal_chain_lab.ui.blocks.market_data_panel import render_market_data_panel
 from src.signal_chain_lab.ui.state import UiState
 
 APP_STATE = UiState()
@@ -73,6 +74,8 @@ def main_page() -> None:
                 run_streaming_command=_run_streaming_command,
             )
         with ui.tab_panel("backtest"):
+            ui.label("Blocco 3 - Backtest").classes("text-h6")
+            render_market_data_panel(APP_STATE, run_streaming_command=_run_streaming_command)
             render_block_backtest(
                 APP_STATE,
                 backtest_button_holder=backtest_button_holder,

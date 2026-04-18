@@ -31,6 +31,61 @@ class QualityReport:
 
 
 @dataclass(slots=True)
+class MarketDataTypeState:
+    """User-selectable supported market data types shown in the UI."""
+
+    ohlcv_last: bool = True
+    ohlcv_mark: bool = False
+    funding_rate: bool = False
+
+
+@dataclass(slots=True)
+class MarketState:
+    """All Market DATA state, owned and written by MarketDataPanel."""
+
+    # Setup
+    market_data_dir: str = str((_PROJECT_ROOT / "data" / "market").resolve())
+    market_data_mode: str = "existing_dir"   # existing_dir | new_dir
+    validate_mode: str = "light"             # full | light | off
+    market_data_source: str = "bybit"
+    # Timeframe
+    download_tf: str = "1m"
+    download_tfs: list[str] = field(default_factory=lambda: ["1m"])
+    simulation_tf: str = "1m"               # parent TF (futuro Fase 5)
+    detail_tf: str = "1m"                   # child TF (futuro Fase 5)
+    price_basis: str = "last"
+    # Buffer
+    buffer_mode: str = "auto"               # auto | manual
+    pre_buffer_days: int = 0
+    post_buffer_days: int = 0
+    buffer_preset: str = ""                 # intraday | swing | position | custom
+    data_types: MarketDataTypeState = field(default_factory=MarketDataTypeState)
+    # Results
+    market_ready: bool = False
+    market_validation_status: str = "needs_check"
+    market_validation_fingerprint: str = ""
+    market_data_gap_count: int = 0
+    latest_market_plan_path: str = ""
+    latest_market_sync_report_path: str = ""
+    latest_market_validation_report_path: str = ""
+    funding_status: str = "not_requested"  # not_requested | needs_sync | synced | validated | failed
+    market_prepare_total_seconds: float = 0.0
+
+    def mark_needs_check(self, *, clear_artifacts: bool = False) -> None:
+        """Invalidate market readiness when DB/filters/setup context changes."""
+        self.market_ready = False
+        self.market_validation_status = "needs_check"
+        self.market_validation_fingerprint = ""
+        self.funding_status = "needs_sync" if self.data_types.funding_rate else "not_requested"
+        if clear_artifacts:
+            self.market_data_gap_count = 0
+            self.latest_market_plan_path = ""
+            self.latest_market_sync_report_path = ""
+            self.latest_market_validation_report_path = ""
+            self.market_prepare_total_seconds = 0.0
+
+
+@dataclass(slots=True)
 class UiState:
     """Mutable state shared across the three sequential GUI blocks."""
 
@@ -60,24 +115,11 @@ class UiState:
     backtest_date_to: str = ""
     backtest_max_trades: int = 0
     backtest_report_dir: str = ""
-    market_data_dir: str = str((_PROJECT_ROOT / "data" / "market").resolve())
-    market_data_mode: str = "existing_dir"
-    market_data_prepare_mode: str = "SAFE"
-    market_data_source: str = "bybit"
-    market_data_ready: bool = False
-    market_data_checked: bool = False
-    market_validation_status: str = "needs_check"
-    market_validation_fingerprint: str = ""
-    market_data_gap_count: int = 0
-    latest_market_plan_path: str = ""
-    latest_market_sync_report_path: str = ""
-    latest_market_validation_report_path: str = ""
-    market_prepare_total_seconds: float = 0.0
-    timeframe: str = "1m"
-    price_basis: str = "last"
     timeout_seconds: int = 60
 
     latest_artifact_path: str = ""
+
+    market: MarketState = field(default_factory=MarketState)
 
     def effective_db_path(self) -> str:
         return self.parsed_db_path or self.downloaded_db_path

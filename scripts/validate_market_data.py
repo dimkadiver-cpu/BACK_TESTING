@@ -15,7 +15,7 @@ import pandas as pd
 
 from src.signal_chain_lab.market.planning.gap_detection import Interval
 from src.signal_chain_lab.market.planning.manifest_store import ManifestStore
-from src.signal_chain_lab.market.planning.validation import BatchValidator
+from src.signal_chain_lab.market.planning.validation import BatchValidator, IssueSeverity
 
 
 def parse_args() -> argparse.Namespace:
@@ -27,6 +27,7 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Optional validation report JSON path; default under artifacts/market_data/",
     )
+    parser.add_argument("--strict", action="store_true", help="Fail on WARNING in addition to CRITICAL")
     return parser.parse_args()
 
 
@@ -38,7 +39,8 @@ def main() -> int:
     validator = BatchValidator()
 
     results: list[dict[str, object]] = []
-    has_errors = False
+    has_critical = False
+    has_warnings = False
     cache: dict[tuple[str, str], list[dict[str, object]]] = {}
     total_checks = sum(
         len(entry.get("required_intervals", []))
@@ -46,6 +48,11 @@ def main() -> int:
         for entry in basis_payload.values()
     )
     completed_checks = 0
+
+    print("PHASE=validate")
+    print(f"STEP=0/{total_checks}")
+    print("PROGRESS=0")
+
     for symbol, basis_payload in plan["symbols"].items():
         for basis, entry in basis_payload.items():
             required = [Interval.from_dict(item) for item in entry.get("required_intervals", [])]
@@ -71,12 +78,15 @@ def main() -> int:
                 rows = cache[cache_key]
                 result = validator.validate(rows=rows, requested_range=interval)
                 issues = [
-                    {"severity": issue.severity, "code": issue.code, "message": issue.message}
+                    {"severity": issue.severity.value, "code": issue.code, "message": issue.message}
                     for issue in result.issues
                 ]
                 status = "PASS" if not result.has_errors else "FAIL"
-                has_errors = has_errors or result.has_errors
+                has_critical = has_critical or result.has_errors
+                has_warnings = has_warnings or any(i.severity == IssueSeverity.WARNING for i in result.issues)
                 completed_checks += 1
+                print(f"STEP={completed_checks}/{total_checks}")
+                print(f"PROGRESS={int(completed_checks / max(total_checks, 1) * 100)}")
                 print(
                     f"validate_progress {completed_checks}/{total_checks} "
                     f"symbol={symbol} basis={basis} status={status}"
@@ -97,6 +107,9 @@ def main() -> int:
                         "basis": basis,
                         "interval": interval.to_dict(),
                         "status": status,
+                        "critical_count": result.critical_count,
+                        "warning_count": result.warning_count,
+                        "info_count": result.info_count,
                         "issues": issues,
                     }
                 )
@@ -107,8 +120,12 @@ def main() -> int:
         json.dumps(
             {
                 "market_request_fingerprint": plan.get("market_request_fingerprint", ""),
-                "status": "PASS" if not has_errors else "FAIL",
+                "status": "PASS" if not has_critical and not (args.strict and has_warnings) else "FAIL",
                 "checks": len(results),
+                "strict": bool(args.strict),
+                "critical_count": sum(int(r.get("critical_count", 0)) for r in results),
+                "warning_count": sum(int(r.get("warning_count", 0)) for r in results),
+                "info_count": sum(int(r.get("info_count", 0)) for r in results),
                 "results": results,
             },
             indent=2,
@@ -116,11 +133,16 @@ def main() -> int:
         encoding="utf-8",
     )
 
-    overall = "PASS" if not has_errors else "FAIL"
+    pass_count = sum(1 for r in results if r["status"] == "PASS")
+    fail_count = sum(1 for r in results if r["status"] == "FAIL")
+    fail_on_strict = args.strict and has_warnings
+    warning_count = sum(int(r.get("warning_count", 0)) for r in results)
+    overall = "PASS" if not has_critical and not fail_on_strict else "FAIL"
+    print(f"SUMMARY=pass:{pass_count} fail:{fail_count} warnings:{warning_count}")
     print(f"validation_report={output}")
     print(f"status={overall}")
     print(f"checks={len(results)}")
-    return 0 if not has_errors else 1
+    return 0 if not has_critical and not fail_on_strict else 1
 
 
 if __name__ == "__main__":

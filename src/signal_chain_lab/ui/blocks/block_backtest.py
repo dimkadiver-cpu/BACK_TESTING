@@ -2,23 +2,12 @@
 from __future__ import annotations
 
 import asyncio
-import json
 import re
 import time
 from datetime import datetime, timezone
 from pathlib import Path
 
 from nicegui import ui
-from src.signal_chain_lab.market.preparation_cache import (
-    build_market_request,
-    find_pass_validation_record,
-    load_validation_index,
-    market_request_fingerprint,
-    upsert_validation_record,
-    validation_index_path,
-    save_validation_index,
-)
-
 from src.signal_chain_lab.ui.blocks.backtest_support import (
     discover_date_range_from_db,
     discover_policy_names,
@@ -49,53 +38,6 @@ def _can_enable_backtest(*, db_path: str) -> bool:
     return bool(db_path.strip()) and Path(db_path.strip()).exists()
 
 
-def _market_plan_summary(plan_path: Path) -> dict[str, int]:
-    payload = json.loads(plan_path.read_text(encoding="utf-8"))
-    summary = payload.get("summary", {})
-    return {
-        "symbols": int(summary.get("symbols", 0)),
-        "required_intervals": int(summary.get("required_intervals", 0)),
-        "gaps": int(summary.get("gaps", 0)),
-    }
-
-
-def _set_market_status(label, *, text: str, positive: bool | None = None) -> None:
-    label.set_text(text)
-    label.classes(remove="text-positive text-negative text-grey-6")
-    if positive is True:
-        label.classes(add="text-positive")
-    elif positive is False:
-        label.classes(add="text-negative")
-    else:
-        label.classes(add="text-grey-6")
-
-
-def _set_market_validation_status(*, state: UiState, status_label, status_key: str) -> None:
-    state.market_validation_status = status_key
-    if status_key == "validated":
-        _set_market_status(status_label, text="Market data validati", positive=True)
-    elif status_key == "gap_validated":
-        _set_market_status(status_label, text="Market data pronti, gap validati", positive=True)
-    elif status_key == "ready_unvalidated":
-        _set_market_status(status_label, text="Market data pronti ma non validati in questa run", positive=None)
-    else:
-        _set_market_status(status_label, text="Market data da verificare", positive=None)
-
-
-def _invalidate_market_readiness(*, state: UiState, status_label, summary_label) -> None:
-    state.market_data_ready = False
-    state.market_data_checked = False
-    state.market_validation_fingerprint = ""
-    state.market_data_gap_count = 0
-    state.latest_market_plan_path = ""
-    state.latest_market_sync_report_path = ""
-    state.latest_market_validation_report_path = ""
-    _set_market_validation_status(state=state, status_label=status_label, status_key="needs_check")
-    summary_label.set_text(
-        "La cartella verra' analizzata prima del backtest. Se mancano intervalli, la GUI eseguira' plan/sync/validate."
-    )
-
-
 async def _browse_backtest_db(output_input) -> None:
     selected = ask_open_filename(
         initialdir=_PROJECT_ROOT,
@@ -115,19 +57,6 @@ async def _browse_report_dir(output_input) -> None:
     selected = ask_directory(
         initialdir=_PROJECT_ROOT / "artifacts",
         title="Seleziona la cartella report output",
-        mustexist=False,
-    )
-    if not selected:
-        ui.notify("Selezione cartella annullata.", color="warning")
-        return
-    output_input.value = selected
-    output_input.update()
-
-
-async def _browse_market_dir(output_input) -> None:
-    selected = ask_directory(
-        initialdir=_PROJECT_ROOT,
-        title="Seleziona la cartella market data",
         mustexist=False,
     )
     if not selected:
@@ -163,6 +92,7 @@ def _extract_summary_lines(
 def _build_single_policy_command(*, db_path: str, state: UiState, output_dir: str) -> list[str]:
     import sys
 
+    runtime_tf = state.market.simulation_tf or state.market.download_tf
     command = [
         sys.executable,
         "scripts/run_policy_report.py",
@@ -171,11 +101,11 @@ def _build_single_policy_command(*, db_path: str, state: UiState, output_dir: st
         "--db-path",
         db_path,
         "--market-dir",
-        state.market_data_dir,
+        state.market.market_data_dir,
         "--price-basis",
-        state.price_basis,
+        state.market.price_basis,
         "--timeframe",
-        state.timeframe,
+        runtime_tf,
     ]
     if state.backtest_trader_filter and state.backtest_trader_filter != "all":
         command += ["--trader-id", state.backtest_trader_filter]
@@ -192,6 +122,7 @@ def _build_single_policy_command(*, db_path: str, state: UiState, output_dir: st
 def _build_multi_policy_command(*, db_path: str, state: UiState, output_dir: str) -> list[str]:
     import sys
 
+    runtime_tf = state.market.simulation_tf or state.market.download_tf
     command = [
         sys.executable,
         "scripts/run_scenario.py",
@@ -200,11 +131,11 @@ def _build_multi_policy_command(*, db_path: str, state: UiState, output_dir: str
         "--db-path",
         db_path,
         "--market-dir",
-        state.market_data_dir,
+        state.market.market_data_dir,
         "--price-basis",
-        state.price_basis,
+        state.market.price_basis,
         "--timeframe",
-        state.timeframe,
+        runtime_tf,
     ]
     if state.backtest_trader_filter and state.backtest_trader_filter != "all":
         command += ["--trader-id", state.backtest_trader_filter]
@@ -268,15 +199,8 @@ async def _handle_backtest(
     date_to_str: str,
     max_trades: int,
     report_dir: str,
-    market_data_dir: str,
-    timeframe: str,
-    price_basis: str,
     timeout_seconds: int,
-    prepare_mode: str,
-    market_source: str,
     log_panel: LogPanel,
-    market_status_label,
-    market_summary_label,
     artifact_label,
     summary_container,
     run_streaming_command,
@@ -289,7 +213,6 @@ async def _handle_backtest(
         ui.notify("Seleziona almeno una policy prima del backtest", color="negative")
         return
 
-    # Validate date filters
     date_from_clean = date_from_str.strip()
     date_to_clean = date_to_str.strip()
     if date_from_clean:
@@ -315,44 +238,20 @@ async def _handle_backtest(
     state.backtest_date_to = date_to_clean
     state.backtest_max_trades = max(0, int(max_trades))
     state.backtest_report_dir = report_dir.strip()
-    state.market_data_dir = market_data_dir.strip()
-    state.timeframe = timeframe.strip() or "1m"
-    state.price_basis = price_basis.strip() or "last"
     state.timeout_seconds = int(timeout_seconds)
-    state.market_data_prepare_mode = prepare_mode.strip().upper() or "SAFE"
-    state.market_data_source = market_source.strip() or "bybit"
     log_panel.clear()
     summary_container.clear()
 
     if not db_path.strip():
         ui.notify("Seleziona un DB parsato prima del backtest", color="negative")
         return
-    if not state.market_data_dir:
-        ui.notify("Seleziona la cartella market data", color="negative")
-        return
 
-    if not state.market_data_ready:
-        ui.notify("Preparo/verifico prima la cache market data", color="warning")
-        market_ready = await _prepare_market_data(
-            state=state,
-            db_path=db_path,
-            market_data_dir=state.market_data_dir,
-            timeframe=state.timeframe,
-            price_basis=state.price_basis,
-            log_panel=log_panel,
-            status_label=market_status_label,
-            summary_label=market_summary_label,
-            run_streaming_command=run_streaming_command,
-            silent=False,
-            trader_filter=state.backtest_trader_filter,
-            date_from=state.backtest_date_from,
-            date_to=state.backtest_date_to,
-            prepare_mode=state.market_data_prepare_mode,
-            market_source=state.market_data_source,
-            max_trades=state.backtest_max_trades,
+    if not state.market.market_ready:
+        ui.notify(
+            "Market data non pronti: usa il pannello Market DATA (in alto) per preparare i dati prima del backtest.",
+            color="negative",
         )
-        if not market_ready:
-            return
+        return
 
     is_single_policy = len(state.backtest_policies) == 1
     effective_report_dir = state.backtest_report_dir or (
@@ -364,11 +263,10 @@ async def _handle_backtest(
         else _build_multi_policy_command(db_path=db_path, state=state, output_dir=effective_report_dir)
     )
     if is_single_policy:
-        log_panel.push(f"--- Backtest single-policy / policy report: {state.backtest_policies[0]} ---")
-        log_panel.push("Fase backtest - esecuzione policy report in corso...")
+        log_panel.push(f"--- Backtest single-policy: {state.backtest_policies[0]} ---")
     else:
-        log_panel.push(f"--- Backtest multi-policy / comparison report: {', '.join(state.backtest_policies)} ---")
-        log_panel.push("Fase backtest - esecuzione scenario in corso...")
+        log_panel.push(f"--- Backtest multi-policy: {', '.join(state.backtest_policies)} ---")
+
     backtest_t0 = time.perf_counter()
     try:
         rc = await asyncio.wait_for(
@@ -395,15 +293,16 @@ async def _handle_backtest(
         html_path=html_path,
     )
     total_elapsed = time.perf_counter() - run_t0
-    log_panel.push(f"Timing fase Backtest: {backtest_elapsed:.2f}s")
+    log_panel.push(f"Timing backtest: {backtest_elapsed:.2f}s")
     log_panel.push(f"Timing run totale: {total_elapsed:.2f}s")
+
     benchmark_entry = {
         "timestamp_utc": datetime.now(timezone.utc).isoformat(),
-        "prepare_mode": state.market_data_prepare_mode,
+        "validate_mode": state.market.validate_mode,
         "policy_count": len(state.backtest_policies),
         "policies": state.backtest_policies,
-        "market_validation_status": state.market_validation_status,
-        "market_timing_seconds": getattr(state, "market_prepare_total_seconds", 0.0),
+        "market_validation_status": state.market.market_validation_status,
+        "market_timing_seconds": state.market.market_prepare_total_seconds,
         "backtest_seconds": round(backtest_elapsed, 3),
         "total_seconds": round(total_elapsed, 3),
     }
@@ -412,314 +311,7 @@ async def _handle_backtest(
     if snapshot:
         pairs = [f"{k}={v:.2f}s" for k, v in snapshot.items()]
         log_panel.push("Benchmark snapshot: " + ", ".join(pairs))
-        log_panel.push(f"Benchmark artifact: {_BENCHMARK_PATH}")
     ui.notify("Backtest completato", color="positive")
-
-
-async def _prepare_market_data(
-    *,
-    state: UiState,
-    db_path: str,
-    market_data_dir: str,
-    timeframe: str,
-    price_basis: str,
-    log_panel: LogPanel,
-    status_label,
-    summary_label,
-    run_streaming_command,
-    silent: bool,
-    trader_filter: str = "all",
-    date_from: str = "",
-    date_to: str = "",
-    prepare_mode: str = "SAFE",
-    market_source: str = "bybit",
-    max_trades: int = 0,
-) -> bool:
-    import sys
-
-    phase_timings: dict[str, float] = {}
-
-    def _mark_phase(name: str, start_time: float) -> None:
-        phase_timings[name] = time.perf_counter() - start_time
-        log_panel.push(f"Timing fase {name}: {phase_timings[name]:.2f}s")
-
-    prepare_t0 = time.perf_counter()
-    db_path = db_path.strip()
-    market_root = Path(market_data_dir.strip())
-    timeframe = timeframe.strip() or "1m"
-    price_basis = price_basis.strip() or "last"
-    prepare_mode = (prepare_mode or "SAFE").strip().upper()
-    if prepare_mode not in {"SAFE", "FAST"}:
-        prepare_mode = "SAFE"
-    market_source = (market_source or "bybit").strip() or "bybit"
-
-    if not db_path:
-        ui.notify("Seleziona un DB parsato prima di preparare i market data", color="negative")
-        return False
-    if not market_data_dir.strip():
-        ui.notify("Seleziona la cartella market data", color="negative")
-        return False
-    if not Path(db_path).exists():
-        ui.notify("DB parsato non trovato", color="negative")
-        return False
-
-    state.market_data_dir = str(market_root)
-    state.timeframe = timeframe
-    state.price_basis = price_basis
-    state.market_data_prepare_mode = prepare_mode
-    state.market_data_source = market_source
-
-    if state.market_data_mode == "existing_dir" and not market_root.exists():
-        ui.notify("La cartella market data selezionata non esiste", color="negative")
-        _set_market_status(status_label, text="Market data non pronti: cartella inesistente", positive=False)
-        return False
-
-    market_root.mkdir(parents=True, exist_ok=True)
-    mode_label = (
-        "usa cartella esistente e integra i gap mancanti"
-        if state.market_data_mode == "existing_dir"
-        else "prepara da capo in una cartella dedicata"
-    )
-    active_trader = trader_filter if trader_filter and trader_filter != "all" else None
-    active_date_from = date_from.strip() or None
-    active_date_to = date_to.strip() or None
-    active_max_trades = max(0, int(max_trades))
-    request = build_market_request(
-        db_path=db_path,
-        market_data_dir=str(market_root),
-        trader_filter=active_trader or "all",
-        date_from=active_date_from or "",
-        date_to=active_date_to or "",
-        max_trades=active_max_trades,
-        timeframe=timeframe,
-        price_basis=price_basis,
-        source=market_source,
-    )
-    fingerprint = market_request_fingerprint(request)
-    index_path = validation_index_path(str(market_root))
-    index_payload = load_validation_index(index_path)
-    cached_record = find_pass_validation_record(index_payload, fingerprint)
-    state.market_validation_fingerprint = fingerprint
-
-    if cached_record:
-        log_panel.push("Validation cache hit: riuso validazione PASS già esistente.")
-        log_panel.push(f"Validation cache fingerprint={fingerprint}")
-        state.market_data_ready = True
-        state.market_data_checked = True
-        state.latest_market_plan_path = str(cached_record.get("plan_path") or "")
-        state.latest_market_sync_report_path = str(cached_record.get("sync_report_path") or "")
-        state.latest_market_validation_report_path = str(cached_record.get("validate_report_path") or "")
-        state.market_data_gap_count = int((cached_record.get("summary") or {}).get("gaps", 0))
-        _set_market_validation_status(state=state, status_label=status_label, status_key="validated")
-        state.market_prepare_total_seconds = 0.0
-        summary_label.set_text(
-            "Validation cache hit: market data già validati e compatibili con la richiesta corrente."
-        )
-        if not silent:
-            ui.notify("Validation cache hit: market data già validati", color="positive")
-        return True
-
-    log_panel.push("Fase market 1/4 - Planner: analisi copertura richiesta dal DB.")
-    log_panel.push(f"Market data: modalita' selezionata -> {mode_label}.")
-    log_panel.push(f"Market data: root locale -> {market_root}")
-    log_panel.push(f"Market data: timeframe={timeframe}, basis primaria={price_basis}")
-    log_panel.push(f"Market data: source={market_source}")
-    log_panel.push(f"Market data: prepare_mode={prepare_mode}, fingerprint={fingerprint}")
-    filter_desc = ", ".join(filter(None, [
-        f"trader={active_trader}" if active_trader else None,
-        f"dal={active_date_from}" if active_date_from else None,
-        f"al={active_date_to}" if active_date_to else None,
-        f"max_trades={active_max_trades}" if active_max_trades > 0 else None,
-    ])) or "nessun filtro (tutti i segnali)"
-    log_panel.push(f"Market data: filtro applicato al planner -> {filter_desc}")
-    _set_market_status(status_label, text="Market data: planner in esecuzione...", positive=None)
-
-    plan_path = Path("artifacts/market_data/plan_market_data.json")
-    sync_path = Path("artifacts/market_data/sync_market_data.json")
-    gap_validate_path = Path("artifacts/market_data/gap_validate_market_data.json")
-    validate_path = Path("artifacts/market_data/validate_market_data.json")
-
-    plan_command = [
-        sys.executable,
-        "scripts/plan_market_data.py",
-        "--db-path",
-        db_path,
-        "--market-dir",
-        str(market_root),
-        "--timeframe",
-        timeframe,
-        "--bases",
-        "last,mark",
-        "--source",
-        market_source,
-        "--output",
-        str(plan_path),
-    ]
-    if active_trader:
-        plan_command += ["--trader-id", active_trader]
-    if active_date_from:
-        plan_command += ["--date-from", active_date_from]
-    if active_date_to:
-        plan_command += ["--date-to", active_date_to]
-    if active_max_trades > 0:
-        plan_command += ["--max-trades", str(active_max_trades)]
-    planner_t0 = time.perf_counter()
-    rc = await run_streaming_command(plan_command, log_panel)
-    if rc != 0 or not plan_path.exists():
-        ui.notify("Planner market data fallito", color="negative")
-        _set_market_status(status_label, text="Market data: planner fallito", positive=False)
-        return False
-
-    _mark_phase("Planner", planner_t0)
-    plan_summary = _market_plan_summary(plan_path)
-    state.latest_market_plan_path = str(plan_path)
-    state.market_data_gap_count = plan_summary["gaps"]
-    log_panel.push(
-        "Fase market 1/4 - Planner: completata. "
-        f"simboli={plan_summary['symbols']}, intervalli={plan_summary['required_intervals']}, gap={plan_summary['gaps']}."
-    )
-    log_panel.push(f"Artifact planner: {plan_path}")
-    summary_label.set_text(
-        f"Planner: simboli={plan_summary['symbols']}, intervalli={plan_summary['required_intervals']}, gap={plan_summary['gaps']}."
-    )
-
-    if plan_summary["gaps"] > 0:
-        log_panel.push("Fase market 2/4 - Sync: avvio integrazione gap mancanti.")
-        log_panel.push(
-            f"Market data: trovati {plan_summary['gaps']} gap. Avvio sync incrementale sulla cache locale."
-        )
-        _set_market_status(status_label, text="Market data: sync gap mancanti...", positive=None)
-        sync_command = [
-            sys.executable,
-            "scripts/sync_market_data.py",
-            "--plan-file",
-            str(plan_path),
-            "--db-path",
-            db_path,
-            "--market-dir",
-            str(market_root),
-            "--output",
-            str(sync_path),
-            "--source",
-            market_source,
-        ]
-        sync_t0 = time.perf_counter()
-        rc = await run_streaming_command(sync_command, log_panel)
-        if rc != 0 or not sync_path.exists():
-            ui.notify("Sync market data fallito", color="negative")
-            _set_market_status(status_label, text="Market data: sync fallito", positive=False)
-            return False
-        _mark_phase("Sync", sync_t0)
-        state.latest_market_sync_report_path = str(sync_path)
-        log_panel.push(f"Fase market 2/4 - Sync: completata. Artifact sync: {sync_path}")
-
-        log_panel.push("Fase market 3/4 - Gap Validation: verifica mirata dei gap sincronizzati.")
-        _set_market_status(status_label, text="Market data: gap validation in corso...", positive=None)
-        gap_validate_command = [
-            sys.executable,
-            "scripts/gap_validate_market_data.py",
-            "--plan-file",
-            str(plan_path),
-            "--sync-file",
-            str(sync_path),
-            "--market-dir",
-            str(market_root),
-            "--output",
-            str(gap_validate_path),
-        ]
-        gap_validate_t0 = time.perf_counter()
-        rc = await run_streaming_command(gap_validate_command, log_panel)
-        if rc != 0 or not gap_validate_path.exists():
-            ui.notify("Gap validation market data fallita", color="negative")
-            _set_market_status(status_label, text="Market data: gap validation fallita", positive=False)
-            return False
-        _mark_phase("Gap Validation", gap_validate_t0)
-        log_panel.push(f"Fase market 3/4 - Gap Validation: completata. Artifact gap validation: {gap_validate_path}")
-    else:
-        log_panel.push("Fase market 2/4 - Sync: nessun gap trovato, step saltato.")
-        log_panel.push("Market data: nessun gap trovato, sync non necessario.")
-        log_panel.push("Fase market 3/4 - Gap Validation: nessun gap sincronizzato, step saltato.")
-
-    if prepare_mode == "FAST":
-        log_panel.push("FAST mode: validate full saltata (gap validation già eseguita se necessaria).")
-        state.latest_market_validation_report_path = ""
-        state.market_data_ready = True
-        state.market_data_checked = False
-        _set_market_validation_status(state=state, status_label=status_label, status_key="ready_unvalidated")
-        state.market_prepare_total_seconds = round(time.perf_counter() - prepare_t0, 3)
-        log_panel.push(f"Timing prepare market totale: {state.market_prepare_total_seconds:.2f}s")
-        summary_label.set_text(
-            "FAST mode: planner/sync/gap validation eseguiti, validate full saltata in questa run."
-        )
-        log_panel.push("Market data: cache pronta per il backtest (senza validazione in questa run).")
-        if not silent:
-            ui.notify("FAST mode: market data pronti senza validazione", color="warning")
-        return True
-
-    log_panel.push("Fase market 4/4 - Validate: verifica consistenza cache locale.")
-    _set_market_status(status_label, text="Market data: validazione in corso...", positive=None)
-    validate_command = [
-        sys.executable,
-        "scripts/validate_market_data.py",
-        "--plan-file",
-        str(plan_path),
-        "--market-dir",
-        str(market_root),
-        "--output",
-        str(validate_path),
-    ]
-    validate_t0 = time.perf_counter()
-    rc = await run_streaming_command(validate_command, log_panel)
-    if rc != 0 or not validate_path.exists():
-        ui.notify("Validazione market data fallita", color="negative")
-        _set_market_status(status_label, text="Market data: validazione fallita", positive=False)
-        upsert_validation_record(
-            index_payload=index_payload,
-            request=request,
-            fingerprint=fingerprint,
-            status="FAIL",
-            plan_path=str(plan_path),
-            sync_report_path=str(sync_path) if sync_path.exists() else "",
-            validate_report_path=str(validate_path) if validate_path.exists() else "",
-            summary=plan_summary,
-        )
-        save_validation_index(index_path, index_payload)
-        return False
-
-    state.latest_market_validation_report_path = str(validate_path)
-    log_panel.push(f"Fase market 4/4 - Validate: completata. Artifact validate: {validate_path}")
-    state.market_data_ready = True
-    state.market_data_checked = True
-    if plan_summary["gaps"] > 0:
-        _set_market_validation_status(state=state, status_label=status_label, status_key="gap_validated")
-    else:
-        _set_market_validation_status(state=state, status_label=status_label, status_key="validated")
-
-    upsert_validation_record(
-        index_payload=index_payload,
-        request=request,
-        fingerprint=fingerprint,
-        status="PASS",
-        plan_path=str(plan_path),
-        sync_report_path=str(sync_path) if sync_path.exists() else "",
-        validate_report_path=str(validate_path),
-        summary=plan_summary,
-    )
-    save_validation_index(index_path, index_payload)
-    log_panel.push(f"Validation index aggiornato: {index_path}")
-    state.market_prepare_total_seconds = round(time.perf_counter() - prepare_t0, 3)
-    log_panel.push(f"Timing prepare market totale: {state.market_prepare_total_seconds:.2f}s")
-
-    summary_label.set_text(
-        "Artifacts market data: "
-        f"plan={state.latest_market_plan_path}, "
-        f"sync={state.latest_market_sync_report_path or '-'}, "
-        f"validate={state.latest_market_validation_report_path}"
-    )
-    log_panel.push("Market data: cache pronta per il backtest.")
-    if not silent:
-        ui.notify("Market data pronti per il backtest", color="positive")
-    return True
 
 
 def render_block_backtest(
@@ -728,9 +320,38 @@ def render_block_backtest(
     backtest_button_holder: list,
     run_streaming_command,
 ) -> None:
-    """Renderizza il Blocco 3 - Backtest."""
+    """Renderizza la sezione Backtest di Blocco 3 (senza Market DATA)."""
+    def _invalidate_market_context_if_needed() -> None:
+        if state.market.market_ready or state.market.market_validation_status != "needs_check":
+            state.market.mark_needs_check()
+
+    def _sync_selected_db_to_state(db_path: str) -> None:
+        clean = db_path.strip()
+        if clean == state.parsed_db_path:
+            return
+        state.parsed_db_path = clean
+        _invalidate_market_context_if_needed()
+
+    def _sync_dataset_filters_to_state(*, trader_filter: str, date_from: str, date_to: str, max_trades: int) -> None:
+        new_trader = trader_filter or "all"
+        new_from = date_from.strip()
+        new_to = date_to.strip()
+        new_max = max(0, int(max_trades))
+        changed = (
+            state.backtest_trader_filter != new_trader
+            or state.backtest_date_from != new_from
+            or state.backtest_date_to != new_to
+            or state.backtest_max_trades != new_max
+        )
+        state.backtest_trader_filter = new_trader
+        state.backtest_date_from = new_from
+        state.backtest_date_to = new_to
+        state.backtest_max_trades = new_max
+        if changed:
+            _invalidate_market_context_if_needed()
+
     with ui.card().classes("w-full"):
-        ui.label("Blocco 3 - Backtest").classes("text-h6")
+        ui.label("Backtest").classes("text-h6")
 
         with ui.row().classes("w-full items-end gap-2"):
             backtest_db = ui.input("DB parsato", value=state.effective_db_path()).classes("flex-1")
@@ -741,7 +362,7 @@ def render_block_backtest(
 
             ui.button("Sfoglia", on_click=_on_browse_backtest_db, icon="folder_open")
 
-        # --- Policy selector (Fase 1: dinamico da configs/policies/) ---
+        # --- Policy selector ---
         def _build_policy_options() -> dict[str, str]:
             names = discover_policy_names()
             return {n: n for n in names}
@@ -892,9 +513,8 @@ def render_block_backtest(
                     ui.button("Salva nuova policy", on_click=_save_new)
                     ui.button("Annulla", on_click=dlg.close)
             dlg.open()
-        # --- fine sezione policy ---
 
-        # ---- Filtri dataset (Fase 2+3) ----
+        # --- Filtri dataset ---
         def _refresh_trader_select(db_path: str) -> None:
             db_path = db_path.strip()
             traders = discover_traders_from_db(db_path)
@@ -908,7 +528,6 @@ def render_block_backtest(
             )
             trader_select.update()
 
-            # Popola date estreme rilevate nel DB
             min_date, max_date = discover_date_range_from_db(db_path)
             if min_date and not date_from_input.value:
                 date_from_input.value = min_date
@@ -916,6 +535,12 @@ def render_block_backtest(
             if max_date and not date_to_input.value:
                 date_to_input.value = max_date
                 date_to_input.update()
+            _sync_dataset_filters_to_state(
+                trader_filter=trader_select.value or "all",
+                date_from=date_from_input.value or "",
+                date_to=date_to_input.value or "",
+                max_trades=int(max_trades_input.value or 0),
+            )
 
         with ui.expansion("Filtri dataset", icon="filter_list").classes("w-full"):
             with ui.row().classes("w-full gap-4 items-end"):
@@ -946,56 +571,20 @@ def render_block_backtest(
                 ).classes("flex-1")
 
             ui.label(
-                "Campi vuoti = nessun filtro (usa tutti i trade). "
-                "Max trade = 0 significa nessun limite."
+                "Campi vuoti = nessun filtro. Max trade = 0 significa nessun limite."
             ).classes("text-caption text-grey-6 mt-1")
-        # ---- fine filtri dataset ----
 
-        with ui.row().classes("w-full items-end gap-2"):
-            market_data_dir = ui.input("Cartella market data", value=state.market_data_dir).classes("flex-1")
-
-            async def _on_browse_market_dir() -> None:
-                await _browse_market_dir(market_data_dir)
-
-            ui.button("Sfoglia", on_click=_on_browse_market_dir, icon="folder_open")
-
-        market_data_mode = ui.radio(
-            {
-                "existing_dir": "Usa cartella esistente e integra i gap mancanti",
-                "new_dir": "Prepara da capo in una nuova cartella",
-            },
-            value=state.market_data_mode,
-        ).props("inline")
-        market_mode_hint = ui.label("").classes("text-caption text-grey-7")
-        market_status = ui.label("").classes("text-caption text-grey-6")
-        market_summary = ui.label("").classes("text-caption text-grey-7")
-
+        # --- Timeout e report dir ---
         with ui.row().classes("w-full gap-4"):
-            timeframe = ui.input("Timeframe (es. 1m)", value=state.timeframe).classes("flex-1")
-            price_basis = ui.select(
-                options={"last": "last (standard)", "mark": "mark (mark price)"},
-                value=state.price_basis,
-                label="Price basis",
-            ).classes("flex-1")
-            market_source = ui.select(
-                options={"bybit": "bybit", "fixture": "fixture"},
-                value=state.market_data_source,
-                label="Market source",
-            ).classes("flex-1")
             timeout_seconds = ui.number("Timeout (s)", value=state.timeout_seconds, min=5, step=5).classes("flex-1")
-        market_prepare_mode = ui.radio(
-            {"SAFE": "SAFE (planner+sync+validate con cache)", "FAST": "FAST (planner+sync, validate opzionale)"},
-            value=state.market_data_prepare_mode,
-        ).props("inline")
 
-        # --- Report output dir (Fase 4) ---
         with ui.row().classes("w-full items-end gap-2"):
             report_dir_input = ui.input(
                 "Cartella report output",
                 value=state.backtest_report_dir,
                 placeholder="default: artifacts/scenarios",
             ).classes("flex-1")
-            ui.label("Lascia vuoto per usare la cartella di default (artifacts/scenarios).").classes(
+            ui.label("Lascia vuoto per il default (artifacts/scenarios).").classes(
                 "text-caption text-grey-6 self-center"
             )
 
@@ -1003,7 +592,23 @@ def render_block_backtest(
                 await _browse_report_dir(report_dir_input)
 
             ui.button("Sfoglia", on_click=_on_browse_report_dir, icon="folder_open")
-        # --- fine report output dir ---
+
+        # Market readiness indicator (read-only, managed by Market DATA panel)
+        market_status_info = ui.label("").classes("text-caption text-grey-6")
+
+        def _refresh_market_status_info() -> None:
+            if state.market.market_ready:
+                market_status_info.set_text(
+                    f"Market data: {state.market.market_validation_status} — pronti per il backtest."
+                )
+                market_status_info.classes(remove="text-negative text-grey-6", add="text-positive")
+            else:
+                market_status_info.set_text(
+                    "Market data non pronti: usa il pannello Market DATA (sopra) per preparare i dati."
+                )
+                market_status_info.classes(remove="text-positive", add="text-grey-6")
+
+        _refresh_market_status_info()
 
         block3_log = LogPanel(title="Log Backtest")
         artifact_label = ui.label(f"Artifact: {state.latest_artifact_path or '-'}")
@@ -1015,11 +620,19 @@ def render_block_backtest(
                 backtest_db.value = resolved_db_path
                 backtest_db.update()
                 _refresh_backtest_button()
+            _sync_selected_db_to_state(resolved_db_path)
             selected_policies = (
                 policy_select.value
                 if isinstance(policy_select.value, list)
                 else ([policy_select.value] if policy_select.value else [])
             )
+            _sync_dataset_filters_to_state(
+                trader_filter=trader_select.value or "all",
+                date_from=date_from_input.value or "",
+                date_to=date_to_input.value or "",
+                max_trades=int(max_trades_input.value or 0),
+            )
+            _refresh_market_status_info()
             await _handle_backtest(
                 state=state,
                 db_path=resolved_db_path,
@@ -1029,103 +642,46 @@ def render_block_backtest(
                 date_to_str=date_to_input.value,
                 max_trades=int(max_trades_input.value or 0),
                 report_dir=report_dir_input.value,
-                market_data_dir=market_data_dir.value,
-                timeframe=timeframe.value,
-                price_basis=price_basis.value,
                 timeout_seconds=int(timeout_seconds.value),
-                prepare_mode=market_prepare_mode.value,
-                market_source=market_source.value,
                 log_panel=block3_log,
-                market_status_label=market_status,
-                market_summary_label=market_summary,
                 artifact_label=artifact_label,
                 summary_container=summary_container,
                 run_streaming_command=run_streaming_command,
             )
 
-        async def _on_prepare_market_data() -> None:
-            resolved_db_path = backtest_db.value.strip() or state.effective_db_path()
-            if resolved_db_path != backtest_db.value:
-                backtest_db.value = resolved_db_path
-                backtest_db.update()
-            block3_log.clear()
-            summary_container.clear()
-            ready = await _prepare_market_data(
-                state=state,
-                db_path=resolved_db_path,
-                market_data_dir=market_data_dir.value,
-                timeframe=timeframe.value,
-                price_basis=price_basis.value,
-                log_panel=block3_log,
-                status_label=market_status,
-                summary_label=market_summary,
-                run_streaming_command=run_streaming_command,
-                silent=False,
-                trader_filter=trader_select.value or "all",
-                date_from=date_from_input.value,
-                date_to=date_to_input.value,
-                prepare_mode=market_prepare_mode.value,
-                market_source=market_source.value,
-                max_trades=int(max_trades_input.value or 0),
-            )
-            if ready:
-                _refresh_backtest_button()
-
-        def _refresh_market_mode_hint(*_) -> None:
-            state.market_data_mode = market_data_mode.value
-            if market_data_mode.value == "existing_dir":
-                market_mode_hint.set_text(
-                    "La cartella indicata viene controllata contro il DB; se mancano periodi, la GUI li aggiunge prima del run."
-                )
-            else:
-                market_mode_hint.set_text(
-                    "La cartella puo' essere nuova o vuota: il planner costruisce la cache richiesta dal DB e poi la valida."
-                )
-            _invalidate_market_readiness(state=state, status_label=market_status, summary_label=market_summary)
-            _refresh_backtest_button()
-
-        def _on_market_inputs_change(*_) -> None:
-            _invalidate_market_readiness(state=state, status_label=market_status, summary_label=market_summary)
-            _refresh_backtest_button()
-
         def _refresh_backtest_button(*_) -> None:
             resolved_db_path = backtest_db.value.strip() or state.effective_db_path()
-            has_market_dir = bool(market_data_dir.value.strip())
-            if _can_enable_backtest(db_path=resolved_db_path) and has_market_dir:
+            if _can_enable_backtest(db_path=resolved_db_path):
                 db_status.set_text("DB valido")
-                db_status.classes(remove="text-negative text-grey-6")
-                db_status.classes(add="text-positive")
+                db_status.classes(remove="text-negative text-grey-6", add="text-positive")
                 run_backtest_button.enable()
-            elif _can_enable_backtest(db_path=resolved_db_path) and not has_market_dir:
-                db_status.set_text("DB valido ma cartella market data non selezionata")
-                db_status.classes(remove="text-positive")
-                db_status.classes(add="text-negative")
-                run_backtest_button.disable()
             else:
                 db_status.set_text("DB non trovato o non selezionato")
-                db_status.classes(remove="text-positive")
-                db_status.classes(add="text-negative")
+                db_status.classes(remove="text-positive", add="text-negative")
                 run_backtest_button.disable()
 
         run_backtest_button = ui.button("Esegui Backtest", on_click=_on_backtest_click)
-        ui.button("Prepara / verifica market data", on_click=_on_prepare_market_data, color="secondary")
 
         def _on_db_path_change(*_) -> None:
-            _invalidate_market_readiness(state=state, status_label=market_status, summary_label=market_summary)
+            _sync_selected_db_to_state(backtest_db.value.strip() or state.effective_db_path())
             _refresh_backtest_button()
             _refresh_trader_select(backtest_db.value.strip() or state.effective_db_path())
 
+        def _on_filters_change(*_) -> None:
+            _sync_dataset_filters_to_state(
+                trader_filter=trader_select.value or "all",
+                date_from=date_from_input.value or "",
+                date_to=date_to_input.value or "",
+                max_trades=int(max_trades_input.value or 0),
+            )
+
         backtest_db._after_set = _on_db_path_change
         backtest_db.on("update:model-value", _on_db_path_change)
-        market_data_dir.on("update:model-value", _on_market_inputs_change)
-        timeframe.on("update:model-value", _on_market_inputs_change)
-        price_basis.on("update:model-value", _on_market_inputs_change)
-        market_source.on("update:model-value", _on_market_inputs_change)
-        market_prepare_mode.on("update:model-value", _on_market_inputs_change)
-        market_data_mode.on("update:model-value", _refresh_market_mode_hint)
-        _refresh_market_mode_hint()
+        trader_select.on("update:model-value", _on_filters_change)
+        date_from_input.on("update:model-value", _on_filters_change)
+        date_to_input.on("update:model-value", _on_filters_change)
+        max_trades_input.on("update:model-value", _on_filters_change)
         _refresh_backtest_button()
-        # Pre-populate trader selector if state already has a valid DB path
         if state.db_exists():
             _refresh_trader_select(state.effective_db_path())
 

@@ -128,6 +128,7 @@ def main() -> int:
         policy=policy,
         output_dir=output_dir,
         market_provider=market_provider,
+        market_dir=args.market_dir,
         date_from=args.date_from,
         date_to=args.date_to,
         write_trade_artifacts=args.write_trade_artifacts,

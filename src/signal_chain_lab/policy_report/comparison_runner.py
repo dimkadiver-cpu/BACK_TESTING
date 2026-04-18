@@ -210,6 +210,7 @@ def run_comparison_report(
     policies: list[PolicyConfig],
     output_dir: str | Path,
     market_provider: MarketDataProvider | None = None,
+    market_dir: Path | str | None = None,
     date_from: datetime | None = None,
     date_to: datetime | None = None,
     write_trade_artifacts: bool = True,
@@ -248,6 +249,7 @@ def run_comparison_report(
             chains=selected_chains,
             policy=policy,
             market_provider=market_provider,
+            market_dir=market_dir,
             initial_capital=initial_capital,
         )
         if initial_capital and initial_capital > 0:

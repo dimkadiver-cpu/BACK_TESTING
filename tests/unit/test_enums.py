@@ -19,13 +19,14 @@ def test_event_type_values() -> None:
     assert EventType.CLOSE_PARTIAL == "CLOSE_PARTIAL"
     assert EventType.CLOSE_FULL == "CLOSE_FULL"
     assert EventType.CANCEL_PENDING == "CANCEL_PENDING"
+    assert EventType.FUNDING_APPLIED == "funding_applied"
 
 
 def test_event_type_all_members() -> None:
     members = {e.value for e in EventType}
     assert members == {
         "OPEN_SIGNAL", "ADD_ENTRY", "MOVE_STOP", "MOVE_STOP_TO_BE",
-        "CLOSE_PARTIAL", "CLOSE_FULL", "CANCEL_PENDING",
+        "CLOSE_PARTIAL", "CLOSE_FULL", "CANCEL_PENDING", "funding_applied",
     }
 
 

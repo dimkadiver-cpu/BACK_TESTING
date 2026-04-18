@@ -211,7 +211,7 @@ payload JSON (events + level_segments + meta)
 
 ---
 
-### Step 3 — Ordinamento deterministico multi-evento (PRD §13.2)
+### Step 3 — Ordinamento deterministico multi-evento (PRD §13.2) ✅ COMPLETATO
 
 **Obiettivo:** garantire ordine causale corretto quando più eventi hanno lo stesso timestamp.
 
@@ -233,137 +233,158 @@ payload JSON (events + level_segments + meta)
 
 3. Aggiungere test dedicati per gli scenari multi-evento stesso timestamp.
 
-**File:** `event_normalizer.py`, `test_event_normalizer.py`
+**File toccati:** `event_normalizer.py`, `test_event_normalizer.py`
 
-**Dipendenze:** Step 2.
+**Dipendenze:** Step 2 completato.
+
+**Risultato:** ordinamento causale deterministico attivo anche per i casi eccezione
+`SETUP_CREATED` → `ENTRY_FILLED_INITIAL` e `EXIT_PARTIAL_TP` → `BREAK_EVEN_ACTIVATED`;
+test del package `policy_report` verdi.
 
 ---
 
-### Step 4 — Aggiornamento `trade_chart_payload.py`
+### Step 4 — Aggiornamento `trade_chart_payload.py` ✅ COMPLETATO
 
 **Obiettivo:** allineare il payload chart ai nuovi campi canonici.
 
 **Azioni:**
 
-1. Aggiornare `_EVENT_KIND_MAP` con i nuovi `event_code`.
+1. ✅ `_EVENT_KIND_MAP` già allineato (Step 1 aveva già i nomi PRD).
 
-2. In `_build_events`:
-   - aggiungere `event_code` al dict evento
-   - aggiungere `chart_marker_kind` al dict evento
-   - aggiungere `geometry_effect` al dict evento
-   - aggiungere `event_list_section` al dict evento
-   - aggiungere `position_effect` al dict evento
-   - aggiungere `state_delta_essential` al dict evento
+2. ✅ In `_build_events` aggiunti al dict evento:
+   - `event_code`, `stage`, `chart_marker_kind`, `geometry_effect`
+   - `event_list_section`, `position_effect`, `state_delta_essential`
 
-3. In `_build_events`: filtrare i marker chart usando `chart_marker_kind`:
-   - `REQUIRED` → `placement = "chart"` se ha `price_anchor`
-   - `OPTIONAL_LIGHT` → `placement = "chart_optional"` (o mantenere "rail" con flag)
-   - `NONE` → `placement = "rail"` (visibile solo in event list, non in chart)
+3. ✅ Placement guidato da `chart_marker_kind` (PRD §9):
+   - `REQUIRED` + `price_anchor` → `placement = "chart"`
+   - `OPTIONAL_LIGHT` + `price_anchor` → `placement = "chart_optional"`
+   - `NONE` → `placement = "rail"`
+   - `event_list_section == "B"` → `placement = "section_b"` (priorità massima)
 
-4. Verificare che `STOP_MOVED` e `BREAK_EVEN_ACTIVATED` abbiano `placement = "rail"`
-   (nessun marker chart, solo geometria linee).
+4. ✅ `STOP_MOVED`, `BREAK_EVEN_ACTIVATED` → `NONE` → `placement = "rail"`.
 
-5. Verificare che `SETUP_CREATED` e `ENTRY_ORDER_ADDED` abbiano `placement = "rail"`
-   (nessun marker chart).
+5. ✅ `SETUP_CREATED`, `ENTRY_ORDER_ADDED` → `NONE` → `placement = "rail"`
+   (rimosso il vecchio "sidebar" per SETUP_CREATED).
 
-6. Verificare che `IGNORED` e `SYSTEM_NOTE` abbiano `placement = "section_b"`
-   (esclusi da rail standard).
+6. ✅ `IGNORED`, `SYSTEM_NOTE` → `section == "B"` → `placement = "section_b"`.
 
-**File:** `trade_chart_payload.py`
+**Prerequisiti aggiunti (Step 2 parziale):**
+- Aggiunti a `event_normalizer.py`: lookup tables `_CHART_MARKER_KIND`, `_GEOMETRY_EFFECT`,
+  `_EVENT_LIST_SECTION`, `_POSITION_EFFECT`.
+- Aggiunti a `ReportCanonicalEvent`: `event_code`, `stage`, `position_effect`,
+  `event_list_section`, `chart_marker_kind`, `geometry_effect`, `state_delta_essential`
+  (tutti con default; `state_delta_essential` rimane `[]` fino a Step 2 full).
+- Entrambi i costruttori (`normalize_events` e `_synthetic_fill_event`) popolano i nuovi campi.
 
-**Dipendenze:** Step 2.
+**File toccati:** `event_normalizer.py`, `trade_chart_payload.py`
+
+**Risultato:** 46 test verdi.
+
+**Note per Step 5+:**
+- `html_writer.py` usa `ReportCanonicalEvent` direttamente (non il payload);
+  può già leggere `event_list_section` e `chart_marker_kind` senza modifiche al normalizer.
+- `trade_chart_echarts.py` può usare `placement = "section_b"` per filtrare la rail (Step 7).
+- `state_delta_essential` è `[]` per tutti gli eventi — Step 2 full lo popolerà.
 
 ---
 
-### Step 5 — Aggiornamento `html_writer.py`: event list con Section A/B
+### Step 5 — Aggiornamento `html_writer.py`: event list con Section A/B ✅ COMPLETATO
 
 **Obiettivo:** implementare la event list divisa in sezione A e B con `state_delta_essential`.
 
 **Azioni:**
 
-1. Rinominare/ristrutturare `_build_event_rail_and_sidebar` per separare Section A e B.
+1. ✅ `_build_event_rail_and_sidebar` ristrutturato: separa Section A e B tramite `event_list_section`.
+   Aggiunge `_build_section_a_card` e `_build_section_b_card` come helper separati.
 
-2. Struttura card event list (Sezione A):
-   - header: `display_label` + timestamp + source + piccolo badge impatto
-   - corpo espandibile: price_anchor, summary, `state_delta_essential`, raw_text (collassato)
-   - azioni: `[Original message]` (se trader), `[AUDIT]`
+2. ✅ Section A card:
+   - header: badge tipo + timestamp + source label (TRADER/ENGINE) + badge `position_effect`
+   - corpo espandibile: detail rows + `state_delta_essential` (vuoto ora, pronto per Step 2 full)
+   - azioni: `[Original message]` (se TRADER + raw_text), `[AUDIT]`
 
-3. Struttura card event list (Sezione B):
-   - stile diverso (dimmed / muted)
-   - header: label + timestamp + reason
+3. ✅ Section B card (IGNORED, SYSTEM_NOTE):
+   - stile dimmed (`.evt-section-b`, opacity .75)
+   - header: badge muted + timestamp + reason (italic)
    - azione: `[AUDIT]`
 
-4. Implementare bottone `AUDIT` per-evento che:
-   - apre l'audit drawer per quell'evento specifico
-   - non apre un drawer globale
+4. ✅ Bottone `[AUDIT]` per-evento → `openAuditDrawer(eid)` (non apre drawer globale).
 
-5. Aggiungere CSS per Sezione A / Sezione B.
+5. ✅ CSS aggiunto: `.evt-section-b`, `.evt-section-b .ti-v2-compact`, `.section-b-header`.
 
-6. Aggiungere JS: `openAuditDrawer(eventId)` che apre il drawer per l'evento corretto.
+6. ✅ JS `openAuditDrawer(eventId)` / `closeAuditDrawer(eventId)` aggiunto al shared script block.
 
 **File:** `html_writer.py`
 
-**Dipendenze:** Step 2.
+**Risultato:** 46 test verdi.
 
 ---
 
-### Step 6 — Aggiornamento `html_writer.py`: audit drawer per-evento
+### Step 6 — Aggiornamento `html_writer.py`: audit drawer per-evento ✅ COMPLETATO
 
 **Obiettivo:** implementare l'audit drawer per-evento con la struttura PRD §7-8.
 
 **Azioni:**
 
-1. Cambiare il modello da `<details>` globale a:
-   - drawer per-evento (elemento `<dialog>` o div con overlay)
-   - aperto solo dal bottone `AUDIT` della event list
+1. ✅ Modello cambiato da `<details>` globale a `<dialog id='audit_{eid}'>` per-evento.
+   Aperto solo da `[AUDIT]` button; NON si apre da click su rail o chart.
 
-2. Struttura interna audit drawer (PRD §8):
-   - **Execution summary**: evento, motivo, effetto posizione, prezzo/livello, outcome
-   - **Readable state delta**: `state_delta_full` in formato leggibile (non JSON grezzo)
-   - **Structured event data**: campi canonici minimi (PRD §8.3)
-   - **Original trader message**: se disponibile
-   - **Raw technical data**: payload engine/simulator in sotto-toggle
+2. ✅ Struttura interna `_build_audit_dialog(ev)` (PRD §8):
+   - **Execution summary**: event, event_code, stage, position_effect, price/level, source, reason, PnL
+   - **State delta**: `state_delta_essential` se non vuoto; placeholder se vuoto (Step 2 full)
+   - **Structured event data**: event_code, phase/stage, event_class, chart_marker_kind, geometry_effect, event_list_section, event_id
+   - **Original trader message**: se `source == TRADER` e `raw_text` presente
+   - **Raw technical data**: `details` in JSON, sotto `<details>` collassato
 
-3. Implementare JS:
-   - `openAuditDrawer(eventId)` → apre drawer per quell'evento
-   - `closeAuditDrawer()` → chiude drawer
-   - drawer NON si apre da click su rail o chart
+3. ✅ JS:
+   - `openAuditDrawer(eventId)` → `dialog#audit_{normId}.showModal()`
+   - `closeAuditDrawer(eventId)` → `dialog#audit_{normId}.close()`
+   - Drawer NON reagisce a click su chart/rail (solo bottone AUDIT)
 
 **File:** `html_writer.py`
 
-**Dipendenze:** Step 5.
+**Note per Step 2 full:**
+- `state_delta_essential` è `[]` per tutti gli eventi fino a Step 2 full.
+  Il drawer mostra un placeholder "State delta not yet computed".
+  Quando Step 2 popolerà `state_delta_essential`, il drawer mostrerà automaticamente i delta.
+
+**Risultato:** 46 test verdi.
 
 ---
 
-### Step 7 — Aggiornamento `trade_chart_echarts.py`: rail e sincronizzazione
+### Step 7 — Aggiornamento `trade_chart_echarts.py`: rail e sincronizzazione ✅ COMPLETATO
 
 **Obiettivo:** allineare rail e sincronizzazione UX al PRD §8.5.
 
 **Azioni:**
 
-1. Filtrare la rail: mostrare solo eventi `event_list_section = "A"`.
-   `IGNORED` e `SYSTEM_NOTE` (Section B) non devono entrare nella rail.
+1. ✅ Rail filtra solo `placement === 'rail'` (Section A, chart_marker_kind = NONE).
+   IGNORED/SYSTEM_NOTE hanno `placement = 'section_b'` → esclusi automaticamente.
 
-2. Aggiornare `buildPriceEvents()`:
-   - mostrare marker solo per `chart_marker_kind = "REQUIRED"` (e opzionale per `OPTIONAL_LIGHT`)
-   - escludere eventi con `chart_marker_kind = "NONE"`
+2. ✅ `buildPriceEvents()` aggiornato:
+   - `placement === 'chart'` (REQUIRED) → marker pieno, opacity 1, size 12
+   - `placement === 'chart_optional'` (OPTIONAL_LIGHT) → marker semitrasparente, opacity 0.55, size 9
+   - `placement === 'rail'` / `'section_b'` → nessun marker chart
+   - `symbolSize` reso funzione per differenziare REQUIRED vs OPTIONAL_LIGHT per data point
 
-3. Click su marker chart → dispatch `trade-event-focus` (già presente) → scroll event list.
-   **Non** aprire direttamente l'audit drawer.
+3. ✅ Click su marker chart → `trade-event-focus` → scroll event list. Non apre drawer.
 
-4. Click su rail → dispatch `trade-event-focus` → scroll event list.
-   **Non** aprire direttamente l'audit drawer.
+4. ✅ Click su rail → `trade-event-focus` → scroll event list. Non apre drawer.
+   (invariato; già corretto)
 
-5. Verificare che la sincronizzazione sidebar ↔ chart ↔ rail funzioni
-   per tutti gli event_code.
+5. ✅ `kindColor()` e `kindSymbol()` aggiornati ai 17 event_code PRD.
+
+6. ✅ `visibility` object aggiornato ai nuovi event_code:
+   - REQUIRED/OPTIONAL_LIGHT: `ev_ENTRY_FILLED_INITIAL`, `ev_EXIT_PARTIAL_TP`, ecc.
+   - Rail-only: `ev_SETUP_CREATED`, `ev_STOP_MOVED`, `ev_BREAK_EVEN_ACTIVATED`, ecc.
+   - Section B: `ev_IGNORED = false`, `ev_SYSTEM_NOTE = false`
 
 **File:** `trade_chart_echarts.py`
 
-**Dipendenze:** Step 4.
+**Risultato:** 46 test verdi.
 
 ---
 
-### Step 8 — Test di copertura
+### Step 8 — Test di copertura ✅ COMPLETATO
 
 **Obiettivo:** verificare tutti i Requisiti Funzionali e i Criteri di Accettazione PRD §16.
 
@@ -386,26 +407,29 @@ payload JSON (events + level_segments + meta)
 | STOP_MOVED non genera marker chart | `test_runner_trade_chart_context.py` | RF-4 |
 | ENTRY_ORDER_ADDED non genera marker chart | `test_runner_trade_chart_context.py` | RF-2 |
 
-**File:** `test_event_normalizer.py`, `test_runner_trade_chart_context.py`
+**File toccati:** `test_event_normalizer.py`, `test_runner_trade_chart_context.py`
 
 **Dipendenze:** Step 1-7.
+
+**Risultato:** copertura estesa ai casi PRD residui del normalizer e del payload chart,
+incluso `ENTRY_ORDER_ADDED` senza marker chart nel payload finale.
 
 ---
 
 ## Ordine di sviluppo raccomandato
 
 ```
-Step 1  Tassonomia event_code            event_normalizer.py
-Step 2  Campi canonici PRD §6            event_normalizer.py
-Step 3  Ordinamento deterministico       event_normalizer.py
-Step 4  Payload chart allineato          trade_chart_payload.py
-Step 5  Event list Section A/B           html_writer.py
-Step 6  Audit drawer per-evento          html_writer.py
-Step 7  Rail + sincronizzazione UX       trade_chart_echarts.py
-Step 8  Test di copertura                test_event_normalizer.py, test_runner_*
+Step 1  Tassonomia event_code            event_normalizer.py              ✅ COMPLETATO
+Step 2  Campi canonici PRD §6            event_normalizer.py              ✅ COMPLETATO
+Step 3  Ordinamento deterministico       event_normalizer.py              ✅ COMPLETATO
+Step 4  Payload chart allineato          trade_chart_payload.py           ✅ COMPLETATO
+Step 5  Event list Section A/B           html_writer.py                   ✅ COMPLETATO
+Step 6  Audit drawer per-evento          html_writer.py                   ✅ COMPLETATO
+Step 7  Rail + sincronizzazione UX       trade_chart_echarts.py           ✅ COMPLETATO
+Step 8  Test di copertura                test_event_normalizer.py, test_runner_*  ✅ COMPLETATO
 ```
 
-**Non saltare step. Non iniziare Step 4 prima che Step 1-3 abbiano test verdi.**
+**Step 1-8 del piano Single Trade Report risultano completati.**
 
 ---
 

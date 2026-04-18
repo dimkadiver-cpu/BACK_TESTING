@@ -9,6 +9,10 @@ from src.signal_chain_lab.market.data_models import Candle
 from src.signal_chain_lab.policy_report.event_normalizer import (
     ReportCanonicalEvent,
     Subtype,
+    canonical_event_badge_class,
+    canonical_event_legend_items,
+    canonical_event_marker_color,
+    canonical_event_marker_symbol,
     normalize_events,
 )
 
@@ -21,27 +25,6 @@ _LEVEL_COLORS: dict[str, str] = {
     "TP": "#15803d",
     "AVG_ENTRY": "#0891b2",
 }
-
-_EVENT_KIND_MAP: dict[str, str] = {
-    Subtype.SETUP_CREATED:            "SETUP_CREATED",
-    Subtype.ENTRY_ORDER_ADDED:        "ENTRY_ORDER_ADDED",
-    Subtype.ENTRY_FILLED_INITIAL:     "ENTRY_FILLED_INITIAL",
-    Subtype.ENTRY_FILLED_SCALE_IN:    "ENTRY_FILLED_SCALE_IN",
-    Subtype.STOP_MOVED:               "STOP_MOVED",
-    Subtype.BREAK_EVEN_ACTIVATED:     "BREAK_EVEN_ACTIVATED",
-    Subtype.EXIT_PARTIAL_TP:          "EXIT_PARTIAL_TP",
-    Subtype.EXIT_PARTIAL_MANUAL:      "EXIT_PARTIAL_MANUAL",
-    Subtype.EXIT_FINAL_TP:            "EXIT_FINAL_TP",
-    Subtype.EXIT_FINAL_SL:            "EXIT_FINAL_SL",
-    Subtype.EXIT_FINAL_MANUAL:        "EXIT_FINAL_MANUAL",
-    Subtype.EXIT_FINAL_TIMEOUT:       "EXIT_FINAL_TIMEOUT",
-    Subtype.PENDING_CANCELLED_TRADER: "PENDING_CANCELLED_TRADER",
-    Subtype.PENDING_CANCELLED_ENGINE: "PENDING_CANCELLED_ENGINE",
-    Subtype.PENDING_TIMEOUT:          "PENDING_TIMEOUT",
-    Subtype.SYSTEM_NOTE:              "SYSTEM_NOTE",
-    Subtype.IGNORED:                  "IGNORED",
-}
-
 
 def _to_epoch_ms(dt: datetime | None) -> int | None:
     if dt is None:
@@ -103,8 +86,13 @@ def _focus_window(
 
 
 def _first_fill_timestamp(event_log: list[EventLogEntry]) -> datetime | None:
+    fills = _fills_from_event_log(event_log)
+    if fills:
+        ts_raw = fills[0].get("timestamp")
+        if ts_raw:
+            return datetime.fromisoformat(str(ts_raw).replace("Z", "+00:00"))
     for entry in event_log:
-        if (entry.event_type or "").upper() in {"FILL", "ADD_ENTRY"}:
+        if (entry.event_type or "").upper() == "FILL":
             return entry.timestamp
     return None
 
@@ -139,14 +127,53 @@ def _fills_from_event_log(event_log: list[EventLogEntry]) -> list[dict[str, Any]
     return fills
 
 
+def _plan_map(state: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    mapped: dict[str, dict[str, Any]] = {}
+    for idx, plan in enumerate(state.get("entries_planned") or []):
+        if not isinstance(plan, dict):
+            continue
+        mapped[str(plan.get("plan_id") or f"idx:{idx}")] = plan
+    return mapped
+
+
+def _fills_by_key(snapshot: dict[str, Any]) -> dict[tuple[str, str, str, str], dict[str, Any]]:
+    mapped: dict[tuple[str, str, str, str], dict[str, Any]] = {}
+    for fill in snapshot.get("fills") or []:
+        if not isinstance(fill, dict):
+            continue
+        key = (
+            str(fill.get("timestamp") or ""),
+            str(fill.get("plan_id") or ""),
+            str(fill.get("price") or ""),
+            str(fill.get("qty") or ""),
+        )
+        mapped[key] = fill
+    return mapped
+
+
 def _nth_fill_timestamp(event_log: list[EventLogEntry], n: int) -> datetime | None:
+    fills = _fills_from_event_log(event_log)
+    if len(fills) >= n:
+        ts_raw = fills[n - 1].get("timestamp")
+        if ts_raw:
+            return datetime.fromisoformat(str(ts_raw).replace("Z", "+00:00"))
     count = 0
     for entry in event_log:
-        if (entry.event_type or "").upper() in {"FILL", "ADD_ENTRY"}:
+        if (entry.event_type or "").upper() == "FILL":
             count += 1
             if count == n:
                 return entry.timestamp
     return None
+
+
+def _fill_timestamp(fill: dict[str, Any], fallback_ts: datetime) -> datetime:
+    ts_raw = fill.get("timestamp")
+    if ts_raw:
+        try:
+            return datetime.fromisoformat(str(ts_raw).replace("Z", "+00:00"))
+        except ValueError:
+            return fallback_ts
+    return fallback_ts
 
 
 def _event_price(entry: EventLogEntry, trade: TradeResult) -> float | None:
@@ -178,15 +205,22 @@ def _build_level_segments(
 
     side_upper = str(trade.side or "").upper()
     is_short = side_upper in {"SELL", "SHORT", "S"}
-
-    first_state = event_log[0].state_after or {}
     segments: list[dict[str, object]] = []
-    fills = _fills_from_event_log(event_log)
-    fills_by_plan_id = {
-        str(fill.get("plan_id") or ""): fill
-        for fill in fills
-        if fill.get("plan_id")
-    }
+    pending_entries: dict[str, dict[str, Any]] = {}
+    entry_sequence = 0
+    active_sl_price: float | None = None
+    active_sl_start: datetime | None = None
+    sl_index = 0
+    active_tps: dict[float, tuple[datetime, str]] = {}
+    tp_levels_ordered: list[float] = []
+    prev_next_tp_idx: int | None = None
+    finalized_tps: set[float] = set()
+    avg_entry_start: datetime | None = None
+    avg_entry_price: float | None = None
+    fill_count = 0
+    cumulative_fill_qty = 0.0
+    cumulative_fill_notional = 0.0
+    seen_fill_keys: set[tuple[str, str, str, str]] = set()
 
     def add_segment(
         *,
@@ -215,66 +249,173 @@ def _build_level_segments(
             }
         )
 
-    first_fill_ts = _first_fill_timestamp(event_log)
-    planned_entries = first_state.get("entries_planned") or []
-
-    for idx, plan in enumerate(planned_entries):
-        if not isinstance(plan, dict):
-            continue
-        price = plan.get("price")
-        if not isinstance(price, (int, float)):
-            continue
-        entry_type = str(plan.get("order_type") or plan.get("entry_type") or "LIMIT").upper()
-        kind = "ENTRY_MARKET" if entry_type == "MARKET" else "ENTRY_LIMIT"
-        plan_id = str(plan.get("plan_id") or "")
-        fill_record = fills_by_plan_id.get(plan_id)
-        fill_ts_raw = fill_record.get("timestamp") if isinstance(fill_record, dict) else None
-        fill_ts = datetime.fromisoformat(str(fill_ts_raw).replace("Z", "+00:00")) if fill_ts_raw else None
-        if kind == "ENTRY_MARKET":
-            # For immediate market entries the event marker is the primary representation.
-            continue
-        end_for_entry = fill_ts or first_fill_ts or end_ts
+    def close_pending(plan_id: str, ts: datetime) -> None:
+        pending = pending_entries.pop(plan_id, None)
+        if pending is None or pending["kind"] == "ENTRY_MARKET":
+            return
         add_segment(
-            kind=kind,
-            label=f"Entry {idx + 1}",
-            price=float(price),
-            ts_start=start_ts,
-            ts_end=end_for_entry,
-            sequence_index=idx,
-            source_event_id=f"{trade.signal_id}_{idx}",
+            kind=str(pending["kind"]),
+            label=str(pending["label"]),
+            price=float(pending["price"]),
+            ts_start=pending["ts_start"],
+            ts_end=ts,
+            sequence_index=int(pending["sequence_index"]),
+            source_event_id=str(pending["source_event_id"]),
         )
 
-    if trade.avg_entry_price is not None and trade.fills_count >= 2:
-        avg_start = _nth_fill_timestamp(event_log, 2) or first_fill_ts or start_ts
+    def close_avg_entry(ts: datetime) -> None:
+        nonlocal avg_entry_start, avg_entry_price
+        if avg_entry_start is None or avg_entry_price is None:
+            return
         add_segment(
             kind="AVG_ENTRY",
             label="Average Entry",
-            price=float(trade.avg_entry_price),
-            ts_start=avg_start,
-            ts_end=end_ts,
-            style="solid",
+            price=float(avg_entry_price),
+            ts_start=avg_entry_start,
+            ts_end=ts,
+            style="dashed",
         )
+        avg_entry_start = None
+        avg_entry_price = None
 
-    active_sl_price: float | None = None
-    active_sl_start: datetime | None = None
-    sl_index = 0
-    active_tps: dict[float, tuple[datetime, str]] = {}
-    # tp_levels_ordered: engine stores TPs in hit-sequence order — preserve it
-    tp_levels_ordered: list[float] = []
-    prev_next_tp_idx: int | None = None
-    # Tracks TPs already closed (via next_tp_index or state diff) so they are not re-added
-    finalized_tps: set[float] = set()
+    def _close_pending_for_fill(*, plan_id: str, fill_price: float | None, ts: datetime) -> None:
+        if plan_id:
+            if plan_id in pending_entries:
+                close_pending(plan_id, ts)
+                return
+            if fill_price is None:
+                return
+        if fill_price is not None:
+            matching_plan_ids = [
+                pending_id
+                for pending_id, pending in pending_entries.items()
+                if abs(float(pending["price"]) - float(fill_price)) <= 1e-9
+            ]
+            if len(matching_plan_ids) == 1:
+                close_pending(matching_plan_ids[0], ts)
+                return
+        if not plan_id and len(pending_entries) == 1:
+            close_pending(next(iter(pending_entries.keys())), ts)
+
+    def _position_size(snapshot: dict[str, Any]) -> float | None:
+        value = snapshot.get("open_size")
+        if isinstance(value, (int, float)):
+            return float(value)
+        return None
+
+    def _pending_size(snapshot: dict[str, Any]) -> float | None:
+        value = snapshot.get("pending_size")
+        if isinstance(value, (int, float)):
+            return float(value)
+        plans = [plan for plan in (snapshot.get("entries_planned") or []) if isinstance(plan, dict)]
+        ratios = [plan.get("size_ratio") for plan in plans]
+        numeric_ratios = [float(ratio) for ratio in ratios if isinstance(ratio, (int, float))]
+        if numeric_ratios:
+            return float(sum(numeric_ratios))
+        if plans:
+            return float(len(plans))
+        return None
 
     for idx, entry in enumerate(event_log):
         ts = entry.timestamp
-        state = entry.state_after or {}
+        state_before = entry.state_before or {}
+        state_after = entry.state_after or {}
+        before_plans = _plan_map(state_before)
+        after_plans = _plan_map(state_after)
+        before_plan_ids = set(before_plans.keys())
+        after_plan_ids = set(after_plans.keys())
 
-        current_sl = state.get("current_sl")
+        for plan_id in sorted(after_plan_ids - before_plan_ids):
+            plan = after_plans[plan_id]
+            price = plan.get("price")
+            if not isinstance(price, (int, float)):
+                continue
+            entry_type = str(plan.get("order_type") or plan.get("entry_type") or "LIMIT").upper()
+            kind = "ENTRY_MARKET" if entry_type == "MARKET" else "ENTRY_LIMIT"
+            pending_entries[plan_id] = {
+                "kind": kind,
+                "label": f"Entry {entry_sequence + 1}",
+                "price": float(price),
+                "ts_start": ts,
+                "sequence_index": entry_sequence,
+                "source_event_id": f"{trade.signal_id}_{idx}",
+            }
+            entry_sequence += 1
+
+        before_fill_map = _fills_by_key(state_before)
+        after_fill_map = _fills_by_key(state_after)
+        combined_fill_map = dict(before_fill_map)
+        combined_fill_map.update(after_fill_map)
+        new_fills = [
+            combined_fill_map[key]
+            for key in sorted(combined_fill_map.keys())
+            if key not in seen_fill_keys
+        ]
+
+        for fill in new_fills:
+            plan_id = str(fill.get("plan_id") or "")
+            price = fill.get("price")
+            qty = fill.get("qty")
+            fill_price = float(price) if isinstance(price, (int, float)) else None
+            fill_ts = _fill_timestamp(fill, ts)
+            _close_pending_for_fill(plan_id=plan_id, fill_price=fill_price, ts=fill_ts)
+            if not isinstance(price, (int, float)) or not isinstance(qty, (int, float)):
+                continue
+            fill_count += 1
+            cumulative_fill_qty += float(qty)
+            cumulative_fill_notional += float(price) * float(qty)
+            if fill_count < 2 or cumulative_fill_qty <= 0:
+                continue
+            current_avg = cumulative_fill_notional / cumulative_fill_qty
+            if avg_entry_start is None:
+                avg_entry_start = fill_ts
+                avg_entry_price = current_avg
+            elif avg_entry_price is not None and abs(avg_entry_price - current_avg) > 1e-9:
+                close_avg_entry(fill_ts)
+                avg_entry_start = fill_ts
+                avg_entry_price = current_avg
+
+        before_open_size = _position_size(state_before)
+        after_open_size = _position_size(state_after)
+        if (
+            not new_fills
+            and before_open_size is not None
+            and after_open_size is not None
+            and after_open_size > before_open_size + 1e-12
+            and pending_entries
+        ):
+            _close_pending_for_fill(
+                plan_id="",
+                fill_price=_event_price(entry, trade),
+                ts=ts,
+            )
+
+        seen_fill_keys.update(before_fill_map.keys())
+        seen_fill_keys.update(after_fill_map.keys())
+
+        for plan_id in sorted(before_plan_ids - after_plan_ids):
+            if plan_id in pending_entries:
+                close_pending(plan_id, ts)
+
+        event_type = (entry.event_type or "").upper()
+        before_pending_size = _pending_size(state_before)
+        after_pending_size = _pending_size(state_after)
+        if (
+            event_type == "CANCEL_PENDING"
+            and before_pending_size is not None
+            and before_pending_size > 0
+            and after_pending_size is not None
+            and after_pending_size <= 1e-12
+        ):
+            for plan_id in list(pending_entries.keys()):
+                close_pending(plan_id, ts)
+
+        current_sl = state_after.get("current_sl")
         if isinstance(current_sl, (int, float)):
             sl_price = float(current_sl)
             if active_sl_price is None:
                 active_sl_price = sl_price
-                active_sl_start = start_ts
+                active_sl_start = ts
             elif sl_price != active_sl_price:
                 if active_sl_start is not None:
                     label = "Stop Loss initial" if sl_index == 0 else f"New Stop Loss {sl_index}"
@@ -291,16 +432,12 @@ def _build_level_segments(
                 active_sl_price = sl_price
                 active_sl_start = ts
 
-        tp_levels = [float(tp) for tp in (state.get("tp_levels") or []) if isinstance(tp, (int, float))]
-        # Capture initial TP ordering as stored by the engine (engine stores in hit-sequence order)
+        tp_levels = [float(tp) for tp in (state_after.get("tp_levels") or []) if isinstance(tp, (int, float))]
         if not tp_levels_ordered and tp_levels:
             tp_levels_ordered = list(tp_levels)
 
         current_tp_set = set(tp_levels)
-        active_tp_set = set(active_tps.keys())
-
-        # Primary: detect TP hits via next_tp_index — reliable even when tp_levels is not updated
-        curr_next_tp = state.get("next_tp_index")
+        curr_next_tp = state_after.get("next_tp_index")
         if (
             isinstance(curr_next_tp, int)
             and isinstance(prev_next_tp_idx, int)
@@ -322,9 +459,7 @@ def _build_level_segments(
                             source_event_id=f"{trade.signal_id}_{idx}",
                         )
 
-        # Fallback: close TPs removed from tp_levels state (for engines that update the list)
-        active_tp_set = set(active_tps.keys())
-        for removed_price in sorted(active_tp_set - current_tp_set):
+        for removed_price in sorted(set(active_tps.keys()) - current_tp_set):
             tp_start_v, tp_label_v = active_tps.pop(removed_price)
             finalized_tps.add(removed_price)
             add_segment(
@@ -337,16 +472,51 @@ def _build_level_segments(
                 source_event_id=f"{trade.signal_id}_{idx}",
             )
 
-        # Add newly appearing TPs; skip prices already finalized
-        active_tp_set = set(active_tps.keys())
-        for price in sorted(current_tp_set - active_tp_set, reverse=is_short):
+        for price in sorted(current_tp_set - set(active_tps.keys()), reverse=is_short):
             if price in finalized_tps:
                 continue
-            label = f"TP{len(active_tps) + len([s for s in segments if s['kind'] == 'TP']) + 1}"
-            active_tps[price] = (start_ts, label)
+            if price in tp_levels_ordered:
+                label = f"TP{tp_levels_ordered.index(price) + 1}"
+            else:
+                label = f"TP{len(active_tps) + len([s for s in segments if s['kind'] == 'TP']) + 1}"
+            active_tps[price] = (ts, label)
 
         if isinstance(curr_next_tp, int):
             prev_next_tp_idx = curr_next_tp
+
+        if (entry.event_type or "").upper() == "CLOSE_FULL":
+            for plan_id in list(pending_entries.keys()):
+                close_pending(plan_id, ts)
+            close_avg_entry(ts)
+            if active_sl_price is not None and active_sl_start is not None:
+                label = "Stop Loss initial" if sl_index == 0 else f"New Stop Loss {sl_index}"
+                add_segment(
+                    kind="SL",
+                    label=label,
+                    price=active_sl_price,
+                    ts_start=active_sl_start,
+                    ts_end=ts,
+                    sequence_index=sl_index,
+                    source_event_id=f"{trade.signal_id}_{idx}",
+                )
+                active_sl_price = None
+                active_sl_start = None
+            for price in list(active_tps.keys()):
+                tp_start_v, tp_label_v = active_tps.pop(price)
+                add_segment(
+                    kind="TP",
+                    label=tp_label_v,
+                    price=price,
+                    ts_start=tp_start_v,
+                    ts_end=ts,
+                    sequence_index=int(tp_label_v.removeprefix("TP")) if tp_label_v.startswith("TP") else 0,
+                    source_event_id=f"{trade.signal_id}_{idx}",
+                )
+
+    for plan_id in list(pending_entries.keys()):
+        close_pending(plan_id, end_ts)
+
+    close_avg_entry(end_ts)
 
     if active_sl_price is not None and active_sl_start is not None:
         label = "Stop Loss initial" if sl_index == 0 else f"New Stop Loss {sl_index}"
@@ -359,7 +529,6 @@ def _build_level_segments(
             sequence_index=sl_index,
         )
 
-    # Remaining active TPs: iterate in engine hit order
     for price in (tp_levels_ordered if tp_levels_ordered else sorted(active_tps.keys(), reverse=is_short)):
         if price not in active_tps:
             continue
@@ -376,10 +545,6 @@ def _build_level_segments(
     return segments
 
 
-def _rail_lane_key(event: ReportCanonicalEvent) -> str:
-    return event.subtype
-
-
 def _build_events(
     canonical_events: list[ReportCanonicalEvent],
 ) -> list[dict[str, object]]:
@@ -388,26 +553,43 @@ def _build_events(
         ts_ms = _to_epoch_ms(datetime.fromisoformat(event.ts))
         if ts_ms is None:
             continue
-        if event.visual.lane_key == "sidebar":
-            placement = "sidebar"
+        # Placement driven by chart_marker_kind (PRD §9) and event_list_section (PRD §5).
+        # Section B (IGNORED, SYSTEM_NOTE) → excluded from rail, shown only in event list.
+        if event.event_list_section == "B":
+            placement = "section_b"
+        elif event.chart_marker_kind == "REQUIRED" and event.price_anchor is not None:
+            placement = "chart"
+        elif event.chart_marker_kind == "OPTIONAL_LIGHT" and event.price_anchor is not None:
+            placement = "chart_optional"
         else:
-            placement = "rail" if event.visual.lane_key == "rail" or event.price_anchor is None else "chart"
-        kind = _EVENT_KIND_MAP.get(event.subtype, event.subtype)
+            placement = "rail"
+        event_code = event.event_code or event.subtype
         items.append(
             {
                 "event_id": event.id,
                 "ts": ts_ms,
                 "exact_ts": event.ts,
                 "price": event.price_anchor,
-                "kind": kind,
+                "kind": event_code,
                 "subtype": event.subtype,
-                "label": event.title,
+                "event_code": event_code,
+                "label": event.display_label or event.title,
+                "rail_label": event.display_label or event.title,
                 "summary": event.summary,
                 "source": event.source,
                 "phase": event.phase,
+                "stage": event.stage,
                 "placement": placement,
+                "chart_marker_kind": event.chart_marker_kind,
+                "geometry_effect": event.geometry_effect,
+                "event_list_section": event.event_list_section,
+                "position_effect": event.position_effect,
+                "state_delta_essential": event.state_delta_essential,
                 "chart_anchor_mode": event.visual.chart_anchor_mode,
-                "lane_key": _rail_lane_key(event),
+                "lane_key": event.subtype,
+                "badge_class": canonical_event_badge_class(event_code),
+                "marker_color": canonical_event_marker_color(event_code),
+                "marker_symbol": canonical_event_marker_symbol(event_code),
                 "reason": event.reason,
                 "impact": {
                     "position": event.impact.position,
@@ -419,21 +601,34 @@ def _build_events(
     return items
 
 
-def _build_legend_items() -> list[dict[str, str]]:
-    return [
-        {"key": "entries_planned", "label": "EL levels", "color": _LEVEL_COLORS["ENTRY_LIMIT"], "shape": "line"},
-        {"key": "entry_market", "label": "ME levels", "color": _LEVEL_COLORS["ENTRY_MARKET"], "shape": "line"},
-        {"key": "avg_entry", "label": "AVG entry", "color": _LEVEL_COLORS["AVG_ENTRY"], "shape": "line"},
-        {"key": "sl", "label": "SL", "color": _LEVEL_COLORS["SL"], "shape": "line"},
-        {"key": "tps", "label": "TP levels", "color": _LEVEL_COLORS["TP"], "shape": "line"},
-        {"key": "ev_ENTRY_FILLED_INITIAL", "label": "Entry filled", "color": "#1d4ed8", "shape": "dot"},
-        {"key": "ev_ENTRY_FILLED_SCALE_IN", "label": "Scale-in filled", "color": "#2563eb", "shape": "dot"},
-        {"key": "ev_EXIT_PARTIAL_TP", "label": "TP hit", "color": "#15803d", "shape": "dot"},
-        {"key": "ev_EXIT_PARTIAL_MANUAL", "label": "Partial close", "color": "#ea580c", "shape": "dot"},
-        {"key": "ev_EXIT_FINAL_SL", "label": "SL hit", "color": "#b91c1c", "shape": "dot"},
-        {"key": "ev_EXIT_FINAL_TP", "label": "Final exit (TP)", "color": "#15803d", "shape": "dot"},
-        {"key": "ev_EXIT_FINAL_MANUAL", "label": "Final exit", "color": "#ea580c", "shape": "dot"},
-    ]
+def _build_legend_items(
+    *,
+    level_segments: list[dict[str, object]],
+    canonical_events: list[ReportCanonicalEvent],
+) -> list[dict[str, str]]:
+    level_kinds = {str(segment.get("kind") or "") for segment in level_segments}
+    visible_event_codes = {str(event.event_code or event.subtype or "") for event in canonical_events}
+    items: list[dict[str, str]] = []
+    if "ENTRY_LIMIT" in level_kinds:
+        items.append(
+            {"key": "entries_planned", "label": "EL levels", "color": _LEVEL_COLORS["ENTRY_LIMIT"], "shape": "line"}
+        )
+    if "AVG_ENTRY" in level_kinds:
+        items.append(
+            {
+                "key": "avg_entry",
+                "label": "AVG entry",
+                "color": _LEVEL_COLORS["AVG_ENTRY"],
+                "shape": "line",
+                "line_style": "dashed",
+            }
+        )
+    if "SL" in level_kinds:
+        items.append({"key": "sl", "label": "SL", "color": _LEVEL_COLORS["SL"], "shape": "line"})
+    if "TP" in level_kinds:
+        items.append({"key": "tps", "label": "TP levels", "color": _LEVEL_COLORS["TP"], "shape": "line"})
+    items.extend(canonical_event_legend_items(visible_event_codes=visible_event_codes))
+    return items
 
 
 def _build_level_summary(event_log: list[EventLogEntry], trade: TradeResult) -> str:
@@ -470,6 +665,7 @@ def build_trade_chart_payload(
         if candles
     }
     canonical_events = normalize_events(trade, event_log)
+    level_segments = _build_level_segments(trade, event_log)
 
     return {
         "meta": {
@@ -477,6 +673,7 @@ def build_trade_chart_payload(
             "symbol": trade.symbol,
             "side": trade.side,
             "policy_name": trade.policy_name,
+            "chart_timezone": "UTC",
             "default_timeframe": _default_timeframe(candles_serialized),
             "fills_count": trade.fills_count,
             "level_summary": _build_level_summary(event_log, trade),
@@ -484,7 +681,10 @@ def build_trade_chart_payload(
             "focus_end_ts": _focus_window(trade, event_log)[1],
         },
         "candles_by_timeframe": candles_serialized,
-        "level_segments": _build_level_segments(trade, event_log),
+        "level_segments": level_segments,
         "events": _build_events(canonical_events),
-        "legend_items": _build_legend_items(),
+        "legend_items": _build_legend_items(
+            level_segments=level_segments,
+            canonical_events=canonical_events,
+        ),
     }

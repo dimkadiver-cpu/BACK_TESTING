@@ -18,33 +18,41 @@ _CHART_JS = r"""
   var events = payload.events || [];
   var legendItems = payload.legend_items || [];
   var meta = payload.meta || {};
+  var chartTimezone = String(meta.chart_timezone || 'UTC');
   var levelSegments = payload.level_segments || [];
   var currentTF = meta.default_timeframe || Object.keys(candlesByTF)[0] || '';
   var fillsCount = meta.fills_count || 0;
   var focusStartTs = meta.focus_start_ts ? new Date(meta.focus_start_ts).getTime() : null;
   var focusEndTs = meta.focus_end_ts ? new Date(meta.focus_end_ts).getTime() : null;
+  // Visibility keyed by PRD event_code (prefix 'ev_' matches legend_items key format)
   var visibility = {
     volume: false,
     event_rail: true,
     entries_planned: true,
-    entry_market: true,
-    avg_entry: true,
+    avg_entry: false,
     sl: true,
     tps: true,
-    ev_ENTRY_FILLED: true,
-    ev_SCALE_IN_FILLED: true,
-    ev_MARKET_ENTRY_FILLED: true,
-    ev_TP_HIT: true,
-    ev_PARTIAL_EXIT: true,
-    ev_FINAL_EXIT: true,
-    ev_SL_HIT: true,
-    ev_SL_MOVED: true,
-    ev_BE_ACTIVATED: true,
-    ev_CANCELLED: true,
-    ev_EXPIRED: true,
-    ev_TIMEOUT: true,
-    ev_SYSTEM_NOTE: true,
-    ev_IGNORED: false
+    // chart markers — REQUIRED (PRD §9)
+    ev_ENTRY_FILLED_INITIAL:     true,
+    ev_ENTRY_FILLED_SCALE_IN:    true,
+    ev_EXIT_PARTIAL_TP:          true,
+    ev_EXIT_PARTIAL_MANUAL:      true,
+    ev_EXIT_FINAL_TP:            true,
+    ev_EXIT_FINAL_SL:            true,
+    ev_EXIT_FINAL_MANUAL:        true,
+    // chart markers — OPTIONAL_LIGHT (PRD §9)
+    ev_EXIT_FINAL_TIMEOUT:       true,
+    // rail-only — Section A, chart_marker_kind = NONE
+    ev_SETUP_CREATED:            true,
+    ev_ENTRY_ORDER_ADDED:        true,
+    ev_STOP_MOVED:               true,
+    ev_BREAK_EVEN_ACTIVATED:     true,
+    ev_PENDING_CANCELLED_TRADER: true,
+    ev_PENDING_CANCELLED_ENGINE: true,
+    ev_PENDING_TIMEOUT:          true,
+    // Section B — excluded from rail; off by default
+    ev_IGNORED:                  false,
+    ev_SYSTEM_NOTE:              false
   };
 
   var chart = echarts.init(chartEl, null, {renderer: 'canvas'});
@@ -54,66 +62,60 @@ _CHART_JS = r"""
   var applyingOptions = false;
   var hasUserZoomed = false;
   var programmaticZoomEventsPending = 0;
+  var railLaneSpacingPx = 32;
+  var railBasePaddingPx = 44;
+  var railMinHeightPx = 140;
+  var railMaxHeightPx = 460;
 
-  function formatUtcDateTime(value) {
+  function formatChartDateTime(value) {
     if (value === null || value === undefined || value === '') { return '-'; }
     var d = value instanceof Date ? value : new Date(value);
     if (Number.isNaN(d.getTime())) { return String(value); }
-    return d.getUTCFullYear()
-      + '-' + String(d.getUTCMonth() + 1).padStart(2, '0')
-      + '-' + String(d.getUTCDate()).padStart(2, '0')
-      + ' '
-      + String(d.getUTCHours()).padStart(2, '0')
-      + ':' + String(d.getUTCMinutes()).padStart(2, '0')
-      + ':' + String(d.getUTCSeconds()).padStart(2, '0')
-      + ' UTC';
+    try {
+      return new Intl.DateTimeFormat('sv-SE', {
+        timeZone: chartTimezone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      }).format(d).replace(',', '') + ' ' + chartTimezone;
+    } catch (err) {
+      return d.getUTCFullYear()
+        + '-' + String(d.getUTCMonth() + 1).padStart(2, '0')
+        + '-' + String(d.getUTCDate()).padStart(2, '0')
+        + ' '
+        + String(d.getUTCHours()).padStart(2, '0')
+        + ':' + String(d.getUTCMinutes()).padStart(2, '0')
+        + ':' + String(d.getUTCSeconds()).padStart(2, '0')
+        + ' UTC';
+    }
   }
 
-  function formatUtcAxis(value) {
+  function formatChartAxis(value) {
     if (value === null || value === undefined || value === '') { return ''; }
     var d = new Date(value);
     if (Number.isNaN(d.getTime())) { return String(value); }
-    return String(d.getUTCHours()).padStart(2, '0') + ':' + String(d.getUTCMinutes()).padStart(2, '0');
+    try {
+      return new Intl.DateTimeFormat('en-GB', {
+        timeZone: chartTimezone,
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      }).format(d);
+    } catch (err) {
+      return String(d.getUTCHours()).padStart(2, '0') + ':' + String(d.getUTCMinutes()).padStart(2, '0');
+    }
   }
 
-  function kindColor(kind) {
-    var colors = {
-      'ENTRY_FILLED': '#1d4ed8',
-      'SCALE_IN_FILLED': '#2563eb',
-      'MARKET_ENTRY_FILLED': '#7c3aed',
-      'TP_HIT': '#15803d',
-      'PARTIAL_EXIT': '#ea580c',
-      'FINAL_EXIT': '#ea580c',
-      'SL_HIT': '#b91c1c',
-      'SL_MOVED': '#c2410c',
-      'BE_ACTIVATED': '#f59e0b',
-      'CANCELLED': '#eab308',
-      'EXPIRED': '#eab308',
-      'TIMEOUT': '#64748b',
-      'SYSTEM_NOTE': '#475569',
-      'IGNORED': '#94a3b8'
-    };
-    return colors[kind] || '#475569';
+  function kindColor(event) {
+    return (event && event.marker_color) || '#475569';
   }
 
-  function kindSymbol(kind) {
-    var symbols = {
-      'ENTRY_FILLED': 'circle',
-      'SCALE_IN_FILLED': 'circle',
-      'MARKET_ENTRY_FILLED': 'diamond',
-      'TP_HIT': 'diamond',
-      'PARTIAL_EXIT': 'roundRect',
-      'FINAL_EXIT': 'roundRect',
-      'SL_HIT': 'triangle',
-      'SL_MOVED': 'rect',
-      'BE_ACTIVATED': 'pin',
-      'CANCELLED': 'triangle',
-      'EXPIRED': 'triangle',
-      'TIMEOUT': 'triangle',
-      'SYSTEM_NOTE': 'circle',
-      'IGNORED': 'emptyCircle'
-    };
-    return symbols[kind] || 'circle';
+  function kindSymbol(event) {
+    return (event && event.marker_symbol) || 'circle';
   }
 
   function isAggregatedTF(tf) {
@@ -168,9 +170,12 @@ _CHART_JS = r"""
   }
 
   function buildPriceEvents() {
+    // PRD §9: REQUIRED → placement='chart', OPTIONAL_LIGHT → placement='chart_optional'
+    // Both appear on the chart; OPTIONAL_LIGHT gets reduced opacity and smaller symbol.
+    // NONE → placement='rail' or 'section_b' → never shown as chart marker.
     return events
       .filter(function (event) {
-        return event.placement === 'chart'
+        return (event.placement === 'chart' || event.placement === 'chart_optional')
           && event.price !== null
           && event.price !== undefined
           && visibility['ev_' + event.kind] !== false;
@@ -179,6 +184,7 @@ _CHART_JS = r"""
         var anchorTs = event.chart_anchor_mode === 'candle_snapped'
           ? snapTimestampToVisibleBucket(event.ts, currentTF)
           : event.ts;
+        var isOptional = event.placement === 'chart_optional';
         return {
           value: [anchorTs, event.price],
           exact_ts: event.exact_ts,
@@ -189,30 +195,50 @@ _CHART_JS = r"""
           label: event.label,
           reason: event.reason,
           impact: event.impact || {},
-          itemStyle: {color: kindColor(event.kind), borderColor: '#ffffff', borderWidth: 1.5},
-          symbol: kindSymbol(event.kind)
+          isOptional: isOptional,
+          itemStyle: {
+            color: kindColor(event),
+            borderColor: '#ffffff',
+            borderWidth: isOptional ? 1 : 1.5,
+            opacity: isOptional ? 0.55 : 1
+          },
+          symbol: kindSymbol(event)
         };
       });
   }
 
   function buildRailData() {
-    var lanesByTs = {};
+    // PRD §7 Step 7: rail shows only Section A events (placement === 'rail').
+    // Section B events (IGNORED, SYSTEM_NOTE) have placement === 'section_b' → excluded here.
+    // Chart-marker events (placement === 'chart' / 'chart_optional') are not duplicated in rail.
+    var laneOrder = [];
+    var laneIndexByKey = {};
     return events
       .filter(function (event) {
-        return event.placement === 'rail' && visibility['ev_' + event.kind] !== false;
+        return event.placement !== 'section_b';
       })
       .map(function (event) {
-        var key = String(event.ts);
-        var lane = lanesByTs[key] || 0;
-        lanesByTs[key] = lane + 1;
+        var anchorTs = event.chart_anchor_mode === 'candle_snapped'
+          ? snapTimestampToVisibleBucket(event.ts, currentTF)
+          : event.ts;
+        var laneKey = String(event.lane_key || event.event_code || event.kind || 'event');
+        if (laneIndexByKey[laneKey] === undefined) {
+          laneIndexByKey[laneKey] = laneOrder.length;
+          laneOrder.push(laneKey);
+        }
+        var lane = laneIndexByKey[laneKey] + 1;
         return {
-          value: [event.ts, lane],
+          value: [anchorTs, lane],
           exact_ts: event.exact_ts,
           event_id: event.event_id,
           kind: event.kind,
           summary: event.summary,
           label: event.label,
-          reason: event.reason
+          rail_label: event.rail_label || event.label,
+          reason: event.reason,
+          lane_key: laneKey,
+          marker_color: event.marker_color,
+          marker_symbol: event.marker_symbol
         };
       });
   }
@@ -276,6 +302,27 @@ _CHART_JS = r"""
 
     var lows = visible.map(function (c) { return Number(c[3]); }).filter(function (v) { return Number.isFinite(v); });
     var highs = visible.map(function (c) { return Number(c[4]); }).filter(function (v) { return Number.isFinite(v); });
+
+    // Include visible level prices so off-candle targets/stops remain visible.
+    var levelVisibility = {
+      'ENTRY_LIMIT': visibility.entries_planned !== false,
+      'ENTRY_MARKET': false,
+      'AVG_ENTRY': visibility.avg_entry !== false,
+      'SL': visibility.sl !== false,
+      'TP': visibility.tps !== false
+    };
+    levelSegments.forEach(function (segment) {
+      var segmentKind = String(segment && segment.kind ? segment.kind : '');
+      if (!levelVisibility[segmentKind]) { return; }
+      var tsStart = new Date(segment.ts_start).getTime();
+      var tsEnd = new Date(segment.ts_end).getTime();
+      if (Number.isNaN(tsStart) || Number.isNaN(tsEnd)) { return; }
+      if (viewport && (tsEnd < viewport.start || tsStart > viewport.end)) { return; }
+      var levelPrice = Number(segment.price);
+      if (!Number.isFinite(levelPrice)) { return; }
+      lows.push(levelPrice);
+      highs.push(levelPrice);
+    });
 
     if (!lows.length || !highs.length) { return null; }
     var minValue = Math.min.apply(null, lows);
@@ -387,11 +434,17 @@ _CHART_JS = r"""
         yAxisIndex: 0,
         z: 3,
         data: segments.map(function (segment, index) {
+          var tsStart = new Date(segment.ts_start).getTime();
+          var tsEnd = new Date(segment.ts_end).getTime();
+          if (isAggregatedTF(currentTF)) {
+            tsStart = snapTimestampToVisibleBucket(tsStart, currentTF);
+            tsEnd = snapTimestampToVisibleBucket(tsEnd, currentTF);
+          }
           var prevPrice = (kind === 'SL' && index > 0) ? segments[index - 1].price : null;
           return {
             value: [
-              new Date(segment.ts_start).getTime(),
-              new Date(segment.ts_end).getTime(),
+              tsStart,
+              tsEnd,
               segment.price,
               segment.label || kind,
               segment.style || 'dashed',
@@ -409,7 +462,7 @@ _CHART_JS = r"""
             var item = params.data || {};
             return '<b>' + (item.label || item.kind || '') + '</b><br/>'
               + 'Price: ' + Number(item.value[2]).toFixed(6) + '<br/>'
-              + 'Range: ' + formatUtcDateTime(item.logical_start) + ' → ' + formatUtcDateTime(item.logical_end);
+              + 'Range: ' + formatChartDateTime(item.logical_start) + ' → ' + formatChartDateTime(item.logical_end);
           }
         }
       };
@@ -447,7 +500,9 @@ _CHART_JS = r"""
     var xAxes = [{
       type: 'time',
       scale: true,
-      axisLabel: {formatter: formatUtcAxis},
+      min: viewport ? viewport.start : null,
+      max: viewport ? viewport.end : null,
+      axisLabel: {formatter: formatChartAxis},
       axisPointer: {show: true, snap: false},
       splitLine: {show: false}
     }];
@@ -489,7 +544,9 @@ _CHART_JS = r"""
           y: 1,
           tooltip: [1]
         },
-        symbolSize: 12,
+        symbolSize: function (val, params) {
+          return (params.data && params.data.isOptional) ? 9 : 12;
+        },
         z: 5,
         data: buildPriceEvents()
       }]);
@@ -499,6 +556,8 @@ _CHART_JS = r"""
       xAxes.push({
         type: 'time',
         gridIndex: 1,
+        min: viewport ? viewport.start : null,
+        max: viewport ? viewport.end : null,
         axisLabel: {show: false},
         splitLine: {show: false}
       });
@@ -532,14 +591,14 @@ _CHART_JS = r"""
       animation: false,
       axisPointer: {
         link: [{xAxisIndex: 'all'}],
-        label: {formatter: function (params) { return formatUtcDateTime(params.value); }}
+        label: {formatter: function (params) { return formatChartDateTime(params.value); }}
       },
       tooltip: {
         trigger: 'item',
         formatter: function (params) {
           var data = params.data || {};
           if (params.seriesType === 'candlestick' && params.data) {
-            return '<b>' + formatUtcDateTime(params.data[0]) + '</b><br/>'
+            return '<b>' + formatChartDateTime(params.data[0]) + '</b><br/>'
               + 'O: ' + Number(params.data[1]).toFixed(6) + ' '
               + 'C: ' + Number(params.data[2]).toFixed(6) + '<br/>'
               + 'L: ' + Number(params.data[3]).toFixed(6) + ' '
@@ -547,9 +606,9 @@ _CHART_JS = r"""
           }
           if (params.seriesId === 'price_events') {
             var impact = data.impact || {};
-            return '<b style="color:' + kindColor(data.kind) + '">' + (data.label || data.kind || '') + '</b><br/>'
-              + 'Event time: ' + formatUtcDateTime(data.exact_ts) + '<br/>'
-              + 'Chart bucket: ' + formatUtcDateTime(data.value[0]) + '<br/>'
+            return '<b style="color:' + kindColor(data) + '">' + (data.label || data.kind || '') + '</b><br/>'
+              + 'Event time: ' + formatChartDateTime(data.exact_ts) + '<br/>'
+              + 'Chart bucket: ' + formatChartDateTime(data.value[0]) + '<br/>'
               + 'Price: ' + Number(data.value[1]).toFixed(6) + '<br/>'
               + 'Summary: ' + (data.summary || '-') + '<br/>'
               + 'Source: ' + (data.source || '-') + '<br/>'
@@ -572,40 +631,56 @@ _CHART_JS = r"""
   }
 
   function buildRailOption() {
+    var railData = buildRailData();
+    var laneCount = railData.reduce(function (maxLane, item) {
+      return Math.max(maxLane, Number(item.value[1]) || 0);
+    }, 0);
+    var axisMin = 0;
+    var axisMax = Math.max(laneCount + 0.5, 1.5);
     var viewport = currentVisibleViewport();
-    var zoomConfig = viewport ? {startValue: viewport.start, endValue: viewport.end} : {};
     return {
       animation: false,
       axisPointer: {
         link: [{xAxisIndex: 'all'}],
-        label: {formatter: function (params) { return formatUtcDateTime(params.value); }}
+        label: {formatter: function (params) { return formatChartDateTime(params.value); }}
       },
       tooltip: {
         trigger: 'item',
         formatter: function (params) {
           var data = params.data || {};
-          return '<b style="color:' + kindColor(data.kind) + '">' + (data.label || data.kind || '') + '</b><br/>'
-            + 'Event time: ' + formatUtcDateTime(data.exact_ts) + '<br/>'
+          return '<b style="color:' + kindColor(data) + '">' + (data.rail_label || data.label || data.kind || '') + '</b><br/>'
+            + 'Event time: ' + formatChartDateTime(data.exact_ts) + '<br/>'
             + 'Summary: ' + (data.summary || '-');
         }
       },
-      grid: {left: 72, right: 24, top: 10, bottom: 36},
+      grid: {left: 72, right: 24, top: 14, bottom: 52},
       xAxis: {
         type: 'time',
-        axisLabel: {formatter: formatUtcAxis},
-        axisPointer: {show: true}
+        min: viewport ? viewport.start : null,
+        max: viewport ? viewport.end : null,
+        axisLabel: {formatter: formatChartAxis, margin: 14},
+        axisPointer: {show: true},
+        splitLine: {show: false}
       },
       yAxis: {
         type: 'value',
-        min: -0.5,
-        max: 4.5,
+        min: axisMin,
+        max: axisMax,
         interval: 1,
-        axisLabel: {formatter: function (value) { return 'L' + (value + 1); }},
-        splitLine: {show: false}
+        axisLabel: {show: false},
+        axisTick: {show: false},
+        axisLine: {show: false},
+        splitLine: {
+          show: true,
+          lineStyle: {
+            color: 'rgba(148, 163, 184, 0.26)',
+            type: 'dashed',
+            width: 1
+          }
+        }
       },
       dataZoom: [
-        Object.assign({type: 'inside', xAxisIndex: [0], filterMode: 'none'}, zoomConfig),
-        Object.assign({type: 'slider', xAxisIndex: [0], bottom: 4, height: 20}, zoomConfig)
+        {type: 'inside', xAxisIndex: [0], filterMode: 'none'}
       ],
       series: [{
         id: 'rail_events',
@@ -615,11 +690,49 @@ _CHART_JS = r"""
           y: 1,
           tooltip: [1]
         },
-        data: buildRailData(),
-        symbolSize: 11,
-        itemStyle: {color: function (params) { return kindColor(params.data.kind); }}
+        data: railData,
+        symbol: function (value, params) {
+          return kindSymbol(params && params.data ? params.data : null);
+        },
+        symbolSize: 9,
+        itemStyle: {color: function (params) { return kindColor(params.data); }},
+        label: {
+          show: true,
+          position: 'top',
+          distance: 4,
+          color: '#334155',
+          fontSize: 9,
+          backgroundColor: 'rgba(255,255,255,0.82)',
+          padding: [1, 4],
+          borderRadius: 4,
+          formatter: function (params) {
+            var label = params && params.data ? params.data.rail_label : '';
+            return label || '';
+          }
+        },
+        emphasis: {
+          label: {
+            show: true
+          }
+        },
+        z: 4
       }]
     };
+  }
+
+  function updateRailHeight() {
+    if (!railEl || !railChart) { return; }
+    var laneCount = buildRailData().reduce(function (maxLane, item) {
+      return Math.max(maxLane, Number(item.value[1]) || 0);
+    }, -1) + 1;
+    var visibleLaneCount = Math.max(laneCount, 1);
+    var height = Math.max(
+      railMinHeightPx,
+      Math.min(visibleLaneCount * railLaneSpacingPx + railBasePaddingPx, railMaxHeightPx)
+    );
+    railEl.style.height = height + 'px';
+    railEl.style.minHeight = railMinHeightPx + 'px';
+    railChart.resize();
   }
 
   function applyOptions() {
@@ -629,8 +742,14 @@ _CHART_JS = r"""
     applyingOptions = true;
     chart.setOption(buildChartOption(), {replaceMerge: ['series', 'grid', 'xAxis', 'yAxis']});
     if (railChart) {
-      railChart.setOption(buildRailOption(), {replaceMerge: ['series', 'xAxis', 'yAxis']});
-      railEl.style.display = visibility.event_rail ? '' : 'none';
+      if (visibility.event_rail) {
+        railEl.style.display = '';
+        updateRailHeight();
+        railChart.setOption(buildRailOption(), {replaceMerge: ['series', 'xAxis', 'yAxis']});
+        railChart.resize();
+      } else {
+        railEl.style.display = 'none';
+      }
     }
     applyViewport(currentViewport);
     applyingOptions = false;
@@ -644,12 +763,19 @@ _CHART_JS = r"""
       node.className = 'chart-legend-item' + (visibility[item.key] === false ? ' dimmed' : '');
 
       var swatch = document.createElement('span');
-      if (item.shape === 'dot') {
-        swatch.className = 'chart-legend-dot';
-        swatch.style.background = item.color;
-      } else {
+      if (item.shape === 'line') {
         swatch.className = 'chart-legend-swatch';
-        swatch.style.backgroundImage = 'repeating-linear-gradient(to right,' + item.color + ' 0,' + item.color + ' 4px,transparent 4px,transparent 7px)';
+        if (item.line_style === 'dashed') {
+          swatch.style.backgroundImage = 'repeating-linear-gradient(to right,' + item.color + ' 0,' + item.color + ' 4px,transparent 4px,transparent 7px)';
+        } else {
+          swatch.style.background = item.color;
+          swatch.style.backgroundImage = 'none';
+        }
+      } else {
+        var symbol = String(item.symbol || 'circle').toLowerCase();
+        swatch.className = 'chart-legend-marker sym-' + symbol;
+        swatch.style.background = item.color;
+        swatch.style.setProperty('--marker-color', item.color);
       }
       var text = document.createElement('span');
       text.textContent = item.label;
@@ -845,7 +971,6 @@ def _build_fallback(payload: dict[str, object]) -> str:
     ) or "<tr><td colspan='3'>-</td></tr>"
     return (
         "<div class='card'>"
-        "<h2>Price Chart</h2>"
         "<p class='note'>No market candles available</p>"
         "</div>"
         "<div class='card'>"
@@ -875,7 +1000,6 @@ def render_trade_chart_echarts(
     return (
         f"<script src='{asset_path}'></script>"
         "<div class='card chart-wrap'>"
-        "<h2>Price Chart</h2>"
         "<div class='chart-toolbar' style='flex-wrap:wrap;gap:6px'>"
         f"{_build_tf_buttons(chart_id, timeframes, default_timeframe)}"
         "<span style='width:1px;background:#e2e8f0;align-self:stretch;margin:0 4px'></span>"

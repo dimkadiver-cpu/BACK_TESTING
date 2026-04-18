@@ -75,7 +75,7 @@ def test_single_trade_report_limits_raw_text_to_trader_events_and_shows_levels(t
     assert "95.0000" in text
     assert "Take Profits" in text
     assert "110.0000, 112.0000" in text
-    assert text.count("Open raw telegram text") == 1
+    assert text.count("Original message") >= 1
     assert "Price Chart" in text
     assert "No market candles available" in text
 

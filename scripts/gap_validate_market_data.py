@@ -12,7 +12,7 @@ if str(PROJECT_ROOT) not in sys.path:
 import pandas as pd
 
 from src.signal_chain_lab.market.planning.gap_detection import Interval
-from src.signal_chain_lab.market.planning.validation import BatchValidator
+from src.signal_chain_lab.market.planning.validation import BatchValidator, IssueSeverity
 
 
 def parse_args() -> argparse.Namespace:
@@ -99,8 +99,12 @@ def main() -> int:
     jobs, sync_issues = _build_gap_jobs(plan=plan, sync_report=sync_report)
     cache: dict[tuple[str, str], list[dict[str, object]]] = {}
     results: list[dict[str, object]] = []
-    has_errors = bool(sync_issues)
+    has_critical = bool(sync_issues)
     total_checks = len(jobs)
+
+    print("PHASE=gap_validate")
+    print(f"STEP=0/{total_checks}")
+    print("PROGRESS=0")
 
     for item in sync_issues:
         results.append(
@@ -111,7 +115,7 @@ def main() -> int:
                 "status": "FAIL",
                 "issues": [
                     {
-                        "severity": "error",
+                        "severity": IssueSeverity.CRITICAL.value,
                         "code": "GAP_SYNC_STATUS_INVALID",
                         "message": f"gap sync non valido: {item['reason']} ({item.get('sync_status', 'n/a')})",
                     }
@@ -140,9 +144,11 @@ def main() -> int:
             print(f"loaded_gap_cache symbol={symbol} basis={basis} files={len(files)} rows={len(rows)}")
 
         result = validator.validate(rows=cache[cache_key], requested_range=interval)
-        issues = [{"severity": issue.severity, "code": issue.code, "message": issue.message} for issue in result.issues]
+        issues = [{"severity": issue.severity.value, "code": issue.code, "message": issue.message} for issue in result.issues]
         status = "PASS" if not result.has_errors else "FAIL"
-        has_errors = has_errors or result.has_errors
+        has_critical = has_critical or result.has_errors
+        print(f"STEP={idx}/{total_checks}")
+        print(f"PROGRESS={int(idx / max(total_checks, 1) * 100)}")
         print(f"gap_validate_progress {idx}/{total_checks} symbol={symbol} basis={basis} status={status}")
         results.append(
             {
@@ -150,6 +156,9 @@ def main() -> int:
                 "basis": basis,
                 "interval": interval.to_dict(),
                 "status": status,
+                "critical_count": result.critical_count,
+                "warning_count": result.warning_count,
+                "info_count": result.info_count,
                 "issues": issues,
             }
         )
@@ -160,19 +169,24 @@ def main() -> int:
         json.dumps(
             {
                 "market_request_fingerprint": plan.get("market_request_fingerprint", ""),
-                "status": "PASS" if not has_errors else "FAIL",
+                "status": "PASS" if not has_critical else "FAIL",
                 "checks": len(results),
+                "critical_count": sum(int(r.get("critical_count", 0)) for r in results),
+                "warning_count": sum(int(r.get("warning_count", 0)) for r in results),
+                "info_count": sum(int(r.get("info_count", 0)) for r in results),
                 "results": results,
             },
             indent=2,
         ),
         encoding="utf-8",
     )
-    overall = "PASS" if not has_errors else "FAIL"
+    warning_count = sum(int(r.get("warning_count", 0)) for r in results)
+    overall = "PASS" if not has_critical else "FAIL"
+    print(f"SUMMARY=pass:{sum(1 for r in results if r['status'] == 'PASS')} fail:{sum(1 for r in results if r['status'] == 'FAIL')} warnings:{warning_count}")
     print(f"gap_validation_report={output}")
     print(f"status={overall}")
     print(f"checks={len(results)}")
-    return 0 if not has_errors else 1
+    return 0 if not has_critical else 1
 
 
 if __name__ == "__main__":

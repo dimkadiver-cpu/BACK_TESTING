@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import csv
 import json
+import logging
 import re
 import shutil
 import statistics
@@ -17,8 +18,8 @@ from src.signal_chain_lab.adapters.validators import validate_chain_for_simulati
 from src.signal_chain_lab.domain.events import CanonicalChain
 from src.signal_chain_lab.domain.results import EventLogEntry, TradeResult
 from src.signal_chain_lab.engine.simulator import simulate_chain
-from src.signal_chain_lab.market.data_models import Candle
-from src.signal_chain_lab.market.data_models import MarketDataProvider
+from src.signal_chain_lab.market.data_models import Candle, FundingRateProvider, MarketDataProvider
+from src.signal_chain_lab.market.providers.bybit_funding_provider import BybitFundingProvider
 from src.signal_chain_lab.policies.base import PolicyConfig
 from src.signal_chain_lab.policy_report.html_writer import (
     flatten_policy_values,
@@ -28,6 +29,8 @@ from src.signal_chain_lab.policy_report.html_writer import (
 from src.signal_chain_lab.reports.chain_plot import write_chain_plot_html, write_chain_plot_png
 from src.signal_chain_lab.reports.event_log_report import write_event_log_jsonl
 from src.signal_chain_lab.reports.trade_report import build_trade_result, write_trade_results_csv
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -295,11 +298,49 @@ def _validation_exclusion_record(chain: CanonicalChain) -> dict[str, str] | None
     )
 
 
+def _build_funding_provider(
+    policy: PolicyConfig,
+    market_dir: Path | str | None,
+    symbol: str,
+) -> FundingRateProvider | None:
+    funding_model = str(policy.execution.funding_model or "none").strip().lower()
+    if funding_model == "none":
+        return None
+
+    if funding_model != "historical":
+        logger.warning(
+            "Unsupported funding_model=%s for symbol=%s, funding disabled",
+            funding_model,
+            symbol,
+        )
+        return None
+
+    if market_dir is None:
+        logger.warning(
+            "market_dir non disponibile, funding disabilitato per symbol=%s",
+            symbol,
+        )
+        return None
+
+    root = Path(market_dir)
+    funding_symbol_dir = root / "bybit" / "futures_linear" / "funding" / symbol
+    if not funding_symbol_dir.exists():
+        logger.warning(
+            "Funding storico non disponibile per symbol=%s in %s, funding disabilitato",
+            symbol,
+            funding_symbol_dir,
+        )
+        return None
+
+    return BybitFundingProvider(root, symbol)
+
+
 def _run_policy_dataset(
     *,
     chains: list[CanonicalChain],
     policy: PolicyConfig,
     market_provider: MarketDataProvider | None,
+    market_dir: Path | str | None = None,
     initial_capital: float | None = None,
 ) -> tuple[list[TradeResult], list[dict[str, str]], dict[str, list[EventLogEntry]]]:
     trade_results: list[TradeResult] = []
@@ -312,7 +353,13 @@ def _run_policy_dataset(
             excluded_chains.append(exclusion)
             continue
 
-        event_log, state = simulate_chain(chain, policy=policy, market_provider=market_provider)
+        funding_provider = _build_funding_provider(policy, market_dir, chain.symbol)
+        event_log, state = simulate_chain(
+            chain,
+            policy=policy,
+            market_provider=market_provider,
+            funding_provider=funding_provider,
+        )
         event_logs_by_signal_id[chain.signal_id] = event_log
         trade_results.append(build_trade_result(state, event_log, initial_capital=initial_capital))
 
@@ -630,6 +677,7 @@ def run_policy_report(
     policy: PolicyConfig,
     output_dir: str | Path,
     market_provider: MarketDataProvider | None = None,
+    market_dir: Path | str | None = None,
     date_from: datetime | None = None,
     date_to: datetime | None = None,
     write_trade_artifacts: bool = True,
@@ -643,6 +691,7 @@ def run_policy_report(
         chains=selected_chains,
         policy=policy,
         market_provider=market_provider,
+        market_dir=market_dir,
         initial_capital=initial_capital,
     )
 

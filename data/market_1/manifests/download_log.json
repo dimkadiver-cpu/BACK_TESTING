@@ -1,0 +1,4404 @@
+{
+  "events": [
+    {
+      "event_id": "7744069f-c42f-4de5-8ce2-987ac42cfe72",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "BNBUSDT",
+      "basis": "last",
+      "gap_start": "2025-10-23T17:10:38+00:00",
+      "gap_end": "2025-11-02T17:10:38+00:00",
+      "rows": 14386,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\BNBUSDT\\2025-10.last.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\BNBUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:03.247177+00:00"
+    },
+    {
+      "event_id": "2d4ccabf-f04f-41ef-8466-5163f0dae433",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "BNBUSDT",
+      "basis": "last",
+      "gap_start": "2025-10-23T17:10:38+00:00",
+      "gap_end": "2025-11-02T17:10:38+00:00",
+      "rows": 960,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\BNBUSDT\\2025-10.last.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\BNBUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:03.524660+00:00"
+    },
+    {
+      "event_id": "9d8ea236-e7ba-45e4-a947-971dda60a7fb",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "BNBUSDT",
+      "basis": "last",
+      "gap_start": "2025-10-23T17:10:38+00:00",
+      "gap_end": "2025-11-02T17:10:38+00:00",
+      "rows": 240,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\BNBUSDT\\2025-10.last.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\BNBUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:03.799164+00:00"
+    },
+    {
+      "event_id": "9db598a0-c30b-4735-9fdf-3627460fdd72",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "BNBUSDT",
+      "basis": "last",
+      "gap_start": "2025-10-23T17:10:38+00:00",
+      "gap_end": "2025-11-02T17:10:38+00:00",
+      "rows": 60,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\BNBUSDT\\2025-10.last.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\BNBUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:04.065593+00:00"
+    },
+    {
+      "event_id": "f614de5f-108c-4bab-aa80-f9caf05cf3e1",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "BNBUSDT",
+      "basis": "last",
+      "gap_start": "2025-10-23T17:10:38+00:00",
+      "gap_end": "2025-11-02T17:10:38+00:00",
+      "rows": 10,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\BNBUSDT\\2025-10.last.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\BNBUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:04.301167+00:00"
+    },
+    {
+      "event_id": "a44cb54f-07bc-4a26-80d2-0fc3d7f06b18",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "BNBUSDT",
+      "basis": "mark",
+      "gap_start": "2025-10-23T17:10:38+00:00",
+      "gap_end": "2025-11-02T17:10:38+00:00",
+      "rows": 14386,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\BNBUSDT\\2025-10.mark.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\BNBUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:08.654149+00:00"
+    },
+    {
+      "event_id": "8435a120-35ab-45b6-add0-ef28268854f5",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "BNBUSDT",
+      "basis": "mark",
+      "gap_start": "2025-10-23T17:10:38+00:00",
+      "gap_end": "2025-11-02T17:10:38+00:00",
+      "rows": 960,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\BNBUSDT\\2025-10.mark.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\BNBUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:09.104042+00:00"
+    },
+    {
+      "event_id": "22a56145-7dd1-40d0-a13e-fde67172b4eb",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "BNBUSDT",
+      "basis": "mark",
+      "gap_start": "2025-10-23T17:10:38+00:00",
+      "gap_end": "2025-11-02T17:10:38+00:00",
+      "rows": 240,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\BNBUSDT\\2025-10.mark.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\BNBUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:09.386040+00:00"
+    },
+    {
+      "event_id": "99e3e118-abbe-4a7d-a47e-7c7615e0e61a",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "BNBUSDT",
+      "basis": "mark",
+      "gap_start": "2025-10-23T17:10:38+00:00",
+      "gap_end": "2025-11-02T17:10:38+00:00",
+      "rows": 60,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\BNBUSDT\\2025-10.mark.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\BNBUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:09.615546+00:00"
+    },
+    {
+      "event_id": "03fa6bb8-c47b-48d0-946b-44df868b04f3",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "BNBUSDT",
+      "basis": "mark",
+      "gap_start": "2025-10-23T17:10:38+00:00",
+      "gap_end": "2025-11-02T17:10:38+00:00",
+      "rows": 10,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\BNBUSDT\\2025-10.mark.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\BNBUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:09.881629+00:00"
+    },
+    {
+      "event_id": "2f371c6d-9241-46ee-9a34-41d4f9d35c92",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "BTCUSDT",
+      "basis": "last",
+      "gap_start": "2025-10-23T15:21:51+00:00",
+      "gap_end": "2025-11-02T15:21:51+00:00",
+      "rows": 14386,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\BTCUSDT\\2025-10.last.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\BTCUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:15.342055+00:00"
+    },
+    {
+      "event_id": "9ea20088-8bd4-4c04-8816-3a57411ec744",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "BTCUSDT",
+      "basis": "last",
+      "gap_start": "2025-10-23T15:21:51+00:00",
+      "gap_end": "2025-11-02T15:21:51+00:00",
+      "rows": 960,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\BTCUSDT\\2025-10.last.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\BTCUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:15.670848+00:00"
+    },
+    {
+      "event_id": "ea1383e9-77c7-45db-a869-e9fce781cdf7",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "BTCUSDT",
+      "basis": "last",
+      "gap_start": "2025-10-23T15:21:51+00:00",
+      "gap_end": "2025-11-02T15:21:51+00:00",
+      "rows": 240,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\BTCUSDT\\2025-10.last.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\BTCUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:15.897469+00:00"
+    },
+    {
+      "event_id": "0dd6d7dc-3c75-4e50-99cc-339d1a6b32a5",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "BTCUSDT",
+      "basis": "last",
+      "gap_start": "2025-10-23T15:21:51+00:00",
+      "gap_end": "2025-11-02T15:21:51+00:00",
+      "rows": 60,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\BTCUSDT\\2025-10.last.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\BTCUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:16.116658+00:00"
+    },
+    {
+      "event_id": "70b3f7a2-d8c7-4cee-8f0a-cb7b883e996c",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "BTCUSDT",
+      "basis": "last",
+      "gap_start": "2025-10-23T15:21:51+00:00",
+      "gap_end": "2025-11-02T15:21:51+00:00",
+      "rows": 10,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\BTCUSDT\\2025-10.last.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\BTCUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:16.336556+00:00"
+    },
+    {
+      "event_id": "da05872c-5829-4b10-820a-05fe79e8af42",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "BTCUSDT",
+      "basis": "mark",
+      "gap_start": "2025-10-23T15:21:51+00:00",
+      "gap_end": "2025-11-02T15:21:51+00:00",
+      "rows": 14386,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\BTCUSDT\\2025-10.mark.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\BTCUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:20.654436+00:00"
+    },
+    {
+      "event_id": "ad054422-e542-4824-a431-0bc5a6838317",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "BTCUSDT",
+      "basis": "mark",
+      "gap_start": "2025-10-23T15:21:51+00:00",
+      "gap_end": "2025-11-02T15:21:51+00:00",
+      "rows": 960,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\BTCUSDT\\2025-10.mark.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\BTCUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:20.939886+00:00"
+    },
+    {
+      "event_id": "386ccb7e-1d92-4453-a66f-c462d5ae4bfc",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "BTCUSDT",
+      "basis": "mark",
+      "gap_start": "2025-10-23T15:21:51+00:00",
+      "gap_end": "2025-11-02T15:21:51+00:00",
+      "rows": 240,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\BTCUSDT\\2025-10.mark.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\BTCUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:21.229180+00:00"
+    },
+    {
+      "event_id": "67d53699-978c-4d62-9564-b4939ced226b",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "BTCUSDT",
+      "basis": "mark",
+      "gap_start": "2025-10-23T15:21:51+00:00",
+      "gap_end": "2025-11-02T15:21:51+00:00",
+      "rows": 60,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\BTCUSDT\\2025-10.mark.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\BTCUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:21.460541+00:00"
+    },
+    {
+      "event_id": "56883caa-34f6-4f73-8ee2-4af00062a720",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "BTCUSDT",
+      "basis": "mark",
+      "gap_start": "2025-10-23T15:21:51+00:00",
+      "gap_end": "2025-11-02T15:21:51+00:00",
+      "rows": 10,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\BTCUSDT\\2025-10.mark.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\BTCUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:21.680001+00:00"
+    },
+    {
+      "event_id": "2aa5a913-118c-4676-93da-d35d855e9856",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "ETHUSDT",
+      "basis": "last",
+      "gap_start": "2025-10-23T15:32:12+00:00",
+      "gap_end": "2025-11-02T15:32:12+00:00",
+      "rows": 14386,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\ETHUSDT\\2025-10.last.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\ETHUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:25.999194+00:00"
+    },
+    {
+      "event_id": "5e0d64a6-453c-4bb7-8749-48314200d531",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "ETHUSDT",
+      "basis": "last",
+      "gap_start": "2025-10-23T15:32:12+00:00",
+      "gap_end": "2025-11-02T15:32:12+00:00",
+      "rows": 960,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\ETHUSDT\\2025-10.last.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\ETHUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:26.280404+00:00"
+    },
+    {
+      "event_id": "12d77e62-dc58-4160-aac4-7df37e1ee932",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "ETHUSDT",
+      "basis": "last",
+      "gap_start": "2025-10-23T15:32:12+00:00",
+      "gap_end": "2025-11-02T15:32:12+00:00",
+      "rows": 240,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\ETHUSDT\\2025-10.last.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\ETHUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:26.547840+00:00"
+    },
+    {
+      "event_id": "4c6a5fb9-9a4a-4b11-b6e4-e26b81c6c8c0",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "ETHUSDT",
+      "basis": "last",
+      "gap_start": "2025-10-23T15:32:12+00:00",
+      "gap_end": "2025-11-02T15:32:12+00:00",
+      "rows": 60,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\ETHUSDT\\2025-10.last.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\ETHUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:27.150105+00:00"
+    },
+    {
+      "event_id": "bdc00dd3-bb05-46ab-8b2d-4f6d865b65e9",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "ETHUSDT",
+      "basis": "last",
+      "gap_start": "2025-10-23T15:32:12+00:00",
+      "gap_end": "2025-11-02T15:32:12+00:00",
+      "rows": 10,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\ETHUSDT\\2025-10.last.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\ETHUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:27.377994+00:00"
+    },
+    {
+      "event_id": "6d26b1c7-80a7-418f-882d-2f3f8ee19ab6",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "ETHUSDT",
+      "basis": "mark",
+      "gap_start": "2025-10-23T15:32:12+00:00",
+      "gap_end": "2025-11-02T15:32:12+00:00",
+      "rows": 14386,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\ETHUSDT\\2025-10.mark.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\ETHUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:31.603639+00:00"
+    },
+    {
+      "event_id": "906731c5-de5a-421c-8a4c-0e86290d875c",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "ETHUSDT",
+      "basis": "mark",
+      "gap_start": "2025-10-23T15:32:12+00:00",
+      "gap_end": "2025-11-02T15:32:12+00:00",
+      "rows": 960,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\ETHUSDT\\2025-10.mark.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\ETHUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:32.460383+00:00"
+    },
+    {
+      "event_id": "ac5fad22-b552-447c-b4c4-16aaa063d5b4",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "ETHUSDT",
+      "basis": "mark",
+      "gap_start": "2025-10-23T15:32:12+00:00",
+      "gap_end": "2025-11-02T15:32:12+00:00",
+      "rows": 240,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\ETHUSDT\\2025-10.mark.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\ETHUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:32.691100+00:00"
+    },
+    {
+      "event_id": "57bb1c1d-414a-4a3d-8eee-2ea6dec763b0",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "ETHUSDT",
+      "basis": "mark",
+      "gap_start": "2025-10-23T15:32:12+00:00",
+      "gap_end": "2025-11-02T15:32:12+00:00",
+      "rows": 60,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\ETHUSDT\\2025-10.mark.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\ETHUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:32.921052+00:00"
+    },
+    {
+      "event_id": "04965ff6-8173-43e4-88e0-7c919aac16a4",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "ETHUSDT",
+      "basis": "mark",
+      "gap_start": "2025-10-23T15:32:12+00:00",
+      "gap_end": "2025-11-02T15:32:12+00:00",
+      "rows": 10,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\ETHUSDT\\2025-10.mark.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\ETHUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:33.188513+00:00"
+    },
+    {
+      "event_id": "bed002de-b1cd-4fbd-8fd2-44f2c1315824",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "NEARUSDT",
+      "basis": "last",
+      "gap_start": "2025-10-25T04:37:21+00:00",
+      "gap_end": "2025-11-04T04:37:21+00:00",
+      "rows": 14386,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\NEARUSDT\\2025-10.last.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\NEARUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:38.369709+00:00"
+    },
+    {
+      "event_id": "69e5883c-a021-484e-bb7b-73d1fce2735a",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "NEARUSDT",
+      "basis": "last",
+      "gap_start": "2025-10-25T04:37:21+00:00",
+      "gap_end": "2025-11-04T04:37:21+00:00",
+      "rows": 960,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\NEARUSDT\\2025-10.last.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\NEARUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:38.630199+00:00"
+    },
+    {
+      "event_id": "045a1391-740f-419c-8749-85d488362f27",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "NEARUSDT",
+      "basis": "last",
+      "gap_start": "2025-10-25T04:37:21+00:00",
+      "gap_end": "2025-11-04T04:37:21+00:00",
+      "rows": 240,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\NEARUSDT\\2025-10.last.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\NEARUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:38.883549+00:00"
+    },
+    {
+      "event_id": "320b6398-1937-4c01-a706-8123bb0d6f94",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "NEARUSDT",
+      "basis": "last",
+      "gap_start": "2025-10-25T04:37:21+00:00",
+      "gap_end": "2025-11-04T04:37:21+00:00",
+      "rows": 60,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\NEARUSDT\\2025-10.last.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\NEARUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:39.163039+00:00"
+    },
+    {
+      "event_id": "51356e86-e9e8-4912-af5d-66febca19293",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "NEARUSDT",
+      "basis": "last",
+      "gap_start": "2025-10-25T04:37:21+00:00",
+      "gap_end": "2025-11-04T04:37:21+00:00",
+      "rows": 10,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\NEARUSDT\\2025-10.last.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\NEARUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:39.417555+00:00"
+    },
+    {
+      "event_id": "f425cbf7-a7e7-4e18-836d-569033f57bbb",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "NEARUSDT",
+      "basis": "mark",
+      "gap_start": "2025-10-25T04:37:21+00:00",
+      "gap_end": "2025-11-04T04:37:21+00:00",
+      "rows": 14386,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\NEARUSDT\\2025-10.mark.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\NEARUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:43.703220+00:00"
+    },
+    {
+      "event_id": "5cfaf03d-f7b5-4cec-b563-79f3af091956",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "NEARUSDT",
+      "basis": "mark",
+      "gap_start": "2025-10-25T04:37:21+00:00",
+      "gap_end": "2025-11-04T04:37:21+00:00",
+      "rows": 960,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\NEARUSDT\\2025-10.mark.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\NEARUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:43.983413+00:00"
+    },
+    {
+      "event_id": "cc9b53b9-d3b2-45c6-926f-0bac6d6ec6fd",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "NEARUSDT",
+      "basis": "mark",
+      "gap_start": "2025-10-25T04:37:21+00:00",
+      "gap_end": "2025-11-04T04:37:21+00:00",
+      "rows": 240,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\NEARUSDT\\2025-10.mark.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\NEARUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:44.243046+00:00"
+    },
+    {
+      "event_id": "358650a1-3001-4098-9909-b31a35ef2d61",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "NEARUSDT",
+      "basis": "mark",
+      "gap_start": "2025-10-25T04:37:21+00:00",
+      "gap_end": "2025-11-04T04:37:21+00:00",
+      "rows": 60,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\NEARUSDT\\2025-10.mark.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\NEARUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:44.496134+00:00"
+    },
+    {
+      "event_id": "e9d3ca12-6dd4-4d5f-817e-dcd68988b246",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "NEARUSDT",
+      "basis": "mark",
+      "gap_start": "2025-10-25T04:37:21+00:00",
+      "gap_end": "2025-11-04T04:37:21+00:00",
+      "rows": 10,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\NEARUSDT\\2025-10.mark.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\NEARUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:44.783455+00:00"
+    },
+    {
+      "event_id": "fbc9bda1-2f7b-4b20-85b1-14b486b0b67f",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "SOLUSDT",
+      "basis": "last",
+      "gap_start": "2025-10-27T12:21:13+00:00",
+      "gap_end": "2025-11-06T12:21:13+00:00",
+      "rows": 14386,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\SOLUSDT\\2025-10.last.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\SOLUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:49.215211+00:00"
+    },
+    {
+      "event_id": "5fb3280f-a4e8-40dc-a980-ae20d6f61ec7",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "SOLUSDT",
+      "basis": "last",
+      "gap_start": "2025-10-27T12:21:13+00:00",
+      "gap_end": "2025-11-06T12:21:13+00:00",
+      "rows": 960,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\SOLUSDT\\2025-10.last.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\SOLUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:49.539324+00:00"
+    },
+    {
+      "event_id": "169d9f70-220b-4314-8855-dd64878b7a03",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "SOLUSDT",
+      "basis": "last",
+      "gap_start": "2025-10-27T12:21:13+00:00",
+      "gap_end": "2025-11-06T12:21:13+00:00",
+      "rows": 240,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\SOLUSDT\\2025-10.last.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\SOLUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:49.816436+00:00"
+    },
+    {
+      "event_id": "08b6c34e-f2bc-423a-bfad-9034969741bd",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "SOLUSDT",
+      "basis": "last",
+      "gap_start": "2025-10-27T12:21:13+00:00",
+      "gap_end": "2025-11-06T12:21:13+00:00",
+      "rows": 60,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\SOLUSDT\\2025-10.last.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\SOLUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:50.122208+00:00"
+    },
+    {
+      "event_id": "73dda466-f9f7-4db9-a341-ba2abe872f04",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "SOLUSDT",
+      "basis": "last",
+      "gap_start": "2025-10-27T12:21:13+00:00",
+      "gap_end": "2025-11-06T12:21:13+00:00",
+      "rows": 10,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\SOLUSDT\\2025-10.last.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\SOLUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:50.348028+00:00"
+    },
+    {
+      "event_id": "2371cec1-ee6c-4025-8181-852439a557fb",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "SOLUSDT",
+      "basis": "mark",
+      "gap_start": "2025-10-27T12:21:13+00:00",
+      "gap_end": "2025-11-06T12:21:13+00:00",
+      "rows": 14386,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\SOLUSDT\\2025-10.mark.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\SOLUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:54.326189+00:00"
+    },
+    {
+      "event_id": "c7608ee0-5815-4ad3-85ba-5f0bfb6761c4",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "SOLUSDT",
+      "basis": "mark",
+      "gap_start": "2025-10-27T12:21:13+00:00",
+      "gap_end": "2025-11-06T12:21:13+00:00",
+      "rows": 960,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\SOLUSDT\\2025-10.mark.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\SOLUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:54.627100+00:00"
+    },
+    {
+      "event_id": "ab03e592-5ff0-4b07-8dfb-423421ffffff",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "SOLUSDT",
+      "basis": "mark",
+      "gap_start": "2025-10-27T12:21:13+00:00",
+      "gap_end": "2025-11-06T12:21:13+00:00",
+      "rows": 240,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\SOLUSDT\\2025-10.mark.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\SOLUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:54.881995+00:00"
+    },
+    {
+      "event_id": "aa2a507d-2563-4776-b9e5-a31a19652aea",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "SOLUSDT",
+      "basis": "mark",
+      "gap_start": "2025-10-27T12:21:13+00:00",
+      "gap_end": "2025-11-06T12:21:13+00:00",
+      "rows": 60,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\SOLUSDT\\2025-10.mark.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\SOLUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:55.106160+00:00"
+    },
+    {
+      "event_id": "a8cd904a-32c2-4d91-9887-963229173865",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "SOLUSDT",
+      "basis": "mark",
+      "gap_start": "2025-10-27T12:21:13+00:00",
+      "gap_end": "2025-11-06T12:21:13+00:00",
+      "rows": 10,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\SOLUSDT\\2025-10.mark.parquet",
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\SOLUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:33:55.370584+00:00"
+    },
+    {
+      "event_id": "63aef13d-0fae-47d5-9d09-468ae5dc89da",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "ASTERUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-04T08:54:19+00:00",
+      "gap_end": "2025-11-14T08:54:19+00:00",
+      "rows": 14386,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\ASTERUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:48:24.703541+00:00"
+    },
+    {
+      "event_id": "6b5ab61b-ce6e-4895-b127-27040e554091",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "ASTERUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-04T08:54:19+00:00",
+      "gap_end": "2025-11-14T08:54:19+00:00",
+      "rows": 960,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\ASTERUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:48:25.040123+00:00"
+    },
+    {
+      "event_id": "00be6025-7bb4-4672-b022-ec6794d9415e",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "ASTERUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-04T08:54:19+00:00",
+      "gap_end": "2025-11-14T08:54:19+00:00",
+      "rows": 240,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\ASTERUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:48:25.282920+00:00"
+    },
+    {
+      "event_id": "9f6433d7-5f76-4031-a041-e17f54c78bf9",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "ASTERUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-04T08:54:19+00:00",
+      "gap_end": "2025-11-14T08:54:19+00:00",
+      "rows": 60,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\ASTERUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:48:25.518511+00:00"
+    },
+    {
+      "event_id": "09200156-e3c7-453c-a9fa-fe0019ab11aa",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "ASTERUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-04T08:54:19+00:00",
+      "gap_end": "2025-11-14T08:54:19+00:00",
+      "rows": 10,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\ASTERUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:48:25.766641+00:00"
+    },
+    {
+      "event_id": "8fc9a47f-bb2b-4a0e-9156-519ba41c03e8",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "ASTERUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-04T08:54:19+00:00",
+      "gap_end": "2025-11-14T08:54:19+00:00",
+      "rows": 14386,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\ASTERUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:48:30.114985+00:00"
+    },
+    {
+      "event_id": "4e351a76-7f3a-4919-8742-690922872755",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "ASTERUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-04T08:54:19+00:00",
+      "gap_end": "2025-11-14T08:54:19+00:00",
+      "rows": 960,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\ASTERUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:48:30.441162+00:00"
+    },
+    {
+      "event_id": "d814db93-6ae8-4812-9bf2-5dbd380866f1",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "ASTERUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-04T08:54:19+00:00",
+      "gap_end": "2025-11-14T08:54:19+00:00",
+      "rows": 240,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\ASTERUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:48:30.719912+00:00"
+    },
+    {
+      "event_id": "34355558-edf7-4776-a6a8-c18860319161",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "ASTERUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-04T08:54:19+00:00",
+      "gap_end": "2025-11-14T08:54:19+00:00",
+      "rows": 60,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\ASTERUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:48:30.997563+00:00"
+    },
+    {
+      "event_id": "0f564d43-c31f-4af3-806d-f66d8abc0782",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "ASTERUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-04T08:54:19+00:00",
+      "gap_end": "2025-11-14T08:54:19+00:00",
+      "rows": 10,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\ASTERUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:48:31.281597+00:00"
+    },
+    {
+      "event_id": "2772f8e0-c555-42b5-abdf-28f17862181f",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "CHILLGUYUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-06T11:33:59+00:00",
+      "gap_end": "2025-11-16T11:33:59+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: CHILLGUYUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:31.540352+00:00"
+    },
+    {
+      "event_id": "1badb08b-1772-46cc-b5f7-5c4d3b30670c",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "CHILLGUYUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-06T11:33:59+00:00",
+      "gap_end": "2025-11-16T11:33:59+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: CHILLGUYUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:31.759864+00:00"
+    },
+    {
+      "event_id": "d15b45db-f94d-4f0f-a079-8a3e4679922a",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "CHILLGUYUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-06T11:33:59+00:00",
+      "gap_end": "2025-11-16T11:33:59+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: CHILLGUYUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:31.967752+00:00"
+    },
+    {
+      "event_id": "cb6f8658-3244-4e67-a06c-1ac2c13edeac",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "CHILLGUYUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-06T11:33:59+00:00",
+      "gap_end": "2025-11-16T11:33:59+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: CHILLGUYUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:32.195045+00:00"
+    },
+    {
+      "event_id": "cbeb9875-1680-48d8-aa24-614388414a6d",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "CHILLGUYUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-06T11:33:59+00:00",
+      "gap_end": "2025-11-16T11:33:59+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: CHILLGUYUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:32.418191+00:00"
+    },
+    {
+      "event_id": "a5f9911b-e743-4223-996e-973ab071b433",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "CHILLGUYUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-06T11:33:59+00:00",
+      "gap_end": "2025-11-16T11:33:59+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: CHILLGUYUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:32.635545+00:00"
+    },
+    {
+      "event_id": "b838c322-e218-4f95-bcfa-76eb3b479028",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "CHILLGUYUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-06T11:33:59+00:00",
+      "gap_end": "2025-11-16T11:33:59+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: CHILLGUYUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:32.841525+00:00"
+    },
+    {
+      "event_id": "e1b7ff49-30e2-4d33-98c4-613ce48a0e0f",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "CHILLGUYUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-06T11:33:59+00:00",
+      "gap_end": "2025-11-16T11:33:59+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: CHILLGUYUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:33.044718+00:00"
+    },
+    {
+      "event_id": "f95bd9a4-0b2e-460a-a476-2624c9b5566b",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "CHILLGUYUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-06T11:33:59+00:00",
+      "gap_end": "2025-11-16T11:33:59+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: CHILLGUYUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:33.263995+00:00"
+    },
+    {
+      "event_id": "0e87883b-402e-4e10-9a6f-f7c019c7daf8",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "CHILLGUYUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-06T11:33:59+00:00",
+      "gap_end": "2025-11-16T11:33:59+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: CHILLGUYUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:33.467206+00:00"
+    },
+    {
+      "event_id": "1c511e93-ce74-48ea-8be5-421ef07c780d",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "COAIUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-05T02:19:59+00:00",
+      "gap_end": "2025-11-15T02:19:59+00:00",
+      "rows": 14386,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\COAIUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:48:37.637499+00:00"
+    },
+    {
+      "event_id": "f7002af2-1cf6-4fef-9abe-eb1e4350d267",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "COAIUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-05T02:19:59+00:00",
+      "gap_end": "2025-11-15T02:19:59+00:00",
+      "rows": 960,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\COAIUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:48:38.205905+00:00"
+    },
+    {
+      "event_id": "02e254ef-ca2a-44e3-b8d2-4be3f69a55ba",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "COAIUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-05T02:19:59+00:00",
+      "gap_end": "2025-11-15T02:19:59+00:00",
+      "rows": 240,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\COAIUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:48:38.451166+00:00"
+    },
+    {
+      "event_id": "5c4f295c-3fba-4b77-a90f-7887c51bcbac",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "COAIUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-05T02:19:59+00:00",
+      "gap_end": "2025-11-15T02:19:59+00:00",
+      "rows": 60,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\COAIUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:48:38.736018+00:00"
+    },
+    {
+      "event_id": "d3b6bd85-dcee-4831-b7f6-91cd5568f9cf",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "COAIUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-05T02:19:59+00:00",
+      "gap_end": "2025-11-15T02:19:59+00:00",
+      "rows": 10,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\COAIUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:48:38.980620+00:00"
+    },
+    {
+      "event_id": "1c110740-df95-4fb0-9336-db853b23c3d4",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "COAIUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-05T02:19:59+00:00",
+      "gap_end": "2025-11-15T02:19:59+00:00",
+      "rows": 14386,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\COAIUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:48:42.999347+00:00"
+    },
+    {
+      "event_id": "08f0bb3f-2644-43b0-ac4b-63f09eb68d5a",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "COAIUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-05T02:19:59+00:00",
+      "gap_end": "2025-11-15T02:19:59+00:00",
+      "rows": 960,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\COAIUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:48:43.278076+00:00"
+    },
+    {
+      "event_id": "46b750f2-052d-47b3-9070-cfdf9719c5a1",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "COAIUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-05T02:19:59+00:00",
+      "gap_end": "2025-11-15T02:19:59+00:00",
+      "rows": 240,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\COAIUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:48:43.539960+00:00"
+    },
+    {
+      "event_id": "cfb1dd50-1e60-4917-9f5c-0df590320dd8",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "COAIUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-05T02:19:59+00:00",
+      "gap_end": "2025-11-15T02:19:59+00:00",
+      "rows": 60,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\COAIUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:48:43.755400+00:00"
+    },
+    {
+      "event_id": "3e99339a-ee36-4963-9da2-046c4d7c168f",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "COAIUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-05T02:19:59+00:00",
+      "gap_end": "2025-11-15T02:19:59+00:00",
+      "rows": 10,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\COAIUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:48:43.979216+00:00"
+    },
+    {
+      "event_id": "228b6728-b6bb-4d16-bcc3-6d0b34251aa6",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "DOGEUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-06T07:45:20+00:00",
+      "gap_end": "2025-11-16T07:45:20+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: DOGEUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:44.192104+00:00"
+    },
+    {
+      "event_id": "d66d277f-770c-4719-a00e-ca37fe0c61a8",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "DOGEUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-06T07:45:20+00:00",
+      "gap_end": "2025-11-16T07:45:20+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: DOGEUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:44.419434+00:00"
+    },
+    {
+      "event_id": "01a3e195-292a-4800-af6c-e7bc3a90de18",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "DOGEUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-06T07:45:20+00:00",
+      "gap_end": "2025-11-16T07:45:20+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: DOGEUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:44.622851+00:00"
+    },
+    {
+      "event_id": "070de972-2ad4-4134-a5c2-f64ff210df3e",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "DOGEUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-06T07:45:20+00:00",
+      "gap_end": "2025-11-16T07:45:20+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: DOGEUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:44.825844+00:00"
+    },
+    {
+      "event_id": "1748db91-fddb-4450-ad15-16ddc50c1d1b",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "DOGEUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-06T07:45:20+00:00",
+      "gap_end": "2025-11-16T07:45:20+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: DOGEUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:45.031081+00:00"
+    },
+    {
+      "event_id": "0b01ab42-686e-4666-b67f-9a6cce4343e6",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "DOGEUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-06T07:45:20+00:00",
+      "gap_end": "2025-11-16T07:45:20+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: DOGEUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:45.251147+00:00"
+    },
+    {
+      "event_id": "6f5dca86-46f8-4911-ac3a-860d728a07fd",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "DOGEUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-06T07:45:20+00:00",
+      "gap_end": "2025-11-16T07:45:20+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: DOGEUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:45.455623+00:00"
+    },
+    {
+      "event_id": "28bbea8e-1e87-4db0-b491-58c908ba5c93",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "DOGEUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-06T07:45:20+00:00",
+      "gap_end": "2025-11-16T07:45:20+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: DOGEUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:45.670540+00:00"
+    },
+    {
+      "event_id": "babb4871-0b2c-4ba7-b0fc-1c4bc9e16a22",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "DOGEUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-06T07:45:20+00:00",
+      "gap_end": "2025-11-16T07:45:20+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: DOGEUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:45.873235+00:00"
+    },
+    {
+      "event_id": "9d0f1b78-0f8e-4746-8428-96188c07a949",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "DOGEUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-06T07:45:20+00:00",
+      "gap_end": "2025-11-16T07:45:20+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: DOGEUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:46.103467+00:00"
+    },
+    {
+      "event_id": "af2a9848-8af7-4220-aec0-74e68c1b0487",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "FARTCOINUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-06T07:23:57+00:00",
+      "gap_end": "2025-11-16T07:23:57+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: FARTCOINUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:46.327459+00:00"
+    },
+    {
+      "event_id": "bba6f06f-1c0d-4006-a0d7-8824ec874407",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "FARTCOINUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-06T07:23:57+00:00",
+      "gap_end": "2025-11-16T07:23:57+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: FARTCOINUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:46.558843+00:00"
+    },
+    {
+      "event_id": "01cd1ec6-f02d-4484-bbc1-92caef8487ed",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "FARTCOINUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-06T07:23:57+00:00",
+      "gap_end": "2025-11-16T07:23:57+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: FARTCOINUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:46.787206+00:00"
+    },
+    {
+      "event_id": "cf7cc82e-cde4-4bc2-9f0a-c8aff72b1374",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "FARTCOINUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-06T07:23:57+00:00",
+      "gap_end": "2025-11-16T07:23:57+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: FARTCOINUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:47.003752+00:00"
+    },
+    {
+      "event_id": "373d1c4c-f2ca-46f2-8f60-f59d8edf313a",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "FARTCOINUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-06T07:23:57+00:00",
+      "gap_end": "2025-11-16T07:23:57+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: FARTCOINUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:47.225375+00:00"
+    },
+    {
+      "event_id": "6c3a3057-9d46-4f21-8cd2-aace0450e714",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "FARTCOINUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-06T07:23:57+00:00",
+      "gap_end": "2025-11-16T07:23:57+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: FARTCOINUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:47.455086+00:00"
+    },
+    {
+      "event_id": "5f05ff2a-6c79-442c-b1a7-82fab30e04a3",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "FARTCOINUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-06T07:23:57+00:00",
+      "gap_end": "2025-11-16T07:23:57+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: FARTCOINUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:48.696439+00:00"
+    },
+    {
+      "event_id": "0d1809b6-93b0-4618-bc6a-71a979651795",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "FARTCOINUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-06T07:23:57+00:00",
+      "gap_end": "2025-11-16T07:23:57+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: FARTCOINUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:48.957011+00:00"
+    },
+    {
+      "event_id": "d8a1162f-f18c-4608-8ca1-9bc111235418",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "FARTCOINUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-06T07:23:57+00:00",
+      "gap_end": "2025-11-16T07:23:57+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: FARTCOINUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:49.171221+00:00"
+    },
+    {
+      "event_id": "9841f421-d5b9-4d66-ae6c-e778f95f36ad",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "FARTCOINUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-06T07:23:57+00:00",
+      "gap_end": "2025-11-16T07:23:57+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: FARTCOINUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:49.394391+00:00"
+    },
+    {
+      "event_id": "0e4f10ad-d9cb-440a-b9ae-c61bb5232de4",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "HYPEUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-07T07:22:57+00:00",
+      "gap_end": "2025-11-17T07:22:57+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: HYPEUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:49.612623+00:00"
+    },
+    {
+      "event_id": "a99fa29c-da7a-4688-9a23-14c0ae2d0574",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "HYPEUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-07T07:22:57+00:00",
+      "gap_end": "2025-11-17T07:22:57+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: HYPEUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:49.844810+00:00"
+    },
+    {
+      "event_id": "113afb6a-d395-4723-980f-d839dcb7dc82",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "HYPEUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-07T07:22:57+00:00",
+      "gap_end": "2025-11-17T07:22:57+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: HYPEUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:50.087687+00:00"
+    },
+    {
+      "event_id": "8587c9e6-5621-488c-935e-1fd1e13caa36",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "HYPEUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-07T07:22:57+00:00",
+      "gap_end": "2025-11-17T07:22:57+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: HYPEUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:50.311951+00:00"
+    },
+    {
+      "event_id": "7a9c2ca5-ba8f-43eb-a589-fc21a17b0238",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "HYPEUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-07T07:22:57+00:00",
+      "gap_end": "2025-11-17T07:22:57+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: HYPEUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:50.530048+00:00"
+    },
+    {
+      "event_id": "8269ecc4-e1d3-4d23-aaf6-f7f92b3c5844",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "HYPEUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-07T07:22:57+00:00",
+      "gap_end": "2025-11-17T07:22:57+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: HYPEUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:50.746120+00:00"
+    },
+    {
+      "event_id": "6e112589-843a-4c01-889d-ab4613768027",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "HYPEUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-07T07:22:57+00:00",
+      "gap_end": "2025-11-17T07:22:57+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: HYPEUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:50.977426+00:00"
+    },
+    {
+      "event_id": "31a36616-ffb4-493b-a8f2-0a2477e26d2b",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "HYPEUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-07T07:22:57+00:00",
+      "gap_end": "2025-11-17T07:22:57+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: HYPEUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:51.197362+00:00"
+    },
+    {
+      "event_id": "e557bc07-a6ca-48b4-8765-d12028912807",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "HYPEUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-07T07:22:57+00:00",
+      "gap_end": "2025-11-17T07:22:57+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: HYPEUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:51.401356+00:00"
+    },
+    {
+      "event_id": "4de969ed-0c98-42a2-813d-c2af2b62c2cb",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "HYPEUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-07T07:22:57+00:00",
+      "gap_end": "2025-11-17T07:22:57+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: HYPEUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:48:51.619680+00:00"
+    },
+    {
+      "event_id": "727c3cca-05af-4ee1-92fd-142a46ad5653",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "LINKUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-04T10:20:44+00:00",
+      "gap_end": "2025-11-14T10:20:44+00:00",
+      "rows": 14386,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\LINKUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:48:56.723215+00:00"
+    },
+    {
+      "event_id": "9a54c3ed-458c-4847-b2de-17e7cfefa0e5",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "LINKUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-04T10:20:44+00:00",
+      "gap_end": "2025-11-14T10:20:44+00:00",
+      "rows": 960,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\LINKUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:48:57.017328+00:00"
+    },
+    {
+      "event_id": "8595a827-b93d-4781-a9c3-f3c26b227fae",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "LINKUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-04T10:20:44+00:00",
+      "gap_end": "2025-11-14T10:20:44+00:00",
+      "rows": 240,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\LINKUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:48:57.293782+00:00"
+    },
+    {
+      "event_id": "60e44878-8a4d-41d2-8c23-9afc7b81bf36",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "LINKUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-04T10:20:44+00:00",
+      "gap_end": "2025-11-14T10:20:44+00:00",
+      "rows": 60,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\LINKUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:48:57.566545+00:00"
+    },
+    {
+      "event_id": "701c8da4-e590-4b68-bfd3-4f53b92e9066",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "LINKUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-04T10:20:44+00:00",
+      "gap_end": "2025-11-14T10:20:44+00:00",
+      "rows": 10,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\LINKUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:48:57.849341+00:00"
+    },
+    {
+      "event_id": "a5539164-72f4-4a40-9887-471f3c396eff",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "LINKUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-04T10:20:44+00:00",
+      "gap_end": "2025-11-14T10:20:44+00:00",
+      "rows": 14386,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\LINKUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:49:01.980955+00:00"
+    },
+    {
+      "event_id": "499be327-c8ce-4367-a5ce-ea8199b69b7e",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "LINKUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-04T10:20:44+00:00",
+      "gap_end": "2025-11-14T10:20:44+00:00",
+      "rows": 960,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\LINKUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:49:02.242415+00:00"
+    },
+    {
+      "event_id": "b0491274-5766-41ec-8c89-5bd766f33a69",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "LINKUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-04T10:20:44+00:00",
+      "gap_end": "2025-11-14T10:20:44+00:00",
+      "rows": 240,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\LINKUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:49:02.504605+00:00"
+    },
+    {
+      "event_id": "6a16d1ca-ff87-4754-b1aa-5e34ac688e90",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "LINKUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-04T10:20:44+00:00",
+      "gap_end": "2025-11-14T10:20:44+00:00",
+      "rows": 60,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\LINKUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:49:02.773074+00:00"
+    },
+    {
+      "event_id": "08f5e2ec-5f7f-447b-a8f5-0736fa565155",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "LINKUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-04T10:20:44+00:00",
+      "gap_end": "2025-11-14T10:20:44+00:00",
+      "rows": 10,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\LINKUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:49:03.034825+00:00"
+    },
+    {
+      "event_id": "61227c36-472f-494a-8937-8f97c6182c3b",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "POPCATUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-06T20:57:08+00:00",
+      "gap_end": "2025-11-16T20:57:08+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: POPCATUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:49:03.260608+00:00"
+    },
+    {
+      "event_id": "2ebcf3b9-33c8-4e2d-898b-503717d2f33f",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "POPCATUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-06T20:57:08+00:00",
+      "gap_end": "2025-11-16T20:57:08+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: POPCATUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:49:03.485999+00:00"
+    },
+    {
+      "event_id": "be797eb7-715a-47bc-bb02-d79902bf18f3",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "POPCATUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-06T20:57:08+00:00",
+      "gap_end": "2025-11-16T20:57:08+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: POPCATUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:49:03.704504+00:00"
+    },
+    {
+      "event_id": "b7432abf-80fe-4cff-b8d3-8db6a98e5d79",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "POPCATUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-06T20:57:08+00:00",
+      "gap_end": "2025-11-16T20:57:08+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: POPCATUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:49:03.909347+00:00"
+    },
+    {
+      "event_id": "0a05e9a0-8938-4ac7-90e6-cc3131bddcb4",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "POPCATUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-06T20:57:08+00:00",
+      "gap_end": "2025-11-16T20:57:08+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: POPCATUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:49:04.127790+00:00"
+    },
+    {
+      "event_id": "d1819d9d-c5dd-4a8a-89f1-c761b2eb30a5",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "POPCATUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-06T20:57:08+00:00",
+      "gap_end": "2025-11-16T20:57:08+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: POPCATUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:49:04.363517+00:00"
+    },
+    {
+      "event_id": "04accffc-6a40-4e1e-bbe4-b5a27ca9d14e",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "POPCATUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-06T20:57:08+00:00",
+      "gap_end": "2025-11-16T20:57:08+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: POPCATUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:49:04.585788+00:00"
+    },
+    {
+      "event_id": "d91537af-6f5a-4df4-96fe-0729fdcaedd9",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "POPCATUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-06T20:57:08+00:00",
+      "gap_end": "2025-11-16T20:57:08+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: POPCATUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:49:04.803002+00:00"
+    },
+    {
+      "event_id": "c136e97b-3b0d-49f7-95cc-fc8eb01ee578",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "POPCATUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-06T20:57:08+00:00",
+      "gap_end": "2025-11-16T20:57:08+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: POPCATUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:49:05.009813+00:00"
+    },
+    {
+      "event_id": "c5d6447c-dcf0-4b02-b6ce-6232fea35ce7",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "POPCATUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-06T20:57:08+00:00",
+      "gap_end": "2025-11-16T20:57:08+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: POPCATUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:49:05.214079+00:00"
+    },
+    {
+      "event_id": "9f59fd15-1b33-4f76-97bf-6c91311c9607",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "SEIUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-07T06:48:59+00:00",
+      "gap_end": "2025-11-17T06:48:59+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: SEIUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:49:05.453035+00:00"
+    },
+    {
+      "event_id": "1cc209f8-1adf-46c5-9525-b9e90fd31a4d",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "SEIUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-07T06:48:59+00:00",
+      "gap_end": "2025-11-17T06:48:59+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: SEIUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:49:05.694453+00:00"
+    },
+    {
+      "event_id": "d8241241-f22b-4a39-a37d-eedd08be708a",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "SEIUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-07T06:48:59+00:00",
+      "gap_end": "2025-11-17T06:48:59+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: SEIUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:49:05.898661+00:00"
+    },
+    {
+      "event_id": "9af1e4a3-5c92-4323-8fb3-7d38c80286e9",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "SEIUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-07T06:48:59+00:00",
+      "gap_end": "2025-11-17T06:48:59+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: SEIUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:49:06.129545+00:00"
+    },
+    {
+      "event_id": "59fa30dd-9788-4af2-9e3a-47de79de031a",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "SEIUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-07T06:48:59+00:00",
+      "gap_end": "2025-11-17T06:48:59+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: SEIUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:49:06.351979+00:00"
+    },
+    {
+      "event_id": "e5a3f7a4-ae59-4949-a238-f64c5ae383ce",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "SEIUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-07T06:48:59+00:00",
+      "gap_end": "2025-11-17T06:48:59+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: SEIUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:49:06.610840+00:00"
+    },
+    {
+      "event_id": "71ec9a36-307d-4fd7-ae92-07e53d299695",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "SEIUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-07T06:48:59+00:00",
+      "gap_end": "2025-11-17T06:48:59+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: SEIUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:49:06.851188+00:00"
+    },
+    {
+      "event_id": "eec521e9-4319-4ccf-badb-4b0cf50f2cd8",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "SEIUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-07T06:48:59+00:00",
+      "gap_end": "2025-11-17T06:48:59+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: SEIUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:49:07.062290+00:00"
+    },
+    {
+      "event_id": "ccd7501a-044f-4b28-9dfe-3dc048015f4e",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "SEIUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-07T06:48:59+00:00",
+      "gap_end": "2025-11-17T06:48:59+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: SEIUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:49:07.289238+00:00"
+    },
+    {
+      "event_id": "e34b6dc0-0c99-48cd-b72e-d78e8788abbd",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "SEIUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-07T06:48:59+00:00",
+      "gap_end": "2025-11-17T06:48:59+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: SEIUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:49:07.496714+00:00"
+    },
+    {
+      "event_id": "0f0fa4f4-b89d-4b7e-8a7e-ec7bbcb590f8",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "TRBUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-07T06:25:44+00:00",
+      "gap_end": "2025-11-17T06:25:44+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: TRBUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:49:07.712882+00:00"
+    },
+    {
+      "event_id": "9e402170-c597-41ea-ad7f-859d61cba854",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "TRBUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-07T06:25:44+00:00",
+      "gap_end": "2025-11-17T06:25:44+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: TRBUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:49:07.925995+00:00"
+    },
+    {
+      "event_id": "bcab0150-f6a8-4f8e-adde-f2e77fc73c15",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "TRBUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-07T06:25:44+00:00",
+      "gap_end": "2025-11-17T06:25:44+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: TRBUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:49:08.156847+00:00"
+    },
+    {
+      "event_id": "828e70a1-9cc4-4758-b7c6-9e83725e102f",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "TRBUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-07T06:25:44+00:00",
+      "gap_end": "2025-11-17T06:25:44+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: TRBUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:49:08.410942+00:00"
+    },
+    {
+      "event_id": "86cea4b1-4419-431c-85fb-ff48252d5cd1",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "TRBUSDT.P",
+      "basis": "last",
+      "gap_start": "2025-11-07T06:25:44+00:00",
+      "gap_end": "2025-11-17T06:25:44+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: TRBUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:49:09.138450+00:00"
+    },
+    {
+      "event_id": "7f64c12c-8e83-47a9-bb79-589f20822463",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "TRBUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-07T06:25:44+00:00",
+      "gap_end": "2025-11-17T06:25:44+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: TRBUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:49:09.357958+00:00"
+    },
+    {
+      "event_id": "f307e503-de7c-4b36-a1ec-91caf9363504",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "TRBUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-07T06:25:44+00:00",
+      "gap_end": "2025-11-17T06:25:44+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: TRBUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:49:09.598598+00:00"
+    },
+    {
+      "event_id": "c48c4588-53f0-4593-ba39-fc9bcd973b20",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "TRBUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-07T06:25:44+00:00",
+      "gap_end": "2025-11-17T06:25:44+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: TRBUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:49:09.802568+00:00"
+    },
+    {
+      "event_id": "0ffe55f6-450e-49a6-9aa2-acec4c778dd6",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "TRBUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-07T06:25:44+00:00",
+      "gap_end": "2025-11-17T06:25:44+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: TRBUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:49:10.032951+00:00"
+    },
+    {
+      "event_id": "fc36d3a2-372f-4671-918c-fdcfae06445d",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "TRBUSDT.P",
+      "basis": "mark",
+      "gap_start": "2025-11-07T06:25:44+00:00",
+      "gap_end": "2025-11-17T06:25:44+00:00",
+      "status": "skipped",
+      "error": "Symbol not available: Symbol not available on Bybit: TRBUSDT.P \u2014 params error: Symbol Is Invalid",
+      "timestamp": "2026-04-18T15:49:10.256344+00:00"
+    },
+    {
+      "event_id": "b10e98ab-d1da-495e-a234-cea42ee73464",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "AVAXUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-05T03:50:42+00:00",
+      "gap_end": "2025-11-21T06:24:16+00:00",
+      "rows": 23171,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\AVAXUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:50:54.867800+00:00"
+    },
+    {
+      "event_id": "b766d50b-14d7-4e00-816f-08f20fb51ded",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "AVAXUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-05T03:50:42+00:00",
+      "gap_end": "2025-11-21T06:24:16+00:00",
+      "rows": 1545,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\AVAXUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:50:55.413278+00:00"
+    },
+    {
+      "event_id": "5f64c351-8a1e-4afd-bf71-601427b9c953",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "AVAXUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-05T03:50:42+00:00",
+      "gap_end": "2025-11-21T06:24:16+00:00",
+      "rows": 387,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\AVAXUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:50:55.704504+00:00"
+    },
+    {
+      "event_id": "62843dff-8bef-4b5f-bf5a-94ddd09dbb96",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "AVAXUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-05T03:50:42+00:00",
+      "gap_end": "2025-11-21T06:24:16+00:00",
+      "rows": 97,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\AVAXUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:50:55.923789+00:00"
+    },
+    {
+      "event_id": "b98c9801-a40a-4fee-b3a5-2509211cfb13",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "AVAXUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-05T03:50:42+00:00",
+      "gap_end": "2025-11-21T06:24:16+00:00",
+      "rows": 16,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\AVAXUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:50:56.199690+00:00"
+    },
+    {
+      "event_id": "00231f99-64d7-4d56-aa51-376b1fbe59f4",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "AVAXUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-05T03:50:42+00:00",
+      "gap_end": "2025-11-21T06:24:16+00:00",
+      "rows": 23171,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\AVAXUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:02.182461+00:00"
+    },
+    {
+      "event_id": "39a5c3da-2abc-4549-80cc-d3b2e5e6bbf5",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "AVAXUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-05T03:50:42+00:00",
+      "gap_end": "2025-11-21T06:24:16+00:00",
+      "rows": 1545,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\AVAXUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:02.713440+00:00"
+    },
+    {
+      "event_id": "b245f83b-edc6-4fea-a55d-66edd8dfb2f0",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "AVAXUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-05T03:50:42+00:00",
+      "gap_end": "2025-11-21T06:24:16+00:00",
+      "rows": 387,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\AVAXUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:03.043187+00:00"
+    },
+    {
+      "event_id": "5ee350f3-b74f-4f52-b503-08078f8ee254",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "AVAXUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-05T03:50:42+00:00",
+      "gap_end": "2025-11-21T06:24:16+00:00",
+      "rows": 97,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\AVAXUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:03.287168+00:00"
+    },
+    {
+      "event_id": "b087a061-768b-4972-9ca0-367240533c26",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "AVAXUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-05T03:50:42+00:00",
+      "gap_end": "2025-11-21T06:24:16+00:00",
+      "rows": 16,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\AVAXUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:03.851193+00:00"
+    },
+    {
+      "event_id": "adc29bd6-0c25-4aac-b857-19930a30016d",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "BNBUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-02T17:11:00+00:00",
+      "gap_end": "2025-11-04T17:10:38+00:00",
+      "rows": 2878,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\BNBUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:05.290689+00:00"
+    },
+    {
+      "event_id": "bb7b96bf-2c42-4134-a392-01215a51fc90",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "BNBUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-02T17:15:00+00:00",
+      "gap_end": "2025-11-04T17:10:38+00:00",
+      "rows": 192,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\BNBUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:05.548317+00:00"
+    },
+    {
+      "event_id": "d77e2836-c66a-4285-a382-ca3183dff20c",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "BNBUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-02T18:00:00+00:00",
+      "gap_end": "2025-11-04T17:10:38+00:00",
+      "rows": 48,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\BNBUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:05.820343+00:00"
+    },
+    {
+      "event_id": "c6710abb-fb1f-450e-8418-0edda6b488e7",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "BNBUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-02T20:00:00+00:00",
+      "gap_end": "2025-11-04T17:10:38+00:00",
+      "rows": 12,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\BNBUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:06.091181+00:00"
+    },
+    {
+      "event_id": "ab51e819-a566-4d24-950f-5e59cca1a388",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "BNBUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-03T00:00:00+00:00",
+      "gap_end": "2025-11-04T17:10:38+00:00",
+      "rows": 2,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\BNBUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:06.312010+00:00"
+    },
+    {
+      "event_id": "3c081304-8c14-49a4-b62e-be631fd20e61",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "BNBUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-02T17:11:00+00:00",
+      "gap_end": "2025-11-04T17:10:38+00:00",
+      "rows": 2878,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\BNBUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:07.469615+00:00"
+    },
+    {
+      "event_id": "88084bf4-0f09-48a4-a957-6cb7f98c56d3",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "BNBUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-02T17:15:00+00:00",
+      "gap_end": "2025-11-04T17:10:38+00:00",
+      "rows": 192,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\BNBUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:07.788106+00:00"
+    },
+    {
+      "event_id": "ba7de8dd-2d66-469e-8fb5-a6806768a7b7",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "BNBUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-02T18:00:00+00:00",
+      "gap_end": "2025-11-04T17:10:38+00:00",
+      "rows": 48,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\BNBUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:08.065236+00:00"
+    },
+    {
+      "event_id": "916a1f0a-363d-4ec1-a64c-500f3f14528d",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "BNBUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-02T20:00:00+00:00",
+      "gap_end": "2025-11-04T17:10:38+00:00",
+      "rows": 12,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\BNBUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:08.343458+00:00"
+    },
+    {
+      "event_id": "0ee3eaa1-333c-4c83-9748-eefa5c8fcf44",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "BNBUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-03T00:00:00+00:00",
+      "gap_end": "2025-11-04T17:10:38+00:00",
+      "rows": 2,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\BNBUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:08.599196+00:00"
+    },
+    {
+      "event_id": "a11f9ef1-2e39-48ea-a8a4-ffba471e73c5",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "BTCUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-02T15:22:00+00:00",
+      "gap_end": "2025-11-04T15:21:51+00:00",
+      "rows": 2878,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\BTCUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:09.778925+00:00"
+    },
+    {
+      "event_id": "aff9e41e-77f7-4e98-a2a7-7075bbe1c756",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "BTCUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-07T18:25:55+00:00",
+      "gap_end": "2025-11-17T18:25:55+00:00",
+      "rows": 14386,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\BTCUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:14.309934+00:00"
+    },
+    {
+      "event_id": "50b14dca-bf04-4a33-b927-134348bbf718",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "BTCUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-02T15:30:00+00:00",
+      "gap_end": "2025-11-04T15:21:51+00:00",
+      "rows": 192,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\BTCUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:14.563923+00:00"
+    },
+    {
+      "event_id": "107c3d77-ee93-43c2-bdd8-62e1920eaaac",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "BTCUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-07T18:25:55+00:00",
+      "gap_end": "2025-11-17T18:25:55+00:00",
+      "rows": 960,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\BTCUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:15.838069+00:00"
+    },
+    {
+      "event_id": "9e481d57-9e07-4ce7-a09e-f28481460700",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "BTCUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-02T16:00:00+00:00",
+      "gap_end": "2025-11-04T15:21:51+00:00",
+      "rows": 48,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\BTCUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:16.114668+00:00"
+    },
+    {
+      "event_id": "9aac7a54-d132-458a-845e-a77bbc7086ce",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "BTCUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-07T18:25:55+00:00",
+      "gap_end": "2025-11-17T18:25:55+00:00",
+      "rows": 240,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\BTCUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:16.381292+00:00"
+    },
+    {
+      "event_id": "deedc51f-4ed4-4949-bed9-413ca951e312",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "BTCUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-02T16:00:00+00:00",
+      "gap_end": "2025-11-04T15:21:51+00:00",
+      "rows": 12,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\BTCUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:16.644130+00:00"
+    },
+    {
+      "event_id": "24966e68-bece-4c74-8563-5d0300935ebf",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "BTCUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-07T18:25:55+00:00",
+      "gap_end": "2025-11-17T18:25:55+00:00",
+      "rows": 60,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\BTCUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:16.887454+00:00"
+    },
+    {
+      "event_id": "7b659f61-f9fe-4648-b9d7-9deed61c7e1f",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "BTCUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-03T00:00:00+00:00",
+      "gap_end": "2025-11-04T15:21:51+00:00",
+      "rows": 2,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\BTCUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:17.181767+00:00"
+    },
+    {
+      "event_id": "e4851023-4ce7-42ef-8842-b35436f95309",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "BTCUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-07T18:25:55+00:00",
+      "gap_end": "2025-11-17T18:25:55+00:00",
+      "rows": 10,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\BTCUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:17.419525+00:00"
+    },
+    {
+      "event_id": "624a41f5-9596-4ae9-b1fe-437a6741db16",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "BTCUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-02T15:22:00+00:00",
+      "gap_end": "2025-11-04T15:21:51+00:00",
+      "rows": 2878,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\BTCUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:18.489503+00:00"
+    },
+    {
+      "event_id": "bd5b851f-d94f-4620-bd7d-e098e265c638",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "BTCUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-07T18:25:55+00:00",
+      "gap_end": "2025-11-17T18:25:55+00:00",
+      "rows": 14386,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\BTCUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:22.354463+00:00"
+    },
+    {
+      "event_id": "3e696f0a-c7cc-46a6-9086-74908d3abfd7",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "BTCUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-02T15:30:00+00:00",
+      "gap_end": "2025-11-04T15:21:51+00:00",
+      "rows": 192,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\BTCUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:22.610407+00:00"
+    },
+    {
+      "event_id": "79282a04-7d1a-41a1-be02-bd9bb27685d0",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "BTCUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-07T18:25:55+00:00",
+      "gap_end": "2025-11-17T18:25:55+00:00",
+      "rows": 960,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\BTCUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:22.909120+00:00"
+    },
+    {
+      "event_id": "7d5dd45f-d458-48ab-842c-cff71512cd48",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "BTCUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-02T16:00:00+00:00",
+      "gap_end": "2025-11-04T15:21:51+00:00",
+      "rows": 48,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\BTCUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:23.206855+00:00"
+    },
+    {
+      "event_id": "14b6958b-d3f1-4c03-80f3-cbe08103b018",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "BTCUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-07T18:25:55+00:00",
+      "gap_end": "2025-11-17T18:25:55+00:00",
+      "rows": 240,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\BTCUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:23.479071+00:00"
+    },
+    {
+      "event_id": "2f68d25f-dc76-444d-9e14-b8dd83af5886",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "BTCUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-02T16:00:00+00:00",
+      "gap_end": "2025-11-04T15:21:51+00:00",
+      "rows": 12,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\BTCUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:23.773112+00:00"
+    },
+    {
+      "event_id": "cc0aafa3-0a25-4034-8394-8a7dfc69dae6",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "BTCUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-07T18:25:55+00:00",
+      "gap_end": "2025-11-17T18:25:55+00:00",
+      "rows": 60,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\BTCUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:24.060240+00:00"
+    },
+    {
+      "event_id": "fe34e550-80cc-40a9-8241-57d1c057d3d0",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "BTCUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-03T00:00:00+00:00",
+      "gap_end": "2025-11-04T15:21:51+00:00",
+      "rows": 2,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\BTCUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:24.307670+00:00"
+    },
+    {
+      "event_id": "aa5888fa-88d7-46f7-aa89-237dbbe0b967",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "BTCUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-07T18:25:55+00:00",
+      "gap_end": "2025-11-17T18:25:55+00:00",
+      "rows": 10,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\BTCUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:24.605605+00:00"
+    },
+    {
+      "event_id": "4e918a8b-877b-487e-9edd-ea688aa5b225",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "ETHUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-02T15:33:00+00:00",
+      "gap_end": "2025-11-04T15:32:12+00:00",
+      "rows": 2878,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\ETHUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:25.822249+00:00"
+    },
+    {
+      "event_id": "cb19bd5b-98f9-4744-affd-b5709d027d39",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "ETHUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-08T15:55:59+00:00",
+      "gap_end": "2025-11-18T15:55:59+00:00",
+      "rows": 14386,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\ETHUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:29.974133+00:00"
+    },
+    {
+      "event_id": "b202503c-f986-4f94-8503-bca2c064bf19",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "ETHUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-02T15:45:00+00:00",
+      "gap_end": "2025-11-04T15:32:12+00:00",
+      "rows": 192,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\ETHUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:30.258725+00:00"
+    },
+    {
+      "event_id": "b57226da-599a-43a2-8547-5ec8d1e4c4aa",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "ETHUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-08T15:55:59+00:00",
+      "gap_end": "2025-11-18T15:55:59+00:00",
+      "rows": 960,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\ETHUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:30.600424+00:00"
+    },
+    {
+      "event_id": "9846bf75-cd03-43d4-8414-99334dc4b6fa",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "ETHUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-02T16:00:00+00:00",
+      "gap_end": "2025-11-04T15:32:12+00:00",
+      "rows": 48,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\ETHUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:30.850124+00:00"
+    },
+    {
+      "event_id": "95c46051-b8b1-4245-a8c3-da998e4f0c4e",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "ETHUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-08T15:55:59+00:00",
+      "gap_end": "2025-11-18T15:55:59+00:00",
+      "rows": 240,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\ETHUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:31.117244+00:00"
+    },
+    {
+      "event_id": "525a753b-b862-47fd-9419-77fa6c4c33b5",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "ETHUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-02T16:00:00+00:00",
+      "gap_end": "2025-11-04T15:32:12+00:00",
+      "rows": 12,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\ETHUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:31.417429+00:00"
+    },
+    {
+      "event_id": "63630410-1433-44d1-9866-6bedbf264445",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "ETHUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-08T15:55:59+00:00",
+      "gap_end": "2025-11-18T15:55:59+00:00",
+      "rows": 60,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\ETHUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:31.702800+00:00"
+    },
+    {
+      "event_id": "32ae9222-b2ca-4ef9-a53a-14165db19149",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "ETHUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-03T00:00:00+00:00",
+      "gap_end": "2025-11-04T15:32:12+00:00",
+      "rows": 2,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\ETHUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:31.992830+00:00"
+    },
+    {
+      "event_id": "b4346eac-f92c-4507-a227-2c9e829e62e5",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "ETHUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-08T15:55:59+00:00",
+      "gap_end": "2025-11-18T15:55:59+00:00",
+      "rows": 10,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\ETHUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:32.263993+00:00"
+    },
+    {
+      "event_id": "d6aa39d3-8043-4f78-a97d-f7bf80b2f411",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "ETHUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-02T15:33:00+00:00",
+      "gap_end": "2025-11-04T15:32:12+00:00",
+      "rows": 2878,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\ETHUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:33.045479+00:00"
+    },
+    {
+      "event_id": "d0fbc08d-eb20-4cd7-ac92-c7f2a719e729",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "ETHUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-08T15:55:59+00:00",
+      "gap_end": "2025-11-18T15:55:59+00:00",
+      "rows": 14386,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\ETHUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:38.628006+00:00"
+    },
+    {
+      "event_id": "2b9f4adb-083a-4d96-8f5d-c6ac66e80eef",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "ETHUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-02T15:45:00+00:00",
+      "gap_end": "2025-11-04T15:32:12+00:00",
+      "rows": 192,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\ETHUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:38.855428+00:00"
+    },
+    {
+      "event_id": "aa833e28-a3ff-47a2-9d1d-28be10736ee4",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "ETHUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-08T15:55:59+00:00",
+      "gap_end": "2025-11-18T15:55:59+00:00",
+      "rows": 960,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\ETHUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:39.208072+00:00"
+    },
+    {
+      "event_id": "6f5ecbb3-1ee2-479c-ac71-2b0ce02a42c8",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "ETHUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-02T16:00:00+00:00",
+      "gap_end": "2025-11-04T15:32:12+00:00",
+      "rows": 48,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\ETHUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:39.457169+00:00"
+    },
+    {
+      "event_id": "2330520e-7098-4b18-8c50-1f370edbf0ad",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "ETHUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-08T15:55:59+00:00",
+      "gap_end": "2025-11-18T15:55:59+00:00",
+      "rows": 240,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\ETHUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:39.731259+00:00"
+    },
+    {
+      "event_id": "c9a98419-4933-4af2-8ee8-937bba45f20b",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "ETHUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-02T16:00:00+00:00",
+      "gap_end": "2025-11-04T15:32:12+00:00",
+      "rows": 12,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\ETHUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:40.007220+00:00"
+    },
+    {
+      "event_id": "f7a0df69-d5be-4d40-a2f1-1f74d8d4198a",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "ETHUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-08T15:55:59+00:00",
+      "gap_end": "2025-11-18T15:55:59+00:00",
+      "rows": 60,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\ETHUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:40.227824+00:00"
+    },
+    {
+      "event_id": "8d2ee4cd-9f6e-4f79-83be-ad2a49b99fb6",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "ETHUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-03T00:00:00+00:00",
+      "gap_end": "2025-11-04T15:32:12+00:00",
+      "rows": 2,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\ETHUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:40.480638+00:00"
+    },
+    {
+      "event_id": "23b5ad09-3edf-4045-b18a-18b7e5d359de",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "ETHUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-08T15:55:59+00:00",
+      "gap_end": "2025-11-18T15:55:59+00:00",
+      "rows": 10,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\ETHUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:40.759824+00:00"
+    },
+    {
+      "event_id": "203db896-2906-4f2c-9158-af512f4d75d5",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "LINKUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-14T10:21:00+00:00",
+      "gap_end": "2025-11-22T05:28:13+00:00",
+      "rows": 11217,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\LINKUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:44.177805+00:00"
+    },
+    {
+      "event_id": "19c41983-1e3b-4d65-b7b1-fc9abf56b0ea",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "LINKUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-14T10:30:00+00:00",
+      "gap_end": "2025-11-22T05:28:13+00:00",
+      "rows": 748,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\LINKUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:44.503418+00:00"
+    },
+    {
+      "event_id": "233131d1-d01e-45d0-9ebc-a2c71dbf9be4",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "LINKUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-04T10:44:18+00:00",
+      "gap_end": "2025-11-04T11:00:00+00:00",
+      "rows": 1,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\LINKUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:44.773370+00:00"
+    },
+    {
+      "event_id": "b4a43a10-f316-4b20-ab0e-b5a1a1497970",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "LINKUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-14T11:00:00+00:00",
+      "gap_end": "2025-11-22T05:28:13+00:00",
+      "rows": 187,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\LINKUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:45.027805+00:00"
+    },
+    {
+      "event_id": "8118a924-28eb-4152-afae-834291d9f2a6",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "LINKUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-04T10:44:18+00:00",
+      "gap_end": "2025-11-04T12:00:00+00:00",
+      "rows": 1,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\LINKUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:45.445540+00:00"
+    },
+    {
+      "event_id": "b24a1ae4-a6b9-476d-9477-e28246dcef17",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "LINKUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-14T12:00:00+00:00",
+      "gap_end": "2025-11-22T05:28:13+00:00",
+      "rows": 47,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\LINKUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:45.704783+00:00"
+    },
+    {
+      "event_id": "2f3bdd62-9ada-4783-b8d4-1ca803f9c6bc",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "LINKUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-04T10:44:18+00:00",
+      "gap_end": "2025-11-05T00:00:00+00:00",
+      "rows": 1,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\LINKUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:45.957335+00:00"
+    },
+    {
+      "event_id": "69e8b49a-8bc0-461f-9f57-46949a73a418",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "LINKUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-15T00:00:00+00:00",
+      "gap_end": "2025-11-22T05:28:13+00:00",
+      "rows": 8,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\LINKUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:46.250652+00:00"
+    },
+    {
+      "event_id": "b70be3e6-7ad7-4da3-a1ee-0c37289e6af3",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "LINKUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-14T10:21:00+00:00",
+      "gap_end": "2025-11-22T05:28:13+00:00",
+      "rows": 11217,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\LINKUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:49.492187+00:00"
+    },
+    {
+      "event_id": "eda6479d-4a30-4fca-bd5c-fb62a8a504fc",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "LINKUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-14T10:30:00+00:00",
+      "gap_end": "2025-11-22T05:28:13+00:00",
+      "rows": 748,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\LINKUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:49.914009+00:00"
+    },
+    {
+      "event_id": "3f1f3442-fc9e-4fb8-a127-fd2489265239",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "LINKUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-04T10:44:18+00:00",
+      "gap_end": "2025-11-04T11:00:00+00:00",
+      "rows": 1,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\LINKUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:50.190762+00:00"
+    },
+    {
+      "event_id": "89501816-5c66-48f7-8e84-a500aa0886f2",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "LINKUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-14T11:00:00+00:00",
+      "gap_end": "2025-11-22T05:28:13+00:00",
+      "rows": 187,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\LINKUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:50.454939+00:00"
+    },
+    {
+      "event_id": "8bd23be0-89d2-4bc4-b14d-061871a282d6",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "LINKUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-04T10:44:18+00:00",
+      "gap_end": "2025-11-04T12:00:00+00:00",
+      "rows": 1,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\LINKUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:50.757223+00:00"
+    },
+    {
+      "event_id": "2d802775-a809-48c8-87d9-4f009e318fc0",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "LINKUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-14T12:00:00+00:00",
+      "gap_end": "2025-11-22T05:28:13+00:00",
+      "rows": 47,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\LINKUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:51.022750+00:00"
+    },
+    {
+      "event_id": "8c6619c8-7b35-42a0-8898-d7cf3858fdd4",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "LINKUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-04T10:44:18+00:00",
+      "gap_end": "2025-11-05T00:00:00+00:00",
+      "rows": 1,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\LINKUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:51.285412+00:00"
+    },
+    {
+      "event_id": "bf08a1de-cfb7-4df2-8742-281da5078f25",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "LINKUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-15T00:00:00+00:00",
+      "gap_end": "2025-11-22T05:28:13+00:00",
+      "rows": 8,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\LINKUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:51.552326+00:00"
+    },
+    {
+      "event_id": "7f46b716-6cf2-410f-b118-9331e285b4d8",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "NEARUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-04T04:38:00+00:00",
+      "gap_end": "2025-11-06T04:37:21+00:00",
+      "rows": 2878,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\NEARUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:52.365482+00:00"
+    },
+    {
+      "event_id": "3e3ebf0b-fe50-414f-8efb-ae0344590bb1",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "NEARUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-04T04:45:00+00:00",
+      "gap_end": "2025-11-06T04:37:21+00:00",
+      "rows": 192,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\NEARUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:52.680024+00:00"
+    },
+    {
+      "event_id": "e9070565-e1af-4341-9b43-6f6206d8d413",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "NEARUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-04T05:00:00+00:00",
+      "gap_end": "2025-11-06T04:37:21+00:00",
+      "rows": 48,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\NEARUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:52.902255+00:00"
+    },
+    {
+      "event_id": "bcb3efab-a5b0-4f56-88b0-8878bce47adf",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "NEARUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-04T08:00:00+00:00",
+      "gap_end": "2025-11-06T04:37:21+00:00",
+      "rows": 12,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\NEARUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:53.121700+00:00"
+    },
+    {
+      "event_id": "9662fb3d-82e1-4bbe-a274-4bb45b8bdb09",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "NEARUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-05T00:00:00+00:00",
+      "gap_end": "2025-11-06T04:37:21+00:00",
+      "rows": 2,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\NEARUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:53.397190+00:00"
+    },
+    {
+      "event_id": "77d93331-1a86-4324-bd8a-0d1498d37642",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "NEARUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-04T04:38:00+00:00",
+      "gap_end": "2025-11-06T04:37:21+00:00",
+      "rows": 2878,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\NEARUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:54.228400+00:00"
+    },
+    {
+      "event_id": "ab742d0d-9a47-424a-ac89-99302b489110",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "NEARUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-04T04:45:00+00:00",
+      "gap_end": "2025-11-06T04:37:21+00:00",
+      "rows": 192,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\NEARUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:54.458447+00:00"
+    },
+    {
+      "event_id": "b1081ced-004f-4475-83df-9ad00c29e82d",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "NEARUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-04T05:00:00+00:00",
+      "gap_end": "2025-11-06T04:37:21+00:00",
+      "rows": 48,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\NEARUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:54.722612+00:00"
+    },
+    {
+      "event_id": "fc41f538-f5b2-49d2-ba32-836bc4afadae",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "NEARUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-04T08:00:00+00:00",
+      "gap_end": "2025-11-06T04:37:21+00:00",
+      "rows": 12,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\NEARUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:54.972562+00:00"
+    },
+    {
+      "event_id": "6911dd1a-ed12-4905-9a63-c6137bf67623",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "NEARUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-05T00:00:00+00:00",
+      "gap_end": "2025-11-06T04:37:21+00:00",
+      "rows": 2,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\NEARUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:55.213025+00:00"
+    },
+    {
+      "event_id": "5f973358-aaa0-4023-bd52-8a681c0facd7",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "SOLUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-06T12:22:00+00:00",
+      "gap_end": "2025-11-08T12:21:13+00:00",
+      "rows": 2878,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\SOLUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:51:56.079501+00:00"
+    },
+    {
+      "event_id": "f9f0a2db-3080-47e3-bc91-25d272e0ad02",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "SOLUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-08T16:44:01+00:00",
+      "gap_end": "2025-11-22T19:17:35+00:00",
+      "rows": 20293,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\SOLUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:04.990014+00:00"
+    },
+    {
+      "event_id": "419018cc-c203-4765-8e9c-7a6081798b98",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "SOLUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-06T12:30:00+00:00",
+      "gap_end": "2025-11-08T12:21:13+00:00",
+      "rows": 192,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\SOLUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:05.272448+00:00"
+    },
+    {
+      "event_id": "1af3a4f5-a3cd-4562-bbd3-0ce58b419bcd",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "SOLUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-08T16:44:01+00:00",
+      "gap_end": "2025-11-22T19:17:35+00:00",
+      "rows": 1354,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\SOLUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:05.803374+00:00"
+    },
+    {
+      "event_id": "13790520-3d1f-402b-af70-d01a6446b81d",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "SOLUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-06T13:00:00+00:00",
+      "gap_end": "2025-11-08T12:21:13+00:00",
+      "rows": 48,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\SOLUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:06.071844+00:00"
+    },
+    {
+      "event_id": "311937d4-cf56-45c4-bb3f-02295e8252c0",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "SOLUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-08T16:44:01+00:00",
+      "gap_end": "2025-11-22T19:17:35+00:00",
+      "rows": 339,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\SOLUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:06.341493+00:00"
+    },
+    {
+      "event_id": "8fb6ea7d-bfc6-4ddd-b537-120fde0514d1",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "SOLUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-06T16:00:00+00:00",
+      "gap_end": "2025-11-08T12:21:13+00:00",
+      "rows": 12,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\SOLUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:06.599705+00:00"
+    },
+    {
+      "event_id": "f1dbac37-0e25-4ebf-8343-0e9c8632f9cb",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "SOLUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-08T16:44:01+00:00",
+      "gap_end": "2025-11-22T19:17:35+00:00",
+      "rows": 84,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\SOLUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:06.898612+00:00"
+    },
+    {
+      "event_id": "0ea649a4-ece0-4a58-a2dc-6deb7360a2bf",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "SOLUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-07T00:00:00+00:00",
+      "gap_end": "2025-11-08T12:21:13+00:00",
+      "rows": 2,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\SOLUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:07.160030+00:00"
+    },
+    {
+      "event_id": "a65d7640-f605-4664-8a0d-8cdf8a39337b",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "SOLUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-08T16:44:01+00:00",
+      "gap_end": "2025-11-22T19:17:35+00:00",
+      "rows": 14,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\SOLUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:07.458497+00:00"
+    },
+    {
+      "event_id": "6ebae634-b08e-40a8-ac72-f26e8018fe64",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "SOLUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-06T12:22:00+00:00",
+      "gap_end": "2025-11-08T12:21:13+00:00",
+      "rows": 2878,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\SOLUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:08.586180+00:00"
+    },
+    {
+      "event_id": "f42a3c26-5df6-4293-96ed-1c67a3b5c15c",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "SOLUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-08T16:44:01+00:00",
+      "gap_end": "2025-11-22T19:17:35+00:00",
+      "rows": 20293,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\SOLUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:14.321293+00:00"
+    },
+    {
+      "event_id": "a16a6d94-3607-4a29-8dd3-0e6b3f554a4a",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "SOLUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-06T12:30:00+00:00",
+      "gap_end": "2025-11-08T12:21:13+00:00",
+      "rows": 192,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\SOLUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:14.643132+00:00"
+    },
+    {
+      "event_id": "91eed552-c652-48cd-a622-b3546615e257",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "SOLUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-08T16:44:01+00:00",
+      "gap_end": "2025-11-22T19:17:35+00:00",
+      "rows": 1354,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\SOLUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:15.345428+00:00"
+    },
+    {
+      "event_id": "a0fe0350-ec63-4c32-83b1-185d65a2c9d0",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "SOLUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-06T13:00:00+00:00",
+      "gap_end": "2025-11-08T12:21:13+00:00",
+      "rows": 48,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\SOLUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:15.609279+00:00"
+    },
+    {
+      "event_id": "a55458ef-9296-41ed-8f97-fc319c6d33f8",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "SOLUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-08T16:44:01+00:00",
+      "gap_end": "2025-11-22T19:17:35+00:00",
+      "rows": 339,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\SOLUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:15.855800+00:00"
+    },
+    {
+      "event_id": "a8b1dd2a-a631-4e61-a030-d597fdd6fef8",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "SOLUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-06T16:00:00+00:00",
+      "gap_end": "2025-11-08T12:21:13+00:00",
+      "rows": 12,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\SOLUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:16.078189+00:00"
+    },
+    {
+      "event_id": "af9ee886-420c-4a48-9ce7-efbd356cd641",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "SOLUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-08T16:44:01+00:00",
+      "gap_end": "2025-11-22T19:17:35+00:00",
+      "rows": 84,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\SOLUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:16.386353+00:00"
+    },
+    {
+      "event_id": "d587c616-d1ff-442d-a182-2c2e7930c9ee",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "SOLUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-07T00:00:00+00:00",
+      "gap_end": "2025-11-08T12:21:13+00:00",
+      "rows": 2,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\SOLUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:16.667499+00:00"
+    },
+    {
+      "event_id": "cc962c5b-2a7c-4cae-835e-2c9f65869d83",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "SOLUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-08T16:44:01+00:00",
+      "gap_end": "2025-11-22T19:17:35+00:00",
+      "rows": 14,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\SOLUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:16.911722+00:00"
+    },
+    {
+      "event_id": "1c2e762a-f5c0-41ff-aea9-c240106d6f71",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "SUIUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-08T13:47:10+00:00",
+      "gap_end": "2025-11-18T13:47:10+00:00",
+      "rows": 14386,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\SUIUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:21.389235+00:00"
+    },
+    {
+      "event_id": "a3b1b0f7-7f31-4970-b16c-8e095b527ff8",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "SUIUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-08T13:47:10+00:00",
+      "gap_end": "2025-11-18T13:47:10+00:00",
+      "rows": 960,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\SUIUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:21.708786+00:00"
+    },
+    {
+      "event_id": "a265c90a-9449-4c7b-9a91-851b1dac2263",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "SUIUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-08T13:47:10+00:00",
+      "gap_end": "2025-11-18T13:47:10+00:00",
+      "rows": 240,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\SUIUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:21.990972+00:00"
+    },
+    {
+      "event_id": "dfea25a7-4873-461f-9320-05d4a0c2387f",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "SUIUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-08T13:47:10+00:00",
+      "gap_end": "2025-11-18T13:47:10+00:00",
+      "rows": 60,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\SUIUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:22.210106+00:00"
+    },
+    {
+      "event_id": "4f37cd8f-4ceb-475a-9f18-363023635514",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "SUIUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-08T13:47:10+00:00",
+      "gap_end": "2025-11-18T13:47:10+00:00",
+      "rows": 10,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\SUIUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:22.425330+00:00"
+    },
+    {
+      "event_id": "bec6ea1d-f1a7-47c4-a4ea-cbd88ec3a4e8",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "SUIUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-08T13:47:10+00:00",
+      "gap_end": "2025-11-18T13:47:10+00:00",
+      "rows": 14386,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\SUIUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:26.889567+00:00"
+    },
+    {
+      "event_id": "924f90f3-0e4c-480c-b2f4-1296d7d884f1",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "SUIUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-08T13:47:10+00:00",
+      "gap_end": "2025-11-18T13:47:10+00:00",
+      "rows": 960,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\SUIUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:27.294175+00:00"
+    },
+    {
+      "event_id": "63671f60-3a96-4486-b02b-eb86f4cd7ee8",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "SUIUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-08T13:47:10+00:00",
+      "gap_end": "2025-11-18T13:47:10+00:00",
+      "rows": 240,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\SUIUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:27.553480+00:00"
+    },
+    {
+      "event_id": "cba94445-8181-47b9-b217-c211db0945d9",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "SUIUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-08T13:47:10+00:00",
+      "gap_end": "2025-11-18T13:47:10+00:00",
+      "rows": 60,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\SUIUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:27.788518+00:00"
+    },
+    {
+      "event_id": "b725dac3-1338-4138-a703-d2d722b93d4c",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "SUIUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-08T13:47:10+00:00",
+      "gap_end": "2025-11-18T13:47:10+00:00",
+      "rows": 10,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\SUIUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:28.045146+00:00"
+    },
+    {
+      "event_id": "9651cbe2-9095-41a6-a079-e2b1f88cb442",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "TAOUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-03T16:50:52+00:00",
+      "gap_end": "2025-11-13T16:50:52+00:00",
+      "rows": 14386,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\TAOUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:32.218286+00:00"
+    },
+    {
+      "event_id": "2413700b-bc59-4040-84ac-ccc733f0ed6d",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "TAOUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-03T16:50:52+00:00",
+      "gap_end": "2025-11-13T16:50:52+00:00",
+      "rows": 960,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\TAOUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:32.531362+00:00"
+    },
+    {
+      "event_id": "77312ef9-060b-4f0f-959d-72c9f94a350f",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "TAOUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-03T16:50:52+00:00",
+      "gap_end": "2025-11-13T16:50:52+00:00",
+      "rows": 240,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\TAOUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:32.753907+00:00"
+    },
+    {
+      "event_id": "56cf35c3-6158-46a6-bf2a-e7d126bd7272",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "TAOUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-03T16:50:52+00:00",
+      "gap_end": "2025-11-13T16:50:52+00:00",
+      "rows": 60,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\TAOUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:32.983792+00:00"
+    },
+    {
+      "event_id": "1d0275a6-c4a0-420e-9190-7fdbb3ec09ac",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "TAOUSDT",
+      "basis": "last",
+      "gap_start": "2025-11-03T16:50:52+00:00",
+      "gap_end": "2025-11-13T16:50:52+00:00",
+      "rows": 10,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\TAOUSDT\\2025-11.last.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:33.232816+00:00"
+    },
+    {
+      "event_id": "6e8862c2-fcb6-4da5-8a43-3c7aa3f715a7",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1m",
+      "symbol": "TAOUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-03T16:50:52+00:00",
+      "gap_end": "2025-11-13T16:50:52+00:00",
+      "rows": 14386,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1m\\TAOUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:37.177787+00:00"
+    },
+    {
+      "event_id": "446b72da-a84c-450b-95ee-caa0e74e4d47",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "15m",
+      "symbol": "TAOUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-03T16:50:52+00:00",
+      "gap_end": "2025-11-13T16:50:52+00:00",
+      "rows": 960,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\15m\\TAOUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:37.572967+00:00"
+    },
+    {
+      "event_id": "7b4b492d-acc3-4e8d-8927-96027e102572",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1h",
+      "symbol": "TAOUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-03T16:50:52+00:00",
+      "gap_end": "2025-11-13T16:50:52+00:00",
+      "rows": 240,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1h\\TAOUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:37.876255+00:00"
+    },
+    {
+      "event_id": "baa7bcf3-f8c4-42aa-99bc-2c8fb1989a25",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "4h",
+      "symbol": "TAOUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-03T16:50:52+00:00",
+      "gap_end": "2025-11-13T16:50:52+00:00",
+      "rows": 60,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\4h\\TAOUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:38.137605+00:00"
+    },
+    {
+      "event_id": "8425c806-1a67-40d2-a578-d3c2a7b70977",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "1d",
+      "symbol": "TAOUSDT",
+      "basis": "mark",
+      "gap_start": "2025-11-03T16:50:52+00:00",
+      "gap_end": "2025-11-13T16:50:52+00:00",
+      "rows": 10,
+      "partitions": [
+        "C:\\Back_Testing\\data\\market_1\\bybit\\futures_linear\\1d\\TAOUSDT\\2025-11.mark.parquet"
+      ],
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:38.406550+00:00"
+    },
+    {
+      "event_id": "c76ad741-111b-4384-a485-4dbdcf83890c",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "funding",
+      "symbol": "AVAXUSDT",
+      "gap_start": "2025-11-05T03:50:42+00:00",
+      "gap_end": "2025-11-21T06:24:16+00:00",
+      "events": 48,
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:49.121307+00:00"
+    },
+    {
+      "event_id": "f632b201-faaf-427a-a389-edb9bf4dfd37",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "funding",
+      "symbol": "BNBUSDT",
+      "gap_start": "2025-10-25T17:10:38+00:00",
+      "gap_end": "2025-11-04T17:10:38+00:00",
+      "events": 30,
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:50.413135+00:00"
+    },
+    {
+      "event_id": "aad571dc-64fd-45b7-8ab0-830bd4001984",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "funding",
+      "symbol": "BTCUSDT",
+      "gap_start": "2025-10-25T15:21:51+00:00",
+      "gap_end": "2025-11-04T15:21:51+00:00",
+      "events": 30,
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:50.693457+00:00"
+    },
+    {
+      "event_id": "7e900009-fe75-4736-af9d-c37d830f1ceb",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "funding",
+      "symbol": "BTCUSDT",
+      "gap_start": "2025-11-07T18:25:55+00:00",
+      "gap_end": "2025-11-17T18:25:55+00:00",
+      "events": 30,
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:51.017090+00:00"
+    },
+    {
+      "event_id": "c83d2e8d-c56c-4ae2-ae73-70d2aab02f23",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "funding",
+      "symbol": "ETHUSDT",
+      "gap_start": "2025-10-25T15:32:12+00:00",
+      "gap_end": "2025-11-04T15:32:12+00:00",
+      "events": 30,
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:51.315324+00:00"
+    },
+    {
+      "event_id": "dcfe0a6a-5c3a-46c6-b38a-e8ee7f51a299",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "funding",
+      "symbol": "ETHUSDT",
+      "gap_start": "2025-11-08T15:55:59+00:00",
+      "gap_end": "2025-11-18T15:55:59+00:00",
+      "events": 30,
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:51.604585+00:00"
+    },
+    {
+      "event_id": "8dbce724-0e42-4169-b36f-42891addb4ed",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "funding",
+      "symbol": "LINKUSDT",
+      "gap_start": "2025-11-04T10:44:18+00:00",
+      "gap_end": "2025-11-22T05:28:13+00:00",
+      "events": 53,
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:51.851800+00:00"
+    },
+    {
+      "event_id": "ef590e0c-cf6a-4e1c-8087-2fcee0767678",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "funding",
+      "symbol": "NEARUSDT",
+      "gap_start": "2025-10-27T04:37:21+00:00",
+      "gap_end": "2025-11-06T04:37:21+00:00",
+      "events": 30,
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:52.111335+00:00"
+    },
+    {
+      "event_id": "59695037-4c8a-4393-b620-af4af3c468a2",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "funding",
+      "symbol": "SOLUSDT",
+      "gap_start": "2025-10-29T12:21:13+00:00",
+      "gap_end": "2025-11-08T12:21:13+00:00",
+      "events": 30,
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:52.413872+00:00"
+    },
+    {
+      "event_id": "5d4623aa-edcd-4434-a779-313cba9fe576",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "funding",
+      "symbol": "SOLUSDT",
+      "gap_start": "2025-11-08T16:44:01+00:00",
+      "gap_end": "2025-11-22T19:17:35+00:00",
+      "events": 42,
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:52.696422+00:00"
+    },
+    {
+      "event_id": "1237e9e0-d270-431c-bf2c-27276c707026",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "funding",
+      "symbol": "SUIUSDT",
+      "gap_start": "2025-11-08T13:47:10+00:00",
+      "gap_end": "2025-11-18T13:47:10+00:00",
+      "events": 30,
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:52.974721+00:00"
+    },
+    {
+      "event_id": "f27893c3-d685-4069-9ec6-2594c2e4d503",
+      "exchange": "bybit",
+      "market_type": "futures_linear",
+      "timeframe": "funding",
+      "symbol": "TAOUSDT",
+      "gap_start": "2025-11-03T16:50:52+00:00",
+      "gap_end": "2025-11-13T16:50:52+00:00",
+      "events": 60,
+      "status": "ok",
+      "timestamp": "2026-04-18T15:52:53.211305+00:00"
+    }
+  ]
+}

@@ -8,7 +8,13 @@ from src.signal_chain_lab.domain.enums import ChainInputMode, EventProcessingSta
 from src.signal_chain_lab.domain.events import CanonicalChain, CanonicalEvent
 from src.signal_chain_lab.domain.results import EventLogEntry, TradeResult
 from src.signal_chain_lab.policies.policy_loader import PolicyLoader
-from src.signal_chain_lab.policy_report.runner import _load_trade_chart_candles_by_timeframe, run_policy_report
+from src.signal_chain_lab.policy_report import runner as runner_module
+from src.signal_chain_lab.policy_report.runner import (
+    _build_funding_provider,
+    _load_trade_chart_candles_by_timeframe,
+    _run_policy_dataset,
+    run_policy_report,
+)
 
 
 def _utc(ts: str) -> datetime:
@@ -162,3 +168,108 @@ def test_trade_chart_uses_last_event_for_partially_closed_trade() -> None:
     _, _, start, end = provider.calls[0]
     assert start == _utc("2025-12-31T18:00:00")
     assert end == _utc("2026-01-03T18:00:00")
+
+
+def test_build_funding_provider_returns_none_when_disabled(tmp_path) -> None:
+    policy = PolicyLoader().load("original_chain")
+    policy.execution.funding_model = "none"
+
+    provider = _build_funding_provider(policy, tmp_path, "BTCUSDT")
+
+    assert provider is None
+
+
+def test_run_policy_dataset_passes_none_funding_provider_when_disabled(monkeypatch, tmp_path) -> None:
+    policy = PolicyLoader().load("original_chain")
+    policy.execution.funding_model = "none"
+
+    captured: dict[str, object] = {}
+
+    def fake_simulate_chain(chain, *, policy, market_provider, funding_provider):
+        captured["chain"] = chain
+        captured["policy"] = policy
+        captured["market_provider"] = market_provider
+        captured["funding_provider"] = funding_provider
+        return [], object()
+
+    def fake_build_trade_result(state, event_log, initial_capital=None):
+        del state, event_log, initial_capital
+        return TradeResult(
+            signal_id="sig-valid",
+            trader_id="trader-a",
+            symbol="BTCUSDT",
+            side="BUY",
+            status="closed",
+            input_mode=ChainInputMode.CHAIN_COMPLETE,
+            policy_name="original_chain",
+        )
+
+    monkeypatch.setattr(runner_module, "simulate_chain", fake_simulate_chain)
+    monkeypatch.setattr(runner_module, "build_trade_result", fake_build_trade_result)
+
+    trade_results, excluded_chains, event_logs = _run_policy_dataset(
+        chains=[_build_chain("sig-valid", with_tp=True, created_at="2026-01-02T00:00:00")],
+        policy=policy,
+        market_provider=None,
+        market_dir=tmp_path,
+    )
+
+    assert not excluded_chains
+    assert len(trade_results) == 1
+    assert event_logs == {"sig-valid": []}
+    assert captured["funding_provider"] is None
+
+
+def test_run_policy_dataset_passes_funding_provider_when_historical_data_exists(monkeypatch, tmp_path) -> None:
+    policy = PolicyLoader().load("original_chain")
+    policy.execution.funding_model = "historical"
+    funding_dir = tmp_path / "bybit" / "futures_linear" / "funding" / "BTCUSDT"
+    funding_dir.mkdir(parents=True)
+
+    captured: dict[str, object] = {}
+
+    def fake_simulate_chain(chain, *, policy, market_provider, funding_provider):
+        captured["chain"] = chain
+        captured["policy"] = policy
+        captured["market_provider"] = market_provider
+        captured["funding_provider"] = funding_provider
+        return [], object()
+
+    def fake_build_trade_result(state, event_log, initial_capital=None):
+        del state, event_log, initial_capital
+        return TradeResult(
+            signal_id="sig-valid",
+            trader_id="trader-a",
+            symbol="BTCUSDT",
+            side="BUY",
+            status="closed",
+            input_mode=ChainInputMode.CHAIN_COMPLETE,
+            policy_name="original_chain",
+        )
+
+    monkeypatch.setattr(runner_module, "simulate_chain", fake_simulate_chain)
+    monkeypatch.setattr(runner_module, "build_trade_result", fake_build_trade_result)
+
+    trade_results, excluded_chains, event_logs = _run_policy_dataset(
+        chains=[_build_chain("sig-valid", with_tp=True, created_at="2026-01-02T00:00:00")],
+        policy=policy,
+        market_provider=None,
+        market_dir=tmp_path,
+    )
+
+    assert not excluded_chains
+    assert len(trade_results) == 1
+    assert event_logs == {"sig-valid": []}
+    assert captured["funding_provider"] is not None
+    assert captured["funding_provider"].__class__.__name__ == "BybitFundingProvider"
+
+
+def test_build_funding_provider_logs_warning_when_historical_data_missing(caplog, tmp_path) -> None:
+    policy = PolicyLoader().load("original_chain")
+    policy.execution.funding_model = "historical"
+
+    with caplog.at_level("WARNING"):
+        provider = _build_funding_provider(policy, tmp_path, "BTCUSDT")
+
+    assert provider is None
+    assert "Funding storico non disponibile" in caplog.text
