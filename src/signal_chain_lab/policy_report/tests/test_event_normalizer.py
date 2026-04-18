@@ -1,13 +1,14 @@
-"""Tests for event_normalizer — Fase 1 del sistema report 3 livelli.
+"""Tests for event_normalizer — Step 1 tassonomia PRD event_code.
 
 Verifica:
-- Mapping event_type → subtype / phase / event_class
+- Mapping event_type → subtype (event_code PRD) / phase / event_class
 - Propagazione raw_text (solo per source=TRADER)
 - Gestione eventi IGNORED (processing_status)
 - Trade senza eventi → lista vuota, nessun crash
 - Fallback su event_type sconosciuto → SYSTEM_NOTE
 - ImpactData estratto correttamente da state_after
 - ID evento generato correttamente
+- Distinzione PENDING_CANCELLED_TRADER vs PENDING_CANCELLED_ENGINE
 """
 from __future__ import annotations
 
@@ -52,6 +53,7 @@ def _entry(
     reason: str | None = None,
     raw_text: str | None = None,
     state_after: dict | None = None,
+    state_before: dict | None = None,
 ) -> EventLogEntry:
     return EventLogEntry(
         timestamp=_TS,
@@ -62,7 +64,7 @@ def _entry(
         price_reference=price_reference,
         reason=reason,
         raw_text=raw_text,
-        state_before={},
+        state_before=state_before or {},
         state_after=state_after or {},
     )
 
@@ -103,112 +105,157 @@ def test_timestamp_iso_string():
 
 
 # ---------------------------------------------------------------------------
-# Tests — subtype / phase / event_class mapping
+# Tests — subtype / phase / event_class mapping (PRD event_code names)
 # ---------------------------------------------------------------------------
 
-def test_open_signal_maps_to_signal_created():
-    """OPEN_SIGNAL → SIGNAL_CREATED / SETUP / STRUCTURAL."""
+def test_open_signal_maps_to_setup_created():
+    """OPEN_SIGNAL → SETUP_CREATED / ENTRY / STRUCTURAL."""
     trade = _trade()
     log = [_entry("OPEN_SIGNAL")]
     ev = normalize_events(trade, log)[0]
-    assert ev.subtype == Subtype.SIGNAL_CREATED
-    assert ev.phase == Phase.SETUP
-    assert ev.event_class == EventClass.STRUCTURAL
-
-
-def test_entry_filled_mapping():
-    """ADD_ENTRY applied → ENTRY_FILLED / ENTRY / STRUCTURAL."""
-    trade = _trade()
-    log = [_entry("ADD_ENTRY", processing_status=EventProcessingStatus.APPLIED)]
-    ev = normalize_events(trade, log)[0]
-    assert ev.subtype == Subtype.ENTRY_FILLED
+    assert ev.subtype == Subtype.SETUP_CREATED
     assert ev.phase == Phase.ENTRY
     assert ev.event_class == EventClass.STRUCTURAL
 
 
+def test_entry_filled_mapping():
+    """ADD_ENTRY applied → ENTRY_FILLED_INITIAL / ENTRY / STRUCTURAL."""
+    trade = _trade()
+    log = [_entry("ADD_ENTRY", processing_status=EventProcessingStatus.APPLIED)]
+    ev = normalize_events(trade, log)[0]
+    assert ev.subtype == Subtype.ENTRY_FILLED_INITIAL
+    assert ev.phase == Phase.ENTRY
+    assert ev.event_class == EventClass.STRUCTURAL
+
+
+def test_scale_in_fill_mapping():
+    """ADD_ENTRY with fills_count >= 2 → ENTRY_FILLED_SCALE_IN."""
+    trade = _trade()
+    log = [_entry("ADD_ENTRY", state_after={"fills_count": 2})]
+    ev = normalize_events(trade, log)[0]
+    assert ev.subtype == Subtype.ENTRY_FILLED_SCALE_IN
+    assert ev.phase == Phase.ENTRY
+
+
 def test_sl_moved_mapping():
-    """MOVE_STOP → SL_MOVED / MANAGEMENT / MANAGEMENT."""
+    """MOVE_STOP → STOP_MOVED / MANAGEMENT / MANAGEMENT."""
     trade = _trade()
     log = [_entry("MOVE_STOP")]
     ev = normalize_events(trade, log)[0]
-    assert ev.subtype == Subtype.SL_MOVED
+    assert ev.subtype == Subtype.STOP_MOVED
     assert ev.phase == Phase.MANAGEMENT
     assert ev.event_class == EventClass.MANAGEMENT
 
 
 def test_be_activated_mapping():
-    """MOVE_STOP_TO_BE → BE_ACTIVATED / MANAGEMENT / MANAGEMENT."""
+    """MOVE_STOP_TO_BE → BREAK_EVEN_ACTIVATED / MANAGEMENT / MANAGEMENT."""
     trade = _trade()
     log = [_entry("MOVE_STOP_TO_BE", reason="be_trigger")]
     ev = normalize_events(trade, log)[0]
-    assert ev.subtype == Subtype.BE_ACTIVATED
+    assert ev.subtype == Subtype.BREAK_EVEN_ACTIVATED
     assert ev.phase == Phase.MANAGEMENT
     assert ev.event_class == EventClass.MANAGEMENT
 
 
-def test_partial_exit_mapping():
-    """CLOSE_PARTIAL → PARTIAL_EXIT / EXIT / RESULT."""
+def test_partial_exit_tp_mapping():
+    """CLOSE_PARTIAL with tp reason → EXIT_PARTIAL_TP / EXIT / RESULT."""
     trade = _trade()
-    log = [_entry("CLOSE_PARTIAL", reason="tp_hit_partial")]
+    log = [_entry("CLOSE_PARTIAL", reason="tp_hit")]
     ev = normalize_events(trade, log)[0]
-    assert ev.subtype == Subtype.PARTIAL_EXIT
+    assert ev.subtype == Subtype.EXIT_PARTIAL_TP
+    assert ev.phase == Phase.EXIT
+    assert ev.event_class == EventClass.RESULT
+
+
+def test_partial_exit_manual_mapping():
+    """CLOSE_PARTIAL without tp reason → EXIT_PARTIAL_MANUAL / EXIT / RESULT."""
+    trade = _trade()
+    log = [_entry("CLOSE_PARTIAL", reason="manual_partial")]
+    ev = normalize_events(trade, log)[0]
+    assert ev.subtype == Subtype.EXIT_PARTIAL_MANUAL
     assert ev.phase == Phase.EXIT
     assert ev.event_class == EventClass.RESULT
 
 
 def test_sl_hit_mapping():
-    """CLOSE_FULL + reason=sl_hit → SL_HIT / EXIT / RESULT."""
+    """CLOSE_FULL + reason=sl_hit → EXIT_FINAL_SL / EXIT / RESULT."""
     trade = _trade()
     log = [_entry("CLOSE_FULL", reason="sl_hit")]
     ev = normalize_events(trade, log)[0]
-    assert ev.subtype == Subtype.SL_HIT
+    assert ev.subtype == Subtype.EXIT_FINAL_SL
     assert ev.phase == Phase.EXIT
     assert ev.event_class == EventClass.RESULT
 
 
 def test_final_exit_via_tp_mapping():
-    """CLOSE_FULL + reason=tp_hit → FINAL_EXIT / EXIT / RESULT."""
+    """CLOSE_FULL + reason=tp_hit → EXIT_FINAL_TP / EXIT / RESULT."""
     trade = _trade()
     log = [_entry("CLOSE_FULL", reason="tp_hit")]
     ev = normalize_events(trade, log)[0]
-    assert ev.subtype == Subtype.FINAL_EXIT
+    assert ev.subtype == Subtype.EXIT_FINAL_TP
     assert ev.phase == Phase.EXIT
     assert ev.event_class == EventClass.RESULT
 
 
-def test_final_exit_no_reason():
-    """CLOSE_FULL senza reason → FINAL_EXIT (fallback)."""
+def test_final_exit_manual_no_reason():
+    """CLOSE_FULL senza reason → EXIT_FINAL_MANUAL (fallback)."""
     trade = _trade()
     log = [_entry("CLOSE_FULL", reason=None)]
     ev = normalize_events(trade, log)[0]
-    assert ev.subtype == Subtype.FINAL_EXIT
+    assert ev.subtype == Subtype.EXIT_FINAL_MANUAL
 
 
-def test_cancelled_mapping():
-    """CANCEL_PENDING → CANCELLED / EXIT / RESULT."""
+def test_final_exit_manual_explicit():
+    """CLOSE_FULL + reason=manual → EXIT_FINAL_MANUAL."""
     trade = _trade()
-    log = [_entry("CANCEL_PENDING")]
+    log = [_entry("CLOSE_FULL", reason="manual")]
     ev = normalize_events(trade, log)[0]
-    assert ev.subtype == Subtype.CANCELLED
+    assert ev.subtype == Subtype.EXIT_FINAL_MANUAL
+
+
+def test_exit_final_timeout_from_close_full():
+    """CLOSE_FULL + reason=chain_timeout → EXIT_FINAL_TIMEOUT."""
+    trade = _trade()
+    log = [_entry("CLOSE_FULL", reason="chain_timeout")]
+    ev = normalize_events(trade, log)[0]
+    assert ev.subtype == Subtype.EXIT_FINAL_TIMEOUT
+
+
+def test_cancel_pending_engine_source():
+    """CANCEL_PENDING (engine source, no timeout reason) → PENDING_CANCELLED_ENGINE / EXIT / RESULT."""
+    trade = _trade()
+    log = [_entry("CANCEL_PENDING", source="engine")]
+    ev = normalize_events(trade, log)[0]
+    assert ev.subtype == Subtype.PENDING_CANCELLED_ENGINE
     assert ev.phase == Phase.EXIT
     assert ev.event_class == EventClass.RESULT
 
 
-def test_timeout_via_cancel_pending():
-    """CANCEL_PENDING + reason=pending_timeout → TIMEOUT."""
+def test_cancel_pending_trader_source():
+    """CANCEL_PENDING (trader source) → PENDING_CANCELLED_TRADER / EXIT / RESULT."""
+    trade = _trade()
+    log = [_entry("CANCEL_PENDING", source="trader")]
+    ev = normalize_events(trade, log)[0]
+    assert ev.subtype == Subtype.PENDING_CANCELLED_TRADER
+    assert ev.phase == Phase.EXIT
+    assert ev.event_class == EventClass.RESULT
+
+
+def test_pending_timeout_via_cancel_pending():
+    """CANCEL_PENDING + reason=pending_timeout → PENDING_TIMEOUT."""
     trade = _trade()
     log = [_entry("CANCEL_PENDING", reason="pending_timeout")]
     ev = normalize_events(trade, log)[0]
-    assert ev.subtype == Subtype.TIMEOUT
+    assert ev.subtype == Subtype.PENDING_TIMEOUT
     assert ev.phase == Phase.EXIT
 
 
-def test_timeout_via_close_full():
-    """CLOSE_FULL + reason=chain_timeout → TIMEOUT."""
+def test_pending_timeout_via_timeout_reason():
+    """CANCEL_PENDING + reason=timeout → PENDING_TIMEOUT (timeout overrides source)."""
     trade = _trade()
-    log = [_entry("CLOSE_FULL", reason="chain_timeout")]
+    log = [_entry("CANCEL_PENDING", source="engine", reason="timeout")]
     ev = normalize_events(trade, log)[0]
-    assert ev.subtype == Subtype.TIMEOUT
+    assert ev.subtype == Subtype.PENDING_TIMEOUT
 
 
 # ---------------------------------------------------------------------------
@@ -216,22 +263,22 @@ def test_timeout_via_close_full():
 # ---------------------------------------------------------------------------
 
 def test_ignored_event_maps_to_ignored_subtype():
-    """Evento con processing_status=IGNORED → IGNORED / POST_MORTEM / AUDIT."""
+    """Evento con processing_status=IGNORED → IGNORED / MANAGEMENT / AUDIT."""
     trade = _trade()
     log = [_entry("ADD_ENTRY", processing_status=EventProcessingStatus.IGNORED)]
     ev = normalize_events(trade, log)[0]
     assert ev.subtype == Subtype.IGNORED
-    assert ev.phase == Phase.POST_MORTEM
+    assert ev.phase == Phase.MANAGEMENT
     assert ev.event_class == EventClass.AUDIT
 
 
 def test_rejected_event_maps_to_ignored():
-    """Evento con processing_status=REJECTED → IGNORED / POST_MORTEM / AUDIT."""
+    """Evento con processing_status=REJECTED → IGNORED / MANAGEMENT / AUDIT."""
     trade = _trade()
     log = [_entry("MOVE_STOP", processing_status=EventProcessingStatus.REJECTED)]
     ev = normalize_events(trade, log)[0]
     assert ev.subtype == Subtype.IGNORED
-    assert ev.phase == Phase.POST_MORTEM
+    assert ev.phase == Phase.MANAGEMENT
     assert ev.event_class == EventClass.AUDIT
 
 
@@ -279,12 +326,12 @@ def test_raw_text_none_when_entry_has_no_raw_text():
 # ---------------------------------------------------------------------------
 
 def test_unknown_event_type_fallback_to_system_note():
-    """event_type sconosciuto → SYSTEM_NOTE / POST_MORTEM / AUDIT."""
+    """event_type sconosciuto → SYSTEM_NOTE / MANAGEMENT / AUDIT."""
     trade = _trade()
     log = [_entry("COMPLETELY_UNKNOWN_TYPE")]
     ev = normalize_events(trade, log)[0]
     assert ev.subtype == Subtype.SYSTEM_NOTE
-    assert ev.phase == Phase.POST_MORTEM
+    assert ev.phase == Phase.MANAGEMENT
     assert ev.event_class == EventClass.AUDIT
 
 
@@ -348,6 +395,52 @@ def test_price_anchor_none_when_not_set():
     assert ev.price_anchor is None
 
 
+def test_fill_event_uses_fill_price_as_anchor() -> None:
+    trade = _trade()
+    log = [
+        _entry(
+            "FILL",
+            state_after={
+                "fills": [
+                    {"timestamp": "2025-01-15T10:32:05+00:00", "price": 42001.25, "qty": 1.0},
+                ]
+            },
+        )
+    ]
+    ev = normalize_events(trade, log)[0]
+    assert ev.price_anchor == 42001.25
+
+
+def test_tp_hit_anchor_uses_removed_tp_when_next_tp_index_missing() -> None:
+    trade = _trade()
+    log = [
+        _entry(
+            "CLOSE_PARTIAL",
+            reason="tp_hit",
+            state_before={"tp_levels": [42100.0, 42200.0]},
+            state_after={"tp_levels": [42200.0]},
+        )
+    ]
+    ev = normalize_events(trade, log)[0]
+    assert ev.subtype == Subtype.EXIT_PARTIAL_TP
+    assert ev.price_anchor == 42100.0
+
+
+def test_tp_hit_anchor_uses_previous_tp_when_engine_snapshot_is_already_advanced() -> None:
+    trade = _trade()
+    log = [
+        _entry(
+            "CLOSE_PARTIAL",
+            reason="tp_hit_partial",
+            state_before={"next_tp_index": 1, "tp_levels": [42100.0, 42200.0]},
+            state_after={"next_tp_index": 1, "tp_levels": [42100.0, 42200.0]},
+        )
+    ]
+    ev = normalize_events(trade, log)[0]
+    assert ev.subtype == Subtype.EXIT_PARTIAL_TP
+    assert ev.price_anchor == 42100.0
+
+
 # ---------------------------------------------------------------------------
 # Tests — multiple events in sequence
 # ---------------------------------------------------------------------------
@@ -365,9 +458,9 @@ def test_multiple_events_ordered_and_indexed():
     assert result[0].id == "sig_xyz_0"
     assert result[1].id == "sig_xyz_1"
     assert result[2].id == "sig_xyz_2"
-    assert result[0].subtype == Subtype.SIGNAL_CREATED
-    assert result[1].subtype == Subtype.ENTRY_FILLED
-    assert result[2].subtype == Subtype.SL_HIT
+    assert result[0].subtype == Subtype.SETUP_CREATED
+    assert result[1].subtype == Subtype.ENTRY_FILLED_INITIAL
+    assert result[2].subtype == Subtype.EXIT_FINAL_SL
 
 
 def test_details_contain_state_after_and_extras():

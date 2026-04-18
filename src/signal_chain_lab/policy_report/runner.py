@@ -41,6 +41,9 @@ class PolicyReportArtifacts:
     html_report_path: Path
 
 
+_TRADE_CHART_CONTEXT_HOURS = 15
+
+
 def _safe_dirname(value: str) -> str:
     sanitized = re.sub(r'[<>:"/\\\\|?*]+', "_", value).strip()
     return sanitized or "unknown_signal"
@@ -559,6 +562,19 @@ def _higher_timeframes(base_timeframe: str) -> list[str]:
     return ordered[start:]
 
 
+def _trade_chart_start_anchor(
+    trade: TradeResult,
+    event_log: list[EventLogEntry],
+) -> datetime | None:
+    if trade.created_at is not None:
+        return trade.created_at
+    if event_log:
+        timestamps = [entry.timestamp for entry in event_log if entry.timestamp is not None]
+        if timestamps:
+            return min(timestamps)
+    return trade.closed_at
+
+
 def _trade_chart_end_anchor(
     trade: TradeResult,
     event_log: list[EventLogEntry],
@@ -587,11 +603,16 @@ def _load_trade_chart_candles_by_timeframe(
 
     timeframe = str(chain.metadata.get("timeframe", "1m") or "1m")
     timeframes = _higher_timeframes(timeframe)
-    start = trade.created_at - timedelta(hours=6)
+    start_anchor = _trade_chart_start_anchor(trade, event_log or [])
     end_anchor = _trade_chart_end_anchor(trade, event_log or [])
+    if start_anchor is None:
+        start_anchor = trade.created_at
     if end_anchor is None:
-        end_anchor = trade.created_at
-    end = end_anchor + timedelta(hours=6)
+        end_anchor = start_anchor
+    if end_anchor < start_anchor:
+        end_anchor = start_anchor
+    start = start_anchor - timedelta(hours=_TRADE_CHART_CONTEXT_HOURS)
+    end = end_anchor + timedelta(hours=_TRADE_CHART_CONTEXT_HOURS)
     result: dict[str, list[Candle]] = {}
     for candidate_timeframe in timeframes:
         try:

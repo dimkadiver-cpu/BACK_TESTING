@@ -93,24 +93,23 @@ def _canonical_event_kind_css(ev: object) -> str:
     """Map ReportCanonicalEvent.subtype → CSS class for the unified sidebar."""
     subtype = getattr(ev, "subtype", "") or ""
     mapping: dict[str, str] = {
-        "SIGNAL_CREATED":      "ti-kind-NEW_SIGNAL",
-        "ENTRY_PLANNED":       "ti-kind-NEW_SIGNAL",
-        "ENTRY_FILLED":        "ti-kind-FILL",
-        "SCALE_IN_FILLED":     "ti-kind-FILL",
-        "MARKET_ENTRY_FILLED": "ti-kind-FILL",
-        "SL_SET":              "ti-kind-MOVE_SL",
-        "SL_MOVED":            "ti-kind-MOVE_SL",
-        "BE_ACTIVATED":        "ti-kind-MOVE_SL",
-        "TP_ARMED":            "ti-kind-TP",
-        "TP_HIT":              "ti-kind-TP",
-        "PARTIAL_EXIT":        "ti-kind-PARTIAL_CLOSE",
-        "FINAL_EXIT":          "ti-kind-EXIT",
-        "SL_HIT":              "ti-kind-SL",
-        "CANCELLED":           "ti-kind-CANCEL",
-        "EXPIRED":             "ti-kind-CANCEL",
-        "TIMEOUT":             "ti-kind-CANCEL",
-        "IGNORED":             "ti-kind-UPDATE",
-        "SYSTEM_NOTE":         "ti-kind-UPDATE",
+        "SETUP_CREATED":            "ti-kind-NEW_SIGNAL",
+        "ENTRY_ORDER_ADDED":        "ti-kind-NEW_SIGNAL",
+        "ENTRY_FILLED_INITIAL":     "ti-kind-FILL",
+        "ENTRY_FILLED_SCALE_IN":    "ti-kind-FILL",
+        "STOP_MOVED":               "ti-kind-MOVE_SL",
+        "BREAK_EVEN_ACTIVATED":     "ti-kind-MOVE_SL",
+        "EXIT_PARTIAL_TP":          "ti-kind-TP",
+        "EXIT_PARTIAL_MANUAL":      "ti-kind-PARTIAL_CLOSE",
+        "EXIT_FINAL_TP":            "ti-kind-EXIT",
+        "EXIT_FINAL_SL":            "ti-kind-SL",
+        "EXIT_FINAL_MANUAL":        "ti-kind-EXIT",
+        "EXIT_FINAL_TIMEOUT":       "ti-kind-CANCEL",
+        "PENDING_CANCELLED_TRADER": "ti-kind-CANCEL",
+        "PENDING_CANCELLED_ENGINE": "ti-kind-CANCEL",
+        "PENDING_TIMEOUT":          "ti-kind-CANCEL",
+        "IGNORED":                  "ti-kind-UPDATE",
+        "SYSTEM_NOTE":              "ti-kind-UPDATE",
     }
     return mapping.get(subtype, "ti-kind-UPDATE")
 
@@ -1460,6 +1459,74 @@ def _build_single_trade_hero(trade: TradeResult) -> str:
     )
 
 
+def _canonical_price_anchor(event: object) -> str:
+    value = getattr(event, "price_anchor", None)
+    return _fmt_number(value, 6) if value is not None else "-"
+
+
+def _setup_levels_from_details(details: dict[str, object]) -> str:
+    entries = []
+    for item in details.get("entries_planned", []) if isinstance(details.get("entries_planned"), list) else []:
+        if isinstance(item, dict) and isinstance(item.get("price"), (int, float)):
+            entry_type = str(item.get("entry_type") or "LIMIT").upper()
+            qty = item.get("qty_pct")
+            qty_str = f" {qty}%" if isinstance(qty, (int, float)) else ""
+            entries.append(f"{entry_type} {float(item['price']):.4f}{qty_str}")
+    stop = details.get("current_sl")
+    tps = [f"{float(tp):.4f}" for tp in details.get("tp_levels", []) if isinstance(tp, (int, float))] if isinstance(details.get("tp_levels"), list) else []
+    rows = []
+    if entries:
+        rows.append(("Entry levels", ", ".join(entries)))
+    if isinstance(stop, (int, float)):
+        rows.append(("Stop loss", f"{float(stop):.4f}"))
+    if tps:
+        rows.append(("Take Profits", ", ".join(tps)))
+    risk = details.get("risk_pct")
+    if isinstance(risk, (int, float)):
+        rows.append(("Risk", f"{float(risk):.2f}%"))
+    return "".join(f"<div class='lab'>{_escape(k)}</div><div>{_escape(v)}</div>" for k, v in rows)
+
+
+def _sidebar_detail_rows(ev: object) -> str:
+    details = getattr(ev, "details", {}) or {}
+    subtype = getattr(ev, "subtype", "") or ""
+    impact = getattr(ev, "impact", None)
+    rows: list[tuple[str, str]] = []
+
+    if subtype == "SETUP_CREATED":
+        rows.extend([
+            ("Symbol", _escape(details.get("symbol") or details.get("market_symbol") or "-")),
+            ("Side", _escape(details.get("side") or "-")),
+        ])
+        return (
+            "".join(f"<div class='lab'>{label}</div><div>{value}</div>" for label, value in rows)
+            + _setup_levels_from_details(details)
+        )
+
+    rows.append(("Source", _escape(getattr(ev, "source", "-"))))
+    if getattr(ev, "price_anchor", None) is not None:
+        rows.append(("Level/Price", _canonical_price_anchor(ev)))
+    fill_qty = details.get("fill_qty")
+    if isinstance(fill_qty, (int, float)):
+        rows.append(("Quantity", _fmt_number(fill_qty, 4)))
+    order_type = details.get("order_type")
+    if order_type:
+        rows.append(("Order type", _escape(order_type)))
+    if impact is not None and getattr(impact, "position", None) is not None:
+        rows.append(("Position impact", _fmt_number(getattr(impact, "position", None), 4)))
+    if subtype in {
+        "EXIT_PARTIAL_TP", "EXIT_PARTIAL_MANUAL",
+        "EXIT_FINAL_TP", "EXIT_FINAL_SL", "EXIT_FINAL_MANUAL", "EXIT_FINAL_TIMEOUT",
+    }:
+        result = getattr(impact, "result", None) if impact is not None else None
+        rows.append(("PnL realized", _fmt_number(result, 4) if result is not None else "-"))
+    reason = getattr(ev, "reason", None)
+    if reason:
+        rows.append(("Reason", _escape(reason)))
+
+    return "".join(f"<div class='lab'>{label}</div><div>{value}</div>" for label, value in rows)
+
+
 def _build_event_rail_and_sidebar(trade: TradeResult, event_log: list[EventLogEntry]) -> tuple[str, str, str]:
     canonical = normalize_events(trade, event_log)
     sidebar_items: list[str] = []
@@ -1467,39 +1534,31 @@ def _build_event_rail_and_sidebar(trade: TradeResult, event_log: list[EventLogEn
 
     for ev in canonical:
         row_id = _safe_dom_id(ev.id)
-        chips = [ev.phase, ev.event_class, ev.subtype]
-        chips_html = "".join(f"<span class='badge muted' style='font-size:11px'>{_escape(ch)}</span>" for ch in chips[:3])
-        summary = _escape(ev.summary or ev.title)
-        price_val = _fmt_number(ev.price_anchor, 6) if ev.price_anchor is not None else "-"
+        price_val = _canonical_price_anchor(ev)
         raw_btn = ""
         if ev.source == "TRADER" and ev.raw_text:
             rid = _safe_dom_id(f"raw_{ev.id}")
             raw_btn = (
-                f"<button class='inline-btn' type='button' onclick=\"openText('{rid}')\">Raw message text</button>"
+                f"<button class='inline-btn' type='button' onclick=\"openText('{rid}')\">Open raw telegram text</button>"
                 f"<dialog id='{rid}'><div class='dialog-head'><strong>Raw message</strong><button class='inline-btn' type='button' onclick=\"closeText('{rid}')\">Close</button></div><div class='dialog-body'><pre class='code'>{_escape(ev.raw_text)}</pre></div></dialog>"
             )
 
-        kind_css = _canonical_event_kind_css(ev)
-        sidebar_items.append(
-            "<div class='ti-v2 unified-event' "
-            f"id='evt_{row_id}' data-event-id='{row_id}' data-event-id-raw='{_escape(ev.id)}'>"
-            f"<div class='ti-v2-compact' data-event-id='{row_id}' data-event-id-raw='{_escape(ev.id)}' onclick='toggleUnifiedEvent(this)'>"
-            f"<span class='ti-kind-badge {kind_css}'>{_escape(ev.title)}</span>"
-            f"<span class='note'>{_escape(_fmt_timestamp(ev.ts))}</span>"
-            f"<span style='flex:1;min-width:0;font-size:13px;overflow:hidden;text-overflow:ellipsis'>{summary}</span>"
-            f"{chips_html}"
-            "</div>"
-            "<div class='ti-v2-detail'>"
-            "<div class='ti-detail-grid'>"
-            f"<div class='lab'>Source</div><div>{_escape(ev.source)}</div>"
-            f"<div class='lab'>Price</div><div>{_escape(price_val)}</div>"
-            f"<div class='lab'>Event id</div><div>{_escape(ev.id)}</div>"
-            "</div>"
-            f"<div style='margin-top:8px'>{raw_btn}</div>"
-            f"<pre class='code' style='margin-top:8px'>{_escape(json.dumps(ev.details, ensure_ascii=False, indent=2))}</pre>"
-            "</div>"
-            "</div>"
-        )
+        if getattr(ev, "event_class", None) != "AUDIT":
+            kind_css = _canonical_event_kind_css(ev)
+            sidebar_items.append(
+                "<div class='ti-v2 unified-event' "
+                f"id='evt_{row_id}' data-event-id='{row_id}' data-event-id-raw='{_escape(ev.id)}'>"
+                f"<div class='ti-v2-compact' data-event-id='{row_id}' data-event-id-raw='{_escape(ev.id)}' onclick='toggleUnifiedEvent(this)'>"
+                f"<span class='ti-kind-badge {kind_css}'>{_escape(ev.title)}</span>"
+                f"<span class='note'>{_escape(_fmt_timestamp(ev.ts))}</span>"
+                f"<span style='flex:1'></span>"
+                "</div>"
+                "<div class='ti-v2-detail'>"
+                f"<div class='ti-detail-grid'>{_sidebar_detail_rows(ev)}</div>"
+                f"<div style='margin-top:8px'>{raw_btn}</div>"
+                "</div>"
+                "</div>"
+            )
 
         audit_kind_css = _canonical_event_kind_css(ev)
         audit_items.append(
@@ -1517,6 +1576,7 @@ def _build_event_rail_and_sidebar(trade: TradeResult, event_log: list[EventLogEn
             f"<div class='lab'>Summary</div><div>{_escape(ev.summary or '-')}</div>"
             f"<div class='lab'>Source</div><div>{_escape(ev.source)}</div>"
             f"<div class='lab'>Price</div><div>{_escape(price_val)}</div>"
+            f"<div class='lab'>Reason</div><div>{_escape(ev.reason or '-')}</div>"
             f"<div class='lab'>ID</div><div style='font-family:ui-monospace,monospace;font-size:12px'>{_escape(ev.id)}</div>"
             "</div>"
             # Raw JSON solo in sotto-toggle

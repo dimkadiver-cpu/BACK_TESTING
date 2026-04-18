@@ -69,8 +69,12 @@ def test_single_trade_report_limits_raw_text_to_trader_events_and_shows_levels(t
     path = write_single_trade_html_report(trade=_sample_trade(), event_log=event_log, output_path=tmp_path / "detail.html")
     text = path.read_text(encoding="utf-8")
 
-    assert "Extracted levels" in text
-    assert "entry=100.0000, 101.0000 | sl=95.0000 | tp=110.0000, 112.0000" in text
+    assert "Entry levels" in text
+    assert "LIMIT 100.0000, LIMIT 101.0000" in text
+    assert "Stop loss" in text
+    assert "95.0000" in text
+    assert "Take Profits" in text
+    assert "110.0000, 112.0000" in text
     assert text.count("Open raw telegram text") == 1
     assert "Price Chart" in text
     assert "No market candles available" in text
