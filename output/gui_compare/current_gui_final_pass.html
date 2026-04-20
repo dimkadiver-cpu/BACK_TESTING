@@ -1,0 +1,556 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Signal Chain Lab GUI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      id="nicegui-color-scheme"
+      name="color-scheme"
+      content="light"
+    />
+    <link href="/_nicegui/3.10.0/static/favicon.ico" rel="shortcut icon" />
+    <style>
+      @layer theme, base, quasar, nicegui, components, utilities, overrides, quasar_importants;
+      @import url("/_nicegui/3.10.0/static/fonts.css") layer(base);
+      
+        @import url("/_nicegui/3.10.0/static/quasar.unimportant.prod.css") layer(quasar);
+        @import url("/_nicegui/3.10.0/static/quasar.important.prod.css") layer(quasar_importants);
+      
+      @import url("/_nicegui/3.10.0/static/nicegui.css") layer(nicegui);
+      @layer quasar {
+        blockquote, dd, dl, figure, h1, h2, h3, h4, h5, h6, hr, p, pre {
+          margin: revert-layer; /* HACK: revert Quasar's margin styles */
+        }
+      }
+      @layer overrides {
+        .rotate-45, .rotate-90, .rotate-135, .rotate-180, .rotate-225, .rotate-270, .rotate-315 {
+  rotate: 0deg;
+}
+        .column.inline, .flex.inline, .row.inline {
+          display: inline-flex;  /* HACK: re-apply Quasar's inline styles to override Tailwind */
+        }
+        .nicegui-dialog-open,
+        .nicegui-select-popup-open,
+        .nicegui-table-fullscreen {
+          scroll-behavior: auto !important; /* HACK: avoid smooth-scrolling when dialogs or select popups close */
+        }
+      }
+    </style>
+    <script type="importmap">
+      {"imports": {"vue":"/_nicegui/3.10.0/static/vue.esm-browser.prod.js","sass":"/_nicegui/3.10.0/static/sass.default.js","immutable":"/_nicegui/3.10.0/static/immutable.es.js","dompurify":"/_nicegui/3.10.0/static/dompurify.mjs","widget":"/_nicegui/3.10.0/libraries/d956831f170d8a05c0d7d6d65ff736ea/widget.js","nicegui-aggrid":"/_nicegui/3.10.0/esm/f48874ddc0c07630a8f71b0336ca4ab2/index.js","nicegui-aggrid/":"/_nicegui/3.10.0/esm/f48874ddc0c07630a8f71b0336ca4ab2/","nicegui-codemirror":"/_nicegui/3.10.0/esm/3a4e0c744be0e3e0dbb6cc6fe01722e3/index.js","nicegui-codemirror/":"/_nicegui/3.10.0/esm/3a4e0c744be0e3e0dbb6cc6fe01722e3/","nicegui-echart":"/_nicegui/3.10.0/esm/04f2922df32204e71d8a59a6cecb4a31/index.js","nicegui-echart/":"/_nicegui/3.10.0/esm/04f2922df32204e71d8a59a6cecb4a31/","nicegui-joystick":"/_nicegui/3.10.0/esm/4753efc04926ece08c6cec029e2534c5/index.js","nicegui-joystick/":"/_nicegui/3.10.0/esm/4753efc04926ece08c6cec029e2534c5/","nicegui-json-editor":"/_nicegui/3.10.0/esm/a9f81f4afcb587fbadcf9f801c0aae97/index.js","nicegui-json-editor/":"/_nicegui/3.10.0/esm/a9f81f4afcb587fbadcf9f801c0aae97/","nicegui-leaflet":"/_nicegui/3.10.0/esm/c5ced7a2f752554ef511e67fcf0040ae/index.js","nicegui-leaflet/":"/_nicegui/3.10.0/esm/c5ced7a2f752554ef511e67fcf0040ae/","nicegui-mermaid":"/_nicegui/3.10.0/esm/2db426b272bb34c8659c1b6877b40225/index.js","nicegui-mermaid/":"/_nicegui/3.10.0/esm/2db426b272bb34c8659c1b6877b40225/","nicegui-plotly":"/_nicegui/3.10.0/esm/1beee61d9a633fa1976be3ffd56c6a38/index.js","nicegui-plotly/":"/_nicegui/3.10.0/esm/1beee61d9a633fa1976be3ffd56c6a38/","nicegui-scene":"/_nicegui/3.10.0/esm/610a8b819396a5ffdca51eaacac4e34b/index.js","nicegui-scene/":"/_nicegui/3.10.0/esm/610a8b819396a5ffdca51eaacac4e34b/","nicegui-xterm":"/_nicegui/3.10.0/esm/e56a708ddbe7352a171ed38c9af1d33d/index.js","nicegui-xterm/":"/_nicegui/3.10.0/esm/e56a708ddbe7352a171ed38c9af1d33d/"}}
+    </script>
+    <script>
+      addStyle = (c) => document.head.append(Object.assign(document.createElement("style"), { textContent: c }));
+    </script>
+    
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0d1117; --surface:#161b22; --surface-2:#1c2128; --surface-h:#1f2937;
+    --border:#30363d; --border-s:#21262d;
+    --accent:#58a6ff; --accent-d:rgba(88,166,255,.12);
+    --ok:#3fb950; --ok-d:rgba(63,185,80,.10);
+    --wa:#d29922; --wa-d:rgba(210,153,34,.10);
+    --er:#f85149; --er-d:rgba(248,81,73,.10);
+    --muted:#8b949e; --text:#e6edf3; --text2:#c9d1d9;
+    --log-bg:#010409; --log-g:#39d353;
+    --mono:'IBM Plex Mono',monospace;
+    --sans:'IBM Plex Sans',system-ui,sans-serif;
+    --nav-h:42px; --panel-w:980px; --r:6px; --rs:4px;
+  }
+  body { font-family: var(--sans) !important; font-size:14px; background:var(--bg) !important; color:var(--text); }
+  ::-webkit-scrollbar { width:5px; height:5px; }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+  *:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .inp-mono input { font-family: var(--mono) !important; font-size: 12px !important; }
+  .sec-lbl { font-size:9px; font-weight:600; text-transform:uppercase;
+             letter-spacing:.1em; color:var(--muted); }
+  .sec-lbl::after { content:''; flex:1; height:1px; background:var(--border-s); }
+  .path-chip { font-family:var(--mono); font-size:11px;
+               background:var(--surface-2); border:1px solid var(--border-s);
+               border-radius:var(--rs); padding:4px 9px; color:var(--muted);
+               display:inline-flex; align-items:center; gap:5px; }
+  .app-shell { width:100%; min-height:100vh; }
+  .app-topbar {
+    position:sticky; top:0; z-index:100;
+    background:rgba(22,27,34,.97);
+    border-bottom:1px solid var(--border);
+    backdrop-filter:blur(10px);
+  }
+  .app-topbar-inner {
+    max-width:var(--panel-w); margin:0 auto; padding:0 20px;
+    height:var(--nav-h); display:flex; align-items:flex-end; gap:2px;
+  }
+  .app-brand {
+    font-family:var(--mono); font-size:11px; font-weight:600; color:var(--muted);
+    padding:0 12px 10px 0; white-space:nowrap;
+    border-right:1px solid var(--border-s); margin-right:8px;
+  }
+  .app-brand .dot { color:var(--accent); }
+  .app-panels {
+    max-width:var(--panel-w); margin:0 auto;
+    padding:20px 20px 60px;
+  }
+  .main-tabs, .sub-nav { border-bottom:none; }
+  .main-tabs .q-tabs__content, .sub-nav .q-tabs__content { align-items:flex-end; gap:2px; }
+  .main-tabs .q-tab, .sub-nav .q-tab {
+    font-family:var(--mono); font-size:11px; font-weight:500;
+    color:var(--muted); min-height:42px; padding:8px 16px 10px;
+    border-bottom:2px solid transparent; margin-bottom:-1px;
+  }
+  .main-tabs .q-tab:hover, .sub-nav .q-tab:hover { color:var(--text2); }
+  .main-tabs .q-tab--active, .sub-nav .q-tab--active {
+    color:var(--accent); border-bottom:2px solid var(--accent);
+  }
+  .sub-nav {
+    border-bottom:1px solid var(--border-s);
+    padding:0 2px;
+  }
+  .sub-nav .q-tab { min-height:36px; font-size:12px; padding:0 16px; }
+  .block-card {
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--r);
+    padding:18px !important;
+    box-shadow:none;
+  }
+  .block-card > .row:first-child,
+  .app-panels .nicegui-tab-panel > .row:first-child {
+    align-items:baseline !important;
+    gap:8px !important;
+    margin-bottom:12px !important;
+  }
+  .block-card > .row:first-child > div:last-child,
+  .app-panels .nicegui-tab-panel > .row:first-child > div:last-child {
+    font-family:var(--sans) !important;
+    font-size:12px !important;
+    font-weight:600 !important;
+    color:var(--text) !important;
+  }
+  .app-panels .nicegui-tab-panel > .nicegui-row,
+  .app-panels .nicegui-tab-panel > .nicegui-column {
+    padding:16px 20px !important;
+    gap:16px !important;
+  }
+  .nicegui-expansion {
+    border:1px solid var(--border-s) !important;
+    border-radius:var(--rs) !important;
+    overflow:hidden;
+  }
+  .nicegui-expansion .q-expansion-item__container {
+    background:var(--surface-2);
+  }
+  .nicegui-expansion .q-item__label {
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--muted);
+  }
+  .nicegui-expansion .q-expansion-item__content {
+    background:var(--surface-2);
+    border-top:1px solid var(--border-s);
+  }
+  .q-card .path-chip,
+  .q-card [class*="path-chip"] {
+    font-size:11px;
+  }
+  .q-table, .res-tbl, .w-tbl {
+    width:100%;
+    border-collapse:collapse;
+  }
+  .res-tbl th, .w-tbl th {
+    text-align:left;
+    padding:5px 9px;
+    font-size:9px;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--muted);
+    border-bottom:1px solid var(--border-s);
+  }
+  .res-tbl td, .w-tbl td {
+    padding:5px 9px;
+    border-bottom:1px solid var(--border-s);
+    font-family:var(--mono);
+    color:var(--text2);
+    font-size:11px;
+  }
+  .res-tbl tr:last-child td, .w-tbl tr:last-child td { border-bottom:none; }
+  .sum-grid {
+    display:grid !important;
+    grid-template-columns:repeat(auto-fit,minmax(130px,1fr)) !important;
+    gap:8px !important;
+    margin-top:8px !important;
+  }
+  .sum-card {
+    background:var(--surface-2) !important;
+    border:1px solid var(--border-s) !important;
+    border-radius:var(--r) !important;
+    padding:11px 12px !important;
+  }
+  .sum-card .sum-val { font-family:var(--mono); font-size:20px !important; font-weight:600; color:var(--text); line-height:1.15; }
+  .sum-card .sum-lbl { font-size:9px !important; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-top:5px; }
+  .notice-info {
+    background:var(--accent-d);
+    border:1px solid rgba(88,166,255,.2);
+    border-radius:var(--rs);
+    padding:9px 11px;
+    font-size:12px;
+    color:var(--text2);
+  }
+  .block-shell {
+    padding:16px 20px;
+    gap:16px;
+  }
+  .section-head {
+    display:flex; align-items:baseline; gap:8px; margin-bottom:10px;
+  }
+  .section-step {
+    font-family:var(--mono); font-size:10px; color:var(--muted);
+  }
+  .section-title {
+    font-family:var(--sans); font-size:12px; font-weight:600; color:var(--text);
+  }
+  .ui-btn.q-btn {
+    min-height:32px;
+    border-radius:var(--rs);
+    padding:0 13px;
+    box-shadow:none;
+    text-transform:none;
+    font-size:12px;
+    font-weight:500;
+    letter-spacing:0;
+  }
+  .ui-btn .q-btn__content { gap:5px; }
+  .ui-btn-primary.q-btn {
+    background:var(--accent);
+    border:1px solid var(--accent);
+    color:#0d1117;
+  }
+  .ui-btn-primary.q-btn:hover { background:#79c0ff; border-color:#79c0ff; }
+  .ui-btn-secondary.q-btn {
+    background:transparent;
+    border:1px solid var(--border);
+    color:var(--text2);
+  }
+  .ui-btn-secondary.q-btn:hover { border-color:var(--muted); color:var(--text); }
+  .ui-btn-danger.q-btn {
+    background:transparent;
+    border:1px solid rgba(248,81,73,.4);
+    color:var(--er);
+  }
+  .ui-btn-danger.q-btn:hover { border-color:var(--er); background:var(--er-d); }
+  .ui-btn-ghost.q-btn {
+    background:transparent;
+    border:1px solid transparent;
+    color:var(--muted);
+    padding:0 8px;
+  }
+  .ui-btn-ghost.q-btn:hover { color:var(--text); background:var(--surface-2); }
+  .q-field--filled .q-field__control,
+  .q-field--outlined .q-field__control,
+  .q-field__control {
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    color:var(--text2);
+    border-radius:var(--rs);
+    min-height:34px;
+  }
+  .q-field--focused .q-field__control,
+  .q-field:hover .q-field__control { border-color:var(--accent); }
+  .q-field__label, .q-toggle__label, .q-radio__label, .q-checkbox__label {
+    color:var(--muted);
+    font-size:10px;
+    letter-spacing:.03em;
+  }
+  .q-field__native, .q-field__input, .q-field__marginal {
+    color:var(--text2) !important;
+    font-size:12px;
+  }
+  .q-btn.bg-primary {
+    background:var(--accent) !important;
+    border:1px solid var(--accent) !important;
+    color:#0d1117 !important;
+    box-shadow:none !important;
+    text-transform:none;
+    border-radius:var(--rs);
+  }
+  .q-btn.bg-primary:hover {
+    background:#79c0ff !important;
+    border-color:#79c0ff !important;
+  }
+  .q-btn.q-btn--outline {
+    background:transparent !important;
+    border:1px solid var(--border) !important;
+    color:var(--text2) !important;
+    box-shadow:none !important;
+    text-transform:none;
+    border-radius:var(--rs);
+  }
+  .q-btn.q-btn--outline:hover {
+    border-color:var(--muted) !important;
+    color:var(--text) !important;
+  }
+  .q-expansion-item, .q-expansion-item .q-item {
+    background:transparent;
+    color:var(--text2);
+  }
+  .q-expansion-item .q-item {
+    min-height:38px;
+    padding:7px 11px;
+  }
+  .q-menu, .q-dialog, .q-list {
+    background:var(--surface-2);
+    color:var(--text2);
+  }
+  .q-item { min-height:34px; }
+  .q-toggle__inner, .q-radio__inner, .q-checkbox__inner { color:var(--accent); }
+  .nicegui-tab-panel {
+    padding:0;
+    background:transparent;
+  }
+</style>
+<script>
+  (() => {
+    const replacements = [
+      ["Â· ", ""],
+      ["· ", ""],
+      ["â€”", "-"],
+      ["â–¶ ", ""],
+      ["â–  ", ""],
+      ["âœ“ ", ""],
+      ["âœ• ", ""],
+      ["? ", ""],
+      ["?? ", ""],
+      ["¦ ", ""],
+      ["ðŸ“„ ", ""],
+      ["ðŸ“‚ ", ""],
+      ["ðŸ“Š ", ""],
+      ["ðŸ“¥ ", ""],
+      ["ðŸ”— ", "SRC "],
+      ["ðŸ—„ ", "DB "],
+      ["ðŸ”‘", "KEY"],
+      ["â„¹ ", "INFO "],
+      ["â†»", "Reload"],
+      ["â¬‡ ", ""],
+      ["â— ", ""],
+      ["â–¾", "v"],
+      ["â–¸", ">"],
+      ["ðŸ’¾ ", ""],
+    ];
+    const clean = (text) => replacements.reduce((acc, [from, to]) => acc.split(from).join(to), text);
+    const walk = (root) => {
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      const nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+      for (const node of nodes) {
+        const next = clean(node.nodeValue || "");
+        if (next !== node.nodeValue) node.nodeValue = next;
+      }
+    };
+    const normalizeTitles = () => {
+      const titleMap = new Map([
+        ["Download dati Telegram", "Download dati Telegram"],
+        ["Parse Signal chain reconstruction", "Parse"],
+        ["Market Data", "Market Data"],
+        ["Backtesting", "Backtesting"],
+        ["Contesto condiviso", "Contesto condiviso"],
+      ]);
+      for (const row of document.querySelectorAll(".block-card > .row:first-child, .app-panels .nicegui-tab-panel > .row:first-child")) {
+        const children = [...row.children];
+        if (children.length < 2) continue;
+        const step = clean((children[0].innerText || "").trim()).replace(/[^0-9]/g, "");
+        const raw = clean((children[1].innerText || "").trim());
+        let title = raw
+          .replace(/^[-. ]+/, "")
+          .replace(/Signal chain reconstruction/i, "Parse")
+          .replace(/^Parse\s*-?\s*/i, "Parse");
+        title = titleMap.get(title) || title;
+        children[0].innerHTML = step || children[0].innerHTML;
+        children[1].textContent = title;
+      }
+    };
+    const decorateButtons = () => {
+      for (const button of document.querySelectorAll(".q-btn")) {
+        const text = clean((button.innerText || "").trim());
+        button.classList.remove("ui-btn", "ui-btn-primary", "ui-btn-secondary", "ui-btn-danger", "ui-btn-ghost");
+        if (!text) continue;
+        button.classList.add("ui-btn");
+        if (/(Esegui|Invia OTP|Conferma OTP)/i.test(text)) {
+          button.classList.add("ui-btn-primary");
+        } else if (/(Arresta|Elimina)/i.test(text)) {
+          button.classList.add("ui-btn-danger");
+        } else if (/^(Reload)$/.test(text)) {
+          button.classList.add("ui-btn-ghost");
+        } else {
+          button.classList.add("ui-btn-secondary");
+        }
+      }
+    };
+    const decoratePanels = () => {
+      for (const chip of document.querySelectorAll(".path-chip")) {
+        chip.textContent = clean((chip.textContent || "").trim())
+          .replace(/^DB\s*-$/, "DB -")
+          .replace(/^SRC\s*-$/, "SRC -");
+      }
+      for (const node of document.querySelectorAll(".sec-lbl")) {
+        node.style.display = "flex";
+        node.style.alignItems = "center";
+        node.style.gap = "8px";
+        node.style.marginBottom = "8px";
+      }
+      for (const info of document.querySelectorAll(".q-card div, .nicegui-tab-panel div")) {
+        const text = clean((info.innerText || "").trim());
+        if (/Price basis.*Market source/i.test(text)) {
+          info.classList.add("notice-info");
+        }
+      }
+    };
+    const run = () => {
+      walk(document.body);
+      normalizeTitles();
+      decorateButtons();
+      decoratePanels();
+    };
+    document.addEventListener("DOMContentLoaded", run);
+    new MutationObserver(() => run()).observe(document.documentElement, {childList: true, subtree: true});
+  })();
+</script>
+
+
+<style>
+  .sum-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px; }
+  .sum-card { background:var(--surface-2);border:1px solid var(--border-s);
+              border-radius:var(--rs);padding:8px 12px; }
+  .sum-card .sum-val { font-family:var(--mono);font-size:18px;font-weight:600;color:var(--text); }
+  .sum-card .sum-lbl { font-size:10px;color:var(--muted);margin-top:2px; }
+</style>
+
+
+    <!-- prevent Prettier from removing this line -->
+    
+    <link rel="modulepreload" href="/_nicegui/3.10.0/static/vue.esm-browser.prod.js" />
+    
+    <link rel="modulepreload" href="/_nicegui/3.10.0/components/00c6b80e00db881ab3217ed75567745f/colors.js" />
+    
+    <link rel="modulepreload" href="/_nicegui/3.10.0/components/4cad76b33924590ff02c5b4522d6f332/html.js" />
+    
+    <link rel="modulepreload" href="/_nicegui/3.10.0/components/a2a5afd84d7c805b724a44b098d29c72/expansion.js" />
+    
+    <link rel="modulepreload" href="/_nicegui/3.10.0/components/4cad76b33924590ff02c5b4522d6f332/input.js" />
+    
+    <link rel="modulepreload" href="/_nicegui/3.10.0/components/7d64432d3ff30e50bb959a9bff95f5d6/log.js" />
+    
+    <link rel="modulepreload" href="/_nicegui/3.10.0/components/a3af4ff553634b54a475c57ec35bc39a/select.js" />
+    
+    <!-- prevent Prettier from removing this line -->
+    
+    <style type="text/tailwindcss">
+      @custom-variant dark (&:where(body.body--dark, body.body--dark *));
+    </style>
+    
+    <!-- prevent Prettier from removing this line -->
+    
+  </head>
+  <body>
+    <script defer src="/_nicegui/3.10.0/static/socket.io.min.js"></script>
+    
+    <script defer src="/_nicegui/3.10.0/static/tailwindcss.min.js"></script>
+    
+    <script type="module">
+      import * as Vue from "vue";
+      globalThis.Vue = Vue;
+      document.getElementById("esm-fallback")?.remove();
+    </script>
+    
+    <script defer src="/_nicegui/3.10.0/static/quasar.umd.prod.js"></script>
+    
+    <script defer src="/_nicegui/3.10.0/static/nicegui.js"></script>
+
+    <script defer src="/_nicegui/3.10.0/static/lang/en-US.umd.prod.js"></script>
+    <style></style>
+
+
+
+    <style>
+      #esm-fallback {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        height: 100vh;
+        font-family: sans-serif;
+        color: #888;
+        opacity: 0;
+        animation: esm-fallback-reveal 0s 1s forwards;
+      }
+      @keyframes esm-fallback-reveal {
+        to {
+          opacity: 1;
+        }
+      }
+      #esm-fallback ~ * {
+        display: none;
+      }
+    </style>
+    <div id="esm-fallback">Your browser does not support ES modules.<br />Please use a modern browser.</div>
+    <div id="app" ></div>
+    <div id="popup" class="nicegui-error-popup" aria-hidden="true">
+      <span>Connection lost.</span>
+      <span>Trying to reconnect...</span>
+    </div>
+    <div id="too_long_message_popup" class="nicegui-error-popup" aria-hidden="true">
+      <span>Message too long</span>
+      <span>The message is too large for WebSocket transmission.</span>
+    </div>
+    <script type="module">
+      // Load DOMPurify for HTML sanitization
+      // NOTE: Always use DOMPurify instead of native setHTML because native setHTML strips class attributes.
+      import DOMPurify from "dompurify";
+      Element.prototype.setHTML = function (html) {
+        this.innerHTML = DOMPurify.sanitize(html);
+      };
+
+      const app = createApp(parseElements(String.raw`{"0":{"tag":"q-layout","class":["nicegui-layout"],"props":{"view":"hhh lpr fff"},"children":[1],"events":[{"listener_id":"b132b1a0-0579-4336-9707-a756f0ddb88a","type":"sub_pages_open","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"be44923c-e8f5-483e-a941-04370afb436e","type":"sub_pages_navigate","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"1":{"tag":"q-page-container","children":[2]},"2":{"tag":"q-page","children":[3]},"3":{"tag":"div","class":["nicegui-content"],"children":[4,5]},"4":{"tag":"nicegui-colors","props":{"primary":"#58a6ff","secondary":"#30363d","accent":"#3fb950","dark":"#161b22","dark-page":"#121212","positive":"#3fb950","negative":"#f85149","info":"#58a6ff","warning":"#d29922","custom-colors":{}}},"5":{"tag":"div","class":["nicegui-column","app-shell","w-full"],"style":{"gap":"0"},"children":[6,13]},"6":{"tag":"div","class":["app-topbar","w-full"],"children":[7]},"7":{"tag":"div","class":["app-topbar-inner"],"children":[8,9]},"8":{"tag":"nicegui-html","props":{"innerHTML":"&lt;div class=\"app-brand\"&gt;SCL &lt;span class=\"dot\"&gt;&amp;middot;&lt;/span&gt; Signal Chain Lab&lt;/div&gt;","tag":"div","sanitize":true}},"9":{"tag":"q-tabs","class":["main-tabs"],"props":{"model-value":"parse","loopback":true},"children":[10,11,12],"events":[{"listener_id":"cb3b3a18-7d3e-4fc8-a37c-1ca86a4150a0","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"a2b21fbf-49e8-4811-9fc6-dd81ecd891f9","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"10":{"tag":"q-tab","props":{"label":"01 Download","name":"download"}},"11":{"tag":"q-tab","props":{"label":"02 Parse","name":"parse"}},"12":{"tag":"q-tab","props":{"label":"03 Market Data &amp; Backtest","name":"backtest"}},"13":{"tag":"div","class":["app-panels"],"children":[14]},"14":{"tag":"q-tab-panels","class":["w-full"],"props":{"model-value":"parse","loopback":true,"animated":true,"keep-alive":true},"children":[15,63,100],"events":[{"listener_id":"dfd4e9aa-96f6-4602-8b4d-4bbfbdb52fa1","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"34fa78f3-2830-40be-b068-066f3b6f8ca9","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"15":{"tag":"q-tab-panel","class":["nicegui-tab-panel"],"props":{"name":"download"},"children":[16]},"16":{"tag":"q-card","class":["nicegui-card","w-full","block-card"],"style":{"background":"var(--surface)","border":"1px solid var(--border)","border-radius":"var(--r)","padding":"20px 24px"},"children":[17,20,21,22,36,37,40,41,44,45,49,50,51,56]},"17":{"tag":"div","class":["nicegui-row","row"],"style":{"align-items":"baseline","gap":"8px","margin-bottom":"4px"},"children":[18,19]},"18":{"tag":"nicegui-html","props":{"innerHTML":"&lt;span style=\"font-family:var(--mono);font-size:11px;color:var(--muted)\"&gt;01&lt;/span&gt;","tag":"div","sanitize":true}},"19":{"tag":"div","text":"· Download dati Telegram","style":{"font-family":"var(--sans)","font-size":"15px","font-weight":"600","color":"var(--text)"}},"20":{"tag":"nicegui-html","props":{"innerHTML":"&lt;span style=\"display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:11px;padding:2px 9px;background:var(--ok-d);border:1px solid var(--ok);border-radius:var(--rs);color:var(--ok)\"&gt;&amp;#9679; Sessione attiva&lt;/span&gt;","tag":"div","sanitize":true}},"21":{"tag":"div","text":"","style":{"display":"none"}},"22":{"tag":"nicegui-expansion","class":["nicegui-expansion","w-full"],"style":{"border":"1px solid var(--border-s)","border-radius":"var(--rs)","background":"var(--surface-2)","margin-top":"10px"},"props":{"model-value":false,"loopback":true,"label":""},"slots":{"header":{"ids":[23]}},"children":[26,27,29,30,33],"events":[{"listener_id":"f0466630-f7fb-4fdb-999b-3807cd06b733","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"23":{"tag":"div","class":["nicegui-row","row"],"style":{"align-items":"center","gap":"6px","padding":"0 4px"},"children":[24,25]},"24":{"tag":"nicegui-html","props":{"innerHTML":"&lt;span style=\"font-size:14px\"&gt;??&lt;/span&gt;","tag":"div","sanitize":true}},"25":{"tag":"div","text":"Modifica credenziali","style":{"font-family":"var(--mono)","font-size":"12px","color":"var(--text2)"}},"26":{"tag":"nicegui-input","class":["w-full","inp-mono"],"props":{"value":"33118095","loopback":false,"error":null,"label":"API_ID (da my.telegram.org)","for":"c26","type":"text","_autocomplete":[]},"events":[{"listener_id":"dcd30b3e-a952-4f9a-97e7-93e7ebe65b43","type":"update:value","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"27":{"tag":"nicegui-input","class":["w-full","inp-mono"],"props":{"value":"5d1145a020a67c6783bd7dc307555ca1","loopback":false,"error":null,"label":"API_HASH (da my.telegram.org)","for":"c27","type":"password","_autocomplete":[]},"slots":{"append":{"ids":[28]}},"events":[{"listener_id":"09aa3b40-780d-4949-95d1-b0598f65c325","type":"update:value","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"28":{"tag":"q-icon","style":{"cursor":"pointer"},"props":{"name":"visibility_off"},"events":[{"listener_id":"548b2239-2e98-4dd9-8ed5-247a13aceb04","type":"click","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"29":{"tag":"nicegui-input","class":["w-full"],"props":{"value":"","loopback":false,"error":null,"label":"Numero telefono (es. +39...)","for":"c29","type":"text","_autocomplete":[]},"events":[{"listener_id":"f8e654c8-5eda-40ae-aba7-0ee909bd7ef5","type":"update:value","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"30":{"tag":"div","class":["nicegui-row","row","w-full","items-center","gap-2","hidden"],"children":[31,32]},"31":{"tag":"nicegui-input","class":["flex-1"],"props":{"value":"","loopback":false,"error":null,"label":"Codice OTP ricevuto sul telefono","for":"c31","type":"text","_autocomplete":[]},"events":[{"listener_id":"cef0f3f3-ba7d-41eb-a174-fda527dbffa6","type":"update:value","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"32":{"tag":"q-btn","props":{"color":"positive","label":"Conferma OTP"},"events":[{"listener_id":"b18a6f24-5c36-45a1-98c7-7c2c2146c538","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"33":{"tag":"div","class":["nicegui-row","row","gap-2","q-mt-sm"],"children":[34,35]},"34":{"tag":"q-btn","props":{"color":"primary","label":"Invia OTP","icon":"send"},"events":[{"listener_id":"12830414-f825-4247-a06b-24b5af0a84ae","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"35":{"tag":"q-btn","props":{"color":"warning","label":"Azzera sessione","icon":"delete"},"events":[{"listener_id":"115aff7c-b90f-483b-93f2-7a1bf71adb32","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"36":{"tag":"nicegui-html","style":{"margin-top":"10px"},"props":{"innerHTML":"&lt;span class=\"path-chip\"&gt;?? —&lt;/span&gt;","tag":"div","sanitize":true}},"37":{"tag":"div","class":["nicegui-row","row","w-full","gap-4","q-mt-sm"],"children":[38,39]},"38":{"tag":"nicegui-input","class":["flex-1","inp-mono"],"props":{"value":"","loopback":false,"error":null,"label":"Chat ID Telegram","for":"c38","placeholder":"-1001234567890","type":"text","_autocomplete":[]},"events":[{"listener_id":"576b1873-6f75-40a9-9556-4b93f876706b","type":"update:value","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"65b22e43-327e-42f0-8747-4d5eb9e7f422","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"39":{"tag":"nicegui-input","class":["flex-1","inp-mono"],"props":{"value":"","loopback":false,"error":null,"label":"Topic ID","for":"c39","placeholder":"es. 8","type":"text","_autocomplete":[]},"events":[{"listener_id":"37b77401-563d-4a1f-9a02-817b21f77c6e","type":"update:value","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"eb851d5f-0920-4b37-8c2c-dc8544287221","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"40":{"tag":"q-toggle","text":"Scarica tutto lo storico","props":{"model-value":true,"loopback":true},"events":[{"listener_id":"ebe4f35d-9b5d-4201-95d3-4b1e0a5084ee","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"e912363d-f5c8-40cf-89de-a372a3762ded","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"41":{"tag":"div","class":["nicegui-row","row","w-full","gap-4","hidden"],"children":[42,43]},"42":{"tag":"nicegui-input","class":["flex-1"],"props":{"value":"","loopback":false,"error":null,"label":"Dal","for":"c42","type":"date","_autocomplete":[]},"events":[{"listener_id":"82830839-04b9-448b-a2fd-5b0389115e21","type":"update:value","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"8e47f172-0f36-4932-ad22-8b80bbf99df3","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"43":{"tag":"nicegui-input","class":["flex-1"],"props":{"value":"","loopback":false,"error":null,"label":"Al","for":"c43","type":"date","_autocomplete":[]},"events":[{"listener_id":"28df8976-a572-405c-b4bc-2c1d0e84548c","type":"update:value","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"42741730-71b8-4d7e-bdde-6caf1dcb9465","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"44":{"tag":"q-option-group","props":{"model-value":0,"options":[{"value":0,"label":"Solo testo"},{"value":1,"label":"Testo + immagini"}],"loopback":true,"inline":true},"events":[{"listener_id":"3c0c1ac8-a5ab-4e45-ac03-3afdc823fe42","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"1669a1f6-7e58-4af9-8131-93af2d9a4ece","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"45":{"tag":"div","class":["nicegui-row","row","w-full","items-end","gap-2"],"children":[46,47,48]},"46":{"tag":"nicegui-input","class":["flex-1","inp-mono"],"style":{"border-color":"var(--border)"},"props":{"value":"parser_test/db","loopback":false,"error":null,"label":"Cartella output DB","for":"c46","type":"text","_autocomplete":[]},"events":[{"listener_id":"3087db4b-88bd-4108-88bf-6077698465ff","type":"update:value","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"e63765c9-6044-4d81-b6ce-dc5c75ba5d64","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"47":{"tag":"div","text":"","style":{"font-size":"11px","color":"var(--er)"}},"48":{"tag":"q-btn","props":{"color":"primary","label":"Sfoglia","icon":"folder_open"},"events":[{"listener_id":"4a87391e-9aa6-4485-9d19-6ba3528d2164","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"49":{"tag":"nicegui-html","style":{"margin-top":"6px"},"props":{"innerHTML":"&lt;span class=\"path-chip\"&gt;?? —&lt;/span&gt;","tag":"div","sanitize":true}},"50":{"tag":"nicegui-html","style":{"display":"none"},"props":{"innerHTML":"","tag":"div","sanitize":true}},"51":{"tag":"div","class":["nicegui-row","row","gap-2","q-mt-md"],"children":[52,53,54,55]},"52":{"tag":"q-btn","props":{"color":"primary","label":"? Esegui Download"},"events":[{"listener_id":"ca1b47f9-da9e-4a8a-ab43-4f6286738a82","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"53":{"tag":"q-btn","style":{"color":"var(--er)","border-color":"var(--er)"},"props":{"color":"primary","label":"¦ Arresta","outline":true},"events":[{"listener_id":"820101fc-9f24-44e8-a00c-519b4e182287","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"54":{"tag":"q-btn","props":{"color":"primary","label":"? Usa come DB attivo","outline":true},"events":[{"listener_id":"4fea6ad4-6dd9-4434-9b05-1cd2607543dd","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"55":{"tag":"q-btn","style":{"color":"var(--er)","border-color":"var(--er)"},"props":{"color":"primary","label":"? Elimina DB","outline":true},"events":[{"listener_id":"c085294c-c386-4266-9577-1ddcdd04fadc","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"56":{"tag":"q-card","class":["nicegui-card","w-full"],"style":{"background":"var(--log-bg)","border":"1px solid var(--border)","border-radius":"var(--r)","padding":"0"},"children":[57,62]},"57":{"tag":"div","class":["nicegui-row","row"],"style":{"padding":"6px 12px","border-bottom":"1px solid var(--border-s)","align-items":"center","gap":"8px","cursor":"pointer"},"children":[58,59,60,61],"events":[{"listener_id":"f4d1520c-eb4a-4425-af12-a649f62caafd","type":"click","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"58":{"tag":"div","text":"&#36;","style":{"color":"#238636","font-family":"var(--mono)","font-weight":"600"}},"59":{"tag":"div","text":"Log Download","style":{"color":"var(--text2)","font-family":"var(--mono)","font-size":"12px"}},"60":{"tag":"div","style":{"flex":"1"}},"61":{"tag":"div","text":"&gt;","style":{"color":"var(--muted)","font-family":"var(--mono)","font-size":"11px","user-select":"none"}},"62":{"tag":"nicegui-log","class":["nicegui-log","w-full","hidden"],"style":{"background":"var(--log-bg)","color":"var(--log-g)","font-family":"var(--mono)","font-size":"12px","height":"176px","overflow-y":"auto","padding":"8px 12px"}},"63":{"tag":"q-tab-panel","class":["nicegui-tab-panel"],"props":{"name":"parse"},"children":[64]},"64":{"tag":"q-card","class":["nicegui-card","w-full","block-card"],"style":{"background":"var(--surface)","border":"1px solid var(--border)","border-radius":"var(--r)","padding":"18px"},"children":[65,68,69,72,73,76,80,81,85,86,87,92,99]},"65":{"tag":"div","class":["nicegui-row","row"],"style":{"align-items":"baseline","gap":"8px","margin-bottom":"12px"},"children":[66,67]},"66":{"tag":"nicegui-html","props":{"innerHTML":"&lt;span style=\"font-family:var(--mono);font-size:11px;color:var(--muted)\"&gt;02&lt;/span&gt;","tag":"div","sanitize":true}},"67":{"tag":"div","text":"· Parse — Signal chain reconstruction","style":{"font-family":"var(--sans)","font-size":"15px","font-weight":"600","color":"var(--text)"}},"68":{"tag":"nicegui-html","props":{"innerHTML":"&lt;div class=\"sec-lbl\"&gt;Database sorgente&lt;/div&gt;","tag":"div","sanitize":true}},"69":{"tag":"div","class":["nicegui-row","row","w-full","items-end","gap-2"],"children":[70,71]},"70":{"tag":"nicegui-input","class":["flex-1","inp-mono"],"style":{"border-color":"var(--border)"},"props":{"value":"","loopback":false,"error":null,"label":"Path DB SQLite","for":"c70","type":"text","_autocomplete":[]},"events":[{"listener_id":"d4a3bb8e-1e1e-4355-a5b1-58b38a30b092","type":"update:value","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"f42306b2-1e1c-4c80-a010-2551cd1d0899","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"71":{"tag":"q-btn","props":{"color":"primary","label":"Sfoglia","icon":"folder_open"},"events":[{"listener_id":"e2a6f4a4-c332-45fd-b56f-d867cdaec485","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"72":{"tag":"nicegui-html","style":{"margin-top":"4px"},"props":{"innerHTML":"&lt;span class=\"path-chip\"&gt;?? —&lt;/span&gt;","tag":"div","sanitize":true}},"73":{"tag":"div","class":["nicegui-row","row","w-full","items-center","gap-4","q-mt-sm"],"children":[74,75]},"74":{"tag":"nicegui-select","class":["flex-1"],"props":{"model-value":{"value":0,"label":"Auto"},"options":[{"value":0,"label":"Auto"},{"value":1,"label":"trader_a"},{"value":2,"label":"trader_b"},{"value":3,"label":"trader_c"},{"value":4,"label":"trader_d"},{"value":5,"label":"trader_3"}],"loopback":true,"error":null,"label":"Trader profile"},"events":[{"listener_id":"4f7c34f8-beb5-43e1-b6e4-ad73c0e6c1ba","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"ae6a6a2e-9622-4b07-920c-835d9d27ed9d","type":"popupShow","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"61a400f8-06e8-4b20-86e2-c9341b863036","type":"popupHide","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"3022668d-4554-479e-a10c-8343dfe1b9c4","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"75":{"tag":"q-toggle","text":"Esporta CSV","props":{"model-value":false,"loopback":true},"events":[{"listener_id":"d6c3f4a8-0b0c-45ae-acbc-f1d24116e8fb","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"fba54ee6-b7af-4911-bfd0-94cc27942ee1","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"76":{"tag":"div","class":["nicegui-row","row","w-full","items-end","gap-2","q-mt-sm"],"children":[77,78,79]},"77":{"tag":"nicegui-input","class":["flex-1","inp-mono"],"style":{"border-color":"var(--border)"},"props":{"value":"parser_test/reports","loopback":false,"error":null,"label":"Cartella CSV report","for":"c77","type":"text","_autocomplete":[]},"events":[{"listener_id":"0b46245a-1f4f-4334-99c3-a1e950949ccc","type":"update:value","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"c1892daa-c506-4002-8cc4-4c2cf66bf995","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"78":{"tag":"div","text":"","style":{"font-size":"11px","color":"var(--er)"}},"79":{"tag":"q-btn","props":{"color":"primary","label":"Sfoglia","icon":"folder_open"},"events":[{"listener_id":"a10a54f9-c624-4241-b688-4ceb232ae155","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"80":{"tag":"nicegui-html","props":{"innerHTML":"&lt;div class=\"sec-lbl\" style=\"margin-top:16px;margin-bottom:8px\"&gt;Stato pipeline&lt;/div&gt;","tag":"div","sanitize":true}},"81":{"tag":"div","class":["nicegui-grid","w-full","gap-3"],"style":{"grid-template-columns":"repeat(3, minmax(0, 1fr))"},"children":[82,83,84]},"82":{"tag":"nicegui-html","props":{"innerHTML":"&lt;div style=\"background:var(--surface-2);border:1px solid var(--border-s);border-radius:var(--rs);padding:10px 14px\"&gt;&lt;div style=\"font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px\"&gt;Parse&lt;/div&gt;&lt;span style=\"display:inline-flex;align-items:center;font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 8px;border-radius:var(--rs);text-transform:uppercase;letter-spacing:.06em;background:var(--er-d);color:var(--er);border:1px solid var(--er)\"&gt;not started&lt;/span&gt;&lt;div style=\"font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:6px\"&gt;—&lt;/div&gt;&lt;/div&gt;","tag":"div","sanitize":true}},"83":{"tag":"nicegui-html","props":{"innerHTML":"&lt;div style=\"background:var(--surface-2);border:1px solid var(--border-s);border-radius:var(--rs);padding:10px 14px\"&gt;&lt;div style=\"font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px\"&gt;Chain Builder&lt;/div&gt;&lt;span style=\"display:inline-flex;align-items:center;font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 8px;border-radius:var(--rs);text-transform:uppercase;letter-spacing:.06em;background:var(--er-d);color:var(--er);border:1px solid var(--er)\"&gt;not started&lt;/span&gt;&lt;div style=\"font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:6px\"&gt;—&lt;/div&gt;&lt;/div&gt;","tag":"div","sanitize":true}},"84":{"tag":"nicegui-html","props":{"innerHTML":"&lt;div style=\"background:var(--surface-2);border:1px solid var(--border-s);border-radius:var(--rs);padding:10px 14px\"&gt;&lt;div style=\"font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px\"&gt;Backtest Readiness&lt;/div&gt;&lt;span style=\"display:inline-flex;align-items:center;font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 8px;border-radius:var(--rs);text-transform:uppercase;letter-spacing:.06em;background:var(--er-d);color:var(--er);border:1px solid var(--er)\"&gt;not started&lt;/span&gt;&lt;div style=\"font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:6px\"&gt;—&lt;/div&gt;&lt;/div&gt;","tag":"div","sanitize":true}},"85":{"tag":"nicegui-html","props":{"innerHTML":"&lt;div class=\"sec-lbl\" style=\"margin-top:16px;margin-bottom:6px\"&gt;Top warnings&lt;/div&gt;","tag":"div","sanitize":true}},"86":{"tag":"nicegui-html","props":{"innerHTML":"&lt;span style=\"font-family:var(--mono);font-size:11px;color:var(--muted)\"&gt;— nessun warning&lt;/span&gt;","tag":"div","sanitize":true}},"87":{"tag":"div","class":["nicegui-row","row","gap-2","q-mt-md"],"children":[88,89,90,91]},"88":{"tag":"q-btn","props":{"color":"primary","label":"Esegui Parse"},"events":[{"listener_id":"e14c2e92-9733-487e-b669-d59fdb12168c","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"89":{"tag":"q-btn","style":{"color":"var(--er)","border-color":"var(--er)"},"props":{"color":"primary","label":"Arresta","outline":true},"events":[{"listener_id":"fb0c2db7-3bc6-48b9-93fa-3250aee90687","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"90":{"tag":"q-btn","props":{"color":"primary","label":"Apri report qualita","outline":true},"events":[{"listener_id":"7ee918bb-5613-4fec-89b0-205efb68ec46","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"91":{"tag":"q-btn","props":{"color":"primary","label":"Esporta CSV","outline":true},"events":[{"listener_id":"96a74fca-fd77-44c3-a908-c3cd418164bd","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"92":{"tag":"q-card","class":["nicegui-card","w-full"],"style":{"background":"var(--log-bg)","border":"1px solid var(--border)","border-radius":"var(--r)","padding":"0"},"children":[93,98]},"93":{"tag":"div","class":["nicegui-row","row"],"style":{"padding":"6px 12px","border-bottom":"1px solid var(--border-s)","align-items":"center","gap":"8px","cursor":"pointer"},"children":[94,95,96,97],"events":[{"listener_id":"6aed47bf-e350-4cd9-991d-a31456e26de0","type":"click","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"94":{"tag":"div","text":"&#36;","style":{"color":"#238636","font-family":"var(--mono)","font-weight":"600"}},"95":{"tag":"div","text":"Log Parse","style":{"color":"var(--text2)","font-family":"var(--mono)","font-size":"12px"}},"96":{"tag":"div","style":{"flex":"1"}},"97":{"tag":"div","text":"&gt;","style":{"color":"var(--muted)","font-family":"var(--mono)","font-size":"11px","user-select":"none"}},"98":{"tag":"nicegui-log","class":["nicegui-log","w-full","hidden"],"style":{"background":"var(--log-bg)","color":"var(--log-g)","font-family":"var(--mono)","font-size":"12px","height":"176px","overflow-y":"auto","padding":"8px 12px"}},"99":{"tag":"div","class":["nicegui-column","w-full"],"style":{"display":"none"}},"100":{"tag":"q-tab-panel","class":["nicegui-tab-panel"],"props":{"name":"backtest"},"children":[101,124]},"101":{"tag":"q-card","class":["nicegui-card","w-full"],"style":{"background":"var(--surface)","border":"1px solid var(--border)","border-radius":"var(--r)","padding":"0","margin-bottom":"12px"},"children":[102,103,107]},"102":{"tag":"nicegui-html","class":["hidden"],"style":{"font-family":"var(--mono)","font-size":"11px","color":"var(--muted)","margin-left":"8px"},"props":{"innerHTML":"?? — &amp;nbsp;·&amp;nbsp; Tutti · Tutte le date &amp;nbsp;·&amp;nbsp; ?? market","tag":"div","sanitize":true}},"103":{"tag":"div","class":["nicegui-row","row"],"style":{"align-items":"center","gap":"8px","padding":"10px 16px","border-bottom":"1px solid var(--border-s)","cursor":"pointer"},"children":[104,105,106],"events":[{"listener_id":"4393f7ca-31a8-4b54-b3be-ff4bae822c01","type":"click","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"104":{"tag":"div","text":"?","style":{"font-family":"var(--mono)","font-size":"11px","color":"var(--muted)","user-select":"none"}},"105":{"tag":"div","text":"Contesto condiviso","style":{"font-family":"var(--sans)","font-size":"13px","font-weight":"600","color":"var(--text)"}},"106":{"tag":"div","text":"DB · filtri · cartella Market Data","style":{"font-size":"11px","color":"var(--muted)"}},"107":{"tag":"div","class":["nicegui-column","w-full"],"style":{"padding":"16px 20px","gap":"12px"},"children":[108,109,113,118,119,123]},"108":{"tag":"nicegui-html","props":{"innerHTML":"&lt;div class=\"sec-lbl\"&gt;Database segnali&lt;/div&gt;","tag":"div","sanitize":true}},"109":{"tag":"div","class":["nicegui-row","row","w-full","items-end","gap-2"],"children":[110,111,112]},"110":{"tag":"nicegui-input","class":["flex-1","inp-mono"],"style":{"border-color":"var(--border)"},"props":{"value":"","loopback":false,"error":null,"label":"Path DB SQLite","for":"c110","type":"text","_autocomplete":[]},"events":[{"listener_id":"a3d990c5-d48f-4889-bafd-493d73a99249","type":"update:value","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"7cb09c5e-2713-421f-a6f1-90fd1a4230ac","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"111":{"tag":"div","text":"","style":{"font-size":"11px","color":"var(--er)"}},"112":{"tag":"q-btn","props":{"color":"primary","label":"Sfoglia","icon":"folder_open"},"events":[{"listener_id":"641a8935-d902-462b-84fd-4b06be95d054","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"113":{"tag":"div","class":["nicegui-row","row","w-full","gap-3"],"children":[114,115,116,117]},"114":{"tag":"nicegui-input","class":["flex-1"],"props":{"value":"all","loopback":false,"error":null,"label":"Trader filter","for":"c114","placeholder":"all","type":"text","_autocomplete":[]},"events":[{"listener_id":"045c73a5-f141-4497-a94d-d856f10f87cb","type":"update:value","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"5de5a917-7dd1-4fd4-bd6f-aebcef44d560","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"115":{"tag":"nicegui-input","class":["flex-1"],"props":{"value":"","loopback":false,"error":null,"label":"Dal","for":"c115","type":"date","_autocomplete":[]},"events":[{"listener_id":"6f8cf7ba-65f4-40d5-a407-ce593b34446a","type":"update:value","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"c2c6f6d8-56b6-4ac6-b782-965f85eac0d4","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"116":{"tag":"nicegui-input","class":["flex-1"],"props":{"value":"","loopback":false,"error":null,"label":"Al","for":"c116","type":"date","_autocomplete":[]},"events":[{"listener_id":"be0a49c4-2bd3-474e-bdb8-b955892a8649","type":"update:value","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"032617ad-7925-4659-9663-1b816ae88068","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"117":{"tag":"q-input","class":["w-28"],"props":{"model-value":"0","loopback":false,"error":null,"label":"Max trades","for":"c117","type":"number","min":0,"step":1},"events":[{"listener_id":"ac02aca2-7158-4e8a-9ec2-8f0d9eeca5ea","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"0600ea10-d27c-4996-93c9-5eb11b3ce846","type":"blur","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"1eed54d4-2837-46e1-94c0-961ef37640e3","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"118":{"tag":"nicegui-html","props":{"innerHTML":"&lt;div class=\"sec-lbl\"&gt;Cartella Market Data&lt;/div&gt;","tag":"div","sanitize":true}},"119":{"tag":"div","class":["nicegui-row","row","w-full","items-end","gap-2"],"children":[120,121,122]},"120":{"tag":"nicegui-input","class":["flex-1","inp-mono"],"style":{"border-color":"var(--border)"},"props":{"value":"C:\\Back_Testing\\data\\market","loopback":false,"error":null,"label":"Cartella Market Data","for":"c120","type":"text","_autocomplete":[]},"events":[{"listener_id":"93d90a63-53a8-4c0c-98e4-11738e8cb1fc","type":"update:value","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"59686c25-54ef-4873-b6a7-ddcdff418955","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"121":{"tag":"div","text":"","style":{"font-size":"11px","color":"var(--er)"}},"122":{"tag":"q-btn","props":{"color":"primary","label":"Sfoglia","icon":"folder_open"},"events":[{"listener_id":"6cd493d5-b662-442c-8a04-1a26265cee0a","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"123":{"tag":"nicegui-html","style":{"margin-top":"4px"},"props":{"innerHTML":"&lt;span style=\"font-family:var(--mono);font-size:11px;background:var(--surface-2);border:1px solid var(--border-s);border-radius:var(--rs);padding:4px 9px;color:var(--muted);display:inline-flex;align-items:center;gap:5px\"&gt;?? rilevato: 3836 file parquet · TF: 15m, 1h, 1m · 178 simboli&lt;/span&gt;","tag":"div","sanitize":true}},"124":{"tag":"q-card","class":["nicegui-card","w-full","block-card"],"style":{"padding":"0","margin-top":"0"},"children":[125,128]},"125":{"tag":"q-tabs","class":["sub-nav"],"props":{"model-value":"market","loopback":true},"children":[126,127],"events":[{"listener_id":"f2548b71-4a41-41e8-8ade-e88aefe33fc1","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"126":{"tag":"q-tab","props":{"label":"Market Data","name":"market"}},"127":{"tag":"q-tab","props":{"label":"Backtesting","name":"backtesting"}},"128":{"tag":"q-tab-panels","class":["w-full"],"props":{"model-value":"market","loopback":true,"animated":true,"keep-alive":true},"children":[129,185],"events":[{"listener_id":"4f90e662-a1d6-4580-9e6d-6ce34dc27f34","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"129":{"tag":"q-tab-panel","class":["nicegui-tab-panel"],"props":{"name":"market"},"children":[130]},"130":{"tag":"div","class":["nicegui-column","w-full","block-shell"],"style":{"padding":"16px 20px","gap":"16px"},"children":[131,134,138,139,145,146,148,151,155,156,162,163,164,165,166,167,168,173,180]},"131":{"tag":"div","class":["nicegui-row","row"],"style":{"align-items":"baseline","gap":"8px"},"children":[132,133]},"132":{"tag":"nicegui-html","props":{"innerHTML":"&lt;span style=\"font-family:var(--mono);font-size:11px;color:var(--muted)\"&gt;03&lt;/span&gt;","tag":"div","sanitize":true}},"133":{"tag":"div","text":"· Market Data","style":{"font-family":"var(--sans)","font-size":"15px","font-weight":"600","color":"var(--text)"}},"134":{"tag":"div","class":["nicegui-row","row","w-full","gap-4"],"children":[135,136,137]},"135":{"tag":"nicegui-select","class":["w-32"],"props":{"model-value":{"value":0,"label":"Bybit"},"options":[{"value":0,"label":"Bybit"},{"value":1,"label":"Fixture"}],"loopback":true,"error":null,"label":"Source"},"events":[{"listener_id":"2c56f46d-c536-45f0-8213-10dea16294e2","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"45d78b38-6061-437e-a8f8-7737b5670cc3","type":"popupShow","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"1251a4a5-f97f-4572-9f70-fd67b6724732","type":"popupHide","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"f1dff03d-0772-42e6-a53e-fad33b370dfa","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"136":{"tag":"nicegui-select","class":["flex-1"],"props":{"model-value":{"value":0,"label":"GAPs — verifica e colma gap"},"options":[{"value":0,"label":"GAPs — verifica e colma gap"},{"value":1,"label":"OFF — dataset esistente"}],"loopback":true,"error":null,"label":"Validate mode"},"events":[{"listener_id":"7426ceb0-9d83-4381-8887-3111737523aa","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"ade15b66-ca5b-427e-8aa5-d2d5631bf71b","type":"popupShow","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"26d2d546-846d-4b05-9567-2972fac84b30","type":"popupHide","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"a478d1be-2258-4dab-ac4d-37f5a1dd8fe7","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"137":{"tag":"nicegui-select","class":["w-32"],"props":{"model-value":{"value":0,"label":"last"},"options":[{"value":0,"label":"last"},{"value":1,"label":"mark"}],"loopback":true,"error":null,"label":"Price basis"},"events":[{"listener_id":"f43c894b-8a82-4b6a-816f-839fe301a73b","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"6546eb03-2318-42cb-bc96-4ec59c026668","type":"popupShow","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"fbb48995-27f7-4dba-9501-7577b635a568","type":"popupHide","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"3ea765a4-476a-4e18-b55f-22685d07c3fd","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"138":{"tag":"nicegui-html","props":{"innerHTML":"&lt;div class=\"sec-lbl\"&gt;Download TF&lt;/div&gt;","tag":"div","sanitize":true}},"139":{"tag":"div","class":["nicegui-row","row","w-full","gap-4","items-center"],"children":[140,141,142,143,144]},"140":{"tag":"q-checkbox","text":"1m","props":{"model-value":true,"loopback":true},"events":[{"listener_id":"711a4107-3ee7-4ae7-a98b-062321337892","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"36746c49-ac4c-4ecd-8221-2611605a0f91","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"141":{"tag":"q-checkbox","text":"15","props":{"model-value":false,"loopback":true},"events":[{"listener_id":"94ac2d4c-0e46-4c74-8dcb-4bef2dbab9a3","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"aa678644-864c-4efc-b4b0-5f001cefb445","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"142":{"tag":"q-checkbox","text":"1h","props":{"model-value":false,"loopback":true},"events":[{"listener_id":"6104aa9b-7612-435a-bf8f-982fd31349e3","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"e6564187-9043-4ef4-9ab8-1090eb304b96","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"143":{"tag":"q-checkbox","text":"4h","props":{"model-value":false,"loopback":true},"events":[{"listener_id":"b01ff8dd-7062-4034-bdaf-34d728160c1e","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"f6b8cb22-b4eb-42f0-9a24-51f9be20f41f","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"144":{"tag":"q-checkbox","text":"1D","props":{"model-value":false,"loopback":true},"events":[{"listener_id":"b0a5f313-ad95-40bc-9774-8b9ddbfe37b5","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"b29eaf32-bed7-43df-9018-7cf8291f94b7","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"145":{"tag":"nicegui-html","props":{"innerHTML":"&lt;div class=\"sec-lbl\"&gt;Buffer&lt;/div&gt;","tag":"div","sanitize":true}},"146":{"tag":"div","class":["nicegui-row","row","w-full","gap-4","items-center"],"children":[147]},"147":{"tag":"q-option-group","props":{"model-value":0,"options":[{"value":0,"label":"Auto"},{"value":1,"label":"Manuale"}],"loopback":true,"inline":true},"events":[{"listener_id":"b0320e34-95eb-4187-82b6-386082b46d9b","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"68d0e2d6-0f08-43a5-80bc-09d67dc8fbe0","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"148":{"tag":"div","class":["nicegui-row","row","w-full","gap-4","hidden"],"children":[149,150]},"149":{"tag":"q-input","class":["flex-1"],"props":{"model-value":"2","loopback":false,"error":null,"label":"Pre buffer (d)","for":"c149","type":"number","min":0,"max":365,"step":1},"events":[{"listener_id":"ae82aff1-0f9a-449c-b492-8a1b3d0ae165","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"f9bb4ddb-e14a-451d-953c-a7c63d524189","type":"blur","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"44b80197-751a-479b-8052-c91ab8ad7199","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"150":{"tag":"q-input","class":["flex-1"],"props":{"model-value":"1","loopback":false,"error":null,"label":"Post buffer (d)","for":"c150","type":"number","min":0,"max":365,"step":1},"events":[{"listener_id":"17a366c2-8666-4940-8aee-6e7a7249c902","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"df673d02-1817-400a-b14b-f53042791e2f","type":"blur","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"f05085a4-20b6-49df-8fe4-f1881a225141","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"151":{"tag":"div","class":["nicegui-row","row","w-full","items-center","gap-4"],"children":[152,153,154]},"152":{"tag":"q-toggle","text":"Nuova directory","props":{"model-value":false,"loopback":true},"events":[{"listener_id":"5d46e10c-7ba2-4070-8205-b5da02e6a80b","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"65547135-343e-42c8-ac52-5791049c7916","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"ffdab108-c332-422d-b65b-83ef0c215233","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"153":{"tag":"nicegui-input","class":["flex-1","inp-mono","hidden"],"style":{"border-color":"var(--border)"},"props":{"value":"","loopback":false,"error":null,"label":"Path nuova directory","for":"c153","type":"text","_autocomplete":[]},"events":[{"listener_id":"e4b9f431-7491-474f-9723-caf4d5573ba9","type":"update:value","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"290aaf67-e28a-4786-93d8-b722537f68d2","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"154":{"tag":"div","text":"","style":{"font-size":"11px","color":"var(--er)"}},"155":{"tag":"nicegui-html","props":{"innerHTML":"&lt;div class=\"sec-lbl\"&gt;Tipo dati&lt;/div&gt;","tag":"div","sanitize":true}},"156":{"tag":"div","class":["nicegui-row","row","w-full","gap-4","items-center","flex-wrap"],"children":[157,158,159,160,161]},"157":{"tag":"q-toggle","text":"Perp","props":{"model-value":true,"loopback":true},"events":[{"listener_id":"b51c653a-507f-4a9d-bedb-e27649d38013","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"044b96c6-cdfb-496e-9c5f-4654ddfbd784","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"158":{"tag":"q-toggle","text":"Funding rate","props":{"model-value":true,"loopback":true},"events":[{"listener_id":"9cc0fc65-997c-4a62-b6bc-e5da0a85ed83","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"c24b53a4-197a-47f2-a27a-3f94e50fe301","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"159":{"tag":"nicegui-html","props":{"innerHTML":"&lt;span style=\"display:inline-flex;align-items:center;gap:5px;opacity:.5;font-family:var(--mono);font-size:11px;padding:2px 8px;background:var(--surface-2);border:1px solid var(--border-s);border-radius:var(--rs);color:var(--muted)\"&gt;Spot &lt;span style=\"font-size:9px;color:var(--wa);border:1px solid var(--wa);border-radius:var(--rs);padding:0 4px\"&gt;ROADMAP&lt;/span&gt;&lt;/span&gt;","tag":"div","sanitize":true}},"160":{"tag":"nicegui-html","props":{"innerHTML":"&lt;span style=\"display:inline-flex;align-items:center;gap:5px;opacity:.5;font-family:var(--mono);font-size:11px;padding:2px 8px;background:var(--surface-2);border:1px solid var(--border-s);border-radius:var(--rs);color:var(--muted)\"&gt;Open interest &lt;span style=\"font-size:9px;color:var(--wa);border:1px solid var(--wa);border-radius:var(--rs);padding:0 4px\"&gt;ROADMAP&lt;/span&gt;&lt;/span&gt;","tag":"div","sanitize":true}},"161":{"tag":"nicegui-html","props":{"innerHTML":"&lt;span style=\"display:inline-flex;align-items:center;gap:5px;opacity:.5;font-family:var(--mono);font-size:11px;padding:2px 8px;background:var(--surface-2);border:1px solid var(--border-s);border-radius:var(--rs);color:var(--muted)\"&gt;Liquidations &lt;span style=\"font-size:9px;color:var(--wa);border:1px solid var(--wa);border-radius:var(--rs);padding:0 4px\"&gt;ROADMAP&lt;/span&gt;&lt;/span&gt;","tag":"div","sanitize":true}},"162":{"tag":"div","text":"","style":{"display":"none"}},"163":{"tag":"div","text":"NOT READY","style":{"display":"none"}},"164":{"tag":"div","text":"Funding: non richiesto","class":["text-grey-6"],"style":{"display":"none"}},"165":{"tag":"div","text":"","style":{"display":"none"}},"166":{"tag":"div","text":"","style":{"display":"none"}},"167":{"tag":"nicegui-html","props":{"innerHTML":"&lt;div class=\"sec-lbl\" style=\"margin-top:4px\"&gt;Coverage&lt;/div&gt;","tag":"div","sanitize":true}},"168":{"tag":"div","class":["nicegui-grid","w-full","gap-3"],"style":{"grid-template-columns":"repeat(4, minmax(0, 1fr))"},"children":[169,170,171,172]},"169":{"tag":"nicegui-html","props":{"innerHTML":"&lt;div style=\"background:var(--surface-2);border:1px solid var(--border-s);border-radius:var(--rs);padding:10px 14px;text-align:center\"&gt;&lt;div style=\"font-family:var(--mono);font-size:20px;font-weight:600;color:var(--text)\"&gt;—&lt;/div&gt;&lt;div style=\"font-size:10px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.06em\"&gt;Simboli&lt;/div&gt;&lt;/div&gt;","tag":"div","sanitize":true}},"170":{"tag":"nicegui-html","props":{"innerHTML":"&lt;div style=\"background:var(--surface-2);border:1px solid var(--border-s);border-radius:var(--rs);padding:10px 14px;text-align:center\"&gt;&lt;div style=\"font-family:var(--mono);font-size:20px;font-weight:600;color:var(--text)\"&gt;—&lt;/div&gt;&lt;div style=\"font-size:10px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.06em\"&gt;Intervalli req.&lt;/div&gt;&lt;/div&gt;","tag":"div","sanitize":true}},"171":{"tag":"nicegui-html","props":{"innerHTML":"&lt;div style=\"background:var(--surface-2);border:1px solid var(--border-s);border-radius:var(--rs);padding:10px 14px;text-align:center\"&gt;&lt;div style=\"font-family:var(--mono);font-size:20px;font-weight:600;color:var(--text)\"&gt;—&lt;/div&gt;&lt;div style=\"font-size:10px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.06em\"&gt;Gap&lt;/div&gt;&lt;/div&gt;","tag":"div","sanitize":true}},"172":{"tag":"nicegui-html","props":{"innerHTML":"&lt;div style=\"background:var(--surface-2);border:1px solid var(--border-s);border-radius:var(--rs);padding:10px 14px;text-align:center\"&gt;&lt;div style=\"font-family:var(--mono);font-size:20px;font-weight:600;color:var(--text)\"&gt;—&lt;/div&gt;&lt;div style=\"font-size:10px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.06em\"&gt;Copertura %&lt;/div&gt;&lt;/div&gt;","tag":"div","sanitize":true}},"173":{"tag":"q-card","class":["nicegui-card","w-full"],"style":{"background":"var(--log-bg)","border":"1px solid var(--border)","border-radius":"var(--r)","padding":"0"},"children":[174,179]},"174":{"tag":"div","class":["nicegui-row","row"],"style":{"padding":"6px 12px","border-bottom":"1px solid var(--border-s)","align-items":"center","gap":"8px","cursor":"pointer"},"children":[175,176,177,178],"events":[{"listener_id":"e963f6a6-c14c-412c-9ff6-93677d9754d6","type":"click","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"175":{"tag":"div","text":"&#36;","style":{"color":"#238636","font-family":"var(--mono)","font-weight":"600"}},"176":{"tag":"div","text":"Log Market Data","style":{"color":"var(--text2)","font-family":"var(--mono)","font-size":"12px"}},"177":{"tag":"div","style":{"flex":"1"}},"178":{"tag":"div","text":"&gt;","style":{"color":"var(--muted)","font-family":"var(--mono)","font-size":"11px","user-select":"none"}},"179":{"tag":"nicegui-log","class":["nicegui-log","w-full","hidden"],"style":{"background":"var(--log-bg)","color":"var(--log-g)","font-family":"var(--mono)","font-size":"12px","height":"176px","overflow-y":"auto","padding":"8px 12px"}},"180":{"tag":"div","class":["nicegui-row","row","gap-2"],"children":[181,182,183,184]},"181":{"tag":"q-btn","props":{"color":"primary","label":"? Analizza"},"events":[{"listener_id":"0285a92e-6049-40c6-9391-7b7e233c1066","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"182":{"tag":"q-btn","props":{"color":"primary","label":"? Prepara","outline":true},"events":[{"listener_id":"56ac6934-5729-4909-8774-8250b971d1c1","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"183":{"tag":"q-btn","props":{"color":"primary","label":"? Valida","outline":true},"events":[{"listener_id":"b8146a79-7697-471f-97ab-5a7eee84ac55","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"184":{"tag":"q-btn","style":{"color":"var(--er)","border-color":"var(--er)"},"props":{"color":"primary","label":"¦ Arresta","outline":true},"events":[{"listener_id":"1bc6c712-0ed5-4a1f-925b-7124036fab31","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"185":{"tag":"q-tab-panel","class":["nicegui-tab-panel"],"props":{"name":"backtesting"},"children":[186]},"186":{"tag":"div","class":["nicegui-column","w-full","block-shell"],"style":{"padding":"16px 20px","gap":"16px"},"children":[187,190,191,192,195,200,205,216,229,230,231,232,239]},"187":{"tag":"div","class":["nicegui-row","row"],"style":{"align-items":"baseline","gap":"8px"},"children":[188,189]},"188":{"tag":"nicegui-html","props":{"innerHTML":"&lt;span style=\"font-family:var(--mono);font-size:11px;color:var(--muted)\"&gt;04&lt;/span&gt;","tag":"div","sanitize":true}},"189":{"tag":"div","text":"· Backtesting","style":{"font-family":"var(--sans)","font-size":"15px","font-weight":"600","color":"var(--text)"}},"190":{"tag":"nicegui-html","props":{"innerHTML":"&lt;div style=\"background:var(--accent-d);border:1px solid var(--accent);border-radius:var(--rs);padding:8px 12px;font-size:12px;color:var(--text2)\"&gt;? Price basis e Market source sono rilevati automaticamente dalla cartella Market Data.&lt;/div&gt;","tag":"div","sanitize":true}},"191":{"tag":"nicegui-html","props":{"innerHTML":"&lt;div class=\"sec-lbl\"&gt;Policy&lt;/div&gt;","tag":"div","sanitize":true}},"192":{"tag":"div","class":["nicegui-row","row","w-full","items-center","gap-2"],"children":[193,194]},"193":{"tag":"nicegui-select","class":["flex-1"],"props":{"model-value":[{"value":0,"label":"original_chain"},{"value":2,"label":"signal_only"}],"options":[{"value":0,"label":"original_chain"},{"value":1,"label":"policy_template_full"},{"value":2,"label":"signal_only"}],"loopback":true,"error":null,"label":"Policy da eseguire","multiple":true},"events":[{"listener_id":"cdb8b93d-2308-4fa1-8f90-fadcb18da485","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"eba8e890-85f8-4a44-bcb4-02c9f9070492","type":"popupShow","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"c745e296-b965-40fb-a3cb-bbd1d78a7c63","type":"popupHide","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"9ded8fd8-8df7-4453-85ef-a7063d1ce123","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"194":{"tag":"q-btn","style":{"font-family":"var(--mono)","color":"var(--muted)"},"props":{"color":"primary","label":"?","flat":true,"dense":true},"events":[{"listener_id":"c5fdde3b-5275-4dc3-9dc5-9c6093c014af","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"195":{"tag":"div","class":["nicegui-row","row","w-full","gap-4","items-end"],"children":[196,197,198,199]},"196":{"tag":"q-input","class":["w-28"],"props":{"model-value":"1","loopback":false,"error":null,"label":"Timeout (m)","for":"c196","type":"number","min":1,"step":1},"events":[{"listener_id":"e759240b-a9a1-4c66-b56e-5cec37070be5","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"95de1050-92e7-47db-a6fc-a8f7c4b8bfdd","type":"blur","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"27b0eb75-1750-4b12-9b4c-ddb74a70d46e","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"197":{"tag":"nicegui-input","class":["flex-1","inp-mono"],"style":{"border-color":"var(--border)"},"props":{"value":"","loopback":false,"error":null,"label":"Report output dir","for":"c197","placeholder":"default: artifacts/scenarios","type":"text","_autocomplete":[]},"events":[{"listener_id":"53c3e21a-d569-4180-b84d-48ae37de8bca","type":"update:value","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"e888e209-5844-471d-a91f-dfbad5290064","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"198":{"tag":"div","text":"","style":{"font-size":"11px","color":"var(--er)"}},"199":{"tag":"q-btn","props":{"color":"primary","label":"Sfoglia","icon":"folder_open"},"events":[{"listener_id":"ac6c1d1b-32ed-4765-b7b5-d4828f0a5e87","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"200":{"tag":"div","class":["nicegui-row","row","w-full","gap-4"],"children":[201,202,203,204]},"201":{"tag":"nicegui-select","class":["flex-1"],"props":{"model-value":{"value":0,"label":"1m"},"options":[{"value":0,"label":"1m"},{"value":1,"label":"15m"},{"value":2,"label":"1h"},{"value":3,"label":"4h"},{"value":4,"label":"1D"}],"loopback":true,"error":null,"label":"Simulation TF"},"events":[{"listener_id":"005aff90-92f1-406d-81a5-7f05602d3a1f","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"4ec04ce8-8520-4f20-ac65-f6789ae21a46","type":"popupShow","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"6fa60483-74cd-4914-b2bf-2e77ee177a0d","type":"popupHide","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"d17857cf-232b-4998-92bb-fb87cc462741","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"202":{"tag":"nicegui-select","class":["flex-1"],"props":{"model-value":{"value":0,"label":"1m"},"options":[{"value":0,"label":"1m"},{"value":1,"label":"15m"},{"value":2,"label":"1h"},{"value":3,"label":"4h"},{"value":4,"label":"1D"}],"loopback":true,"error":null,"label":"Detail TF / childs"},"events":[{"listener_id":"6ce1c0f2-769a-4173-be44-da70679ff753","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"313359cf-6bf6-4b60-bd01-1b4b562bbf51","type":"popupShow","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"d01a0884-a758-45ba-9652-02a1ba03112c","type":"popupHide","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"8c1ccb0d-1e34-4930-8068-3bdda8a07863","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"203":{"tag":"nicegui-input","class":["flex-1","inp-mono"],"style":{"color":"var(--muted)"},"props":{"value":"last","loopback":false,"error":null,"label":"Price basis · auto da market dir","for":"c203","type":"text","_autocomplete":[],"readonly":true},"events":[{"listener_id":"9d81666a-749a-4076-a2ca-a4c46a3070e7","type":"update:value","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"204":{"tag":"nicegui-input","class":["flex-1","inp-mono"],"style":{"color":"var(--muted)"},"props":{"value":"bybit","loopback":false,"error":null,"label":"Market source · auto da market dir","for":"c204","type":"text","_autocomplete":[],"readonly":true},"events":[{"listener_id":"94107415-0a1b-4aa5-8a54-6b9cc3c03ed0","type":"update:value","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"205":{"tag":"nicegui-expansion","class":["nicegui-expansion","w-full"],"style":{"border":"1px solid var(--border-s)","border-radius":"var(--rs)","background":"var(--surface-2)"},"props":{"model-value":false,"loopback":true,"label":"Policy Studio","icon":"tune"},"children":[206,207,210,211],"events":[{"listener_id":"1632c41a-9b8d-4c70-8519-eeaab34ef14c","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"206":{"tag":"div","text":"C:\\Back_Testing\\configs\\policies","class":["path-chip"]},"207":{"tag":"div","class":["nicegui-row","row","w-full","gap-4","items-end"],"children":[208,209]},"208":{"tag":"nicegui-select","class":["flex-1"],"props":{"model-value":{"value":0,"label":"original_chain"},"options":[{"value":0,"label":"original_chain"},{"value":1,"label":"policy_template_full"},{"value":2,"label":"signal_only"}],"loopback":true,"error":null,"label":"Policy editor"},"events":[{"listener_id":"9352bb51-a83b-4f19-8455-54cacf204054","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"bc95147b-68d9-4ab1-98f8-95dfd35db250","type":"popupShow","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"2aeec392-cf97-404e-8427-63bbe04d9f66","type":"popupHide","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"213fe2e7-bf18-45cb-be48-b563b299f64c","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"209":{"tag":"nicegui-input","class":["flex-1","inp-mono"],"props":{"value":"","loopback":false,"error":null,"label":"Nuova policy","for":"c209","placeholder":"solo lettere, cifre, _ e -","type":"text","_autocomplete":[]},"events":[{"listener_id":"0c9aee46-53a9-4545-87e6-1a99aacc4be2","type":"update:value","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"210":{"tag":"nicegui-input","class":["w-full","inp-mono"],"style":{"height":"320px","font-size":"12px","white-space":"pre"},"props":{"value":"# Template generale completo per policy Signal Chain Lab.\n#\n# Obiettivo:\n# - documentare il contratto YAML attuale\n# - restare caricabile dal PolicyLoader\n# - includere sia campi MVP sia estensioni gia' accettate dal modello\n\nname: original_chain\n\nentry:\n  # true  = usa la struttura entry originale della chain  \n  # false = lascia spazio a regole future di override\n  # Nota:\n  # il motore ora puo' costruire piu' EntryPlan da OPEN_SIGNAL quando il payload\n  # contiene abbastanza dettaglio su entries / entry_prices / entry_type.\n  use_original_entries: true\n\n  # Valori oggi presenti nello search space optimizer:\n  # - equal\n  # - front_loaded\n  # - back_loaded\n  #\n  # Semantica:\n  # - equal: distribuzione uniforme tra entry\n  # - front_loaded: piu' size sulle prime entry\n  # - back_loaded: piu' size sulle entry successive\n  entry_allocation: equal\n\n  # null = nessun limite esplicito sul numero di entry utilizzabili\n  max_entries_to_use: null\n\n  # Frazionamento entry per struttura canonica.\n  #\n  # Struttura canonica dispatch:\n  #   entry_structure = ONE_SHOT  + entry_type = MARKET  ? MARKET.single\n  #   entry_structure = ONE_SHOT  + entry_type = LIMIT   ? LIMIT.single\n  #   entry_structure = TWO_STEP  + primo leg market      ? MARKET.averaging\n  #   entry_structure = TWO_STEP  + primo leg limit       ? LIMIT.averaging\n  #   entry_structure = RANGE                             ? LIMIT.range\n  #   entry_structure = LADDER                            ? LIMIT.ladder\n  #\n  # Valori legacy entry_type (AVERAGING, ZONE) e entry_structure (SINGLE) sono\n  # accettati in input ma generano DeprecationWarning e vengono normalizzati\n  # automaticamente dal motore.\n  # I blocchi policy AVERAGING e ZONE sono deprecati: non aggiungerli in nuove policy.\n  entry_split:\n\n    LIMIT:\n      single:\n        weights:\n          E1: 1.0\n      range:\n        # split_mode: come trattare il range di prezzo (P1=basso, P2=alto).\n        #\n        # endpoints  ? 2 ordini limit (P1 e P2). Size distribuita con E1/E2 (weights qui sotto).\n        # firstpoint ? 1 ordine limit a P1 (piu' basso). Size 100%. Weights ignorati.\n        # lastpoint  ? 1 ordine limit a P2 (piu' alto).  Size 100%. Weights ignorati.\n        # midpoint   ? 1 ordine limit a (P1+P2)/2.       Size 100%. Weights ignorati.\n        #\n        # I weights E1/E2 si applicano SOLO con split_mode: endpoints.\n        split_mode: endpoints # endpoints | firstpoint | lastpoint | midpoint\n        weights:\n          E1: 0.50\n          E2: 0.50\n      averaging:\n        weights:\n          E1: 0.70\n          E2: 0.30\n      ladder:\n        weights:\n          E1: 0.50\n          E2: 0.30\n          E3: 0.20\n\n    MARKET:\n      single:\n        weights:\n          E1: 1.0\n      averaging:\n        weights:\n          E1: 0.70\n          E2: 0.30\n\n  allow_add_entry_updates: true   # true = consenti update ADD_ENTRY del trader\n\n\ntp:\n  # null = usa tutti i TP del segnale\n  # N    = usa solo i primi N TP (es: 2 = ignora TP3 e successivi)\n  use_tp_count: null\n\n  # Distribuzione della size sui livelli TP.\n  #\n  # mode: equal\n  #   Split uniforme tra N TP.\n  #   L'ultimo livello assorbe il resto floating-point ? somma sempre 1.0.\n  #   Esempio con 3 TP: [33.3%, 33.3%, 33.4%]\n  #\n  # mode: table\n  #   Usa la tabella esplicita sotto per N TP.\n  #   I valori non devono sommare a 100 — vengono normalizzati.\n  #   Se la riga per N manca ? warning + fallback equal.\n  close_distribution:\n    mode: table\n    table:\n      1: [100]\n      2: [50, 50]\n      3: [30, 30, 40]\n      4: [25, 25, 25, 25]\n      5: [20, 20, 20, 20, 20]\n      5: [20, 20, 20, 20, 20]\n    # Questa tabella non crea TP mancanti.\n    # Serve solo a distribuire la size di uscita sui TP gia' esistenti\n    # nella chain, per esempio quando i TP usati sono 2, 3 o 4.\n\nsl:\n  # true = conserva lo SL iniziale/originale\n  use_original_sl: true\n\n  # Engine auto-trigger break-even dopo hit di un TP specifico.\n  # null    = nessun BE automatico\n  # \"tp1\"   = muovi SL a BE dopo il primo TP parziale\n  # \"tp2\"   = muovi SL a BE dopo il secondo TP parziale\n  #\n  # Nota: il trader puo' sempre inviare MOVE_STOP con:\n  #   - prezzo esatto (es. 1234.56)\n  #   - None          ? BE implicito (avg_entry_price)\n  #   - \"tp1\" / \"tp2\" ? SL al livello del TP corrispondente\n  be_trigger: null\n\nupdates:\n  # Bootstrap MVP: flag semplici per filtrare gli update del trader.\n  apply_move_stop: true\n  apply_close_partial: true\n  apply_close_full: true\n  apply_cancel_pending: true\n  apply_add_entry: true\n\n  # Fallback 50% se il partial close non specifica bene la quota.\n  # Nota: questo campo e' parsed ma non ancora letto dall'engine.\n  # L'engine usa event.payload.get(\"close_pct\", 0.5) come fallback interno.\n  partial_close_fallback_pct: 0.5\n\npending:\n  # Timeout di un ordine pending non fillato.\n  pending_timeout_hours: 24\n\n  # Timeout massimo dell'intera chain.\n  chain_timeout_hours: 168\n\n  # true = allo scadere del pending_timeout_hours emette CANCEL_PENDING engine-driven.\n  # false = i pending rimangono attivi; chain_timeout_hours li chiude comunque.\n  cancel_pending_on_timeout: false\n\n  # Master switch per tutte le logiche di cancel engine TP-triggered (sotto).\n  # false = disabilita cancel_averaging_pending_after e cancel_unfilled_pending_after\n  #         indipendentemente dai loro valori.\n  # Non influenza cancel_pending_on_timeout (ha il suo flag separato).\n  cancel_pending_by_engine: false\n\n  # Cancella gli entry pending rimasti dopo il hit di un TP con open_size &gt; 0.\n  # Scenario: E1 fillato, E2 averaging ancora pending ? TP1 colpito ? cancella E2.\n  # null  = mai\n  # \"tp1\" = dopo il primo TP parziale\n  # \"tp2\" = dopo il secondo TP parziale\n  cancel_averaging_pending_after: null\n\n  # Cancella TUTTI i pending se il prezzo raggiunge un TP senza alcun fill (open_size == 0).\n  # Scenario: LIMIT a 100, prezzo sale a TP1 senza toccare 100 ? cancella tutto.\n  # null  = mai\n  # \"tp1\" = se TP1 raggiunto prima di qualsiasi fill\n  # \"tp2\" = se TP2 raggiunto prima di qualsiasi fill\n  cancel_unfilled_pending_after: null\n  # cancel_all_pending_after_break_even: false\n\n# risk: controlla il sizing e le metriche R/PnL% nel report.\n#\n# mode:\n#   none   ? simulatore gira, metriche R/PnL% assenti nel report (default)\n#   fixed  ? usa sempre risk_pct sotto, ignora risk_percent dal segnale\n#   signal ? usa risk_percent dal segnale se presente, fallback a risk_pct\n#            se il segnale ha solo un hint qualitativo (U_RISK_NOTE senza valore),\n#            usa reduced_risk_pct invece di risk_pct\n#\n# risk_pct: obbligatorio se mode=fixed o mode=signal\n# reduced_risk_pct: opzionale, usato solo con mode=signal per hint qualitativi\nrisk:\n  mode: fixed \n  risk_pct: 1.0\n  # reduced_risk_pct: 0.5\n\nexecution:\n  # Usato da latency_model.py / fill_model.py\n  latency_ms: 0\n\n  # Modello slippage applicato ai market order.\n  # Valori supportati:\n  #   none      ? nessuno slippage (default)\n  #   fixed_bps ? sposta il fill price di slippage_bps basis points in direzione avversa\n  #               (LONG paga di più, SHORT riceve di meno)\n  # Nota: i limit order non sono soggetti a slippage (fill al prezzo esatto del limite).\n  slippage_model: none\n\n  # Usato solo con slippage_model: fixed_bps\n  # 1 bps = 0.01%; es: 5 bps = 0.05% di slippage avverso sui market order\n  slippage_bps: 0\n\n  # Placeholder contrattuale per il modello di fill touch-based.\n  fill_touch_guaranteed: true\n\n  # Modello fee applicato a ogni fill (entry e close TP/SL).\n  # Valori supportati:\n  #   none      ? nessuna fee (default)\n  #   fixed_bps ? fee = price * qty * fee_bps / 10_000 per lato\n  #               Esempio: fee_bps=5 = 0.05% per lato (entry + exit separati)\n  fee_model: none\n\n  # Usato solo con fee_model: fixed_bps\n  fee_bps: 0.0\n  maker_fee_bps: null\n  taker_fee_bps: null\n\n  # Modello funding rate per futures perpetui.\n  # none       ? nessun funding applicato (default)\n  # historical ? usa i dati storici scaricati da Bybit (PRD: docs/PRD_funding_model.md)\n  funding_model: none\n  funding_apply_to_pnl: true   # se false: calcola e logga ma non deduce dal PnL\n\n  # Estensioni possibili:\n  # partial_fill_model: none   # design: docs/DESIGN_partial_fill_model.md\n  # spread_model: none\n","loopback":false,"error":null,"for":"c210","type":"textarea","_autocomplete":[]},"events":[{"listener_id":"e82ebdb6-f5bc-47b6-98db-1020c4ca24e6","type":"update:value","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"211":{"tag":"div","class":["nicegui-row","row","gap-2","q-mt-sm"],"children":[212,213,214,215]},"212":{"tag":"q-btn","props":{"color":"primary","label":"Salva","dense":true,"outline":true},"events":[{"listener_id":"953a6177-307a-4806-9d09-4e6401bca50a","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"213":{"tag":"q-btn","props":{"color":"primary","label":"Salva come nuova","dense":true,"outline":true},"events":[{"listener_id":"f0600b67-da76-4f0a-802b-d067fe171a04","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"214":{"tag":"q-btn","props":{"color":"primary","label":"Nuova policy","dense":true,"outline":true},"events":[{"listener_id":"f29a2060-99de-4dcc-ac1d-df882cc94d08","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"215":{"tag":"q-btn","props":{"color":"primary","label":"Ricarica lista","dense":true,"outline":true},"events":[{"listener_id":"777e44d7-ef6e-4d8d-9386-366a4a52cb42","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"216":{"tag":"nicegui-expansion","class":["nicegui-expansion","w-full"],"style":{"border":"1px solid var(--border-s)","border-radius":"var(--rs)","background":"var(--surface-2)"},"props":{"model-value":false,"loopback":true,"label":"Filtri dataset","icon":"filter_list"},"children":[217,221,225],"events":[{"listener_id":"8ccf6682-32d7-466a-b879-5b548fdc5af0","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"217":{"tag":"div","class":["nicegui-row","row","w-full","items-end","gap-2"],"children":[218,219,220]},"218":{"tag":"nicegui-input","class":["flex-1","inp-mono"],"style":{"border-color":"var(--border)"},"props":{"value":"","loopback":false,"error":null,"label":"DB parsato","for":"c218","type":"text","_autocomplete":[]},"events":[{"listener_id":"76b88a89-509f-4942-ab02-c0e691f38297","type":"update:value","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"ac5f9ed1-29bf-4baa-a0ab-ea685d9a3f2d","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"219":{"tag":"div","text":"","style":{"font-size":"11px","color":"var(--er)"}},"220":{"tag":"q-btn","props":{"color":"primary","label":"Sfoglia","icon":"folder_open"},"events":[{"listener_id":"fd7765b3-750d-4ffa-9510-52dffeff8a25","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"221":{"tag":"div","class":["nicegui-row","row","w-full","gap-4","items-end","q-mt-sm"],"children":[222,223,224]},"222":{"tag":"nicegui-select","class":["flex-1"],"props":{"model-value":{"value":0,"label":"Tutti i trader"},"options":[{"value":0,"label":"Tutti i trader"}],"loopback":true,"error":null,"label":"Trader"},"events":[{"listener_id":"f2a20943-35ee-4e6e-8262-510425f4e985","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"f27f8114-3d1f-4542-880d-cdfec31ea4a8","type":"popupShow","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"dd0dee3f-05ad-4f11-838f-cfdc950ba1a4","type":"popupHide","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"3f72f071-88e0-438c-aae6-f4915d17923a","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"223":{"tag":"div","text":"","class":["text-caption","self-center"],"style":{"color":"var(--muted)","font-size":"11px"}},"224":{"tag":"q-btn","props":{"color":"primary","label":"Rileva","icon":"search","dense":true,"flat":true},"events":[{"listener_id":"5e961ccd-f474-47a3-b9a1-c1db6d2a4962","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"225":{"tag":"div","class":["nicegui-row","row","w-full","gap-4","q-mt-sm"],"children":[226,227,228]},"226":{"tag":"nicegui-input","class":["flex-1"],"props":{"value":"","loopback":false,"error":null,"label":"Dal","for":"c226","placeholder":"YYYY-MM-DD","type":"text","_autocomplete":[]},"events":[{"listener_id":"b9b86d5a-3d8b-40dd-b5b8-c3d58147c91c","type":"update:value","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"7e07f6cf-2788-4de2-b6e9-351fcc3d2aec","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"227":{"tag":"nicegui-input","class":["flex-1"],"props":{"value":"","loopback":false,"error":null,"label":"Al","for":"c227","placeholder":"YYYY-MM-DD","type":"text","_autocomplete":[]},"events":[{"listener_id":"83538a4f-2ca6-4d46-9ef2-0a4ac0851a4d","type":"update:value","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"1f19af71-785b-4457-8e4f-99f926b797f9","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"228":{"tag":"q-input","class":["w-28"],"props":{"model-value":"0","loopback":false,"error":null,"label":"Max trades","for":"c228","type":"number","min":0,"step":10},"events":[{"listener_id":"997ad609-a4d8-4c0d-8c7f-a460b5a25942","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":[null],"throttle":0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"4669d984-1479-4331-971e-5e3d03112950","type":"blur","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null},{"listener_id":"b938a0ba-b232-4b94-babb-30a622743b2c","type":"update:modelValue","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"229":{"tag":"nicegui-html","props":{"innerHTML":"&lt;span style=\"font-family:var(--mono);font-size:11px;color:var(--er)\"&gt;? Copertura dataset: 0% · analisi mancante · esegui Analizza&lt;/span&gt;","tag":"div","sanitize":true}},"230":{"tag":"nicegui-html","props":{"innerHTML":"&lt;div class=\"sec-lbl\" style=\"margin-top:4px\"&gt;Risultati&lt;/div&gt;","tag":"div","sanitize":true}},"231":{"tag":"nicegui-html","props":{"innerHTML":"&lt;span style=\"font-family:var(--mono);font-size:11px;color:var(--muted)\"&gt;- nessun run eseguito -&lt;/span&gt;","tag":"div","sanitize":true}},"232":{"tag":"q-card","class":["nicegui-card","w-full"],"style":{"background":"var(--log-bg)","border":"1px solid var(--border)","border-radius":"var(--r)","padding":"0"},"children":[233,238]},"233":{"tag":"div","class":["nicegui-row","row"],"style":{"padding":"6px 12px","border-bottom":"1px solid var(--border-s)","align-items":"center","gap":"8px","cursor":"pointer"},"children":[234,235,236,237],"events":[{"listener_id":"f540ea42-bcc3-4934-9000-764d2510c1ea","type":"click","specials":[],"modifiers":[],"keys":[],"args":null,"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"234":{"tag":"div","text":"&#36;","style":{"color":"#238636","font-family":"var(--mono)","font-weight":"600"}},"235":{"tag":"div","text":"Log Backtest","style":{"color":"var(--text2)","font-family":"var(--mono)","font-size":"12px"}},"236":{"tag":"div","style":{"flex":"1"}},"237":{"tag":"div","text":"&gt;","style":{"color":"var(--muted)","font-family":"var(--mono)","font-size":"11px","user-select":"none"}},"238":{"tag":"nicegui-log","class":["nicegui-log","w-full","hidden"],"style":{"background":"var(--log-bg)","color":"var(--log-g)","font-family":"var(--mono)","font-size":"12px","height":"176px","overflow-y":"auto","padding":"8px 12px"}},"239":{"tag":"div","class":["nicegui-row","row","gap-2"],"children":[240,241,242,243]},"240":{"tag":"q-btn","props":{"color":"primary","label":"? Esegui Backtest","disable":true},"events":[{"listener_id":"39df4124-46ba-4293-b55a-d86d99d1fe0b","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"241":{"tag":"q-btn","style":{"color":"var(--er)","border-color":"var(--er)"},"props":{"color":"primary","label":"¦ Arresta","outline":true},"events":[{"listener_id":"07e1917c-3155-4f36-b097-b29b6d3a97ef","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"242":{"tag":"q-btn","props":{"color":"primary","label":"?? Apri report HTML","outline":true},"events":[{"listener_id":"c9fffa3c-eb00-4ee8-baf0-5b8a746d7e2a","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]},"243":{"tag":"q-btn","props":{"color":"primary","label":"?? Artifact dir","outline":true},"events":[{"listener_id":"80e0e299-439a-494b-ad90-2a237207ed76","type":"click","specials":[],"modifiers":[],"keys":[],"args":[],"throttle":0.0,"leading_events":true,"trailing_events":true,"js_handler":null}]}}`), {
+        version: "3.10.0",
+        prefix: "",
+        query: {'client_id': '35fa2f6b-548d-4903-b5f1-4629df546303', 'next_message_id': 0, 'implicit_handshake': True},
+        extraHeaders: {},
+        transports: ['websocket', 'polling'],
+      });
+      const dark = False;
+      const language = "en-US";
+      const vue_config = {"brand":{"primary":"#5898d4","secondary":"#26a69a","accent":"#9c27b0","dark":"#1d1d1d","dark-page":"#121212","positive":"#21ba45","negative":"#c10015","info":"#31ccec","warning":"#f2c037"},"loadingBar":{"color":"primary","skipHijack":false}};
+      
+        app.use(Quasar, {config: vue_config});
+        applyColors(vue_config.brand);
+        Quasar.lang.set(Quasar.lang[language.replace('-', '')]);
+        darkSetter = (dark) => Quasar.Dark.set(dark === None ? "auto" : dark);
+        setDark(dark);
+    
+
+      import { default as colors } from "/_nicegui/3.10.0/components/00c6b80e00db881ab3217ed75567745f/colors.js";
+app.component("nicegui-colors", colors);
+import { default as html } from "/_nicegui/3.10.0/components/4cad76b33924590ff02c5b4522d6f332/html.js";
+app.component("nicegui-html", html);
+import { default as expansion } from "/_nicegui/3.10.0/components/a2a5afd84d7c805b724a44b098d29c72/expansion.js";
+app.component("nicegui-expansion", expansion);
+import { default as input } from "/_nicegui/3.10.0/components/4cad76b33924590ff02c5b4522d6f332/input.js";
+app.component("nicegui-input", input);
+import { default as log } from "/_nicegui/3.10.0/components/7d64432d3ff30e50bb959a9bff95f5d6/log.js";
+app.component("nicegui-log", log);
+import { default as select } from "/_nicegui/3.10.0/components/a3af4ff553634b54a475c57ec35bc39a/select.js";
+app.component("nicegui-select", select);
+      
+
+      app.mount("#app");
+
+      // Scroll to fragment after Vue mounts (browser's native scroll may have failed if element wasn't ready)
+      if (window.location.hash) {
+        Vue.nextTick(() => {
+          const fragment = window.location.hash.substring(1);
+          (document.getElementById(fragment) || document.querySelector(`a[name="${fragment}"]`))?.scrollIntoView();
+        });
+      }
+    </script>
+  </body>
+</html>

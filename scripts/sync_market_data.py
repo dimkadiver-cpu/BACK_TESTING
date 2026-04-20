@@ -36,6 +36,21 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def _reason_code_for_sync_result(sync_result: object) -> str:
+    """Map a SyncJobResult to a structured reason_code string."""
+    status = getattr(sync_result, "status", "")
+    errors: list[str] = getattr(sync_result, "errors", []) or []
+    if status == "skipped":
+        if any("Symbol not available" in e for e in errors):
+            return "unsupported_symbol"
+        return "no_gap"
+    if status == "error":
+        return "sync_error"
+    if status == "partial":
+        return "partial_data"
+    return "ok"
+
+
 def main() -> int:
     args = parse_args()
     plan = json.loads(Path(args.plan_file).read_text(encoding="utf-8"))
@@ -67,12 +82,16 @@ def main() -> int:
 
     output = Path(args.output) if args.output else Path("artifacts/market_data/sync_market_data.json")
     output.parent.mkdir(parents=True, exist_ok=True)
+    unsupported_symbols = sorted({
+        item["symbol"] for item in results if item.get("reason_code") == "unsupported_symbol"
+    })
     output.write_text(
         json.dumps(
             {
                 "source": args.source,
                 "plan_file": str(Path(args.plan_file).resolve()),
                 "market_request_fingerprint": plan.get("market_request_fingerprint", ""),
+                "unsupported_symbols": unsupported_symbols,
                 "results": results,
             },
             indent=2,
@@ -84,14 +103,18 @@ def main() -> int:
     skipped_count = sum(1 for item in results if item["status"] == "skipped")
     failed_count = sum(1 for item in results if item["status"] in {"error", "partial"})
 
+    unsupported_count = len(unsupported_symbols)
     print("PROGRESS=100")
-    print(f"SUMMARY=ok:{ok_count} skipped:{skipped_count} error:{failed_count}")
+    print(f"SUMMARY=ok:{ok_count} skipped:{skipped_count} error:{failed_count} unsupported:{unsupported_count}")
     print(f"sync_report={output}")
     print(f"source={args.source}")
     print(f"jobs={len(results)}")
     print(f"ok={ok_count}")
     print(f"skipped={skipped_count}")
     print(f"failed={failed_count}")
+    print(f"unsupported={unsupported_count}")
+    if unsupported_symbols:
+        print(f"unsupported_symbols={','.join(unsupported_symbols)}")
     print(f"market_request_fingerprint={plan.get('market_request_fingerprint', '')}")
 
     return 1 if failed_count else 0
@@ -122,6 +145,7 @@ def _sync_bybit(
                                 "basis": basis,
                                 "timeframe": requested_timeframe,
                                 "status": "skipped",
+                                "reason_code": "no_gap",
                                 "rows_written": 0,
                                 "source": source,
                             }
@@ -147,6 +171,7 @@ def _sync_bybit(
                             "basis": basis,
                             "timeframe": requested_timeframe,
                             "status": sync_result.status,
+                            "reason_code": _reason_code_for_sync_result(sync_result),
                             "rows_written": sync_result.rows_downloaded,
                             "partitions_written": sync_result.partitions_written,
                             "errors": sync_result.errors,
@@ -157,7 +182,7 @@ def _sync_bybit(
 
             gaps = [Interval.from_dict(item) for item in entry.get("gaps", [])]
             if not gaps:
-                results.append({"symbol": symbol, "basis": basis, "timeframe": plan["timeframe"], "status": "skipped", "rows_written": 0})
+                results.append({"symbol": symbol, "basis": basis, "timeframe": plan["timeframe"], "status": "skipped", "reason_code": "no_gap", "rows_written": 0})
                 continue
 
             downloader = BybitDownloader(
@@ -179,6 +204,7 @@ def _sync_bybit(
                     "basis": basis,
                     "timeframe": plan["timeframe"],
                     "status": sync_result.status,
+                    "reason_code": _reason_code_for_sync_result(sync_result),
                     "rows_written": sync_result.rows_downloaded,
                     "partitions_written": sync_result.partitions_written,
                     "errors": sync_result.errors,
@@ -209,6 +235,7 @@ def _sync_fixture(
                         "symbol": symbol,
                         "basis": basis,
                         "status": "missing_reference_price",
+                        "reason_code": "symbol_mapping_missing",
                         "rows_written": 0,
                         "source": source,
                     }
@@ -217,7 +244,7 @@ def _sync_fixture(
         for basis, entry in basis_payload.items():
             gaps = [Interval.from_dict(item) for item in entry.get("gaps", [])]
             if not gaps:
-                results.append({"symbol": symbol, "basis": basis, "status": "skipped", "rows_written": 0, "source": source})
+                results.append({"symbol": symbol, "basis": basis, "status": "skipped", "reason_code": "no_gap", "rows_written": 0, "source": source})
                 continue
 
             rows_written = 0
@@ -269,6 +296,7 @@ def _sync_fixture(
                     "symbol": symbol,
                     "basis": basis,
                     "status": "ok",
+                    "reason_code": "ok",
                     "rows_written": rows_written,
                     "partitions_written": partitions_written,
                     "source": source,

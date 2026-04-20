@@ -8,49 +8,51 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from nicegui import ui
-from src.signal_chain_lab.ui.blocks.backtest_support import (
-    discover_date_range_from_db,
-    discover_policy_names,
-    discover_traders_from_db,
-    load_policy_yaml,
-    policies_dir_path,
-    save_policy_yaml,
-)
+
 from src.signal_chain_lab.ui.blocks.backtest_observability import (
     append_benchmark_entry,
     compute_benchmark_snapshot,
 )
+from src.signal_chain_lab.ui.blocks.backtest_support import (
+    discover_policy_names,
+    find_html_report,
+    load_policy_yaml,
+    market_backtest_gate,
+    policies_dir_path,
+    save_policy_yaml,
+)
 from src.signal_chain_lab.ui.components.log_panel import LogPanel
-from src.signal_chain_lab.ui.file_dialogs import ask_directory, ask_open_filename
+from src.signal_chain_lab.ui.file_dialogs import ask_directory
+from src.signal_chain_lab.ui.persistence import debounced_save
 from src.signal_chain_lab.ui.state import UiState
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[4]
+_BENCHMARK_PATH = Path("artifacts/market_data/backtest_benchmark.json")
 _SUMMARY_RE = re.compile(
     r"^- (?P<policy>[^:]+): pnl=(?P<pnl>[-+]?\d+(?:\.\d+)?), "
     r"win_rate=(?P<win_rate>[-+]?\d+(?:\.\d+)?%), "
     r"expectancy=(?P<expectancy>[-+]?\d+(?:\.\d+)?), "
     r"trades=(?P<trades>\d+), excluded=(?P<excluded>\d+)"
 )
-_BENCHMARK_PATH = Path("artifacts/market_data/backtest_benchmark.json")
+_POLICY_NAME_RE = re.compile(r"^[a-z][a-z0-9_-]*$")
+_TF_OPTIONS_BT = {"1m": "1m", "15m": "15m", "1h": "1h", "4h": "4h", "1d": "1D"}
+
+
+class _BacktestCtx:
+    process: object = None  # asyncio.subprocess.Process | None
+    stop_requested: bool = False
+
+
+_backtest_ctx = _BacktestCtx()
 
 
 def _can_enable_backtest(*, db_path: str) -> bool:
     return bool(db_path.strip()) and Path(db_path.strip()).exists()
 
 
-async def _browse_backtest_db(output_input) -> None:
-    selected = ask_open_filename(
-        initialdir=_PROJECT_ROOT,
-        title="Seleziona il DB parsato",
-        filetypes=[("SQLite DB", "*.sqlite3 *.db"), ("All files", "*.*")],
-    )
-    if not selected:
-        ui.notify("Selezione file annullata.", color="warning")
-        return
-    output_input.value = selected
-    output_input.update()
-    if hasattr(output_input, "_after_set"):
-        output_input._after_set()
+def _market_backtest_gate(state: UiState) -> tuple[bool, str, str]:
+    """Backward-compatible wrapper around the shared coverage gate."""
+    return market_backtest_gate(state)
 
 
 async def _browse_report_dir(output_input) -> None:
@@ -149,44 +151,67 @@ def _build_multi_policy_command(*, db_path: str, state: UiState, output_dir: str
     return command
 
 
-def _render_backtest_summary(
-    *,
-    container,
-    chains_selected: str | None,
-    summaries: list[dict[str, str]],
-    artifact_path: str,
-    html_path: str | None = None,
-) -> None:
-    from pathlib import Path as _Path
+def _results_table_html(summaries: list[dict[str, str]], html_path: str | None = None) -> str:
+    if not summaries:
+        return (
+            '<span style="font-family:var(--mono);font-size:11px;color:var(--muted)">'
+            "- nessun run eseguito -</span>"
+        )
 
-    with container:
-        container.clear()
-        with ui.card().classes("w-full"):
-            ui.label("Report Backtest").classes("text-subtitle2")
-            if chains_selected is not None:
-                ui.label(f"Chain selezionate: {chains_selected}")
-            if html_path and _Path(html_path).exists():
-                ui.link(
-                    "Apri report HTML",
-                    target=_Path(html_path).resolve().as_uri(),
-                    new_tab=True,
-                ).classes("text-primary text-caption")
-            elif artifact_path:
-                ui.label(f"Artifact: {artifact_path}").classes("text-caption text-grey-7")
+    th = (
+        "background:var(--surface-2);color:var(--muted);font-size:9px;font-weight:600;"
+        "text-transform:uppercase;letter-spacing:.08em;padding:6px 10px;text-align:left;"
+        "border-bottom:1px solid var(--border-s)"
+    )
+    td = (
+        "padding:6px 10px;font-family:var(--mono);font-size:11px;color:var(--text2);"
+        "border-bottom:1px solid var(--border-s)"
+    )
+    td_c = td + ";text-align:center"
+    report_cell = '<span style="font-size:11px;color:var(--muted)">-</span>'
+    if html_path and Path(html_path).exists():
+        report_url = Path(html_path).resolve().as_uri()
+        report_cell = (
+            f'<a href="{report_url}" target="_blank" '
+            'style="font-size:11px;color:var(--accent);text-decoration:none">Apri</a>'
+        )
 
-            if not summaries:
-                ui.label("Nessun riepilogo policy trovato nel log.").classes("text-grey-6")
-                return
+    header = (
+        f'<tr><th style="{th}">Policy</th><th style="{th}">Trades</th>'
+        f'<th style="{th}">Excluded</th><th style="{th}">PnL %</th>'
+        f'<th style="{th}">Win rate</th><th style="{th}">Expectancy</th>'
+        f'<th style="{th}">Report</th></tr>'
+    )
+    rows = "".join(
+        f'<tr>'
+        f'<td style="{td}">{item["policy"]}</td>'
+        f'<td style="{td_c}">{item["trades"]}</td>'
+        f'<td style="{td_c}">{item["excluded"]}</td>'
+        f'<td style="{td_c}">{item["pnl"]}</td>'
+        f'<td style="{td_c}">{item["win_rate"]}</td>'
+        f'<td style="{td_c}">{item["expectancy"]}</td>'
+        f'<td style="{td_c}">{report_cell}</td>'
+        f"</tr>"
+        for item in summaries
+    )
+    return (
+        f'<table class="res-tbl" style="width:100%;border-collapse:collapse;'
+        f'background:var(--surface-2);border:1px solid var(--border-s);">'
+        f"<thead>{header}</thead><tbody>{rows}</tbody></table>"
+    )
 
-            for item in summaries:
-                with ui.card().classes("w-full bg-slate-50"):
-                    ui.label(item["policy"]).classes("text-body1")
-                    with ui.grid(columns=2).classes("w-full gap-x-8 gap-y-1"):
-                        ui.label(f"Trades: {item['trades']}")
-                        ui.label(f"Escluse: {item['excluded']}")
-                        ui.label(f"PnL: {item['pnl']}")
-                        ui.label(f"Win rate: {item['win_rate']}")
-                        ui.label(f"Expectancy: {item['expectancy']}")
+
+def _validate_policy_name(policy_name: str) -> bool:
+    return bool(_POLICY_NAME_RE.match(policy_name))
+
+
+def _open_fs_target(target: str) -> None:
+    import os
+
+    if hasattr(os, "startfile"):
+        os.startfile(target)
+    else:
+        os.system(f'xdg-open "{target}"')
 
 
 async def _handle_backtest(
@@ -201,17 +226,16 @@ async def _handle_backtest(
     report_dir: str,
     timeout_seconds: int,
     log_panel: LogPanel,
-    artifact_label,
-    summary_container,
     run_streaming_command,
-) -> None:
+    process_started=None,
+) -> tuple[list[dict[str, str]], str | None]:
     from datetime import datetime as _dt
 
     run_t0 = time.perf_counter()
     policies_clean = [p.strip() for p in policies if p.strip()]
     if not policies_clean:
         ui.notify("Seleziona almeno una policy prima del backtest", color="negative")
-        return
+        return [], None
 
     date_from_clean = date_from_str.strip()
     date_to_clean = date_to_str.strip()
@@ -220,17 +244,16 @@ async def _handle_backtest(
             _dt.fromisoformat(date_from_clean)
         except ValueError:
             ui.notify("Formato 'Dal' non valido: usa YYYY-MM-DD", color="negative")
-            return
+            return [], None
     if date_to_clean:
         try:
             _dt.fromisoformat(date_to_clean)
         except ValueError:
             ui.notify("Formato 'Al' non valido: usa YYYY-MM-DD", color="negative")
-            return
-    if date_from_clean and date_to_clean:
-        if _dt.fromisoformat(date_from_clean) > _dt.fromisoformat(date_to_clean):
-            ui.notify("'Dal' deve essere <= 'Al'", color="negative")
-            return
+            return [], None
+    if date_from_clean and date_to_clean and _dt.fromisoformat(date_from_clean) > _dt.fromisoformat(date_to_clean):
+        ui.notify("'Dal' deve essere <= 'Al'", color="negative")
+        return [], None
 
     state.backtest_policies = policies_clean
     state.backtest_trader_filter = trader_filter or "all"
@@ -239,19 +262,19 @@ async def _handle_backtest(
     state.backtest_max_trades = max(0, int(max_trades))
     state.backtest_report_dir = report_dir.strip()
     state.timeout_seconds = int(timeout_seconds)
-    log_panel.clear()
-    summary_container.clear()
 
     if not db_path.strip():
         ui.notify("Seleziona un DB parsato prima del backtest", color="negative")
-        return
+        return [], None
 
-    if not state.market.market_ready:
-        ui.notify(
-            "Market data non pronti: usa il pannello Market DATA (in alto) per preparare i dati prima del backtest.",
-            color="negative",
-        )
-        return
+    allowed, market_message, market_style = market_backtest_gate(state)
+    log_panel.clear()
+    log_panel.push(f"[check] {market_message}")
+    if not allowed:
+        ui.notify(market_message, color="negative")
+        return [], None
+    if market_style == "warning":
+        ui.notify(market_message, color="warning")
 
     is_single_policy = len(state.backtest_policies) == 1
     effective_report_dir = state.backtest_report_dir or (
@@ -270,28 +293,26 @@ async def _handle_backtest(
     backtest_t0 = time.perf_counter()
     try:
         rc = await asyncio.wait_for(
-            run_streaming_command(command, log_panel),
+            run_streaming_command(command, log_panel, process_started),
             timeout=state.timeout_seconds,
         )
     except TimeoutError:
         ui.notify("Timeout backtest", color="negative")
-        return
+        return [], None
+
     if rc != 0:
         ui.notify("Backtest fallito: controlla log", color="negative")
-        return
-    backtest_elapsed = time.perf_counter() - backtest_t0
+        return [], None
 
+    backtest_elapsed = time.perf_counter() - backtest_t0
     state.latest_artifact_path = effective_report_dir
-    artifact_label.set_text(f"Artifact: {state.latest_artifact_path}")
-    chains_selected, summaries, html_path = _extract_summary_lines(log_panel)
+    _, summaries, html_path = _extract_summary_lines(log_panel)
+    if not html_path:
+        report_dir_path = Path(effective_report_dir)
+        latest_html = find_html_report(report_dir_path)
+        html_path = str(latest_html) if latest_html else None
     state.latest_html_report_path = html_path or ""
-    _render_backtest_summary(
-        container=summary_container,
-        chains_selected=chains_selected,
-        summaries=summaries,
-        artifact_path=state.latest_artifact_path,
-        html_path=html_path,
-    )
+
     total_elapsed = time.perf_counter() - run_t0
     log_panel.push(f"Timing backtest: {backtest_elapsed:.2f}s")
     log_panel.push(f"Timing run totale: {total_elapsed:.2f}s")
@@ -309,9 +330,11 @@ async def _handle_backtest(
     benchmark_payload = append_benchmark_entry(_BENCHMARK_PATH, benchmark_entry)
     snapshot = compute_benchmark_snapshot(benchmark_payload)
     if snapshot:
-        pairs = [f"{k}={v:.2f}s" for k, v in snapshot.items()]
+        pairs = [f"{key}={value:.2f}s" for key, value in snapshot.items()]
         log_panel.push("Benchmark snapshot: " + ", ".join(pairs))
+
     ui.notify("Backtest completato", color="positive")
+    return summaries, html_path
 
 
 def render_block_backtest(
@@ -320,7 +343,14 @@ def render_block_backtest(
     backtest_button_holder: list,
     run_streaming_command,
 ) -> None:
-    """Renderizza la sezione Backtest di Blocco 3 (senza Market DATA)."""
+    """Render the Backtesting sub-tab of Tab 3."""
+
+    def _persist() -> None:
+        debounced_save(state.to_dict())
+
+    def _build_policy_options() -> dict[str, str]:
+        return {name: name for name in discover_policy_names()}
+
     def _invalidate_market_context_if_needed() -> None:
         if state.market.market_ready or state.market.market_validation_status != "needs_check":
             state.market.mark_needs_check()
@@ -331,6 +361,7 @@ def render_block_backtest(
             return
         state.parsed_db_path = clean
         _invalidate_market_context_if_needed()
+        _persist()
 
     def _sync_dataset_filters_to_state(*, trader_filter: str, date_from: str, date_to: str, max_trades: int) -> None:
         new_trader = trader_filter or "all"
@@ -349,340 +380,310 @@ def render_block_backtest(
         state.backtest_max_trades = new_max
         if changed:
             _invalidate_market_context_if_needed()
+            _persist()
 
-    with ui.card().classes("w-full"):
-        ui.label("Backtest").classes("text-h6")
+    with ui.column().style("padding:16px 20px;gap:16px").classes("w-full block-shell"):
+        with ui.row().classes("section-head"):
+            ui.label("04").classes("section-step")
+            ui.label("· Backtesting").style(
+                "font-family:var(--sans);font-size:15px;font-weight:600;color:var(--text)"
+            )
 
-        with ui.row().classes("w-full items-end gap-2"):
-            backtest_db = ui.input("DB parsato", value=state.effective_db_path()).classes("flex-1")
-            db_status = ui.label("").classes("text-caption")
+        ui.html(
+            '<div style="background:var(--accent-d);border:1px solid var(--accent);'
+            'border-radius:var(--rs);padding:8px 12px;font-size:12px;color:var(--text2)">'
+            "ℹ Price basis e Market source sono rilevati automaticamente dalla cartella Market Data."
+            "</div>"
+        )
 
-            async def _on_browse_backtest_db() -> None:
-                await _browse_backtest_db(backtest_db)
-
-            ui.button("Sfoglia", on_click=_on_browse_backtest_db, icon="folder_open")
-
-        # --- Policy selector ---
-        def _build_policy_options() -> dict[str, str]:
-            names = discover_policy_names()
-            return {n: n for n in names}
-
+        ui.html('<div class="sec-lbl">Policy</div>')
         with ui.row().classes("w-full items-center gap-2"):
-            ui.label("Policy da eseguire").classes("text-caption text-grey-8")
-            ui.button(
-                "Ricarica", icon="refresh", color="secondary",
-                on_click=lambda: _on_reload_policies(),
-            ).props("dense flat")
-            ui.button(
-                "Modifica", icon="edit", color="secondary",
-                on_click=lambda: _on_edit_policy(),
-            ).props("dense flat")
-            ui.button(
-                "Nuova", icon="add", color="secondary",
-                on_click=lambda: _on_new_policy(),
-            ).props("dense flat")
-        ui.label(f"Cartella policy: {policies_dir_path()}").classes("text-caption text-grey-6")
-
-        policy_select = ui.select(
-            options=_build_policy_options(),
-            value=[p for p in state.backtest_policies if p in _build_policy_options()],
-            label="Policy",
-            multiple=True,
-        ).classes("w-full")
-        ui.label(
-            "Seleziona una o piu' policy. Se ne scegli più di una, il confronto viene eseguito in un unico run."
-        ).classes("text-caption text-grey-6")
-
-        def _on_reload_policies() -> None:
-            opts = _build_policy_options()
-            policy_select.options = opts
-            current = policy_select.value if isinstance(policy_select.value, list) else []
-            policy_select.value = [v for v in current if v in opts] or list(opts.keys())[:2]
-            policy_select.update()
-            ui.notify(f"Policy ricaricate: {len(opts)} trovate", color="info")
-
-        def _on_edit_policy() -> None:
-            selected = policy_select.value if isinstance(policy_select.value, list) else []
-            if not selected:
-                ui.notify("Seleziona almeno una policy da modificare", color="warning")
-                return
-            policy_to_edit = selected[0]
-            content = load_policy_yaml(policy_to_edit)
-            if not content:
-                ui.notify(f"File YAML per '{policy_to_edit}' non trovato", color="warning")
-                return
-
-            with ui.dialog() as dlg, ui.card().classes("min-w-[640px] w-full"):
-                ui.label(f"Editor policy: {policy_to_edit}").classes("text-subtitle2")
-                editor = ui.textarea(value=content).classes("w-full font-mono").style(
-                    "height:420px; font-size:12px; white-space:pre"
-                )
-
-                def _save_overwrite() -> None:
-                    try:
-                        import yaml as _yaml
-                        _yaml.safe_load(editor.value)
-                    except Exception as exc:
-                        ui.notify(f"YAML non valido: {exc}", color="negative")
-                        return
-                    save_policy_yaml(policy_to_edit, editor.value)
-                    ui.notify(f"Policy '{policy_to_edit}' salvata", color="positive")
-                    dlg.close()
-
-                def _open_save_as_dialog() -> None:
-                    with ui.dialog() as dlg2, ui.card():
-                        ui.label("Salva come nuova policy").classes("text-subtitle2")
-                        name_input = ui.input(
-                            "Nome policy (es. be_after_tp2)",
-                            placeholder="solo lettere, cifre, _ e -",
-                        ).classes("w-full")
-
-                        def _confirm_save_as() -> None:
-                            import re as _re
-                            new_name = name_input.value.strip()
-                            if not new_name:
-                                ui.notify("Inserisci un nome", color="warning")
-                                return
-                            if not _re.match(r'^[a-z][a-z0-9_-]*$', new_name):
-                                ui.notify(
-                                    "Nome non valido: usa solo lettere minuscole, cifre, _ e -",
-                                    color="warning",
-                                )
-                                return
-                            try:
-                                import yaml as _yaml
-                                _yaml.safe_load(editor.value)
-                            except Exception as exc:
-                                ui.notify(f"YAML non valido: {exc}", color="negative")
-                                return
-                            path = save_policy_yaml(new_name, editor.value)
-                            ui.notify(f"Policy '{new_name}' salvata in {path}", color="positive")
-                            dlg2.close()
-                            dlg.close()
-                            _on_reload_policies()
-
-                        with ui.row():
-                            ui.button("Salva", on_click=_confirm_save_as)
-                            ui.button("Annulla", on_click=dlg2.close)
-                    dlg2.open()
-
-                with ui.row().classes("gap-2 mt-2"):
-                    ui.button("Salva", on_click=_save_overwrite)
-                    ui.button("Salva come nuova...", on_click=_open_save_as_dialog)
-                    ui.button("Chiudi", on_click=dlg.close)
-            dlg.open()
-
-        def _on_new_policy() -> None:
-            template_names = discover_policy_names()
-            template_content = load_policy_yaml(template_names[0]) if template_names else ""
-
-            with ui.dialog() as dlg, ui.card().classes("min-w-[640px] w-full"):
-                ui.label("Nuova policy").classes("text-subtitle2")
-                name_input = ui.input(
-                    "Nome policy (es. my_custom)",
-                    placeholder="solo lettere, cifre, _ e -",
-                ).classes("w-full")
-                editor = ui.textarea(value=template_content).classes("w-full font-mono").style(
-                    "height:400px; font-size:12px; white-space:pre"
-                )
-
-                def _save_new() -> None:
-                    import re as _re
-                    new_name = name_input.value.strip()
-                    if not new_name:
-                        ui.notify("Inserisci un nome", color="warning")
-                        return
-                    if not _re.match(r'^[a-z][a-z0-9_-]*$', new_name):
-                        ui.notify(
-                            "Nome non valido: usa solo lettere minuscole, cifre, _ e -",
-                            color="warning",
-                        )
-                        return
-                    try:
-                        import yaml as _yaml
-                        _yaml.safe_load(editor.value)
-                    except Exception as exc:
-                        ui.notify(f"YAML non valido: {exc}", color="negative")
-                        return
-                    path = save_policy_yaml(new_name, editor.value)
-                    ui.notify(f"Policy '{new_name}' salvata in {path}", color="positive")
-                    dlg.close()
-                    _on_reload_policies()
-
-                with ui.row().classes("gap-2 mt-2"):
-                    ui.button("Salva nuova policy", on_click=_save_new)
-                    ui.button("Annulla", on_click=dlg.close)
-            dlg.open()
-
-        # --- Filtri dataset ---
-        def _refresh_trader_select(db_path: str) -> None:
-            db_path = db_path.strip()
-            traders = discover_traders_from_db(db_path)
-            opts: dict[str, str] = {"all": "Tutti i trader"}
-            opts.update({t: t for t in traders})
-            trader_select.options = opts
-            if trader_select.value not in opts:
-                trader_select.value = "all"
-            trader_hint.set_text(
-                f"{len(traders)} trader trovati" if traders else "Nessun trader rilevato"
-            )
-            trader_select.update()
-
-            min_date, max_date = discover_date_range_from_db(db_path)
-            if min_date and not date_from_input.value:
-                date_from_input.value = min_date
-                date_from_input.update()
-            if max_date and not date_to_input.value:
-                date_to_input.value = max_date
-                date_to_input.update()
-            _sync_dataset_filters_to_state(
-                trader_filter=trader_select.value or "all",
-                date_from=date_from_input.value or "",
-                date_to=date_to_input.value or "",
-                max_trades=int(max_trades_input.value or 0),
+            policy_select = ui.select(
+                options=_build_policy_options(),
+                value=[p for p in state.backtest_policies if p in _build_policy_options()],
+                label="Policy da eseguire",
+                multiple=True,
+            ).classes("flex-1")
+            ui.button("↻", on_click=lambda: _on_reload_policies()).props("flat dense").style(
+                "font-family:var(--mono);color:var(--muted)"
             )
 
-        with ui.expansion("Filtri dataset", icon="filter_list").classes("w-full"):
-            with ui.row().classes("w-full gap-4 items-end"):
-                trader_select = ui.select(
-                    options={"all": "Tutti i trader"},
-                    value=state.backtest_trader_filter or "all",
-                    label="Trader",
-                ).classes("flex-1")
-                trader_hint = ui.label("").classes("text-caption text-grey-6 self-center")
-                ui.button(
-                    "Rileva",
-                    icon="search",
-                    color="secondary",
-                    on_click=lambda: _refresh_trader_select(backtest_db.value),
-                ).props("dense flat")
-
-            with ui.row().classes("w-full gap-4 mt-2"):
-                date_from_input = ui.input(
-                    "Dal (YYYY-MM-DD)", value=state.backtest_date_from,
-                    placeholder="es. 2024-01-01",
-                ).classes("flex-1")
-                date_to_input = ui.input(
-                    "Al (YYYY-MM-DD)", value=state.backtest_date_to,
-                    placeholder="es. 2024-12-31",
-                ).classes("flex-1")
-                max_trades_input = ui.number(
-                    "Max trade (0 = tutti)", value=state.backtest_max_trades, min=0, step=10,
-                ).classes("flex-1")
-
-            ui.label(
-                "Campi vuoti = nessun filtro. Max trade = 0 significa nessun limite."
-            ).classes("text-caption text-grey-6 mt-1")
-
-        # --- Timeout e report dir ---
-        with ui.row().classes("w-full gap-4"):
-            timeout_seconds = ui.number("Timeout (s)", value=state.timeout_seconds, min=5, step=5).classes("flex-1")
-
-        with ui.row().classes("w-full items-end gap-2"):
+        with ui.row().classes("w-full gap-4 items-end"):
+            timeout_minutes = ui.number(
+                "Timeout (m)",
+                value=max(1, state.timeout_seconds // 60),
+                min=1,
+                step=1,
+            ).classes("w-28")
             report_dir_input = ui.input(
-                "Cartella report output",
+                "Report output dir",
                 value=state.backtest_report_dir,
                 placeholder="default: artifacts/scenarios",
-            ).classes("flex-1")
-            ui.label("Lascia vuoto per il default (artifacts/scenarios).").classes(
-                "text-caption text-grey-6 self-center"
-            )
+            ).classes("flex-1 inp-mono")
+            report_dir_hint = ui.label("").style("font-size:11px;color:var(--er)")
 
             async def _on_browse_report_dir() -> None:
                 await _browse_report_dir(report_dir_input)
+                _on_report_dir_change()
 
             ui.button("Sfoglia", on_click=_on_browse_report_dir, icon="folder_open")
 
-        # Market readiness indicator (read-only, managed by Market DATA panel)
-        market_status_info = ui.label("").classes("text-caption text-grey-6")
+        with ui.row().classes("w-full gap-4"):
+            sim_tf_select = ui.select(
+                options=_TF_OPTIONS_BT,
+                value=state.market.simulation_tf if state.market.simulation_tf in _TF_OPTIONS_BT else "1m",
+                label="Simulation TF",
+            ).classes("flex-1")
+            detail_tf_select = ui.select(
+                options=_TF_OPTIONS_BT,
+                value=state.market.detail_tf if state.market.detail_tf in _TF_OPTIONS_BT else "1m",
+                label="Detail TF / childs",
+            ).classes("flex-1")
+            ui.input(
+                label="Price basis · auto da market dir",
+                value=state.market.price_basis,
+            ).props("readonly").classes("flex-1 inp-mono").style("color:var(--muted)")
+            ui.input(
+                label="Market source · auto da market dir",
+                value=state.market.market_data_source,
+            ).props("readonly").classes("flex-1 inp-mono").style("color:var(--muted)")
 
-        def _refresh_market_status_info() -> None:
-            if state.market.market_ready:
-                market_status_info.set_text(
-                    f"Market data: {state.market.market_validation_status} — pronti per il backtest."
-                )
-                market_status_info.classes(remove="text-negative text-grey-6", add="text-positive")
-            else:
-                market_status_info.set_text(
-                    "Market data non pronti: usa il pannello Market DATA (sopra) per preparare i dati."
-                )
-                market_status_info.classes(remove="text-positive", add="text-grey-6")
+        def _on_tf_change(*_) -> None:
+            state.market.simulation_tf = sim_tf_select.value or "1m"
+            state.market.detail_tf = detail_tf_select.value or "1m"
+            _persist()
 
-        _refresh_market_status_info()
+        sim_tf_select.on("update:model-value", _on_tf_change)
+        detail_tf_select.on("update:model-value", _on_tf_change)
+
+        current_policy_input = {"name": ""}
+        with ui.expansion("Policy Studio", icon="tune").classes("w-full").style(
+            "border:1px solid var(--border-s);border-radius:var(--rs);background:var(--surface-2)"
+        ):
+            ui.label(str(policies_dir_path())).classes("path-chip")
+            with ui.row().classes("w-full gap-4 items-end"):
+                policy_editor_select = ui.select(
+                    options=_build_policy_options(),
+                    value=(state.backtest_policies[0] if state.backtest_policies else None),
+                    label="Policy editor",
+                ).classes("flex-1")
+                new_policy_name_input = ui.input(
+                    "Nuova policy",
+                    placeholder="solo lettere, cifre, _ e -",
+                ).classes("flex-1 inp-mono")
+            policy_editor = ui.textarea().classes("w-full inp-mono").style(
+                "height:320px;font-size:12px;white-space:pre"
+            )
+
+            def _load_policy_into_editor(policy_name: str | None) -> None:
+                if not policy_name:
+                    current_policy_input["name"] = ""
+                    policy_editor.value = ""
+                    policy_editor.update()
+                    return
+                current_policy_input["name"] = policy_name
+                policy_editor.value = load_policy_yaml(policy_name)
+                policy_editor.update()
+
+            def _validate_yaml(text: str) -> None:
+                import yaml
+
+                yaml.safe_load(text)
+
+            def _save_policy(policy_name: str) -> None:
+                if not _validate_policy_name(policy_name):
+                    ui.notify("Nome policy non valido", color="warning")
+                    return
+                try:
+                    _validate_yaml(policy_editor.value)
+                except Exception as exc:  # pragma: no cover - UI validation path
+                    ui.notify(f"YAML non valido: {exc}", color="negative")
+                    return
+                save_policy_yaml(policy_name, policy_editor.value)
+                current_policy_input["name"] = policy_name
+                _on_reload_policies(select_name=policy_name)
+                policy_editor_select.value = policy_name
+                policy_editor_select.update()
+                ui.notify(f"Policy '{policy_name}' salvata", color="positive")
+
+            def _save_current_policy() -> None:
+                if not current_policy_input["name"]:
+                    ui.notify("Seleziona una policy da salvare", color="warning")
+                    return
+                _save_policy(current_policy_input["name"])
+
+            def _save_as_new_policy() -> None:
+                _save_policy(new_policy_name_input.value.strip())
+
+            def _new_policy_from_template() -> None:
+                template_names = discover_policy_names()
+                current_policy_input["name"] = ""
+                policy_editor.value = load_policy_yaml(template_names[0]) if template_names else ""
+                policy_editor.update()
+                policy_editor_select.value = None
+                policy_editor_select.update()
+
+            def _on_reload_policies(*, select_name: str | None = None) -> None:
+                opts = _build_policy_options()
+                policy_select.options = opts
+                selected = policy_select.value if isinstance(policy_select.value, list) else []
+                policy_select.value = [value for value in selected if value in opts] or list(opts.keys())[:2]
+                policy_select.update()
+
+                policy_editor_select.options = opts
+                target_name = select_name or current_policy_input["name"] or next(iter(opts), None)
+                if target_name in opts:
+                    policy_editor_select.value = target_name
+                    _load_policy_into_editor(target_name)
+                else:
+                    policy_editor_select.value = None
+                    _load_policy_into_editor(None)
+                policy_editor_select.update()
+                ui.notify(f"Policy ricaricate: {len(opts)} trovate", color="info")
+
+            policy_editor_select.on("update:model-value", lambda e: _load_policy_into_editor(e.value))
+            _load_policy_into_editor(policy_editor_select.value)
+
+            with ui.row().classes("gap-2 q-mt-sm"):
+                ui.button("Salva", on_click=_save_current_policy).props("dense outline")
+                ui.button("Salva come nuova", on_click=_save_as_new_policy).props("dense outline")
+                ui.button("Nuova policy", on_click=_new_policy_from_template).props("dense outline")
+                ui.button("Ricarica lista", on_click=lambda: _on_reload_policies()).props("dense outline")
+
+        _, init_msg, init_style = market_backtest_gate(state)
+        gate_colors = {
+            "positive": "var(--ok)",
+            "warning": "var(--wa)",
+            "grey": "var(--muted)",
+            "error": "var(--er)",
+        }
+        market_status_html = ui.html(
+            f'<span style="font-family:var(--mono);font-size:11px;color:{gate_colors.get(init_style, "var(--muted)")}">'
+            f"● {init_msg}</span>"
+        )
+
+        def _refresh_market_status() -> None:
+            _, msg, style = market_backtest_gate(state)
+            color = gate_colors.get(style, "var(--muted)")
+            market_status_html.set_content(
+                f'<span style="font-family:var(--mono);font-size:11px;color:{color}">● {msg}</span>'
+            )
+
+        def _refresh_path_validity() -> None:
+            report_path = report_dir_input.value.strip()
+            report_invalid = bool(report_path) and not Path(report_path).exists()
+            report_dir_input.style(f"border-color:{'var(--er)' if report_invalid else 'var(--border)'}")
+            report_dir_hint.set_text("percorso non trovato" if report_invalid else "")
+
+        ui.html('<div class="sec-lbl" style="margin-top:4px">Risultati</div>')
+        results_html = ui.html(_results_table_html([]))
 
         block3_log = LogPanel(title="Log Backtest")
-        artifact_label = ui.label(f"Artifact: {state.latest_artifact_path or '-'}")
-        summary_container = ui.column().classes("w-full")
 
         async def _on_backtest_click() -> None:
-            resolved_db_path = backtest_db.value.strip() or state.effective_db_path()
-            if resolved_db_path != backtest_db.value:
-                backtest_db.value = resolved_db_path
-                backtest_db.update()
-                _refresh_backtest_button()
+            resolved_db_path = state.effective_db_path().strip()
             _sync_selected_db_to_state(resolved_db_path)
+
             selected_policies = (
-                policy_select.value
-                if isinstance(policy_select.value, list)
+                policy_select.value if isinstance(policy_select.value, list)
                 else ([policy_select.value] if policy_select.value else [])
             )
             _sync_dataset_filters_to_state(
-                trader_filter=trader_select.value or "all",
-                date_from=date_from_input.value or "",
-                date_to=date_to_input.value or "",
-                max_trades=int(max_trades_input.value or 0),
+                trader_filter=state.backtest_trader_filter or "all",
+                date_from=state.backtest_date_from or "",
+                date_to=state.backtest_date_to or "",
+                max_trades=int(state.backtest_max_trades or 0),
             )
-            _refresh_market_status_info()
-            await _handle_backtest(
+            state.timeout_seconds = max(1, int(timeout_minutes.value or 1)) * 60
+            _persist()
+
+            def _bind_process(proc) -> None:
+                _backtest_ctx.process = proc
+
+            _backtest_ctx.stop_requested = False
+            _refresh_market_status()
+            summaries, html_path = await _handle_backtest(
                 state=state,
                 db_path=resolved_db_path,
                 policies=selected_policies,
-                trader_filter=trader_select.value or "all",
-                date_from_str=date_from_input.value,
-                date_to_str=date_to_input.value,
-                max_trades=int(max_trades_input.value or 0),
+                trader_filter=state.backtest_trader_filter or "all",
+                date_from_str=state.backtest_date_from,
+                date_to_str=state.backtest_date_to,
+                max_trades=int(state.backtest_max_trades or 0),
                 report_dir=report_dir_input.value,
-                timeout_seconds=int(timeout_seconds.value),
+                timeout_seconds=state.timeout_seconds,
                 log_panel=block3_log,
-                artifact_label=artifact_label,
-                summary_container=summary_container,
                 run_streaming_command=run_streaming_command,
+                process_started=_bind_process,
             )
+            _backtest_ctx.process = None
+            results_html.set_content(_results_table_html(summaries, html_path))
+            _refresh_market_status()
+
+        def _on_stop_backtest() -> None:
+            if _backtest_ctx.process is None:
+                ui.notify("Nessun backtest in corso", color="warning")
+                return
+            _backtest_ctx.stop_requested = True
+            block3_log.push("Richiesta arresto backtest...")
+            try:
+                _backtest_ctx.process.terminate()
+            except ProcessLookupError:
+                pass
+            ui.notify("Arresto backtest richiesto", color="warning")
+
+        def _open_html_report() -> None:
+            report_path = state.latest_html_report_path
+            if not report_path or not Path(report_path).exists():
+                ui.notify("Nessun report HTML disponibile", color="warning")
+                return
+            _open_fs_target(str(Path(report_path).resolve()))
+
+        def _open_artifact_dir() -> None:
+            artifact_path = state.latest_artifact_path
+            if not artifact_path:
+                ui.notify("Nessun artifact disponibile", color="warning")
+                return
+            target = Path(artifact_path)
+            resolved = str(target.resolve() if target.is_dir() else target.parent.resolve())
+            _open_fs_target(resolved)
+
+        with ui.row().classes("gap-2"):
+            run_backtest_button = ui.button("▶ Esegui Backtest", on_click=_on_backtest_click).props("color=primary")
+            ui.button("■ Arresta", on_click=_on_stop_backtest).style(
+                "color:var(--er);border-color:var(--er)"
+            ).props("outline")
+            ui.button("📄 Apri report HTML", on_click=_open_html_report).props("outline")
+            ui.button("📂 Artifact dir", on_click=_open_artifact_dir).props("outline")
 
         def _refresh_backtest_button(*_) -> None:
-            resolved_db_path = backtest_db.value.strip() or state.effective_db_path()
+            resolved_db_path = state.effective_db_path().strip()
             if _can_enable_backtest(db_path=resolved_db_path):
-                db_status.set_text("DB valido")
-                db_status.classes(remove="text-negative text-grey-6", add="text-positive")
                 run_backtest_button.enable()
             else:
-                db_status.set_text("DB non trovato o non selezionato")
-                db_status.classes(remove="text-positive", add="text-negative")
                 run_backtest_button.disable()
 
-        run_backtest_button = ui.button("Esegui Backtest", on_click=_on_backtest_click)
+        def _on_report_dir_change(*_) -> None:
+            state.backtest_report_dir = report_dir_input.value.strip()
+            _refresh_path_validity()
+            _persist()
 
-        def _on_db_path_change(*_) -> None:
-            _sync_selected_db_to_state(backtest_db.value.strip() or state.effective_db_path())
-            _refresh_backtest_button()
-            _refresh_trader_select(backtest_db.value.strip() or state.effective_db_path())
+        def _on_policy_change(*_) -> None:
+            selected = policy_select.value if isinstance(policy_select.value, list) else []
+            state.backtest_policies = [item for item in selected if item]
+            _persist()
 
-        def _on_filters_change(*_) -> None:
-            _sync_dataset_filters_to_state(
-                trader_filter=trader_select.value or "all",
-                date_from=date_from_input.value or "",
-                date_to=date_to_input.value or "",
-                max_trades=int(max_trades_input.value or 0),
-            )
+        timeout_minutes.on(
+            "update:model-value",
+            lambda *_: (
+                setattr(state, "timeout_seconds", max(1, int(timeout_minutes.value or 1)) * 60),
+                _persist(),
+            ),
+        )
+        report_dir_input.on("update:model-value", _on_report_dir_change)
+        policy_select.on("update:model-value", _on_policy_change)
 
-        backtest_db._after_set = _on_db_path_change
-        backtest_db.on("update:model-value", _on_db_path_change)
-        trader_select.on("update:model-value", _on_filters_change)
-        date_from_input.on("update:model-value", _on_filters_change)
-        date_to_input.on("update:model-value", _on_filters_change)
-        max_trades_input.on("update:model-value", _on_filters_change)
         _refresh_backtest_button()
-        if state.db_exists():
-            _refresh_trader_select(state.effective_db_path())
+        _refresh_path_validity()
 
     backtest_button_holder.append(run_backtest_button)

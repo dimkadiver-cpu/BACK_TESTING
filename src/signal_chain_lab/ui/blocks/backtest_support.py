@@ -5,12 +5,34 @@ These helpers are pure (no UI imports) so they can be tested independently.
 """
 from __future__ import annotations
 
+import json
 import sqlite3
+from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from src.signal_chain_lab.ui.state import UiState
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[4]
 _POLICIES_DIR = _PROJECT_ROOT / "configs" / "policies"
 _FALLBACK_POLICIES: list[str] = ["original_chain", "signal_only"]
+
+
+@dataclass(frozen=True, slots=True)
+class MarketCoverageSnapshot:
+    """Latest market coverage snapshot used to gate backtest execution."""
+
+    symbols: int
+    symbols_complete: int
+    required_intervals: int
+    gaps: int
+
+    @property
+    def coverage_pct(self) -> float:
+        if self.symbols <= 0:
+            return 0.0
+        return round((self.symbols_complete / self.symbols) * 100, 1)
 
 
 def discover_policy_names(policies_dir: Path | None = None) -> list[str]:
@@ -101,3 +123,51 @@ def find_html_report(report_dir: str | Path) -> Path | None:
         return None
     html_files = sorted(d.glob("*.html"), key=lambda p: p.stat().st_mtime, reverse=True)
     return html_files[0] if html_files else None
+
+
+def load_market_coverage_snapshot(state: "UiState") -> MarketCoverageSnapshot | None:
+    """Read the most recent market coverage snapshot from the latest plan artifact."""
+    plan_path = Path(state.market.latest_market_plan_path or "")
+    if not plan_path.exists():
+        return None
+    try:
+        payload = json.loads(plan_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+
+    summary = payload.get("summary", {})
+    if not isinstance(summary, dict):
+        return None
+
+    symbols = int(summary.get("symbols", 0) or 0)
+    symbols_with_gaps = int(summary.get("symbols_with_gaps", 0) or 0)
+    symbols_complete = int(summary.get("symbols_complete", max(symbols - symbols_with_gaps, 0)) or 0)
+    required_intervals = int(summary.get("required_intervals", 0) or 0)
+    gaps = int(summary.get("gaps", state.market.market_data_gap_count) or 0)
+    return MarketCoverageSnapshot(
+        symbols=symbols,
+        symbols_complete=symbols_complete,
+        required_intervals=required_intervals,
+        gaps=gaps,
+    )
+
+
+def market_backtest_gate(
+    state: "UiState",
+    *,
+    coverage_threshold: float = 0.0,
+) -> tuple[bool, str, str]:
+    """Gate backtests using the latest coverage snapshot instead of market_ready."""
+    snapshot = load_market_coverage_snapshot(state)
+    if snapshot is None or snapshot.symbols <= 0:
+        return False, "Copertura dataset: 0% · analisi mancante · esegui Analizza", "error"
+
+    coverage_pct = snapshot.coverage_pct
+    if coverage_pct <= coverage_threshold:
+        return False, f"Copertura dataset: {coverage_pct:.1f}% · {snapshot.gaps} gap · run bloccato", "error"
+
+    status = state.market.market_validation_status
+    if snapshot.gaps > 0 or status not in {"validated", "gap_validated", "gap_validated_partial"}:
+        return True, f"Copertura dataset: {coverage_pct:.1f}% · {snapshot.gaps} gap · run consentito con warning", "warning"
+
+    return True, f"Copertura dataset: {coverage_pct:.1f}% · {snapshot.gaps} gap · run consentito", "positive"

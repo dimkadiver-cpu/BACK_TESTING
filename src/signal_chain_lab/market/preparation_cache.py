@@ -9,7 +9,7 @@ from typing import Any
 
 
 _VALIDATION_INDEX_SCHEMA = "market-validation-index.v1"
-_FINGERPRINT_SCHEMA = "market-request-fingerprint.v1"
+_FINGERPRINT_SCHEMA = "market-request-fingerprint.v2"
 
 
 @dataclass(frozen=True, slots=True)
@@ -25,6 +25,18 @@ class MarketDataRequest:
     timeframe: str
     price_basis: str
     source: str
+    # Extended fingerprint fields (v2)
+    download_tfs: tuple[str, ...]
+    simulation_tf: str
+    detail_tf: str
+    validate_mode: str
+    ohlcv_last: bool
+    ohlcv_mark: bool
+    funding_rate: bool
+    buffer_mode: str
+    pre_buffer_days: int
+    post_buffer_days: int
+    buffer_preset: str
 
 
 
@@ -44,10 +56,23 @@ def build_market_request(
     timeframe: str,
     price_basis: str,
     source: str,
+    download_tfs: list[str] | None = None,
+    simulation_tf: str = "1m",
+    detail_tf: str = "1m",
+    validate_mode: str = "light",
+    ohlcv_last: bool = True,
+    ohlcv_mark: bool = False,
+    funding_rate: bool = False,
+    buffer_mode: str = "auto",
+    pre_buffer_days: int = 0,
+    post_buffer_days: int = 0,
+    buffer_preset: str = "",
 ) -> MarketDataRequest:
     db_resolved = Path(db_path).expanduser().resolve()
     db_stat = db_resolved.stat()
     market_resolved = Path(market_data_dir).expanduser().resolve()
+
+    normalized_tfs = tuple(sorted(set(download_tfs))) if download_tfs else ("1m",)
 
     return MarketDataRequest(
         db_path=str(db_resolved),
@@ -61,6 +86,17 @@ def build_market_request(
         timeframe=_normalize_text(timeframe, default="1m") or "1m",
         price_basis=_normalize_text(price_basis, default="last") or "last",
         source=_normalize_text(source, default="bybit") or "bybit",
+        download_tfs=normalized_tfs,
+        simulation_tf=_normalize_text(simulation_tf, default="1m") or "1m",
+        detail_tf=_normalize_text(detail_tf, default="1m") or "1m",
+        validate_mode=_normalize_text(validate_mode, default="light") or "light",
+        ohlcv_last=bool(ohlcv_last),
+        ohlcv_mark=bool(ohlcv_mark),
+        funding_rate=bool(funding_rate),
+        buffer_mode=_normalize_text(buffer_mode, default="auto") or "auto",
+        pre_buffer_days=max(0, int(pre_buffer_days)),
+        post_buffer_days=max(0, int(post_buffer_days)),
+        buffer_preset=_normalize_text(buffer_preset),
     )
 
 
@@ -79,6 +115,17 @@ def market_request_payload(request: MarketDataRequest) -> dict[str, Any]:
         "timeframe": request.timeframe,
         "price_basis": request.price_basis,
         "source": request.source,
+        "download_tfs": list(request.download_tfs),
+        "simulation_tf": request.simulation_tf,
+        "detail_tf": request.detail_tf,
+        "validate_mode": request.validate_mode,
+        "ohlcv_last": request.ohlcv_last,
+        "ohlcv_mark": request.ohlcv_mark,
+        "funding_rate": request.funding_rate,
+        "buffer_mode": request.buffer_mode,
+        "pre_buffer_days": request.pre_buffer_days,
+        "post_buffer_days": request.post_buffer_days,
+        "buffer_preset": request.buffer_preset,
     }
 
 

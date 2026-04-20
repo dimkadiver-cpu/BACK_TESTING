@@ -141,6 +141,47 @@ def _format_first_symbol_window_detail(
     )
 
 
+def format_analyze_summary(ps: dict) -> str:
+    """Build a compact rich summary string from the extended plan summary dict."""
+    parts: list[str] = []
+
+    total = ps.get("symbols", 0)
+    complete = ps.get("symbols_complete", 0)
+    with_gaps = ps.get("symbols_with_gaps", total - complete)
+    parts.append(f"Simboli: {total} ({complete} completi, {with_gaps} con gap)")
+
+    gaps = ps.get("gaps", 0)
+    gaps_by_tf: dict = ps.get("gaps_by_timeframe", {})
+    if gaps_by_tf and len(gaps_by_tf) > 1:
+        tf_str = " ".join(f"{tf}={cnt}" for tf, cnt in gaps_by_tf.items())
+        parts.append(f"Gap: {gaps} [{tf_str}]")
+    else:
+        parts.append(f"Gap: {gaps}")
+
+    download_tfs = ps.get("download_tfs", [])
+    if download_tfs:
+        sim_tf = ps.get("simulation_tf", "")
+        detail_tf = ps.get("detail_tf", "")
+        parts.append(f"TF: {','.join(download_tfs)} sim={sim_tf} detail={detail_tf}")
+
+    rdt: dict = ps.get("requested_data_types", {})
+    if rdt:
+        dt_parts: list[str] = []
+        if rdt.get("ohlcv_last"):
+            dt_parts.append("last")
+        if rdt.get("ohlcv_mark"):
+            dt_parts.append("mark")
+        funding = rdt.get("funding_rate", False)
+        dt_parts.append(f"funding:{'sì' if funding else 'no'}")
+        parts.append("Dati: " + " ".join(dt_parts))
+
+    unsupported = ps.get("potentially_unsupported_symbols", [])
+    if unsupported:
+        parts.append("Potenzialmente non supportati: " + ", ".join(unsupported))
+
+    return " | ".join(parts)
+
+
 def format_validation_summary(report_json: dict) -> str:
     s = report_json.get("summary", {})
     passed = s.get("pass", s.get("passed", 0))

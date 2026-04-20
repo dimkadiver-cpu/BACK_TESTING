@@ -45,6 +45,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--post-buffer-days", type=int, default=0, help="Post-buffer days (manual mode only)")
     parser.add_argument("--buffer-preset", default="custom", help="Buffer preset label (intraday|swing|position|custom)")
     parser.add_argument("--validate-mode", default="light", choices=["full", "light", "off"], help="Validation mode (default: light)")
+    parser.add_argument("--ohlcv-last", action="store_true", default=False, help="OHLCV last (standard price) requested")
+    parser.add_argument("--ohlcv-mark", action="store_true", default=False, help="OHLCV mark price requested")
+    parser.add_argument("--funding-rate", action="store_true", default=False, help="Funding rate data requested")
     return parser.parse_args()
 
 
@@ -128,6 +131,11 @@ def main() -> int:
         "post_buffer_days": args.post_buffer_days,
         "buffer_preset": args.buffer_preset,
         "validate_mode": args.validate_mode,
+        "requested_data_types": {
+            "ohlcv_last": args.ohlcv_last,
+            "ohlcv_mark": args.ohlcv_mark,
+            "funding_rate": args.funding_rate,
+        },
     }
     request = build_market_request(
         db_path=args.db_path,
@@ -144,6 +152,8 @@ def main() -> int:
 
     total_required = 0
     total_gaps = 0
+    gaps_by_timeframe: dict[str, int] = {tf: 0 for tf in requested_timeframes}
+    symbols_with_gaps_set: set[str] = set()
     symbols_payload: dict[str, object] = {}
     for symbol, windows in coverage_plan.windows_by_symbol.items():
         execution_rows = [interval.to_dict() for interval in windows.execution_window]
@@ -180,6 +190,9 @@ def main() -> int:
                 timeframe_gap_rows = [interval.to_dict() for interval in timeframe_gaps]
                 total_required += len(timeframe_required)
                 symbol_gap_count += len(timeframe_gap_rows)
+                if timeframe_gap_rows:
+                    symbols_with_gaps_set.add(symbol)
+                gaps_by_timeframe[timeframe] = gaps_by_timeframe.get(timeframe, 0) + len(timeframe_gap_rows)
                 timeframe_payload[timeframe] = {
                     "download_window": [interval.to_dict() for interval in timeframe_required],
                     "required_intervals": [interval.to_dict() for interval in timeframe_required],
@@ -199,11 +212,35 @@ def main() -> int:
             }
         symbols_payload[symbol] = basis_payload
 
+    potentially_unsupported_symbols: list[str] = []
+    if coverage_index:
+        for symbol in symbols_payload:
+            has_any_coverage = False
+            for basis_payload in symbols_payload[symbol].values():
+                if not isinstance(basis_payload, dict):
+                    continue
+                timeframe_payload = basis_payload.get("timeframes", {})
+                if not isinstance(timeframe_payload, dict):
+                    continue
+                if any(
+                    isinstance(tf_payload, dict) and tf_payload.get("covered_intervals")
+                    for tf_payload in timeframe_payload.values()
+                ):
+                    has_any_coverage = True
+                    break
+            if not has_any_coverage:
+                potentially_unsupported_symbols.append(symbol)
+
     payload["symbols"] = symbols_payload
+    payload["potentially_unsupported_symbols"] = potentially_unsupported_symbols
+    symbols_with_gaps_count = len(symbols_with_gaps_set)
     payload["summary"] = {
         "symbols": len(symbols_payload),
+        "symbols_with_gaps": symbols_with_gaps_count,
+        "symbols_complete": len(symbols_payload) - symbols_with_gaps_count,
         "required_intervals": total_required,
         "gaps": total_gaps,
+        "gaps_by_timeframe": gaps_by_timeframe,
     }
 
     output = Path(args.output) if args.output else Path("artifacts/market_data/plan_market_data.json")

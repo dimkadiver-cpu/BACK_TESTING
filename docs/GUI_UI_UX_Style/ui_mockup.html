@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signal Chain Lab — UI v4</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:        #0d1117;
+      --surface:   #161b22;
+      --surface-2: #1c2128;
+      --surface-h: #1f2937;
+      --border:    #30363d;
+      --border-s:  #21262d;
+      --accent:    #58a6ff;
+      --accent-d:  rgba(88,166,255,.12);
+      --ok:        #3fb950;
+      --ok-d:      rgba(63,185,80,.10);
+      --wa:        #d29922;
+      --wa-d:      rgba(210,153,34,.10);
+      --er:        #f85149;
+      --er-d:      rgba(248,81,73,.10);
+      --muted:     #8b949e;
+      --text:      #e6edf3;
+      --text2:     #c9d1d9;
+      --log-bg:    #010409;
+      --log-g:     #39d353;
+      --log-d:     #238636;
+      --log-w:     #d29922;
+      --log-e:     #f85149;
+      --mono: 'IBM Plex Mono', monospace;
+      --sans: 'IBM Plex Sans', system-ui, sans-serif;
+      --nav-h: 42px;
+      --panel-w: 980px;
+      --r: 6px; --rs: 4px;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; line-height: 1.5; min-height: 100vh; }
+
+    /* ── NAV ── */
+    .nav-wrap {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(22,27,34,.97);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+    }
+    .nav-inner {
+      max-width: var(--panel-w);
+      margin: 0 auto;
+      padding: 0 20px;
+      height: var(--nav-h);
+      display: flex; align-items: flex-end; gap: 2px;
+    }
+    .nav-brand {
+      font-family: var(--mono); font-size: 11px; font-weight: 600;
+      color: var(--muted); padding: 0 12px 10px 0; white-space: nowrap;
+      border-right: 1px solid var(--border-s); margin-right: 8px;
+    }
+    .nav-brand span { color: var(--accent); }
+    .tab-btn {
+      padding: 8px 16px 10px;
+      font-family: var(--mono); font-size: 11px; font-weight: 500;
+      color: var(--muted); background: none; border: none; cursor: pointer;
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+      transition: color .15s, border-color .15s; white-space: nowrap;
+    }
+    .tab-btn:hover { color: var(--text2); }
+    .tab-btn.on { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-btn .n { font-size: 9px; opacity: .5; margin-right: 3px; }
+
+    /* ── PANELS ── */
+    .panel {
+      display: none;
+      padding-top: calc(var(--nav-h) + 20px);
+      padding-bottom: 60px;
+      max-width: var(--panel-w); margin: 0 auto;
+      padding-left: 20px; padding-right: 20px;
+    }
+    .panel.on { display: block; }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 18px;
+      display: flex; flex-direction: column; gap: 14px;
+      margin-bottom: 12px;
+    }
+    .card-title { font-size: 12px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 7px; }
+    .card-title .n { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+
+    .sec-lbl {
+      font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em;
+      color: var(--muted); display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+    }
+    .sec-lbl::after { content:''; flex:1; height:1px; background:var(--border-s); }
+
+    /* ── FORM ── */
+    .row { display: flex; gap: 10px; }
+    .fg  { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+    .lbl { font-size: 10px; font-weight: 500; color: var(--muted); letter-spacing: .03em; }
+
+    .inp {
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: var(--rs); padding: 6px 9px;
+      font-family: var(--mono); font-size: 12px; color: var(--text2);
+      outline: none; width: 100%; transition: border-color .15s;
+    }
+    .inp:hover, .inp:focus { border-color: var(--accent); color: var(--text); }
+    .inp::placeholder { color: var(--muted); opacity: .5; }
+    input[type=date].inp { color-scheme: dark; }
+    select.inp {
+      appearance: none; cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%238b949e'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 9px center; padding-right: 24px;
+    }
+
+    .tog-row { display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+    .tog { position: relative; width: 30px; height: 17px; flex-shrink: 0; }
+    .tog input { opacity: 0; width: 0; height: 0; }
+    .tog-track { position: absolute; inset: 0; background: var(--border); border-radius: 9px; transition: background .2s; }
+    .tog input:checked ~ .tog-track { background: var(--accent); }
+    .tog-thumb { position: absolute; top: 2px; left: 2px; width: 13px; height: 13px; background: #fff; border-radius: 50%; transition: transform .2s; pointer-events: none; }
+    .tog input:checked ~ .tog-track .tog-thumb { transform: translateX(13px); }
+    .tog-lbl { font-size: 12px; color: var(--text2); }
+
+    .radio-grp { display: flex; gap: 6px; flex-wrap: wrap; }
+    .radio-opt {
+      display: flex; align-items: center; gap: 5px;
+      padding: 5px 10px; border: 1px solid var(--border); border-radius: var(--rs);
+      font-size: 11px; color: var(--text2); cursor: pointer;
+      transition: all .15s; user-select: none; font-family: var(--mono);
+    }
+    .radio-opt:hover { border-color: var(--accent); }
+    .radio-opt.on { border-color: var(--accent); background: var(--accent-d); color: var(--accent); }
+    .radio-opt input { display: none; }
+
+    /* ── MULTI-SELECT ── */
+    .ms-wrap { position: relative; }
+    .ms-trig {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: var(--rs); padding: 6px 9px;
+      font-family: var(--mono); font-size: 12px; color: var(--text2);
+      cursor: pointer; user-select: none; transition: border-color .15s; gap: 6px;
+    }
+    .ms-trig:hover { border-color: var(--accent); }
+    .ms-trig .mv { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ms-trig .mi { flex-shrink: 0; color: var(--muted); font-size: 9px; transition: transform .15s; }
+    .ms-wrap.open .mi { transform: rotate(180deg); }
+    .ms-drop {
+      display: none; position: absolute; top: 100%; left: 0; right: 0; z-index: 200;
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: var(--rs); margin-top: 3px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.5);
+      max-height: 260px; overflow-y: auto;
+    }
+    .ms-wrap.open .ms-drop { display: block; }
+    .ms-item {
+      display: flex; align-items: center; gap: 8px; padding: 7px 10px;
+      cursor: pointer; user-select: none;
+      font-family: var(--mono); font-size: 11px; color: var(--text2);
+      transition: background .12s;
+    }
+    .ms-item:hover { background: var(--surface-h); }
+    .ms-item.disabled { opacity: .38; cursor: not-allowed; }
+    .ms-item.disabled:hover { background: none; }
+    .ms-cb {
+      width: 14px; height: 14px; border: 1px solid var(--border); border-radius: 3px;
+      background: var(--surface); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; color: var(--accent); transition: all .12s;
+    }
+    .ms-item.checked .ms-cb { background: var(--accent-d); border-color: var(--accent); }
+    .ms-road { margin-left: auto; font-size: 8px; font-weight: 600; color: var(--muted); background: var(--border-s); border-radius: 3px; padding: 1px 5px; letter-spacing: .04em; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 6px 13px; border-radius: var(--rs);
+      font-family: var(--sans); font-size: 12px; font-weight: 500;
+      cursor: pointer; border: 1px solid; transition: all .14s;
+      white-space: nowrap; user-select: none; flex-shrink: 0;
+    }
+    .bp  { background: var(--accent);  border-color: var(--accent); color: #0d1117; }
+    .bp:hover { background: #79c0ff; border-color: #79c0ff; }
+    .bs  { background: transparent; border-color: var(--border); color: var(--text2); }
+    .bs:hover { border-color: var(--muted); color: var(--text); }
+    .bd  { background: transparent; border-color: rgba(248,81,73,.4); color: var(--er); }
+    .bd:hover { border-color: var(--er); background: var(--er-d); }
+    .bg  { background: transparent; border-color: transparent; color: var(--muted); padding: 6px 8px; }
+    .bg:hover { color: var(--text); background: var(--surface-2); }
+    .bsm { padding: 4px 10px; font-size: 11px; }
+    .btn:disabled { opacity: .35; cursor: not-allowed; pointer-events: none; }
+    .act { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; }
+    .asep { width: 1px; height: 18px; background: var(--border); flex-shrink: 0; }
+
+    /* ── PATH CHIPS ── */
+    .path-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--surface-2); border: 1px solid var(--border-s);
+      border-radius: var(--rs); padding: 4px 9px;
+      font-family: var(--mono); font-size: 11px; color: var(--muted); max-width: 100%;
+    }
+    .path-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .sb { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: var(--rs); font-size: 11px; font-family: var(--mono); }
+    .sb-ok  { background: var(--ok-d); border: 1px solid rgba(63,185,80,.28); color: var(--ok); }
+    .sb-no  { background: var(--wa-d); border: 1px solid rgba(210,153,34,.28); color: var(--wa); }
+
+    /* ── NOTICE ── */
+    .notice { display: flex; align-items: flex-start; gap: 7px; padding: 9px 11px; border-radius: var(--rs); font-size: 12px; }
+    .n-info { background: var(--accent-d); border: 1px solid rgba(88,166,255,.2); color: var(--accent); }
+    .n-warn { background: var(--wa-d); border: 1px solid rgba(210,153,34,.2); color: var(--wa); }
+
+    /* ── COLLAPSIBLE ── */
+    .adv { border: 1px solid var(--border-s); border-radius: var(--rs); overflow: hidden; }
+    .adv-head {
+      display: flex; align-items: center; gap: 7px; padding: 7px 11px;
+      cursor: pointer; user-select: none; background: var(--surface-2);
+      font-size: 11px; color: var(--muted); transition: color .15s;
+    }
+    .adv-head:hover { color: var(--text2); }
+    .adv-ico { transition: transform .18s; font-size: 9px; }
+    .adv.open .adv-ico { transform: rotate(90deg); }
+    .adv-body { display: none; padding: 14px; background: var(--surface-2); border-top: 1px solid var(--border-s); flex-direction: column; gap: 11px; }
+    .adv.open .adv-body { display: flex; }
+
+    /* ── STATUS CARDS ── */
+    .st-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+    .st-card { background: var(--surface-2); border: 1px solid var(--border-s); border-radius: var(--r); padding: 12px; }
+    .st-card .t  { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 7px; }
+    .st-pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 10px; font-size: 10px; font-weight: 700; font-family: var(--mono); }
+    .sp-ok { background: var(--ok-d); color: var(--ok); }
+    .sp-wa { background: var(--wa-d); color: var(--wa); }
+    .sp-no { background: var(--border-s); color: var(--muted); }
+    .st-card .d { margin-top: 7px; font-family: var(--mono); font-size: 10px; color: var(--muted); line-height: 1.6; }
+
+    /* ── SUM CARDS ── */
+    .sum-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(130px,1fr)); gap: 8px; }
+    .sum-card { background: var(--surface-2); border: 1px solid var(--border-s); border-radius: var(--r); padding: 11px 12px; }
+    .sum-card .sl { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 5px; }
+    .sum-card .sv { font-family: var(--mono); font-size: 20px; font-weight: 600; color: var(--text); line-height: 1.15; }
+    .sum-card .ss { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 2px; }
+    .sum-card.ok { border-color: rgba(63,185,80,.2); } .sum-card.ok .sv { color: var(--ok); }
+    .sum-card.wa { border-color: rgba(210,153,34,.2); } .sum-card.wa .sv { color: var(--wa); }
+
+    /* ── COV GRID ── */
+    .cov-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 7px; }
+    .cov-item { background: var(--surface-2); border: 1px solid var(--border-s); border-radius: var(--rs); padding: 10px; text-align: center; }
+    .cov-item .n { font-family: var(--mono); font-size: 20px; font-weight: 600; color: var(--text); }
+    .cov-item .l { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-top: 2px; }
+
+    /* ── WARN TABLE ── */
+    .w-tbl { width: 100%; border-collapse: collapse; }
+    .w-tbl th { text-align: left; padding: 5px 9px; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); border-bottom: 1px solid var(--border-s); }
+    .w-tbl td { padding: 5px 9px; border-bottom: 1px solid var(--border-s); font-family: var(--mono); color: var(--text2); font-size: 11px; }
+    .w-tbl tr:last-child td { border-bottom: none; }
+    .w-tbl tr:hover td { background: var(--surface-h); }
+    .wc { display: inline-flex; align-items: center; justify-content: center; background: var(--wa-d); color: var(--wa); border-radius: 3px; padding: 1px 6px; font-size: 10px; font-weight: 700; font-family: var(--mono); }
+
+    /* ── RESULTS TABLE ── */
+    .res-tbl { width: 100%; border-collapse: collapse; }
+    .res-tbl th { text-align: left; padding: 6px 9px; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); border-bottom: 1px solid var(--border); white-space: nowrap; }
+    .res-tbl td { padding: 7px 9px; border-bottom: 1px solid var(--border-s); font-family: var(--mono); color: var(--text2); font-size: 12px; }
+    .res-tbl tr:hover td { background: var(--surface-h); }
+    .res-tbl tr:last-child td { border-bottom: none; }
+    .pos { color: var(--ok); } .neg { color: var(--er); }
+    .lnk { color: var(--accent); cursor: pointer; font-size: 11px; }
+
+    /* ── LOG ── */
+    .log { border: 1px solid var(--border-s); border-radius: var(--rs); overflow: hidden; }
+    .log-head { display: flex; align-items: center; gap: 7px; padding: 5px 11px; background: #0a0f1a; cursor: pointer; user-select: none; border-bottom: 1px solid var(--border-s); }
+    .log-title { font-family: var(--mono); font-size: 10px; color: var(--muted); flex: 1; }
+    .log-chev  { font-size: 10px; color: var(--muted); }
+    .log-body  { background: var(--log-bg); padding: 9px 13px; height: 176px; overflow-y: auto; font-family: var(--mono); font-size: 11px; line-height: 1.75; }
+    .log-body.h { display: none; }
+    .ll   { color: var(--log-g); }
+    .ll.c { color: var(--accent); opacity: .75; }
+    .ll.w { color: var(--log-w); }
+    .ll.e { color: var(--log-e); }
+    .ll.d { color: var(--log-d); }
+
+    /* ── YAML ── */
+    .yaml { background: var(--log-bg); border: 1px solid var(--border-s); border-radius: var(--rs); padding: 11px 13px; font-family: var(--mono); font-size: 11px; color: #79c0ff; line-height: 1.85; }
+    .yk { color: #f78166; } .yv { color: #a5d6ff; } .yc { color: var(--muted); }
+
+    /* ── SUB-TABS ── */
+    .sub-nav { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin: 0 -18px; padding: 0 18px; }
+    .sub-btn { padding: 8px 16px 9px; font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--muted); background: none; border: none; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color .15s, border-color .15s; }
+    .sub-btn:hover { color: var(--text2); }
+    .sub-btn.on { color: var(--accent); border-bottom-color: var(--accent); }
+    .sub-panel { display: none; padding-top: 16px; flex-direction: column; gap: 14px; }
+    .sub-panel.on { display: flex; }
+
+    /* ── SHARED BOX (collapsible) ── */
+    .shared-coll { margin-bottom: 12px; border: 1px solid var(--border-s); border-radius: var(--r); overflow: hidden; }
+    .shared-coll-head {
+      display: flex; align-items: center; gap: 8px; padding: 10px 14px;
+      cursor: pointer; user-select: none;
+      background: var(--surface-2); border-bottom: 1px solid transparent;
+      font-size: 11px; color: var(--muted); transition: color .15s;
+    }
+    .shared-coll-head:hover { color: var(--text2); }
+    .shared-coll.open .shared-coll-head { border-bottom-color: var(--border-s); }
+    .shared-coll-ico { transition: transform .18s; font-size: 9px; }
+    .shared-coll.open .shared-coll-ico { transform: rotate(90deg); }
+    .shared-coll-body { display: none; padding: 14px; background: var(--surface-2); flex-direction: column; gap: 12px; }
+    .shared-coll.open .shared-coll-body { display: flex; }
+    .sh-lbl { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+    .mock-tag { position: fixed; bottom: 10px; right: 14px; font-family: var(--mono); font-size: 9px; color: var(--muted); opacity: .3; z-index: 999; }
+  </style>
+</head>
+<body>
+
+<!-- ══ NAV ══ -->
+<div class="nav-wrap">
+  <div class="nav-inner">
+    <div class="nav-brand">SCL <span>·</span> Signal Chain Lab</div>
+    <button class="tab-btn on" onclick="switchTab('download',this)"><span class="n">01</span>Download</button>
+    <button class="tab-btn"    onclick="switchTab('parse',this)"><span class="n">02</span>Parse</button>
+    <button class="tab-btn"    onclick="switchTab('mktbt',this)"><span class="n">03</span>Market Data &amp; Backtest</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     TAB 01 — DOWNLOAD
+══════════════════════════════════ -->
+<div class="panel on" id="panel-download">
+  <div class="card">
+    <div class="card-title"><span class="n">01</span> Download dati Telegram</div>
+
+    <!-- Sessione -->
+    <div>
+      <div class="sec-lbl">Sessione Telegram</div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div class="sb sb-ok">● Sessione attiva · parser_test/parser_test.session</div>
+        <button class="btn bg bsm" onclick="toggleAdv('adv-auth')">🔑 Modifica credenziali</button>
+      </div>
+      <div class="adv" id="adv-auth" style="margin-top:10px">
+        <div class="adv-head" onclick="toggleAdv('adv-auth')"><span class="adv-ico">▶</span> Credenziali / OTP</div>
+        <div class="adv-body">
+          <div class="row">
+            <div class="fg"><div class="lbl">API_ID</div><input class="inp" placeholder="12345678"></div>
+            <div class="fg"><div class="lbl">API_HASH</div><input class="inp" type="password" placeholder="••••••••••••••••••••••••••••••••"></div>
+            <div class="fg"><div class="lbl">Telefono</div><input class="inp" placeholder="+39..."></div>
+          </div>
+          <div class="row" id="otp-row" style="display:none">
+            <div class="fg"><div class="lbl">Codice OTP</div><input class="inp" placeholder="123456" maxlength="6"></div>
+            <div style="display:flex;align-items:flex-end"><button class="btn bp bsm">✓ Conferma OTP</button></div>
+          </div>
+          <div class="act">
+            <button class="btn bs bsm" onclick="document.getElementById('otp-row').style.display='flex'">📨 Invia OTP</button>
+            <button class="btn bd bsm">✕ Azzera sessione</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sorgente -->
+    <div>
+      <div class="sec-lbl">Sorgente</div>
+      <div class="row">
+        <div class="fg"><div class="lbl">Chat ID</div><input class="inp" value="-1003722628653" placeholder="-1001234567890"></div>
+        <div class="fg"><div class="lbl">Topic ID (opzionale)</div><input class="inp" value="8" placeholder="es. 8"></div>
+        <div class="fg" style="justify-content:flex-end;padding-bottom:1px">
+          <div class="path-chip" style="align-self:flex-end"><span>⎇</span><span>3722628653/8</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Periodo -->
+    <div>
+      <div class="sec-lbl">Periodo download</div>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <label class="tog-row">
+          <div class="tog"><input type="checkbox" id="tog-hist" onchange="toggleEl('date-range',!this.checked)"><div class="tog-track"><div class="tog-thumb"></div></div></div>
+          <span class="tog-lbl">Scarica tutto lo storico (ignora date)</span>
+        </label>
+        <div class="row" id="date-range">
+          <div class="fg"><div class="lbl">Dal</div><input class="inp" type="date" value="2024-01-01"></div>
+          <div class="fg"><div class="lbl">Al</div><input class="inp" type="date" value="2024-12-31"></div>
+        </div>
+        <div>
+          <div class="lbl" style="margin-bottom:5px">Contenuto</div>
+          <div class="radio-grp">
+            <label class="radio-opt on" onclick="pickR(this,'r-dl')"><input type="radio" name="r-dl" checked> Solo testo</label>
+            <label class="radio-opt"    onclick="pickR(this,'r-dl')"><input type="radio" name="r-dl"> Testo + immagini</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Output -->
+    <div>
+      <div class="sec-lbl">Output</div>
+      <div class="row" style="align-items:flex-end">
+        <div class="fg"><div class="lbl">Cartella output DB</div><input class="inp" value="parser_test/db"></div>
+        <button class="btn bs bsm" style="height:33px">📁 Sfoglia</button>
+      </div>
+    </div>
+
+    <!-- Risultato -->
+    <div>
+      <div class="sec-lbl">Risultato download</div>
+      <div class="sum-grid">
+        <div class="sum-card ok"><div class="sl">Messaggi</div><div class="sv">4.281</div><div class="ss">raw_messages</div></div>
+        <div class="sum-card"><div class="sl">Con media</div><div class="sv">312</div><div class="ss">rows_with_media</div></div>
+        <div class="sum-card"><div class="sl">Image blob</div><div class="sv">298</div><div class="ss">blob salvati</div></div>
+        <div class="sum-card"><div class="sl">DB size</div><div class="sv">18.4 MB</div><div class="ss">sqlite3</div></div>
+      </div>
+      <div style="margin-top:8px"><div class="path-chip"><span>🗄</span><span>parser_test/db/parser_test__chat_3722628653__topic_8.sqlite3</span></div></div>
+    </div>
+
+    <!-- Actions -->
+    <div class="act">
+      <button class="btn bp" onclick="simLog('dl-log','dl')">▶ Esegui Download</button>
+      <button class="btn bs bd" onclick="stopLog('dl-log')">■ Arresta</button>
+      <div class="asep"></div>
+      <button class="btn bs bsm">✓ Usa come DB attivo</button>
+      <div class="asep"></div>
+      <button class="btn bd bsm">✕ Elimina DB</button>
+    </div>
+
+    <!-- Log -->
+    <div class="log">
+      <div class="log-head" onclick="toggleLog(this)">
+        <span style="color:var(--log-d);font-size:11px;font-family:var(--mono)">$</span>
+        <span class="log-title">Log Download</span>
+        <span style="color:var(--ok);font-size:9px;font-family:var(--mono)">✓ exit 0</span>
+        <span class="log-chev">▸</span>
+      </div>
+      <div class="log-body h" id="dl-log">
+        <div class="ll c">$ python3 parser_test/scripts/import_history.py --chat-id -1003722628653 --topic-id 8 ...</div>
+        <div class="ll d">[14:30:01] Connessione a Telegram...</div>
+        <div class="ll">[14:30:02] Sessione caricata</div>
+        <div class="ll d">[14:31:22] Downloading... 2000/4281</div>
+        <div class="ll d">[14:32:11] Downloading... 4281/4281</div>
+        <div class="ll">[14:32:14] Verifica DB: messaggi=4281, media=312, blob=298</div>
+        <div class="ll" style="color:var(--ok)">[14:32:14] ✓ Download completato</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     TAB 02 — PARSE
+══════════════════════════════════ -->
+<div class="panel" id="panel-parse">
+  <div class="card">
+    <div class="card-title"><span class="n">02</span> Parse — Signal chain reconstruction</div>
+
+    <!-- DB proprio -->
+    <div>
+      <div class="sec-lbl">Database sorgente</div>
+      <div class="row" style="align-items:flex-end">
+        <div class="fg"><div class="lbl">File DB (.sqlite3)</div><input class="inp" value="parser_test/db/parser_test__chat_3722628653__topic_8.sqlite3"></div>
+        <button class="btn bs bsm" style="height:33px">📁 Sfoglia</button>
+      </div>
+      <div style="margin-top:6px"><div class="path-chip"><span>🗄</span><span>parser_test__chat_3722628653__topic_8.sqlite3 · 4.281 messaggi</span></div></div>
+    </div>
+
+    <!-- Config -->
+    <div class="row">
+      <div class="fg">
+        <div class="lbl">Trader profile</div>
+        <select class="inp">
+          <option value="">Auto</option>
+          <option selected>trader_3</option>
+          <option>trader_a</option><option>trader_b</option>
+          <option>trader_c</option><option>trader_d</option>
+        </select>
+      </div>
+      <div class="fg" style="justify-content:flex-end;padding-bottom:1px">
+        <label class="tog-row" style="height:33px">
+          <div class="tog"><input type="checkbox" checked><div class="tog-track"><div class="tog-thumb"></div></div></div>
+          <span class="tog-lbl">Esporta CSV</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Status cards -->
+    <div>
+      <div class="sec-lbl">Stato modulo</div>
+      <div class="st-cards">
+        <div class="st-card"><div class="t">Parse</div><div class="st-pill sp-ok">✓ ok</div><div class="d">3.814 messaggi<br>467 segnali estratti</div></div>
+        <div class="st-card"><div class="t">Chain Builder</div><div class="st-pill sp-ok">✓ ok</div><div class="d">423 operational<br>44 incomplete</div></div>
+        <div class="st-card"><div class="t">Backtest Readiness</div><div class="st-pill sp-wa">⚠ warning</div><div class="d">423 pronti<br>8 warning attivi</div></div>
+      </div>
+    </div>
+
+    <!-- Warnings -->
+    <div>
+      <div class="sec-lbl">Top warnings</div>
+      <div style="background:var(--surface-2);border:1px solid var(--border-s);border-radius:var(--rs);overflow:hidden">
+        <table class="w-tbl">
+          <thead><tr><th>Tipo</th><th>Count</th><th>Esempio</th></tr></thead>
+          <tbody>
+            <tr><td>missing_sl</td>        <td><span class="wc">34</span></td><td>msg_id 3812: nessun SL rilevato</td></tr>
+            <tr><td>ambiguous_entry</td>    <td><span class="wc">18</span></td><td>msg_id 2974: entry ZONE con 1 prezzo</td></tr>
+            <tr><td>unresolved_update</td>  <td><span class="wc">12</span></td><td>msg_id 4101: UPDATE senza parent</td></tr>
+            <tr><td>low_confidence</td>     <td><span class="wc">7</span></td> <td>msg_id 1823: confidence 0.41</td></tr>
+            <tr><td>duplicate_signal</td>   <td><span class="wc">4</span></td> <td>msg_id 3204: symbol già aperto</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="act">
+      <button class="btn bp" onclick="simLog('pa-log','pa')">▶ Esegui Parse</button>
+      <button class="btn bs bd" onclick="stopLog('pa-log')">■ Arresta</button>
+      <div class="asep"></div>
+      <button class="btn bs bsm">📊 Apri report qualità</button>
+      <button class="btn bs bsm">📥 Esporta CSV</button>
+    </div>
+
+    <!-- Log -->
+    <div class="log">
+      <div class="log-head" onclick="toggleLog(this)">
+        <span style="color:var(--log-d);font-size:11px;font-family:var(--mono)">$</span>
+        <span class="log-title">Log Parse</span>
+        <span style="color:var(--wa);font-size:9px;font-family:var(--mono)">⚠ 75 warnings</span>
+        <span class="log-chev">▸</span>
+      </div>
+      <div class="log-body h" id="pa-log">
+        <div class="ll c">$ python3 -m src.signal_chain_lab.parser.runner --profile trader_3 ...</div>
+        <div class="ll d">[14:33:01] Carico profilo trader_3 · 48 regole</div>
+        <div class="ll">[14:33:02] Processando 3814 messaggi...</div>
+        <div class="ll w">[14:33:04] WARN: missing_sl @ msg_id 1823</div>
+        <div class="ll w">[14:33:05] WARN: ambiguous_entry @ msg_id 2974</div>
+        <div class="ll d">[14:34:18] Chain builder: 467 → 423 operational</div>
+        <div class="ll w">[14:34:19] ⚠ Completato con 75 warnings</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     TAB 03 — MARKET DATA & BACKTEST
+══════════════════════════════════ -->
+<div class="panel" id="panel-mktbt">
+
+  <!-- CONTESTO CONDIVISO (collassabile) -->
+  <div class="shared-coll open" id="ctx-shared">
+    <div class="shared-coll-head" onclick="toggleShared()">
+      <span class="shared-coll-ico">▶</span>
+      <span style="font-weight:600;color:var(--text2)">Contesto condiviso</span>
+      <span style="margin-left:8px;font-size:10px;font-family:var(--mono);color:var(--muted)">DB · filtri · cartella Market Data</span>
+      <div id="ctx-summary" style="margin-left:auto;display:none;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;color:var(--muted)">
+        <span>🗄 chat_3722628653.sqlite3</span>
+        <span style="color:var(--border-s)">·</span>
+        <span>Tutti · 2024-01-01→2024-12-31</span>
+        <span style="color:var(--border-s)">·</span>
+        <span>📂 market_data/bybit</span>
+      </div>
+    </div>
+    <div class="shared-coll-body">
+      <div class="sh-lbl">Contesto condiviso — Market Data &amp; Backtest</div>
+      <!-- DB -->
+      <div>
+        <div class="lbl" style="margin-bottom:4px">Database segnali</div>
+        <div class="row" style="align-items:center">
+          <div class="fg"><input class="inp" value="parser_test/db/parser_test__chat_3722628653__topic_8.sqlite3"></div>
+          <button class="btn bs bsm" style="height:33px">📁 Sfoglia</button>
+        </div>
+      </div>
+      <!-- Filtri -->
+      <div class="row">
+        <div class="fg"><div class="lbl">Trader filter</div>
+          <select class="inp"><option>Tutti</option><option>trader_3</option><option>trader_a</option><option>trader_b</option></select>
+        </div>
+        <div class="fg"><div class="lbl">Dal</div><input class="inp" type="date" value="2024-01-01"></div>
+        <div class="fg"><div class="lbl">Al</div><input class="inp" type="date" value="2024-12-31"></div>
+        <div class="fg" style="max-width:100px"><div class="lbl">Max trades</div><input class="inp" type="number" value="0" placeholder="0=tutti"></div>
+      </div>
+      <!-- Market dir -->
+      <div>
+        <div class="lbl" style="margin-bottom:4px">Cartella Market Data</div>
+        <div class="row" style="align-items:center">
+          <div class="fg"><input class="inp" value="data/market"></div>
+          <button class="btn bs bsm" style="height:33px">📁 Sfoglia</button>
+        </div>
+        <div style="margin-top:6px;display:flex;gap:8px;flex-wrap:wrap">
+          <div class="path-chip"><span>📂</span><span>data/market/bybit</span></div>
+          <div class="notice n-info" style="padding:3px 9px;font-size:10px;margin:0">rilevato: Spot · Perp · Funding · bybit · 1h,4h,1d · last,mark</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARD con sub-tabs -->
+  <div class="card" style="gap:0">
+    <div class="sub-nav">
+      <button class="sub-btn" onclick="switchSub('backtest',this)">Backtesting</button>
+      <button class="sub-btn on" onclick="switchSub('market',this)">Market Data</button>
+    </div>
+
+    <!-- ── SUB: MARKET DATA ── -->
+    <div class="sub-panel on" id="sub-market">
+
+      <div class="row">
+        <div class="fg">
+          <div class="lbl">Source / Provider</div>
+          <select class="inp"><option selected>bybit</option><option>fixture</option></select>
+        </div>
+        <div class="fg">
+          <div class="lbl">Validate mode</div>
+          <select class="inp"><option selected>Off</option><option>Gaps</option><option>Off</option></select>
+        </div>
+        <div class="fg">
+          <div class="lbl">Price basis</div>
+          <select class="inp"><option selected>last</option><option>mark</option></select>
+        </div>
+      </div>
+
+      <!-- Download TF multi + Data types multi -->
+      <div class="row">
+        <div class="fg">
+          <div class="lbl">Download TF <span style="color:var(--muted);font-size:9px">(multi)</span></div>
+          <div class="ms-wrap" id="ms-tf">
+            <div class="ms-trig" onclick="toggleMs('ms-tf')">
+              <span class="mv" id="ms-tf-v">1h, 4h, 1d</span><span class="mi">▾</span>
+            </div>
+            <div class="ms-drop">
+              <div class="ms-item" onclick="msT(this,'ms-tf')"><div class="ms-cb"></div>1m</div>
+              <div class="ms-item" onclick="msT(this,'ms-tf')"><div class="ms-cb"></div>5m</div>
+              <div class="ms-item" onclick="msT(this,'ms-tf')"><div class="ms-cb"></div>15m</div>
+              <div class="ms-item" onclick="msT(this,'ms-tf')"><div class="ms-cb"></div>30m</div>
+              <div class="ms-item checked" onclick="msT(this,'ms-tf')"><div class="ms-cb">✓</div>1h</div>
+              <div class="ms-item" onclick="msT(this,'ms-tf')"><div class="ms-cb"></div>2h</div>
+              <div class="ms-item checked" onclick="msT(this,'ms-tf')"><div class="ms-cb">✓</div>4h</div>
+              <div class="ms-item" onclick="msT(this,'ms-tf')"><div class="ms-cb"></div>6h</div>
+              <div class="ms-item" onclick="msT(this,'ms-tf')"><div class="ms-cb"></div>12h</div>
+              <div class="ms-item checked" onclick="msT(this,'ms-tf')"><div class="ms-cb">✓</div>1d</div>
+              <div class="ms-item" onclick="msT(this,'ms-tf')"><div class="ms-cb"></div>1w</div>
+            </div>
+          </div>
+        </div>
+        <div class="fg" style="flex:2">
+          <div class="lbl">Data types <span style="color:var(--muted);font-size:9px">(multi)</span></div>
+          <div class="ms-wrap" id="ms-dt">
+            <div class="ms-trig" onclick="toggleMs('ms-dt')">
+              <span class="mv" id="ms-dt-v">Perp, Funding rate</span><span class="mi">▾</span>
+            </div>
+            <div class="ms-drop">
+              <div class="ms-item checked" onclick="msT(this,'ms-dt')"><div class="ms-cb">✓</div>Perpetual (Perp)</div>
+              <div class="ms-item checked" onclick="msT(this,'ms-dt')"><div class="ms-cb">✓</div>Funding rate</div>
+              <div class="ms-item disabled"><div class="ms-cb"></div>Open interest<span class="ms-road">ROADMAP</span></div>
+              <div class="ms-item disabled"><div class="ms-cb"></div>Spot<span class="ms-road">ROADMAP</span></div>
+              <div class="ms-item disabled"><div class="ms-cb"></div>Liquidations<span class="ms-road">ROADMAP</span></div>
+              <div class="ms-item disabled"><div class="ms-cb"></div>Order book<span class="ms-road">ROADMAP</span></div>
+              <div class="ms-item disabled"><div class="ms-cb"></div>Bid/ask spread<span class="ms-road">ROADMAP</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Buffer mode -->
+      <div class="row">
+        <div class="fg">
+          <div class="lbl">Buffer mode</div>
+          <select class="inp" id="buf-mode" onchange="toggleBuf()">
+            <option selected>auto</option>
+            <option value="manual">manual</option>
+          </select>
+        </div>
+        <div class="fg" id="pre-buf" style="display:none">
+          <div class="lbl">Pre buffer (h)</div>
+          <input class="inp" type="number" value="48">
+        </div>
+        <div class="fg" id="post-buf" style="display:none">
+          <div class="lbl">Post buffer (h)</div>
+          <input class="inp" type="number" value="24">
+        </div>
+      </div>
+
+      <!-- New dir toggle -->
+      <div>
+        <label class="tog-row">
+          <div class="tog"><input type="checkbox" id="tog-newdir" onchange="toggleEl('newdir-field',this.checked)"><div class="tog-track"><div class="tog-thumb"></div></div></div>
+          <span class="tog-lbl">Nuova directory (scarica in nuova cartella)</span>
+        </label>
+        <div id="newdir-field" style="display:none;margin-top:9px">
+          <div class="row" style="align-items:flex-end">
+            <div class="fg"><div class="lbl">Nuova cartella destinazione</div><input class="inp" placeholder="es. data/market_new"></div>
+            <button class="btn bs bsm" style="height:33px">📁 Sfoglia</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coverage -->
+      <div>
+        <div class="sec-lbl">Coverage</div>
+        <div class="cov-grid">
+          <div class="cov-item"><div class="n">37</div><div class="l">Simboli</div></div>
+          <div class="cov-item"><div class="n">148</div><div class="l">Intervalli req.</div></div>
+          <div class="cov-item"><div class="n" style="color:var(--wa)">12</div><div class="l">Gap</div></div>
+          <div class="cov-item"><div class="n">85%</div><div class="l">Copertura</div></div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="act">
+        <button class="btn bp" onclick="simLog('mkt-log','mkt')">🔍 Analizza</button>
+        <button class="btn bs">⬇ Prepara</button>
+        <button class="btn bs">✓ Valida</button>
+        <div class="asep"></div>
+        <button class="btn bs bd" onclick="stopLog('mkt-log')">■ Arresta</button>
+      </div>
+
+      <!-- Log -->
+      <div class="log">
+        <div class="log-head" onclick="toggleLog(this)">
+          <span style="color:var(--log-d);font-size:11px;font-family:var(--mono)">$</span>
+          <span class="log-title">Log Market Data</span>
+          <span class="log-chev">▸</span>
+        </div>
+        <div class="log-body h" id="mkt-log"><div class="ll d">— in attesa —</div></div>
+      </div>
+    </div>
+
+    <!-- ── SUB: BACKTEST ── -->
+    <div class="sub-panel" id="sub-backtest">
+
+      <div class="notice n-info" style="font-size:11px">ℹ &nbsp;<strong>Price basis</strong> e <strong>Market source</strong> sono rilevati automaticamente dalla cartella Market Data.</div>
+
+      <!-- Riga 1 -->
+      <div class="row">
+        <!-- Policy multi-select -->
+        <div class="fg" style="flex:2">
+          <div class="lbl">Policy <span style="color:var(--muted);font-size:9px">(seleziona una o più)</span></div>
+          <div class="ms-wrap" id="ms-pol">
+            <div class="ms-trig" onclick="toggleMs('ms-pol')">
+              <span class="mv" id="ms-pol-v">original_chain, signal_only</span><span class="mi">▾</span>
+            </div>
+            <div class="ms-drop">
+              <div class="ms-item checked" onclick="msT(this,'ms-pol')"><div class="ms-cb">✓</div>original_chain</div>
+              <div class="ms-item checked" onclick="msT(this,'ms-pol')"><div class="ms-cb">✓</div>signal_only</div>
+              <div class="ms-item" onclick="msT(this,'ms-pol')"><div class="ms-cb"></div>conservative_v1</div>
+              <div class="ms-item" onclick="msT(this,'ms-pol')"><div class="ms-cb"></div>balanced_v2</div>
+              <div class="ms-item" onclick="msT(this,'ms-pol')"><div class="ms-cb"></div>aggressive_v1</div>
+            </div>
+          </div>
+        </div>
+        <div class="fg" style="max-width:105px"><div class="lbl">Timeout (m)</div><input class="inp" type="number" value="5"></div>
+        <div class="fg">
+          <div class="lbl">Report output dir</div>
+          <input class="inp" value="artifacts/scenarios" placeholder="default: artifacts/scenarios">
+        </div>
+        <button class="btn bg bsm" style="align-self:flex-end">📁</button>
+      </div>
+
+      <!-- Riga 2 -->
+      <div class="row">
+        <div class="fg"><div class="lbl">Simulation TF</div><select class="inp"><option selected>1m</option><option>5m</option><option>15m</option></select></div>
+        <div class="fg"><div class="lbl">Detail TF / childs</div><select class="inp"><option selected>1m</option><option>5m</option><option>15m</option></select></div>
+        <div class="fg">
+          <div class="lbl">Price basis <span style="color:var(--accent);font-size:9px">· auto da market dir</span></div>
+          <select class="inp"><option selected>last · rilevato</option><option>mark · rilevato</option></select>
+        </div>
+        <div class="fg">
+          <div class="lbl">Market source <span style="color:var(--accent);font-size:9px">· auto da market dir</span></div>
+          <select class="inp"><option selected>bybit · rilevato</option><option>fixture</option></select>
+        </div>
+      </div>
+
+      <!-- Policy Studio -->
+      <div class="adv" id="adv-ps">
+        <div class="adv-head" onclick="toggleAdv('adv-ps')">
+          <span class="adv-ico">▶</span> Policy Studio
+          <span style="margin-left:auto;font-size:9px;color:var(--muted)">editor YAML · Modifica · Nuova</span>
+        </div>
+        <div class="adv-body">
+          <div class="yaml">
+            <span class="yc"># original_chain.yaml</span><br>
+            <span class="yk">name</span>: <span class="yv">original_chain</span><br>
+            <span class="yk">risk_per_trade</span>: <span style="color:#79c0ff">0.01</span><br>
+            <span class="yk">sl_multiplier</span>: <span style="color:#79c0ff">1.0</span><br>
+            <span class="yk">tp_mode</span>: <span class="yv">original</span><br>
+            <span class="yk">max_concurrent</span>: <span style="color:#79c0ff">5</span><br>
+            <span class="yk">entry_timeout_h</span>: <span style="color:#79c0ff">48</span>
+          </div>
+          <div class="act">
+            <button class="btn bs bsm">💾 Salva</button>
+            <button class="btn bs bsm">Salva come nuova...</button>
+            <button class="btn bs bsm">+ Nuova policy</button>
+            <button class="btn bs bsm">↺ Ricarica lista</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="act">
+        <button class="btn bp" onclick="simBt()">▶ Esegui Backtest</button>
+        <button class="btn bs bd" onclick="stopLog('bt-log')">■ Arresta</button>
+        <div class="asep"></div>
+        <button class="btn bs bsm" id="btn-rpt" disabled>📄 Apri report HTML</button>
+        <button class="btn bs bsm" id="btn-art" disabled>📂 Artifact dir</button>
+      </div>
+
+      <!-- Results -->
+      <div id="bt-empty">
+        <div class="sec-lbl">Risultati</div>
+        <div style="background:var(--surface-2);border:1px solid var(--border-s);border-radius:var(--rs);padding:26px;text-align:center">
+          <div style="font-family:var(--mono);font-size:11px;color:var(--muted)">— nessun run eseguito —</div>
+        </div>
+      </div>
+      <div id="bt-results" style="display:none">
+        <div class="sec-lbl">Risultati</div>
+        <div style="background:var(--surface-2);border:1px solid var(--border-s);border-radius:var(--rs);overflow:hidden">
+          <table class="res-tbl">
+            <thead><tr><th>Policy</th><th>Trades</th><th>Excluded</th><th>PnL %</th><th>Win rate</th><th>Expectancy</th><th>Report</th></tr></thead>
+            <tbody>
+              <tr><td>original_chain</td><td>312</td><td>23</td><td class="pos">+18.4%</td><td>61.2%</td><td class="pos">+0.31R</td><td><span class="lnk">📄 apri</span></td></tr>
+              <tr><td>signal_only</td><td>289</td><td>34</td><td class="pos">+12.1%</td><td>58.8%</td><td class="pos">+0.22R</td><td><span class="lnk">📄 apri</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Log -->
+      <div class="log">
+        <div class="log-head" onclick="toggleLog(this)">
+          <span style="color:var(--log-d);font-size:11px;font-family:var(--mono)">$</span>
+          <span class="log-title">Log Backtest</span>
+          <span class="log-chev">▸</span>
+        </div>
+        <div class="log-body h" id="bt-log"><div class="ll d">— in attesa —</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mock-tag">Signal Chain Lab UI v4</div>
+
+<script>
+  /* ── TAB SWITCH ── */
+  function switchTab(id, btn) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('on'));
+    document.getElementById('panel-' + id).classList.add('on');
+    btn.classList.add('on');
+    document.querySelectorAll('.ms-wrap.open').forEach(w => w.classList.remove('open'));
+  }
+
+  /* ── SUB-TAB ── */
+  function switchSub(id, btn) {
+    document.querySelectorAll('.sub-panel').forEach(p => p.classList.remove('on'));
+    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('on'));
+    document.getElementById('sub-' + id).classList.add('on');
+    btn.classList.add('on');
+  }
+
+  /* ── SHARED CONTEXT TOGGLE ── */
+  function toggleShared() {
+    const el = document.getElementById('ctx-shared');
+    el.classList.toggle('open');
+    const sum = document.getElementById('ctx-summary');
+    sum.style.display = el.classList.contains('open') ? 'none' : 'flex';
+  }
+
+  /* ── LOG ── */
+  function toggleLog(head) {
+    const body = head.nextElementSibling;
+    const chev = head.querySelector('.log-chev');
+    const open = body.classList.contains('h');
+    body.classList.toggle('h', !open);
+    chev.textContent = open ? '▾' : '▸';
+  }
+
+  /* ── COLLAPSIBLE ── */
+  function toggleAdv(id) { document.getElementById(id).classList.toggle('open'); }
+
+  /* ── SHOW/HIDE ELEMENT ── */
+  function toggleEl(id, show) {
+    document.getElementById(id).style.display = show ? '' : 'none';
+  }
+
+  /* ── RADIO ── */
+  function pickR(el, name) {
+    document.querySelectorAll(`.radio-opt input[name="${name}"]`).forEach(i => i.closest('.radio-opt').classList.remove('on'));
+    el.classList.add('on');
+  }
+
+  /* ── BUFFER MODE ── */
+  function toggleBuf() {
+    const manual = document.getElementById('buf-mode').value === 'manual';
+    document.getElementById('pre-buf').style.display  = manual ? '' : 'none';
+    document.getElementById('post-buf').style.display = manual ? '' : 'none';
+  }
+
+  /* ── MULTI-SELECT ── */
+  function toggleMs(id) {
+    const wrap = document.getElementById(id);
+    const isOpen = wrap.classList.contains('open');
+    document.querySelectorAll('.ms-wrap.open').forEach(w => w.classList.remove('open'));
+    if (!isOpen) wrap.classList.add('open');
+  }
+  function msT(item, wid) {
+    if (item.classList.contains('disabled')) return;
+    item.classList.toggle('checked');
+    item.querySelector('.ms-cb').textContent = item.classList.contains('checked') ? '✓' : '';
+    updateMsVal(wid);
+  }
+  function updateMsVal(wid) {
+    const wrap = document.getElementById(wid);
+    const checked = [...wrap.querySelectorAll('.ms-item.checked:not(.disabled)')]
+      .map(i => i.textContent.replace('✓','').trim());
+    const valId = wid.replace('ms-','ms-') + '-v';
+    const el = document.getElementById(valId) || wrap.querySelector('.mv');
+    el.textContent = checked.length ? checked.join(', ') : '— nessuno —';
+  }
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.ms-wrap')) document.querySelectorAll('.ms-wrap.open').forEach(w => w.classList.remove('open'));
+  });
+
+  /* ── LOG SIMULATION ── */
+  const LOGS = {
+    dl:  [['c','$ python3 parser_test/scripts/import_history.py ...'],['d','[..] Connessione a Telegram...'],['','[..] Sessione caricata'],['d','[..] Downloading... 2000/4281'],['d','[..] Downloading... 4281/4281'],['','[..] Verifica DB: messaggi=4281, media=312'],['S','[..] ✓ Download completato']],
+    pa:  [['c','$ python3 -m src.signal_chain_lab.parser.runner --profile trader_3 ...'],['d','[..] Carico profilo · 48 regole'],['','[..] Processando 3814 messaggi...'],['w','[..] WARN: missing_sl @ msg_id 1823'],['w','[..] WARN: ambiguous_entry @ msg_id 2974'],['d','[..] Chain builder: 467 → 423 operational'],['w','[..] ⚠ Completato con 75 warnings']],
+    mkt: [['c','$ python3 -m src.signal_chain_lab.market_data.runner --source bybit --validate Full ...'],['d','[..] Carico configurazione...'],['','[..] Analisi: 37 simboli, 148 intervalli'],['w','[..] Gap rilevati: 12'],['','[..] Avvio sync gap...'],['S','[..] ✓ Market data pronti']],
+  };
+  const timers = {};
+  function simLog(logId, key) {
+    const body = document.getElementById(logId);
+    const chev = body.previousElementSibling.querySelector('.log-chev');
+    body.classList.remove('h'); chev.textContent = '▾'; body.innerHTML = '';
+    if (timers[logId]) timers[logId].forEach(clearTimeout);
+    timers[logId] = [];
+    (LOGS[key]||[]).forEach((l,i) => {
+      timers[logId].push(setTimeout(() => {
+        const ts = new Date().toLocaleTimeString('it',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+        const d = document.createElement('div');
+        if (l[0]==='S') { d.className='ll'; d.style.color='var(--ok)'; }
+        else d.className = 'll ' + l[0];
+        d.textContent = l[1].replace('[..]',`[${ts}]`);
+        body.appendChild(d); body.scrollTop = body.scrollHeight;
+      }, i*600));
+    });
+  }
+  function stopLog(logId) {
+    if (timers[logId]) { timers[logId].forEach(clearTimeout); timers[logId]=[]; }
+    const body = document.getElementById(logId);
+    const d = document.createElement('div'); d.className='ll w';
+    d.textContent = `[${new Date().toLocaleTimeString('it')}] ■ Esecuzione arrestata`;
+    body.appendChild(d); body.scrollTop = body.scrollHeight;
+  }
+  function simBt() {
+    const body = document.getElementById('bt-log');
+    const chev = body.previousElementSibling.querySelector('.log-chev');
+    body.classList.remove('h'); chev.textContent='▾'; body.innerHTML='';
+    const lines=[['c','$ python3 -m src.signal_chain_lab.backtest.runner --policies original_chain signal_only ...'],['d','[..] Carico policy: original_chain, signal_only'],['','[..] 423 segnali operativi'],['d','[..] Simulazione in corso...'],['','[..] 312 trades simulati · 23 esclusi'],['S','[..] ✓ Backtest completato'],['','[..] Report: artifacts/scenarios/scenario_20241210.html']];
+    if (timers['bt-log']) timers['bt-log'].forEach(clearTimeout); timers['bt-log']=[];
+    lines.forEach((l,i) => {
+      timers['bt-log'].push(setTimeout(() => {
+        const ts=new Date().toLocaleTimeString('it',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+        const d=document.createElement('div');
+        if(l[0]==='S'){d.className='ll';d.style.color='var(--ok)';}else d.className='ll '+l[0];
+        d.textContent=l[1].replace('[..]',`[${ts}]`);
+        body.appendChild(d); body.scrollTop=body.scrollHeight;
+        if(i===lines.length-1){
+          document.getElementById('bt-empty').style.display='none';
+          document.getElementById('bt-results').style.display='block';
+          document.getElementById('btn-rpt').disabled=false;
+          document.getElementById('btn-art').disabled=false;
+        }
+      },i*650));
+    });
+  }
+</script>
+</body>
+</html>

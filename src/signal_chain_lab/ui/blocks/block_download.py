@@ -11,6 +11,7 @@ from nicegui import ui
 
 from src.signal_chain_lab.ui.components.log_panel import LogPanel
 from src.signal_chain_lab.ui.file_dialogs import ask_directory
+from src.signal_chain_lab.ui.persistence import debounced_save
 from src.signal_chain_lab.ui.state import UiState
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[4]
@@ -147,7 +148,7 @@ def _delete_downloaded_db(*, state: UiState, log_panel: LogPanel, db_output_labe
     if not target.exists():
         log_panel.push(f"DB non trovato sul filesystem: {target}")
         state.downloaded_db_path = ""
-        db_output_label.set_text("DB: -")
+        db_output_label.set_content('<span class="path-chip">🗄 —</span>')
         ui.notify("DB già assente", color="warning")
         return
 
@@ -156,7 +157,7 @@ def _delete_downloaded_db(*, state: UiState, log_panel: LogPanel, db_output_labe
     state.downloaded_db_path = ""
     if state.parsed_db_path == db_path:
         state.parsed_db_path = ""
-    db_output_label.set_text("DB: -")
+    db_output_label.set_content('<span class="path-chip">🗄 —</span>')
     ui.notify("DB scaricato eliminato", color="positive")
 
 
@@ -368,7 +369,7 @@ async def _handle_download(
     _download_ctx.stop_requested = False
 
     source_id = _build_source_id(state.chat_id, state.topic_id)
-    source_id_label.set_text(f"ID sorgente: {source_id or '-'}")
+    source_id_label.set_content(f'<span class="path-chip">🔗 {source_id or "—"}</span>')
 
     if not state.chat_id:
         ui.notify("Inserisci il chat_id Telegram", color="negative")
@@ -430,7 +431,7 @@ async def _handle_download(
         return
 
     state.downloaded_db_path = str(output_db_path)
-    db_output_label.set_text(f"DB: {state.downloaded_db_path}")
+    db_output_label.set_content(f'<span class="path-chip">🗄 {state.downloaded_db_path}</span>')
     summary = _summarize_download_db(output_db_path)
     log_panel.push(
         "Verifica DB: "
@@ -454,24 +455,55 @@ def render_block_download(state: UiState, *, run_streaming_command) -> None:
     """Render block 1 - Telegram history download."""
     saved_api_id, saved_api_hash = _load_saved_credentials()
 
-    with ui.card().classes("w-full"):
-        ui.label("Blocco 1 - Download dati").classes("text-h6")
-        ui.label("Sorgente fissa: Telegram").classes("text-body2 text-grey-7")
-        block1_log = LogPanel(title="Log Download")
+    def _persist() -> None:
+        debounced_save(state.to_dict())
 
+    with ui.card().style(
+        "background:var(--surface);border:1px solid var(--border);"
+        "border-radius:var(--r);padding:18px"
+    ).classes("w-full block-card"):
+
+        # ── title ─────────────────────────────────────────────────────────
+        with ui.row().classes("section-head"):
+            ui.label("01").classes("section-step")
+            ui.label("· Download dati Telegram").style(
+                "font-family:var(--sans);font-size:15px;font-weight:600;color:var(--text)"
+            )
+
+        # ── session chip ───────────────────────────────────────────────────
         session_ok = _session_exists()
-        auth_status_label = ui.label(
-            "Sessione attiva" if session_ok else "Nessuna sessione - inserisci le credenziali"
-        ).classes("text-caption text-grey-6" if session_ok else "text-caption text-orange-7")
+        _session_dot_color = "var(--ok)" if session_ok else "var(--muted)"
+        _session_text = "Sessione attiva" if session_ok else "Nessuna sessione"
+        _session_bg = "var(--ok-d)" if session_ok else "var(--surface-2)"
+        _session_border = "var(--ok)" if session_ok else "var(--border-s)"
+        session_chip = ui.html(
+            f'<span style="display:inline-flex;align-items:center;gap:5px;'
+            f'font-family:var(--mono);font-size:11px;padding:2px 9px;'
+            f'background:{_session_bg};border:1px solid {_session_border};'
+            f'border-radius:var(--rs);color:{_session_dot_color}">'
+            f'&#9679; {_session_text}</span>'
+        )
+        auth_status_label = ui.label("").style("display:none")  # kept for existing callbacks
 
-        with ui.expansion("Credenziali Telegram / Autenticazione", icon="lock", value=not session_ok).classes("w-full"):
-            api_id_input = ui.input("API_ID (da my.telegram.org)", value=saved_api_id).classes("w-full")
+        # ── credentials expansion ──────────────────────────────────────────
+        with ui.expansion(value=not session_ok).classes("w-full").style(
+            "border:1px solid var(--border-s);border-radius:var(--rs);"
+            "background:var(--surface-2);margin-top:10px"
+        ) as _cred_exp:
+            with _cred_exp.add_slot("header"):
+                with ui.row().style("align-items:center;gap:6px;padding:0 4px"):
+                    ui.html('<span style="font-size:14px">🔑</span>')
+                    ui.label("Modifica credenziali").style(
+                        "font-family:var(--mono);font-size:12px;color:var(--text2)"
+                    )
+
+            api_id_input = ui.input("API_ID (da my.telegram.org)", value=saved_api_id).classes("w-full inp-mono")
             api_hash_input = ui.input(
                 "API_HASH (da my.telegram.org)",
                 value=saved_api_hash,
                 password=True,
                 password_toggle_button=True,
-            ).classes("w-full")
+            ).classes("w-full inp-mono")
             phone_input = ui.input("Numero telefono (es. +39...)", value="").classes("w-full")
 
             with ui.row().classes("w-full items-center gap-2") as otp_row:
@@ -486,7 +518,7 @@ def render_block_download(state: UiState, *, run_streaming_command) -> None:
                         otp_row=otp_row,
                     )
 
-                ui.button("Conferma OTP", on_click=_on_confirm_otp, color="positive")
+                ui.button("Conferma OTP", on_click=_on_confirm_otp).props("color=positive")
 
             otp_row.set_visibility(False)
 
@@ -500,10 +532,10 @@ def render_block_download(state: UiState, *, run_streaming_command) -> None:
                     auth_status_label=auth_status_label,
                 )
 
-            with ui.row().classes("gap-2"):
+            with ui.row().classes("gap-2 q-mt-sm"):
                 ui.button("Invia OTP", on_click=_on_send_otp, icon="send")
                 ui.button(
-                    "Azzera sessione e credenziali",
+                    "Azzera sessione",
                     on_click=lambda: _reset_telegram_session(
                         api_id_input=api_id_input,
                         api_hash_input=api_hash_input,
@@ -515,48 +547,114 @@ def render_block_download(state: UiState, *, run_streaming_command) -> None:
                     icon="delete",
                 )
 
-        source_id_label = ui.label(f"ID sorgente: {_build_source_id(state.chat_id, state.topic_id) or '-'}")
-        chat_id_input = ui.input("Chat ID Telegram", value=state.chat_id, placeholder="-1001234567890").classes("w-full")
-        topic_id_input = ui.input("Topic ID opzionale", value=state.topic_id, placeholder="es. 8").classes("w-full")
-        ui.label('Se inserisci il topic, l\'ID logico diventa ad esempio "3722628653/8".').classes(
-            "text-caption text-grey-7"
-        )
+        # ── source chip ────────────────────────────────────────────────────
+        def _source_chip_html(chat: str, topic: str) -> str:
+            sid = _build_source_id(chat, topic) or "—"
+            return (
+                f'<span class="path-chip">🔗 {sid}</span>'
+            )
+
+        source_id_label = ui.html(_source_chip_html(state.chat_id, state.topic_id)).style("margin-top:10px")
+
+        with ui.row().classes("w-full gap-4 q-mt-sm"):
+            chat_id_input = ui.input(
+                "Chat ID Telegram", value=state.chat_id, placeholder="-1001234567890"
+            ).classes("flex-1 inp-mono")
+            topic_id_input = ui.input(
+                "Topic ID", value=state.topic_id, placeholder="es. 8"
+            ).classes("flex-1 inp-mono")
 
         def _refresh_source_id(*_) -> None:
-            source_id_label.set_text(f"ID sorgente: {_build_source_id(chat_id_input.value, topic_id_input.value) or '-'}")
+            state.chat_id = chat_id_input.value.strip()
+            state.topic_id = topic_id_input.value.strip()
+            source_id_label.set_content(
+                _source_chip_html(chat_id_input.value, topic_id_input.value)
+            )
+            _persist()
 
         chat_id_input.on("update:model-value", _refresh_source_id)
         topic_id_input.on("update:model-value", _refresh_source_id)
 
-        full_history_toggle = ui.checkbox("Scarica tutto lo storico", value=state.full_history)
+        # ── date range ─────────────────────────────────────────────────────
+        full_history_toggle = ui.switch("Scarica tutto lo storico", value=state.full_history)
         with ui.row().classes("w-full gap-4") as date_row:
             date_from = ui.input("Dal", value=state.date_from).props("type=date").classes("flex-1")
             date_to = ui.input("Al", value=state.date_to).props("type=date").classes("flex-1")
 
         def _toggle_date_row(*_) -> None:
             date_row.set_visibility(not full_history_toggle.value)
+            state.full_history = bool(full_history_toggle.value)
+            _persist()
 
         full_history_toggle.on("update:model-value", _toggle_date_row)
         date_row.set_visibility(not state.full_history)
 
+        # ── download mode ──────────────────────────────────────────────────
         download_mode = ui.radio(
-            {
-                "text": "Solo testo",
-                "text_images": "Testo + immagini",
-            },
+            {"text": "Solo testo", "text_images": "Testo + immagini"},
             value="text_images" if state.download_media else "text",
         ).props("inline")
 
+        # ── output dir ────────────────────────────────────────────────────
         with ui.row().classes("w-full items-end gap-2"):
-            db_output_dir = ui.input("Cartella dove salvare il DB", value=state.db_output_dir).classes("flex-1")
+            db_output_dir = ui.input(
+                "Cartella output DB", value=state.db_output_dir
+            ).classes("flex-1 inp-mono")
+            db_output_dir_hint = ui.label("").style("font-size:11px;color:var(--er)")
 
             async def _on_browse_output_dir() -> None:
                 await _browse_output_dir(db_output_dir)
+                _on_output_dir_change()
 
             ui.button("Sfoglia", on_click=_on_browse_output_dir, icon="folder_open")
 
-        db_output_label = ui.label(f"DB: {state.downloaded_db_path or '-'}")
+        def _on_output_dir_change(*_) -> None:
+            state.db_output_dir = db_output_dir.value.strip() or "parser_test/db"
+            invalid = bool(db_output_dir.value.strip()) and not Path(db_output_dir.value.strip()).exists()
+            db_output_dir.style(f"border-color:{'var(--er)' if invalid else 'var(--border)'}")
+            db_output_dir_hint.set_text("percorso non trovato" if invalid else "")
+            _persist()
 
+        # ── DB path chip ───────────────────────────────────────────────────
+        def _db_chip_html(path: str) -> str:
+            display = path if path else "—"
+            return f'<span class="path-chip">🗄 {display}</span>'
+
+        db_output_label = ui.html(_db_chip_html(state.downloaded_db_path)).style("margin-top:6px")
+
+        # ── summary grid ───────────────────────────────────────────────────
+        ui.add_head_html("""
+<style>
+  .sum-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px; }
+  .sum-card { background:var(--surface-2);border:1px solid var(--border-s);
+              border-radius:var(--rs);padding:8px 12px; }
+  .sum-card .sum-val { font-family:var(--mono);font-size:18px;font-weight:600;color:var(--text); }
+  .sum-card .sum-lbl { font-size:10px;color:var(--muted);margin-top:2px; }
+</style>
+""")
+        sum_html = ui.html("").style("display:none")
+
+        def _render_summary(s: dict[str, int]) -> None:
+            db_size = ""
+            db_p = state.downloaded_db_path
+            if db_p and Path(db_p).exists():
+                sz = Path(db_p).stat().st_size
+                db_size = f"{sz // 1024} KB" if sz < 1024 * 1024 else f"{sz / 1024 / 1024:.1f} MB"
+            cards = [
+                (str(s.get("raw_messages", 0)), "Messaggi"),
+                (str(s.get("rows_with_media", 0)), "Con media"),
+                (str(s.get("image_blob_rows", 0)), "Image blob"),
+                (db_size or "—", "DB size"),
+            ]
+            inner = "".join(
+                f'<div class="sum-card"><div class="sum-val">{v}</div>'
+                f'<div class="sum-lbl">{l}</div></div>'
+                for v, l in cards
+            )
+            sum_html.set_content(f'<div class="sum-grid">{inner}</div>')
+            sum_html.style("display:block")
+
+        # ── action buttons ────────────────────────────────────────────────
         async def _on_download_click() -> None:
             if _download_ctx.process is not None:
                 ui.notify("Download già in corso", color="warning")
@@ -575,17 +673,44 @@ def render_block_download(state: UiState, *, run_streaming_command) -> None:
                 db_output_label=db_output_label,
                 run_streaming_command=run_streaming_command,
             )
+            if state.downloaded_db_path:
+                try:
+                    s = _summarize_download_db(Path(state.downloaded_db_path))
+                    _render_summary(s)
+                except Exception:
+                    pass
+                _persist()
 
-        with ui.row().classes("gap-2"):
-            ui.button("Esegui Download", on_click=_on_download_click)
-            ui.button("Arresta Download", on_click=lambda: _stop_download(block1_log), color="warning", icon="stop")
+        def _on_use_as_active() -> None:
+            if not state.downloaded_db_path:
+                ui.notify("Nessun DB scaricato", color="warning")
+                return
+            state.parsed_db_path = state.downloaded_db_path
+            _persist()
+            ui.notify(f"DB attivo: {state.downloaded_db_path}", color="positive")
+
+        with ui.row().classes("gap-2 q-mt-md"):
+            ui.button("▶ Esegui Download", on_click=_on_download_click).props("color=primary")
+            ui.button("■ Arresta", on_click=lambda: _stop_download(block1_log)).style(
+                "color:var(--er);border-color:var(--er)"
+            ).props("outline")
+            ui.button("✓ Usa come DB attivo", on_click=_on_use_as_active).props("outline")
             ui.button(
-                "Elimina DB scaricato",
+                "✕ Elimina DB",
                 on_click=lambda: _delete_downloaded_db(
                     state=state,
                     log_panel=block1_log,
                     db_output_label=db_output_label,
                 ),
-                color="negative",
-                icon="delete",
-            )
+            ).style("color:var(--er);border-color:var(--er)").props("outline")
+
+        # ── log (bottom) ───────────────────────────────────────────────────
+        block1_log = LogPanel(title="Log Download")
+        date_from.on("update:model-value", lambda *_: (setattr(state, "date_from", date_from.value or ""), _persist()))
+        date_to.on("update:model-value", lambda *_: (setattr(state, "date_to", date_to.value or ""), _persist()))
+        download_mode.on(
+            "update:model-value",
+            lambda *_: (setattr(state, "download_media", download_mode.value == "text_images"), _persist()),
+        )
+        db_output_dir.on("update:model-value", _on_output_dir_change)
+        _on_output_dir_change()

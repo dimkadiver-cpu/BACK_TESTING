@@ -33,15 +33,22 @@ def _build_gap_jobs(
     plan: dict[str, object],
     sync_report: dict[str, object],
 ) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
+    # Index sync results by (symbol, basis, timeframe); fall back to (symbol, basis) for legacy reports
     sync_results = sync_report.get("results", [])
-    sync_index: dict[tuple[str, str], dict[str, object]] = {}
+    sync_index: dict[tuple[str, str, str], dict[str, object]] = {}
+    sync_index_legacy: dict[tuple[str, str], dict[str, object]] = {}
     if isinstance(sync_results, list):
         for row in sync_results:
             if isinstance(row, dict):
                 symbol = str(row.get("symbol") or "")
                 basis = str(row.get("basis") or "")
-                if symbol and basis:
-                    sync_index[(symbol, basis)] = row
+                timeframe = str(row.get("timeframe") or "")
+                if symbol and basis and timeframe:
+                    sync_index[(symbol, basis, timeframe)] = row
+                elif symbol and basis:
+                    sync_index_legacy[(symbol, basis)] = row
+
+    download_tfs: list[str] = list(plan.get("download_tfs") or [str(plan.get("timeframe", "1m"))])
 
     jobs: list[dict[str, object]] = []
     sync_issues: list[dict[str, object]] = []
@@ -59,33 +66,40 @@ def _build_gap_jobs(
             if not gaps:
                 continue
 
-            sync_row = sync_index.get((str(symbol), str(basis)))
-            if sync_row is None:
-                sync_issues.append(
-                    {
-                        "symbol": symbol,
-                        "basis": basis,
-                        "status": "FAIL",
-                        "reason": "missing_sync_result",
-                    }
-                )
-                continue
+            for tf in download_tfs:
+                sync_row = sync_index.get((str(symbol), str(basis), tf))
+                if sync_row is None:
+                    # Legacy fallback: sync report without timeframe field
+                    sync_row = sync_index_legacy.get((str(symbol), str(basis)))
+                if sync_row is None:
+                    sync_issues.append(
+                        {
+                            "symbol": symbol,
+                            "basis": basis,
+                            "timeframe": tf,
+                            "status": "FAIL",
+                            "reason": "missing_sync_result",
+                        }
+                    )
+                    continue
 
-            sync_status = str(sync_row.get("status") or "").lower()
-            if sync_status != "ok":
-                sync_issues.append(
-                    {
-                        "symbol": symbol,
-                        "basis": basis,
-                        "status": "FAIL",
-                        "reason": "sync_not_ok",
-                        "sync_status": sync_status or "unknown",
-                    }
-                )
-                continue
+                sync_status = str(sync_row.get("status") or "").lower()
+                if sync_status != "ok":
+                    sync_issues.append(
+                        {
+                            "symbol": symbol,
+                            "basis": basis,
+                            "timeframe": tf,
+                            "status": "FAIL",
+                            "reason": "sync_not_ok",
+                            "sync_status": sync_status or "unknown",
+                        }
+                    )
+                    continue
 
-            for interval in gaps:
-                jobs.append({"symbol": symbol, "basis": basis, "interval": interval})
+                for interval in gaps:
+                    jobs.append({"symbol": symbol, "basis": basis, "timeframe": tf, "interval": interval})
+
     return jobs, sync_issues
 
 
@@ -97,20 +111,23 @@ def main() -> int:
     validator = BatchValidator()
 
     jobs, sync_issues = _build_gap_jobs(plan=plan, sync_report=sync_report)
-    cache: dict[tuple[str, str], list[dict[str, object]]] = {}
+    cache: dict[tuple[str, str, str], list[dict[str, object]]] = {}
     results: list[dict[str, object]] = []
     has_critical = bool(sync_issues)
     total_checks = len(jobs)
+    by_timeframe: dict[str, dict[str, int]] = {}
 
     print("PHASE=gap_validate")
     print(f"STEP=0/{total_checks}")
     print("PROGRESS=0")
 
     for item in sync_issues:
+        tf = str(item.get("timeframe", ""))
         results.append(
             {
                 "symbol": item["symbol"],
                 "basis": item["basis"],
+                "timeframe": tf,
                 "interval": None,
                 "status": "FAIL",
                 "issues": [
@@ -122,17 +139,20 @@ def main() -> int:
                 ],
             }
         )
+        tf_stats = by_timeframe.setdefault(tf, {"passed": 0, "failed": 0, "warnings": 0})
+        tf_stats["failed"] += 1
 
     for idx, job in enumerate(jobs, start=1):
         symbol = str(job["symbol"])
         basis = str(job["basis"])
+        tf = str(job["timeframe"])
         interval = job["interval"]
-        cache_key = (symbol, basis)
+        cache_key = (symbol, basis, tf)
         if cache_key not in cache:
-            partition_dir = market_dir / "bybit" / "futures_linear" / str(plan["timeframe"]) / symbol
+            partition_dir = market_dir / "bybit" / "futures_linear" / tf / symbol
             files = sorted(partition_dir.glob(f"*.{basis}.parquet"))
             print(
-                f"loading_gap_cache symbol={symbol} basis={basis} "
+                f"loading_gap_cache symbol={symbol} basis={basis} tf={tf} "
                 f"partition_dir={partition_dir} files={len(files)}"
             )
             frames = [pd.read_parquet(path) for path in files]
@@ -141,19 +161,26 @@ def main() -> int:
                 df = pd.concat(frames, ignore_index=True)
                 rows = df.to_dict(orient="records")
             cache[cache_key] = rows
-            print(f"loaded_gap_cache symbol={symbol} basis={basis} files={len(files)} rows={len(rows)}")
+            print(f"loaded_gap_cache symbol={symbol} basis={basis} tf={tf} files={len(files)} rows={len(rows)}")
 
         result = validator.validate(rows=cache[cache_key], requested_range=interval)
         issues = [{"severity": issue.severity.value, "code": issue.code, "message": issue.message} for issue in result.issues]
         status = "PASS" if not result.has_errors else "FAIL"
         has_critical = has_critical or result.has_errors
+        tf_stats = by_timeframe.setdefault(tf, {"passed": 0, "failed": 0, "warnings": 0})
+        if result.has_errors:
+            tf_stats["failed"] += 1
+        else:
+            tf_stats["passed"] += 1
+        tf_stats["warnings"] += result.warning_count
         print(f"STEP={idx}/{total_checks}")
         print(f"PROGRESS={int(idx / max(total_checks, 1) * 100)}")
-        print(f"gap_validate_progress {idx}/{total_checks} symbol={symbol} basis={basis} status={status}")
+        print(f"gap_validate_progress {idx}/{total_checks} symbol={symbol} basis={basis} tf={tf} status={status}")
         results.append(
             {
                 "symbol": symbol,
                 "basis": basis,
+                "timeframe": tf,
                 "interval": interval.to_dict(),
                 "status": status,
                 "critical_count": result.critical_count,
@@ -174,6 +201,7 @@ def main() -> int:
                 "critical_count": sum(int(r.get("critical_count", 0)) for r in results),
                 "warning_count": sum(int(r.get("warning_count", 0)) for r in results),
                 "info_count": sum(int(r.get("info_count", 0)) for r in results),
+                "by_timeframe": by_timeframe,
                 "results": results,
             },
             indent=2,
